@@ -16,6 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://gitlab.e.foundation/api/v4/groups/9/-/packages/maven")
     }
 }
 
