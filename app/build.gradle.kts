@@ -44,6 +44,7 @@ android {
 
 dependencies {
 
+
     val composeBom = platform("androidx.compose:compose-bom:2025.02.00")
     implementation(composeBom)
 
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.junit.ktx)
     implementation(libs.material)
 
     // Murena elib
@@ -60,12 +62,12 @@ dependencies {
 
     // Tests
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+
 
     // Android tests
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-
-
-
+    
 }
