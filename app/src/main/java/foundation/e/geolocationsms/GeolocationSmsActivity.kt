@@ -33,21 +33,18 @@ import androidx.activity.compose.setContent
 
 class GeolocationSmsActivity : ComponentActivity() {
 
-    companion object {
-        const val PASSORD_KEY = "password"
-        const val PREFERENCE_STORE = "GeoSmsPrefs"
-    }
+    private lateinit var persistentStorage: PersistentStorage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        persistentStorage = PersistentStorage(this)
         setContent {
             //GeoSmsTheme { //K1ZFP TODO Add theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PasswordScreen()
+                    PasswordScreen(persistentStorage)
                 }
             //}
         }
@@ -55,7 +52,7 @@ class GeolocationSmsActivity : ComponentActivity() {
 }
 
 @Composable
-fun PasswordScreen() {
+fun PasswordScreen(persistentStorage: PersistentStorage) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var generatedPassword by remember { mutableStateOf("") }
@@ -64,17 +61,13 @@ fun PasswordScreen() {
 
     LaunchedEffect(key1 = true) {
         scope.launch {
-            val sharedPreferences = context.getSharedPreferences(GeolocationSmsActivity.PREFERENCE_STORE, Context.MODE_PRIVATE)
-            val savedPassword = sharedPreferences.getString(GeolocationSmsActivity.PASSORD_KEY, null)
+            val savedPassword = persistentStorage.getPassword()
             if (savedPassword != null) {
                 generatedPassword = savedPassword
             } else {
                 val newPassword = "ABCDEF12"
                 generatedPassword = newPassword
-                with(sharedPreferences.edit()) {
-                    putString(GeolocationSmsActivity.PASSORD_KEY, newPassword)
-                    apply()
-                }
+                persistentStorage.savePassword(generatedPassword)
             }
         }
     }
@@ -89,11 +82,7 @@ fun PasswordScreen() {
                 generatedPassword = newPassword
                 enteredPassword = ""
                 isPasswordCorrect = false
-                val sharedPreferences = context.getSharedPreferences(GeolocationSmsActivity.PREFERENCE_STORE, Context.MODE_PRIVATE)
-                with(sharedPreferences.edit()) {
-                    putString(GeolocationSmsActivity.PASSORD_KEY, newPassword)
-                    apply()
-                }
+                persistentStorage.savePassword(newPassword)
             }
         }) {
             Text("Generate New Password")
