@@ -2,17 +2,26 @@ package foundation.e.geolocationsms
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class PersistentStorage (context: Context) {
 
     companion object {
         const val PREFERENCE_STORE = "GeoSmsPrefs"
         const val PASSORD_KEY = "password"
+        const val DATE_BOOLEAN_LIST_KEY = "date_boolean_list"
     }
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREFERENCE_STORE, Context.MODE_PRIVATE)
+    private val gson: Gson = Gson()
 
+    fun clear() {
+        sharedPreferences.edit().clear().apply()
+    }
+
+    // region Password
     fun savePassword(password: String) {
         with(sharedPreferences.edit()) {
             putString(PASSORD_KEY, password)
@@ -23,8 +32,27 @@ class PersistentStorage (context: Context) {
     fun getPassword(): String? {
         return sharedPreferences.getString(PASSORD_KEY, null)
     }
+    //endregion
 
-    fun clear() {
-        sharedPreferences.edit().clear().apply()
+    // region recursive password test
+
+    // Using Pair<Long,Boolean> structure to save password test results in a list
+    fun getCheckedPasswordResultHistory(): List<Pair<Long, Boolean>> {
+        val json = sharedPreferences.getString(DATE_BOOLEAN_LIST_KEY, null)
+        return if (json != null) {
+            val type = object : TypeToken<List<Pair<Long, Boolean>>>() {}.type
+            gson.fromJson(json, type)
+        } else {
+            emptyList()
+        }
     }
+
+    fun addCheckedPasswordResult(value: Boolean) {
+        val currentList = getCheckedPasswordResultHistory().toMutableList()
+        currentList.add(Pair(System.currentTimeMillis(), value))
+        val json = gson.toJson(currentList)
+        sharedPreferences.edit().putString(DATE_BOOLEAN_LIST_KEY, json).apply()
+    }
+
+    //endregion
 }

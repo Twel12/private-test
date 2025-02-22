@@ -1,7 +1,5 @@
 package foundation.e.geolocationsms
 
-
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
@@ -73,6 +71,7 @@ fun PasswordScreen(persistentStorage: PersistentStorage) {
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
+        val PASSWORD_LENGTH = 8
         Text(text = "Generated Password:", style = MaterialTheme.typography.bodyLarge)
         Text(text = generatedPassword, style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +91,12 @@ fun PasswordScreen(persistentStorage: PersistentStorage) {
             value = enteredPassword,
             onValueChange = {
                 enteredPassword = it
-                isPasswordCorrect = it == generatedPassword
+                if (it.length == PASSWORD_LENGTH) {
+                    isPasswordCorrect = it == generatedPassword
+                    persistentStorage.addCheckedPasswordResult(isPasswordCorrect)
+                } else {
+                    isPasswordCorrect = false
+                }
             },
             label = { Text("Enter Password") },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
@@ -100,7 +104,7 @@ fun PasswordScreen(persistentStorage: PersistentStorage) {
         Spacer(modifier = Modifier.height(16.dp))
         if (isPasswordCorrect) {
             Text("Password Correct!", style = MaterialTheme.typography.bodyLarge)
-        } else if (enteredPassword.isNotEmpty()) {
+        } else if (enteredPassword.isNotEmpty() && enteredPassword.length == PASSWORD_LENGTH) {
             Text("Incorrect Password", style = MaterialTheme.typography.bodyLarge)
         }
     }
