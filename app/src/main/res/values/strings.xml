@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">GeolocationSMS</string>
+
+    <string name="enter_password">Enter Password</string>
+    <string name="generate_new_password">Generate New Password</string>
+    <string name="generated_password">Generated Password:</string>
+    <string name="password_correct">Password Correct!</string>
+    <string name="password_incorrect">Incorrect Password</string>
+
+
 </resources>
