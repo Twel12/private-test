@@ -63,6 +63,9 @@ dependencies {
     // GSON
     implementation(libs.gson)
 
+    // Background workers
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Tests
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
