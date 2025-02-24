@@ -22,6 +22,12 @@ class SmsReceiver : BroadcastReceiver() {
 
                 Log.d(TAG, "SMS received from: $sender")
                 Log.d(TAG, "Message body: $body")
+
+                if (sender != null) {
+                    SmsSender(context).sendSms(sender, body)
+                } else {
+                    Log.e(TAG, "Sender address is null")
+                }
             }
         }
     }
