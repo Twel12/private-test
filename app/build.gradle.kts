@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.detekt.plugin)
 }
 
 android {
@@ -72,4 +73,19 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     
+}
+
+detekt {
+    toolVersion = "1.23.7"
+    config.setFrom(file("../detekt.yml"))
+    buildUponDefaultConfig = true
+    autoCorrect = true
+}
+
+// Detekt
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = "11"
+}
+tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
+    jvmTarget = "11"
 }
