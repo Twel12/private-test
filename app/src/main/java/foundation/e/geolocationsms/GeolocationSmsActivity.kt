@@ -1,6 +1,8 @@
 package foundation.e.geolocationsms
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -45,10 +47,13 @@ class GeolocationSmsActivity : ComponentActivity() {
 
         permissionManager = PermissionManager(this)
 
-        val permissions = arrayOf(
+        val permissions = mutableListOf(
             android.Manifest.permission.RECEIVE_SMS,
-            android.Manifest.permission.SEND_SMS
+            android.Manifest.permission.SEND_SMS,
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         permissionManager.checkAndRequestPermissions(permissions) { granted ->
             if (!granted) {

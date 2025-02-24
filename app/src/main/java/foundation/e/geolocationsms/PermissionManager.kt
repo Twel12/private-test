@@ -19,7 +19,7 @@ class PermissionManager(private val activity: GeolocationSmsActivity) {
         }
     }
 
-    fun checkAndRequestPermissions(permissions: Array<String>, onResult: (Boolean) -> Unit) {
+    fun checkAndRequestPermissions(permissions: MutableList<String>, onResult: (Boolean) -> Unit) {
         val requiredPermissions = permissions.filter {
             ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
         }
