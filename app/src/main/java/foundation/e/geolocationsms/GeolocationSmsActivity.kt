@@ -48,7 +48,8 @@ class GeolocationSmsActivity : ComponentActivity() {
         permissionManager = PermissionManager(this)
 
         val permissions = arrayOf(
-            android.Manifest.permission.RECEIVE_SMS
+            android.Manifest.permission.RECEIVE_SMS,
+            android.Manifest.permission.SEND_SMS
         )
 
         permissionManager.checkAndRequestPermissions(permissions) { granted ->
