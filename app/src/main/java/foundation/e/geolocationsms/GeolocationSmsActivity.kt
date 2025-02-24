@@ -30,13 +30,11 @@ import kotlinx.coroutines.launch
 
 import androidx.activity.compose.setContent
 import androidx.compose.ui.res.stringResource
-import foundation.e.geolocationsms.GeolocationSmsActivity.Companion.PASSWORD_LENGTH
 
 
 class GeolocationSmsActivity : ComponentActivity() {
 
     companion object {
-        const val PASSWORD_LENGTH = 8
         const val TAG = "GeolocationSmsActivity"
     }
     private lateinit var persistentStorage: PersistentStorage
@@ -89,7 +87,7 @@ fun passwordScreen(persistentStorage: PersistentStorage) {
             if (savedPassword != null) {
                 generatedPassword = savedPassword
             } else {
-                val newPassword = "ABCDEF12"
+                val newPassword = PasswordGenerator().generatePassword()
                 generatedPassword = newPassword
                 persistentStorage.savePassword(generatedPassword)
             }
@@ -102,7 +100,7 @@ fun passwordScreen(persistentStorage: PersistentStorage) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
             scope.launch {
-                val newPassword = generatedPassword.toCharArray().toMutableList().apply { shuffle() }.joinToString("")
+                val newPassword = PasswordGenerator().generatePassword()
                 generatedPassword = newPassword
                 enteredPassword = ""
                 isPasswordCorrect = false
@@ -116,7 +114,7 @@ fun passwordScreen(persistentStorage: PersistentStorage) {
             value = enteredPassword,
             onValueChange = {
                 enteredPassword = it
-                if (it.length == PASSWORD_LENGTH) {
+                if (it.length == PasswordGenerator.PASSWORD_LENGTH) {
                     isPasswordCorrect = it == generatedPassword
                     persistentStorage.addCheckedPasswordResult(isPasswordCorrect)
                 } else {
@@ -129,7 +127,7 @@ fun passwordScreen(persistentStorage: PersistentStorage) {
         Spacer(modifier = Modifier.height(16.dp))
         if (isPasswordCorrect) {
             Text(text = stringResource(id = R.string.password_correct), style = MaterialTheme.typography.bodyLarge)
-        } else if (enteredPassword.isNotEmpty() && enteredPassword.length == PASSWORD_LENGTH) {
+        } else if (enteredPassword.isNotEmpty() && enteredPassword.length == PasswordGenerator.PASSWORD_LENGTH) {
             Text(text = stringResource(id = R.string.password_incorrect), style = MaterialTheme.typography.bodyLarge)
         }
     }
