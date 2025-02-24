@@ -2,6 +2,8 @@ package foundation.e.geolocationsms
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,11 +37,28 @@ class GeolocationSmsActivity : ComponentActivity() {
 
     companion object {
         const val PASSWORD_LENGTH = 8
+        const val TAG = "GeolocationSmsActivity"
     }
     private lateinit var persistentStorage: PersistentStorage
+    private lateinit var permissionManager: PermissionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        permissionManager = PermissionManager(this)
+
+        val permissions = arrayOf(
+            android.Manifest.permission.RECEIVE_SMS
+        )
+
+        permissionManager.checkAndRequestPermissions(permissions) { granted ->
+            if (!granted) {
+                Log.e(TAG, "Permission error")
+                Toast.makeText(this, getString(R.string.generated_password), Toast.LENGTH_SHORT).show()
+                return@checkAndRequestPermissions
+            }
+        }
+
         persistentStorage = PersistentStorage(this)
         setContent {
             //GeoSmsTheme { //K1ZFP TODO Add theme

@@ -7,5 +7,6 @@
     <string name="password_correct">Password Correct!</string>
     <string name="password_incorrect">Incorrect Password</string>
 
+    <string name="check_permission">Permissions not granted, the service will not work at all.</string>
 
 </resources>
