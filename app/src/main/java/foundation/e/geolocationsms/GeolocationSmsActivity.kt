@@ -1,12 +1,14 @@
 package foundation.e.geolocationsms
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,12 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import foundation.e.geolocationsms.ui.PasswordScreen
 import kotlinx.coroutines.launch
-
-import androidx.activity.compose.setContent
-import androidx.compose.ui.res.stringResource
 
 
 class GeolocationSmsActivity : ComponentActivity() {
@@ -63,6 +64,10 @@ class GeolocationSmsActivity : ComponentActivity() {
             }
         }
 
+        //For testing
+        //val intent = Intent("foundation.e.accountmanager.ui.setup.CreateAccountActivity")
+        //startActivity(intent)
+
         persistentStorage = PersistentStorage(this)
         setContent {
             //GeoSmsTheme { //K1ZFP TODO Add theme
@@ -70,70 +75,9 @@ class GeolocationSmsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    passwordScreen(persistentStorage)
+                    PasswordScreen.passwordScreen(persistentStorage)
                 }
             //}
-        }
-    }
-}
-
-@SuppressLint("ComposableNaming")
-@Composable
-fun passwordScreen(persistentStorage: PersistentStorage) {
-    //val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var generatedPassword by remember { mutableStateOf("") }
-    var enteredPassword by remember { mutableStateOf("") }
-    var isPasswordCorrect by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = true) {
-        scope.launch {
-            val savedPassword = persistentStorage.getPassword()
-            if (savedPassword != null) {
-                generatedPassword = savedPassword
-            } else {
-                val newPassword = PasswordGenerator().generatePassword()
-                generatedPassword = newPassword
-                persistentStorage.savePassword(generatedPassword)
-            }
-        }
-    }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = stringResource(id = R.string.generated_password), style = MaterialTheme.typography.bodyLarge)
-        Text(text = generatedPassword, style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            scope.launch {
-                val newPassword = PasswordGenerator().generatePassword()
-                generatedPassword = newPassword
-                enteredPassword = ""
-                isPasswordCorrect = false
-                persistentStorage.savePassword(newPassword)
-            }
-        }) {
-            Text(text = stringResource(id = R.string.generate_new_password))
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = enteredPassword,
-            onValueChange = {
-                enteredPassword = it
-                if (it.length == PasswordGenerator.PASSWORD_LENGTH) {
-                    isPasswordCorrect = it == generatedPassword
-                    persistentStorage.addCheckedPasswordResult(isPasswordCorrect)
-                } else {
-                    isPasswordCorrect = false
-                }
-            },
-            label = { Text(text = stringResource(id = R.string.enter_password)) },
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        if (isPasswordCorrect) {
-            Text(text = stringResource(id = R.string.password_correct), style = MaterialTheme.typography.bodyLarge)
-        } else if (enteredPassword.isNotEmpty() && enteredPassword.length == PasswordGenerator.PASSWORD_LENGTH) {
-            Text(text = stringResource(id = R.string.password_incorrect), style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
