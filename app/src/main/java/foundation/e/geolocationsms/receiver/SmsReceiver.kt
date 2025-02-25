@@ -30,6 +30,4 @@ class SmsReceiver : BroadcastReceiver() {
             }
         }
     }
-
-
 }
