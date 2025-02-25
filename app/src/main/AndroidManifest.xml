@@ -29,16 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Receivers -->
         <receiver
-            android:name=".SmsReceiver"
-            android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".BootReceiver"
+            android:name=".receiver.BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -46,8 +40,26 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".NotificationReceiver"
+        <receiver android:name=".receiver.NotificationReceiver"
             android:exported="false"/>
+        <receiver
+            android:name=".receiver.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.UiReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="foundation.e.geolocationsms.NEW_PASSWORD" />
+                <action android:name="foundation.e.geolocationsms.CHECK_PASSWORD" />
+                <action android:name="foundation.e.geolocationsms.STATUS" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
