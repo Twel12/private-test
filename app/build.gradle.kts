@@ -66,6 +66,9 @@ dependencies {
     // Background workers
     implementation(libs.androidx.work.runtime.ktx)
 
+    // Biometric
+    implementation(libs.androidx.biometric)
+
     // Tests
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

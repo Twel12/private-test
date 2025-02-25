@@ -1,11 +1,15 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
+import foundation.e.geolocationsms.SmsSender
 
+/**
+ * This component is responsible for receiving and processing incoming SMS messages.
+ **/
 class SmsReceiver : BroadcastReceiver() {
 
     companion object {

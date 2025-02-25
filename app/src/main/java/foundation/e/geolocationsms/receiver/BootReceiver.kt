@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.receiver
 
 import android.Manifest.permission.BROADCAST_SMS
 import android.content.BroadcastReceiver
@@ -11,6 +11,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 
+/**
+ * This component handles the initialization of background tasks when the device completes booting.
+ **/
 class BootReceiver : BroadcastReceiver() {
 
     companion object {
@@ -39,6 +42,7 @@ class BackgroundWorker(appContext: Context, workerParams: androidx.work.WorkerPa
     companion object {
         private const val TAG = "BackgroundWorker"
     }
+
     override fun doWork(): Result {
         val smsReceiver = SmsReceiver()
         val filter = IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)

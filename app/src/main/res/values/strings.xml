@@ -14,5 +14,9 @@
     <string name="password_incorrect">Incorrect Password</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
+    <string name="welcome_screen_title">Find my device from a text message</string>
+    <string name="welcome_screen_caption">This application allows you to revisit the position of your device using a secret contained in an SMS message.</string>
+    <string name="welcome_screen_new_password">Create new password</string>
+    <string name="welcome_screen_view_password">View current password</string>
 
 </resources>

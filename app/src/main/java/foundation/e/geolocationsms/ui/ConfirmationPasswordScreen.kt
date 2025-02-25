@@ -26,7 +26,7 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
-class PasswordScreen {
+class ConfirmationPasswordScreen {
 
     companion object {
 
