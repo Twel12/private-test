@@ -2,12 +2,13 @@ package foundation.e.geolocationsms
 
 import java.util.Random
 
-class PasswordGenerator() {
+class PasswordGenerator {
 
     companion object {
         private const val ALLOWED_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789" // Removed I, L, 1, O, 0
         private const val MIN_DIGITS = 2
         const val PASSWORD_LENGTH = 8
+        private const val NUMBER_8 = 8;
     }
 
     /* Generate a password according to the following rules:
@@ -24,8 +25,8 @@ class PasswordGenerator() {
         var digitCount = 0
 
         // Ensure at least 2 digits are included
-        for (i in 0 until MIN_DIGITS) {
-            val digit = (random.nextInt(8) + 2).toString() // Generate digits 2-9
+        repeat(MIN_DIGITS) {
+            val digit = (random.nextInt(NUMBER_8) + 2).toString() // Generate digits 2-9
             password.append(digit)
             digitCount++
         }

@@ -1,13 +1,10 @@
 package foundation.e.geolocationsms
 
-import android.content.Intent
-
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +13,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_NEW_PASSWORD
-import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_STATUS
+import foundation.e.geolocationsms.ui.ConfirmationPasswordScreen
 import foundation.e.geolocationsms.ui.GenerationPasswordScreen
 import foundation.e.geolocationsms.ui.WelcomeScreen
 
@@ -79,15 +77,12 @@ class GeolocationSmsActivity : FragmentActivity() {
                     BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
                         displayGeneratePasswordScreen()
                 }
-            }
-        } else if (intent.hasExtra(UI_ACTION_KEY)) {
-            if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_STATUS)) {
-                //
+            } else if (UI_ACTION_CHECK_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
+                displayCheckPasswordScreen()
             }
         } else {
             displayWelomePasswordScreen()
         }
-
     }
     private fun showBiometricPrompt() {
         val executor = ContextCompat.getMainExecutor(this)
@@ -111,7 +106,8 @@ class GeolocationSmsActivity : FragmentActivity() {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Biometric login for my app")
             .setSubtitle("Log in using your biometric credential")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)
             .build()
 
         biometricPrompt.authenticate(promptInfo)
@@ -137,6 +133,17 @@ class GeolocationSmsActivity : FragmentActivity() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 GenerationPasswordScreen.passwordScreen(persistentStorage)
+            }
+        }
+    }
+    private fun displayCheckPasswordScreen() {
+        setContent {
+            //GeoSmsTheme { //K1ZFP TODO Add theme
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                ConfirmationPasswordScreen.passwordScreen(persistentStorage)
             }
         }
     }

@@ -50,7 +50,7 @@ class BackgroundWorker(appContext: Context, workerParams: androidx.work.WorkerPa
             // Be sure the receiver is not registered
             applicationContext.unregisterReceiver(smsReceiver)
         } catch (e: IllegalArgumentException) {
-            Log.d(TAG, "Receiver not registered")
+            Log.d(TAG, "Receiver not registered ${e.message}")
         }
         applicationContext.registerReceiver(smsReceiver, filter, BROADCAST_SMS, null)
         return Result.success()

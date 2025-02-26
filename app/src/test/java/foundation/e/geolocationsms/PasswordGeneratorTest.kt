@@ -40,7 +40,7 @@ class PasswordGeneratorTest {
     @Test
     fun `test generatePassword - multiple times`() {
         val passwordGenerator = PasswordGenerator()
-        for (i in 1..NB_TESTS) {
+        (1..NB_TESTS).forEach { _ ->
             val password = passwordGenerator.generatePassword()
             assertTrue(password.length == PasswordGenerator.PASSWORD_LENGTH)
             assertTrue(password.all { it.isLetterOrDigit() })

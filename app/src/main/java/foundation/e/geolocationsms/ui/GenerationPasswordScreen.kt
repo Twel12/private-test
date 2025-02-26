@@ -2,6 +2,7 @@ package foundation.e.geolocationsms.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,48 +24,57 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
-class GenerationPasswordScreen {
+object GenerationPasswordScreen {
 
-    companion object {
+    @SuppressLint("ComposableNaming")
+    @Composable
+    fun passwordScreen(persistentStorage: PersistentStorage) {
+        //val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        var generatedPassword by remember { mutableStateOf("") }
+        var currentPassword by remember { mutableStateOf("") }
 
-        @SuppressLint("ComposableNaming")
-        @Composable
-        fun passwordScreen(persistentStorage: PersistentStorage) {
-            //val context = LocalContext.current
-            val scope = rememberCoroutineScope()
-            var generatedPassword by remember { mutableStateOf("") }
-            var enteredPassword by remember { mutableStateOf("") }
-            var isPasswordCorrect by remember { mutableStateOf(false) }
-
-            LaunchedEffect(key1 = true) {
-                scope.launch {
-                    val savedPassword = persistentStorage.getPassword()
-                    if (savedPassword != null) {
-                        generatedPassword = savedPassword
-                    } else {
-                        val newPassword = PasswordGenerator().generatePassword()
-                        generatedPassword = newPassword
-                        persistentStorage.savePassword(generatedPassword)
-                    }
+        LaunchedEffect(key1 = true) {
+            scope.launch {
+                val savedPassword = persistentStorage.getPassword()
+                generatedPassword = ""
+                if (savedPassword != null) {
+                    currentPassword = savedPassword
                 }
             }
+        }
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = stringResource(id = R.string.generated_password), style = MaterialTheme.typography.bodyLarge)
-                Text(text = generatedPassword, style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = stringResource(id = R.string.current_password), style = MaterialTheme.typography.bodyLarge)
+            Text(text = currentPassword, style = MaterialTheme.typography.headlineMedium)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(text = stringResource(id = R.string.generated_password), style = MaterialTheme.typography.bodyLarge)
+            Text(text = generatedPassword, style = MaterialTheme.typography.headlineMedium)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row {
                 Button(onClick = {
                     scope.launch {
                         val newPassword = PasswordGenerator().generatePassword()
                         generatedPassword = newPassword
-                        enteredPassword = ""
-                        isPasswordCorrect = false
-                        persistentStorage.savePassword(newPassword)
                     }
                 }) {
                     Text(text = stringResource(id = R.string.generate_new_password))
+                }
+
+                Button(onClick = {
+                    scope.launch {
+                        persistentStorage.savePassword(generatedPassword)
+                        currentPassword = generatedPassword
+                    }
+                }) {
+                    Text(text = stringResource(id = R.string.password_save))
                 }
             }
         }
     }
 }
+

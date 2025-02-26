@@ -10,9 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -21,47 +27,57 @@ import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.receiver.UiReceiver
 import kotlinx.coroutines.launch
 
-class WelcomeScreen {
+object WelcomeScreen {
 
-    companion object {
+    @SuppressLint("ComposableNaming")
+    @Composable
+    fun passwordScreen() {
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        var isSwitchChecked by remember { mutableStateOf(false) }
 
-        @SuppressLint("ComposableNaming")
-        @Composable
-        fun passwordScreen() {
-            val context = LocalContext.current
-            val scope = rememberCoroutineScope()
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = stringResource(id = R.string.welcome_screen_title),
+                style = MaterialTheme.typography.headlineMedium)
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = stringResource(id = R.string.welcome_screen_title),
-                    style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = stringResource(id = R.string.welcome_screen_caption),
+                style = MaterialTheme.typography.bodyLarge)
 
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(id = R.string.welcome_screen_caption),
-                    style = MaterialTheme.typography.bodyLarge)
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Row {
-                    Button(onClick = {
-                        scope.launch {
-                            val intent = Intent(UiReceiver.UI_ACTION_NEW_PASSWORD)
-                            intent.setPackage(context.packageName)
-                            context.sendBroadcast(intent)
-                        }
-                    }) {
-                        Text(text = stringResource(id = R.string.welcome_screen_new_password))
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = stringResource(id = R.string.welcome_screen_on_off))
+                Switch(
+                    checked = isSwitchChecked,
+                    onCheckedChange = { isChecked ->
+                        isSwitchChecked = isChecked
+                        Log.d("WelcomeScreen", "Switch is now ${if (isChecked) "ON" else "OFF"}")
                     }
-                    Button(onClick = {
-                        scope.launch {
-                            val intent = Intent(UiReceiver.UI_ACTION_STATUS)
-                            intent.setPackage(context.packageName)
-                            context.sendBroadcast(intent)
-                        }
-                    }) {
-                        Text(text = stringResource(id = R.string.welcome_screen_view_password))
-                    }
-                }
-
+                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Row {
+                Button(onClick = {
+                    scope.launch {
+                        val intent = Intent(UiReceiver.UI_ACTION_NEW_PASSWORD)
+                        intent.setPackage(context.packageName)
+                        context.sendBroadcast(intent)
+                    }
+                }) {
+                    Text(text = stringResource(id = R.string.welcome_screen_new_password))
+                }
+                Button(onClick = {
+                    scope.launch {
+                        val intent = Intent(UiReceiver.UI_ACTION_CHECK_PASSWORD)
+                        intent.setPackage(context.packageName)
+                        context.sendBroadcast(intent)
+                    }
+                }) {
+                    Text(text = stringResource(id = R.string.welcome_screen_check_password))
+                }
+            }
+
         }
     }
 }

@@ -26,68 +26,67 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
-class ConfirmationPasswordScreen {
+object ConfirmationPasswordScreen {
 
-    companion object {
+    @SuppressLint("ComposableNaming")
+    @Composable
+    fun passwordScreen(persistentStorage: PersistentStorage) {
+        //val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        var generatedPassword by remember { mutableStateOf("") }
+        var enteredPassword by remember { mutableStateOf("") }
+        var isPasswordCorrect by remember { mutableStateOf(false) }
 
-        @SuppressLint("ComposableNaming")
-        @Composable
-        fun passwordScreen(persistentStorage: PersistentStorage) {
-            //val context = LocalContext.current
-            val scope = rememberCoroutineScope()
-            var generatedPassword by remember { mutableStateOf("") }
-            var enteredPassword by remember { mutableStateOf("") }
-            var isPasswordCorrect by remember { mutableStateOf(false) }
-
-            LaunchedEffect(key1 = true) {
-                scope.launch {
-                    val savedPassword = persistentStorage.getPassword()
-                    if (savedPassword != null) {
-                        generatedPassword = savedPassword
-                    } else {
-                        val newPassword = PasswordGenerator().generatePassword()
-                        generatedPassword = newPassword
-                        persistentStorage.savePassword(generatedPassword)
-                    }
+        LaunchedEffect(key1 = true) {
+            scope.launch {
+                val savedPassword = persistentStorage.getPassword()
+                if (savedPassword != null) {
+                    generatedPassword = savedPassword
+                } else {
+                    val newPassword = PasswordGenerator().generatePassword()
+                    generatedPassword = newPassword
+                    persistentStorage.savePassword(generatedPassword)
                 }
             }
+        }
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = stringResource(id = R.string.generated_password), style = MaterialTheme.typography.bodyLarge)
-                Text(text = generatedPassword, style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    scope.launch {
-                        val newPassword = PasswordGenerator().generatePassword()
-                        generatedPassword = newPassword
-                        enteredPassword = ""
+        Column(modifier = Modifier.padding(16.dp)) {
+            TextField(
+                value = enteredPassword,
+                onValueChange = {
+                    enteredPassword = it
+                    if (it.length == PasswordGenerator.PASSWORD_LENGTH) {
+                        isPasswordCorrect = it == generatedPassword
+                        persistentStorage.addCheckedPasswordResult(isPasswordCorrect)
+                    } else {
                         isPasswordCorrect = false
-                        persistentStorage.savePassword(newPassword)
                     }
-                }) {
-                    Text(text = stringResource(id = R.string.generate_new_password))
+                },
+                label = { Text(text = stringResource(id = R.string.enter_password)) },
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                scope.launch {
+                    val newPassword = PasswordGenerator().generatePassword()
+                    generatedPassword = newPassword
+                    enteredPassword = ""
+                    isPasswordCorrect = false
+                    persistentStorage.savePassword(newPassword)
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                TextField(
-                    value = enteredPassword,
-                    onValueChange = {
-                        enteredPassword = it
-                        if (it.length == PasswordGenerator.PASSWORD_LENGTH) {
-                            isPasswordCorrect = it == generatedPassword
-                            persistentStorage.addCheckedPasswordResult(isPasswordCorrect)
-                        } else {
-                            isPasswordCorrect = false
-                        }
-                    },
-                    label = { Text(text = stringResource(id = R.string.enter_password)) },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                if (isPasswordCorrect) {
-                    Text(text = stringResource(id = R.string.password_correct), style = MaterialTheme.typography.bodyLarge)
-                } else if (enteredPassword.isNotEmpty() && enteredPassword.length == PasswordGenerator.PASSWORD_LENGTH) {
-                    Text(text = stringResource(id = R.string.password_incorrect), style = MaterialTheme.typography.bodyLarge)
-                }
+            }) {
+                Text(text = stringResource(id = R.string.generate_new_password))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isPasswordCorrect) {
+                Text(text = stringResource(id = R.string.password_correct),
+                    style = MaterialTheme.typography.bodyLarge)
+            } else if (enteredPassword.isNotEmpty() && enteredPassword.length ==
+                PasswordGenerator.PASSWORD_LENGTH) {
+                Text(text = stringResource(id = R.string.password_incorrect),
+                    style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
