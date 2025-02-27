@@ -72,13 +72,13 @@ dependencies {
     // Tests
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
-
+    testImplementation( libs.mockito.core)
 
     // Android tests
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    
+
 }
 
 detekt {

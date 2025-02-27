@@ -1,6 +1,5 @@
 package foundation.e.geolocationsms.ui
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Column
