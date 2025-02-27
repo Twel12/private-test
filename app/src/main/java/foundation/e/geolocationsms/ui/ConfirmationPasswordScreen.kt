@@ -1,6 +1,5 @@
 package foundation.e.geolocationsms.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -18,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -26,12 +26,12 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
-object ConfirmationPasswordScreen {
+object ConfirmationPasswordScreen: ScreenInterface {
 
-    @SuppressLint("ComposableNaming")
     @Composable
-    fun passwordScreen(persistentStorage: PersistentStorage) {
-        //val context = LocalContext.current
+    override fun displayScreen() {
+        val context = LocalContext.current
+        val persistentStorage = PersistentStorage(context)
         val scope = rememberCoroutineScope()
         var generatedPassword by remember { mutableStateOf("") }
         var enteredPassword by remember { mutableStateOf("") }

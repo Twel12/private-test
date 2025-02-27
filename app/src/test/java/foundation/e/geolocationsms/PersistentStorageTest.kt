@@ -1,7 +1,6 @@
 package foundation.e.geolocationsms
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -16,18 +15,16 @@ import java.util.Date
 class PersistentStorageTest {
 
     companion object {
-        const val NB_HISTORY_TESTS = 10;
+        const val NB_HISTORY_TESTS = 10
     }
 
     private lateinit var persistentStorage: PersistentStorage
     private lateinit var context: Context
-    private lateinit var sharedPreferences: SharedPreferences
 
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
         persistentStorage = PersistentStorage(context)
-        sharedPreferences = context.getSharedPreferences(PersistentStorage.PREFERENCE_STORE, Context.MODE_PRIVATE)
         persistentStorage.clear()
     }
 
@@ -65,6 +62,38 @@ class PersistentStorageTest {
         persistentStorage.savePassword("password3")
         val retrievedPassword = persistentStorage.getPassword()
         assertEquals("password3", retrievedPassword)
+    }
+    //endregion
+
+    //region Status
+    @Test
+    fun `Save status should save the status correctly`() {
+        val statusToSave = true
+        persistentStorage.saveStatus(statusToSave)
+        val retrievedStatus = persistentStorage.getStatus()
+        assertEquals(statusToSave, retrievedStatus)
+    }
+
+    @Test
+    fun `Get status should return false when no status is saved` () {
+        val retrievedStatus = persistentStorage.getStatus()
+        assertEquals(false, retrievedStatus)
+    }
+
+    @Test
+    fun `Save multiple status should save the last status correctly`() {
+        persistentStorage.saveStatus(false)
+        persistentStorage.saveStatus(false)
+
+        //True
+        persistentStorage.saveStatus(true)
+        var retrievedStatus = persistentStorage.getStatus()
+        assertEquals(true, retrievedStatus)
+
+        //False
+        persistentStorage.saveStatus(false)
+        retrievedStatus = persistentStorage.getStatus()
+        assertEquals(false, retrievedStatus)
     }
     //endregion
 

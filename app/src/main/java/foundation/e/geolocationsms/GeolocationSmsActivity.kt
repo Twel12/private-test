@@ -121,7 +121,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                WelcomeScreen.passwordScreen()
+                WelcomeScreen.displayScreen()
             }
         }
     }
@@ -132,7 +132,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                GenerationPasswordScreen.passwordScreen(persistentStorage)
+                GenerationPasswordScreen.displayScreen()
             }
         }
     }
@@ -143,10 +143,8 @@ class GeolocationSmsActivity : FragmentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ConfirmationPasswordScreen.passwordScreen(persistentStorage)
+                ConfirmationPasswordScreen.displayScreen()
             }
         }
     }
-
-
 }
