@@ -8,6 +8,7 @@ import android.telephony.SmsMessage
 import android.util.Log
 import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.SmsSender
+import foundation.e.geolocationsms.location.LocationService
 
 /**
  * This component is responsible for receiving and processing incoming SMS messages.
@@ -29,6 +30,8 @@ class SmsReceiver : BroadcastReceiver() {
     }
 
     private fun processMessages(context: Context, messages: Array<SmsMessage>) {
+        val senders = mutableListOf<String>()
+
         for (message in messages) {
             val sender = message.originatingAddress
             val body = message.messageBody
@@ -37,14 +40,23 @@ class SmsReceiver : BroadcastReceiver() {
             Log.d(TAG, "Message body: $body")
 
             if (sender == null || body == null) {
-                Log.e(TAG, "Sender address or message body is null")
                 continue
             }
-
-            SmsSender(context).sendSms(sender, body)
+            senders.add(sender)
         }
+        executeLocationWorkOnce(senders.toTypedArray(), context)
     }
 
+    private fun executeLocationWorkOnce(sender: Array<String>, context: Context) {
+        val serviceIntent = Intent(context, LocationService::class.java)
+        serviceIntent.putExtra(LocationService.KEY_SENDER, sender)
+        context.startForegroundService(serviceIntent)
+    }
+
+    /**
+     * This method is responsible for checking if the incoming messages can be proceed.
+     * @Unit testable
+     **/
     fun manageInMessage(context: Context, messages: Array<SmsMessage>): Boolean {
         val persistentStorage = PersistentStorage(context)
         val savedStatus = persistentStorage.getStatus()
