@@ -1,8 +1,5 @@
 package foundation.e.geolocationsms.location
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,10 +10,9 @@ import android.os.IBinder
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import foundation.e.geolocationsms.R
+
+import foundation.e.geolocationsms.NotificationManagerUtils
 import foundation.e.geolocationsms.SmsSender
-import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 /**
  * LocationService
@@ -67,35 +63,11 @@ class LocationService : Service() {
         Log.d(TAG, "onCreate")
         super.onCreate()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        startForegroundService()
-        startLocationUpdates()
-    }
-
-    private fun startForegroundService() {
-        Log.d(TAG, "Starting foreground service")
-        val notificationIntent = Intent(this, GeolocationSmsActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
-
-        createNotificationChannel()
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Location Service")
-            .setContentText("Tracking location in background")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) //K1ZFP TODO
-            .setContentIntent(pendingIntent)
-            .build()
-
+        val notificationBuilder = NotificationManagerUtils()
+        notificationBuilder.createNotificationChannel(this)
+        val notification= notificationBuilder.createNotification(this)
         startForeground(NOTIFICATION_ID, notification)
-    }
-
-    private fun createNotificationChannel() {
-        val serviceChannel = NotificationChannel(
-            CHANNEL_ID,
-            "Location Service Channel",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(serviceChannel)
+        startLocationUpdates()
     }
 
     @Suppress("MissingPermission")

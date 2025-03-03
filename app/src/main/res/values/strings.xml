@@ -2,10 +2,10 @@
     <string name="app_name">GeolocationSMS</string>
 
     <string name="channel_name">Find my device by SMS channel</string>
-    <string name="channel_description">This channel is used by the SMS geolocation application. Notifications are sent from time to time to remind users to check their passwords.</string>
+    <string name="channel_description">This channel is used by the SMS geolocation application</string>
 
-    <string name="notification_caption">Find my device</string>
-    <string name="notification_content">Remember to check that you have remembered your SMS location password.</string>
+    <string name="notification_servcie_caption">Find my device by SMS</string>
+    <string name="notification_service_content">Tracking location in background</string>
 
     <string name="current_password">Current Password:</string>
     <string name="enter_password">Enter Password</string>
