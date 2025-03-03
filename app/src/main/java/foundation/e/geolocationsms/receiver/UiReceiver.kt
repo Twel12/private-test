@@ -5,7 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import foundation.e.geolocationsms.GeolocationSmsActivity
+import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 /**
  * This component is responsible for displaying a specified UI element within the application.

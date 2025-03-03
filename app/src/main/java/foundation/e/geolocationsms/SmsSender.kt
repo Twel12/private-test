@@ -8,6 +8,8 @@ import android.content.IntentFilter
 import android.telephony.SmsManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import foundation.e.geolocationsms.location.LocationWorker
+
 
 class SmsSender(private val context: Context) {
 
@@ -18,6 +20,8 @@ class SmsSender(private val context: Context) {
     }
 
     fun sendSms(phoneNumber: String, message: String) {
+
+        executeLocationWorkOnce(context)
 
         val sentPI = PendingIntent.getBroadcast(context, 0, Intent(SENT), PendingIntent.FLAG_IMMUTABLE)
         val deliveredPI = PendingIntent.getBroadcast(context, 0, Intent(DELIVERED), PendingIntent.FLAG_IMMUTABLE)
@@ -37,4 +41,10 @@ class SmsSender(private val context: Context) {
         val smsManager = context.getSystemService(SmsManager::class.java)
         smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
     }
+
+    private fun executeLocationWorkOnce(context: Context) {
+        val serviceIntent = Intent(context, LocationWorker::class.java)
+        context.startForegroundService(serviceIntent)
+    }
+
 }

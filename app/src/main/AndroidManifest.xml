@@ -5,12 +5,20 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!--<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />   CHECK????-->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -22,7 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GeolocationSMS" >
         <activity
-            android:name=".GeolocationSmsActivity"
+            android:name=".activity.GeolocationSmsActivity"
             android:exported="true"
             android:theme="@style/Theme.GeolocationSMS">
             <intent-filter>
@@ -61,6 +69,11 @@
                 <action android:name="foundation.e.geolocationsms.STATUS" />
             </intent-filter>
         </receiver>
+
+        <service android:name=".location.LocationWorker"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"/>
 
     </application>
 

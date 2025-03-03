@@ -4,6 +4,7 @@ import android.content.pm.PackageManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 class PermissionManager(private val activity: GeolocationSmsActivity) {
 

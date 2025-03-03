@@ -1,18 +1,25 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.activity
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import foundation.e.geolocationsms.PermissionManager
+import foundation.e.geolocationsms.PersistentStorage
+import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_NEW_PASSWORD
@@ -30,6 +37,7 @@ class GeolocationSmsActivity : FragmentActivity() {
 
     private lateinit var permissionManager: PermissionManager
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,6 +50,9 @@ class GeolocationSmsActivity : FragmentActivity() {
         val permissions = mutableListOf(
             android.Manifest.permission.RECEIVE_SMS,
             android.Manifest.permission.SEND_SMS,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -50,8 +61,19 @@ class GeolocationSmsActivity : FragmentActivity() {
         permissionManager.checkAndRequestPermissions(permissions) { granted ->
             if (!granted) {
                 Log.e(TAG, "Permission error")
-                Toast.makeText(this, getString(R.string.generated_password), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
                 return@checkAndRequestPermissions
+            } else {
+                val permissions = mutableListOf(
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+                permissionManager.checkAndRequestPermissions(permissions) { granted ->
+                    if (!granted) {
+                        Log.e(TAG, "Permission error (2)")
+                        Toast.makeText(this, getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
+                        return@checkAndRequestPermissions
+                    }
+                }
             }
         }
 
@@ -60,6 +82,7 @@ class GeolocationSmsActivity : FragmentActivity() {
         //startActivity(intent)
 
         persistentStorage = PersistentStorage(this)
+
 
         if (intent.hasExtra(UI_ACTION_KEY)) {
             if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
@@ -84,6 +107,7 @@ class GeolocationSmsActivity : FragmentActivity() {
             displayWelomePasswordScreen()
         }
     }
+
     private fun showBiometricPrompt() {
         val executor = ContextCompat.getMainExecutor(this)
         val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
@@ -113,6 +137,9 @@ class GeolocationSmsActivity : FragmentActivity() {
         biometricPrompt.authenticate(promptInfo)
     }
 
+
+
+    //region Display screen
 
     private fun displayWelomePasswordScreen() {
         setContent {
@@ -147,4 +174,6 @@ class GeolocationSmsActivity : FragmentActivity() {
             }
         }
     }
+    // endregion
+
 }
