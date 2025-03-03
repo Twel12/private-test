@@ -21,8 +21,6 @@ this.sendBroadcast(notificationIntent)
  */
     companion object {
         const val CHANNEL_ID = "geosms_notification_channel"
-        const val NOTIFICATION_ID = 1
-        private const val TAG = "NotificationManager"
     }
 
     fun createNotificationChannel(context: Context) {

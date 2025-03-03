@@ -25,7 +25,6 @@ class LocationService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 1234 // K1ZFP Check this
-        private const val CHANNEL_ID = "location_service_channel"
         private const val TAG = "LocationService"
         private const val STOP_SERVICE_DELAY = 10000L // 10 seconds
         const val KEY_SENDER = "sender"

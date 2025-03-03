@@ -32,8 +32,10 @@ class SmsSender(private val context: Context) {
 
             val smsManager = context.getSystemService(SmsManager::class.java)
             smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
-        } catch(e: Exception) {
-            Log.e(TAG, "Error sending SMS: ${e.message}")
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Security exception sending SMS: ${e.message}", e)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "Illegal argument exception sending SMS: ${e.message}", e)
         }
     }
 }
