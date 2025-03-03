@@ -12,6 +12,7 @@ import android.os.Looper
 import android.util.Log
 
 import foundation.e.geolocationsms.NotificationManagerUtils
+import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.SmsSender
 
 /**
@@ -32,18 +33,30 @@ class LocationService : Service() {
 
     private lateinit var locationManager: LocationManager
     private var senders = mutableListOf<String>()
+    private var locationReceived = false
 
     private val locationListener = LocationListener { location ->
-        Log.d(TAG, "Location changed: $location")
-        val latitude = location.latitude
-        val longitude = location.longitude
-        sendLocation(latitude, longitude)
-        onLocationReceived?.invoke(location)
-        stopLocationUpdatesAndFinish()
+        if (!locationReceived) {
+            locationReceived = true
+            Log.d(TAG, "Location changed: $location")
+
+            val latitude = location.latitude
+            val longitude = location.longitude
+            sendLocation(latitude, longitude)
+            onLocationReceived?.invoke(location)
+            stopLocationUpdatesAndFinish()
+        }
     }
 
-    private fun sendLocation(latitude: Double, longitude: Double) {
-        val body = "Latitude: $latitude, Longitude: $longitude"
+    private fun sendLocation(latitude: Double?, longitude: Double?) {
+        val body = if (latitude != null && longitude != null) {
+            val lat = this.getString(R.string.location_latitude)
+            val long = this.getString(R.string.location_longitude)
+
+            "$lat: $latitude, $long: $longitude"
+        } else {
+            this.getString(R.string.location_longitude)
+        }
         for (sender in senders) {
             SmsSender(this).sendSms(sender, body)
         }
@@ -99,7 +112,13 @@ class LocationService : Service() {
             Log.e(TAG, "No provider enabled")
         }
 
-        handler.postDelayed({ stopLocationUpdatesAndFinish() }, STOP_SERVICE_DELAY)
+        handler.postDelayed({
+            if (!locationReceived) {
+                Log.e(TAG, "No location received within delay, sending default SMS")
+                sendLocation(null, null)
+            }
+            stopLocationUpdatesAndFinish() },
+            STOP_SERVICE_DELAY)
     }
 
     override fun onBind(intent: Intent): IBinder? {

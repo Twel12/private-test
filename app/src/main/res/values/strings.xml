@@ -22,4 +22,8 @@
     <string name="welcome_screen_check_password">Check current password</string>
     <string name="welcome_screen_on_off">Enable this feature</string>
 
+    <string name="location_latitude">Latitude</string>
+    <string name="location_longitude">Longitude</string>
+    <string name="location_not_found">Location not found</string>
+
 </resources>
