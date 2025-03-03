@@ -1,14 +1,10 @@
 package foundation.e.geolocationsms
 
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.telephony.SmsManager
 import android.util.Log
-import androidx.core.content.ContextCompat
-import foundation.e.geolocationsms.location.LocationService
 
 /**
  * SmsSender
@@ -24,31 +20,20 @@ class SmsSender(private val context: Context) {
     }
 
     fun sendSms(phoneNumber: String, message: String) {
+        try {
+            val sentPI = PendingIntent.getBroadcast(
+                context, 0, Intent(SENT),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+            )
+            val deliveredPI = PendingIntent.getBroadcast(
+                context, 0, Intent(DELIVERED),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+            )
 
-        executeLocationWorkOnce(context)
-
-        val sentPI = PendingIntent.getBroadcast(context, 0, Intent(SENT), PendingIntent.FLAG_IMMUTABLE)
-        val deliveredPI = PendingIntent.getBroadcast(context, 0, Intent(DELIVERED), PendingIntent.FLAG_IMMUTABLE)
-
-        ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
-            override fun onReceive(arg0: Context, arg1: Intent) {
-                Log.d(TAG, "SMS sent")
-            }
-        }, IntentFilter(SENT), ContextCompat.RECEIVER_NOT_EXPORTED)
-
-        ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
-            override fun onReceive(arg0: Context, arg1: Intent) {
-                Log.d(TAG, "SMS delivered")
-            }
-        }, IntentFilter(DELIVERED), ContextCompat.RECEIVER_NOT_EXPORTED)
-
-        val smsManager = context.getSystemService(SmsManager::class.java)
-        smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
+            val smsManager = context.getSystemService(SmsManager::class.java)
+            smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
+        } catch(e: Exception) {
+            Log.e(TAG, "Error sending SMS: ${e.message}")
+        }
     }
-
-    private fun executeLocationWorkOnce(context: Context) {
-        val serviceIntent = Intent(context, LocationService::class.java)
-        context.startForegroundService(serviceIntent)
-    }
-
 }

@@ -15,6 +15,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import foundation.e.geolocationsms.R
+import foundation.e.geolocationsms.SmsSender
 import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 /**
@@ -31,15 +32,26 @@ class LocationService : Service() {
         private const val CHANNEL_ID = "location_service_channel"
         private const val TAG = "LocationService"
         private const val STOP_SERVICE_DELAY = 10000L // 10 seconds
+        const val KEY_SENDER = "sender"
     }
 
     private lateinit var locationManager: LocationManager
+    private var senders = mutableListOf<String>()
 
     private val locationListener = LocationListener { location ->
-        Log.d(TAG, "Location changed: Lat: ${location.latitude}, Lon: ${location.longitude}")
+        Log.d(TAG, "Location changed: $location")
+        val latitude = location.latitude
+        val longitude = location.longitude
+        sendLocation(latitude, longitude)
         onLocationReceived?.invoke(location)
-        stopLocationUpdates()
         stopLocationUpdatesAndFinish()
+    }
+
+    private fun sendLocation(latitude: Double, longitude: Double) {
+        val body = "Latitude: $latitude, Longitude: $longitude"
+        for (sender in senders) {
+            SmsSender(this).sendSms(sender, body)
+        }
     }
 
     private var onLocationReceived: ((Location) -> Unit)? = null
@@ -64,8 +76,7 @@ class LocationService : Service() {
         val notificationIntent = Intent(this, GeolocationSmsActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
-
-        createNotificationChannel(CHANNEL_ID)
+        createNotificationChannel()
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Location Service")
@@ -77,9 +88,9 @@ class LocationService : Service() {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    private fun createNotificationChannel(channelId: String) {
+    private fun createNotificationChannel() {
         val serviceChannel = NotificationChannel(
-            channelId,
+            CHANNEL_ID,
             "Location Service Channel",
             NotificationManager.IMPORTANCE_DEFAULT
         )
@@ -127,18 +138,23 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        locationManager.removeUpdates(locationListener)
+        stopLocationUpdates()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        senders.clear()
+        val myStringArray: Array<String>? = intent?.getStringArrayExtra(KEY_SENDER)
+        if (myStringArray != null) {
+            val newSenders = ArrayList(myStringArray.toList())
+            senders.addAll(newSenders)
+        }
         return START_STICKY
     }
 
     private fun stopLocationUpdatesAndFinish() {
         Log.d(TAG, "stopLocationUpdatesAndFinish")
-        locationManager.removeUpdates(locationListener)
-        handler.removeCallbacksAndMessages(null)
-        stopForeground(true)
+        stopLocationUpdates()
+        stopForeground(STOP_FOREGROUND_DETACH)
         stopSelf()
     }
 }
