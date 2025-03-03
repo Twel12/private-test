@@ -70,7 +70,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".location.LocationWorker"
+        <service android:name=".location.LocationService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"/>

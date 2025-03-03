@@ -10,8 +10,6 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.IBinder
-import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -19,45 +17,42 @@ import androidx.core.app.NotificationCompat
 import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
-class LocationWorker : Service() {
+/**
+ * LocationService
+ *
+ * This class is a Service responsible for obtaining the device's current location and
+ * notifying the application when the location has been determined. It runs as a
+ * foreground service to ensure continuous operation, even when the app is in the background.
+ **/
+class LocationService : Service() {
 
-    private val NOTIFICATION_ID = 1234
-    private val CHANNEL_ID = "location_service_channel"
+    companion object {
+        private const val NOTIFICATION_ID = 1234 // K1ZFP Check this
+        private const val CHANNEL_ID = "location_service_channel"
+        private const val TAG = "LocationService"
+        private const val STOP_SERVICE_DELAY = 10000L // 10 seconds
+    }
 
     private lateinit var locationManager: LocationManager
 
-    private val locationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            Log.d("LocationProvider", "Location changed: Lat: ${location.latitude}, Lon: ${location.longitude}")
-            onLocationReceived?.invoke(location)
-            stopLocationUpdates()
-            stopLocationUpdatesAndFinish()
-        }
-
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-            Log.d("LocationProvider", "Status changed: $provider, Status: $status")
-        }
-
-        override fun onProviderEnabled(provider: String) {
-            Log.d("LocationProvider", "Provider enabled: $provider")
-        }
-
-        override fun onProviderDisabled(provider: String) {
-            Log.d("LocationProvider", "Provider disabled: $provider")
-        }
+    private val locationListener = LocationListener { location ->
+        Log.d(TAG, "Location changed: Lat: ${location.latitude}, Lon: ${location.longitude}")
+        onLocationReceived?.invoke(location)
+        stopLocationUpdates()
+        stopLocationUpdatesAndFinish()
     }
 
     private var onLocationReceived: ((Location) -> Unit)? = null
     private val handler = Handler(Looper.getMainLooper())
 
     private fun stopLocationUpdates() {
-        Log.d("LocationProvider", "Stopping location updates")
+        Log.d(TAG, "Stopping location updates")
         locationManager.removeUpdates(locationListener)
         handler.removeCallbacksAndMessages(null)
     }
 
     override fun onCreate() {
-        Log.d("LocationProvider", "onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         startForegroundService()
@@ -65,8 +60,8 @@ class LocationWorker : Service() {
     }
 
     private fun startForegroundService() {
-        Log.d("LocationProvider", "Starting foreground service")
-        val notificationIntent = Intent(this, GeolocationSmsActivity::class.java) // Remplacez par votre Activity principale
+        Log.d(TAG, "Starting foreground service")
+        val notificationIntent = Intent(this, GeolocationSmsActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
 
@@ -94,11 +89,11 @@ class LocationWorker : Service() {
 
     @Suppress("MissingPermission")
     private fun startLocationUpdates() {
-        Log.d("LocationProvider", "Starting location updates")
+        Log.d(TAG, "Starting location updates")
 
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        Log.d("LocationProvider", "GPS enabled: $isGpsEnabled, Network enabled: $isNetworkEnabled")
+        Log.d(TAG, "GPS enabled: $isGpsEnabled, Network enabled: $isNetworkEnabled")
 
         if (isGpsEnabled) {
             locationManager.requestLocationUpdates(
@@ -119,10 +114,10 @@ class LocationWorker : Service() {
         }
 
         if (!isGpsEnabled && !isNetworkEnabled) {
-            Log.e("LocationProvider", "No provider enabled")
+            Log.e(TAG, "No provider enabled")
         }
 
-        handler.postDelayed({ stopLocationUpdatesAndFinish() }, 10000) // timeout 10 sec
+        handler.postDelayed({ stopLocationUpdatesAndFinish() }, STOP_SERVICE_DELAY)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -140,7 +135,7 @@ class LocationWorker : Service() {
     }
 
     private fun stopLocationUpdatesAndFinish() {
-        Log.d("LocationProvider", "stopLocationUpdatesAndFinish")
+        Log.d(TAG, "stopLocationUpdatesAndFinish")
         locationManager.removeUpdates(locationListener)
         handler.removeCallbacksAndMessages(null)
         stopForeground(true)

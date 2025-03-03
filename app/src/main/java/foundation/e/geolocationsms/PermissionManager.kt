@@ -6,6 +6,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
+/**
+ * PermissionManager
+ *
+ * This class is responsible for simplifying the process of checking and requesting runtime permissions
+ * in the application.
+ **/
 class PermissionManager(private val activity: GeolocationSmsActivity) {
 
     private var permissionRequestLauncher: ActivityResultLauncher<Array<String>>? = null

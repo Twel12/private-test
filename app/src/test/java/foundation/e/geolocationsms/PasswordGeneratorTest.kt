@@ -5,6 +5,12 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
+/**
+ * PasswordGeneratorTest
+ *
+ * This class contains unit tests for the PasswordGenerator class, ensuring that it correctly
+ * generates passwords according to the defined rules.
+ **/
 class PasswordGeneratorTest {
 
     @Test

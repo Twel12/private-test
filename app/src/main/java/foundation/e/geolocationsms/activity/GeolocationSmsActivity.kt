@@ -1,7 +1,6 @@
 package foundation.e.geolocationsms.activity
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import foundation.e.geolocationsms.PermissionManager
@@ -27,7 +25,11 @@ import foundation.e.geolocationsms.ui.ConfirmationPasswordScreen
 import foundation.e.geolocationsms.ui.GenerationPasswordScreen
 import foundation.e.geolocationsms.ui.WelcomeScreen
 
-
+/**
+ * GeolocationSmsActivity
+ *
+ * This Activity serves as the main entry point for the GeolocationSMS application.
+ **/
 class GeolocationSmsActivity : FragmentActivity() {
 
     companion object {

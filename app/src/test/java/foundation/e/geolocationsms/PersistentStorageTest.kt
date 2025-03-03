@@ -11,6 +11,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.util.Date
 
+/**
+ * PersistentStorageTest
+ *
+ * This class contains unit tests for the PersistentStorage class, ensuring that it correctly stores and retrieves
+ * data using SharedPreferences.
+ **/
 @RunWith(RobolectricTestRunner::class)
 class PersistentStorageTest {
 

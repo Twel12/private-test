@@ -28,6 +28,11 @@ import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.receiver.UiReceiver
 import kotlinx.coroutines.launch
 
+/**
+ * WelcomeScreen
+ *
+ * This class implements the initial screen displayed to the user upon launching the application.
+ **/
 object WelcomeScreen : ScreenInterface{
 
     @Composable

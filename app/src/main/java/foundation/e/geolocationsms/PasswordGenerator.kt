@@ -2,6 +2,11 @@ package foundation.e.geolocationsms
 
 import java.util.Random
 
+/**
+ * PasswordGenerator
+ *
+ * This class is responsible for generating secure, random passwords based on a predefined set of rules.
+ **/
 class PasswordGenerator {
 
     companion object {

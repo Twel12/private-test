@@ -8,9 +8,13 @@ import android.content.IntentFilter
 import android.telephony.SmsManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import foundation.e.geolocationsms.location.LocationWorker
+import foundation.e.geolocationsms.location.LocationService
 
-
+/**
+ * SmsSender
+ *
+ * This class is responsible for sending SMS messages from the application.
+ **/
 class SmsSender(private val context: Context) {
 
     companion object {
@@ -43,7 +47,7 @@ class SmsSender(private val context: Context) {
     }
 
     private fun executeLocationWorkOnce(context: Context) {
-        val serviceIntent = Intent(context, LocationWorker::class.java)
+        val serviceIntent = Intent(context, LocationService::class.java)
         context.startForegroundService(serviceIntent)
     }
 

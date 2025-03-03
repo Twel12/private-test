@@ -26,6 +26,12 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
+/**
+ * ConfirmationPasswordScreen
+ *
+ * This class implements a screen within the application's user interface that
+ * allows the user to confirm a previously generated password.
+ **/
 object ConfirmationPasswordScreen: ScreenInterface {
 
     @Composable

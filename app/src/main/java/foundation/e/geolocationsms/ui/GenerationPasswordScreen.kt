@@ -24,6 +24,12 @@ import foundation.e.geolocationsms.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 
+/**
+ * GenerationPasswordScreen
+ *
+ * This class implements a screen within the application's user interface that
+ * is responsible for generating and displaying a new, random password.
+ **/
 object GenerationPasswordScreen : ScreenInterface{
 
     @Composable

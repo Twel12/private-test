@@ -5,6 +5,12 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+/**
+ * PersistentStorage
+ *
+ * This class provides a simple interface for storing and retrieving data persistently using
+ * Android's SharedPreferences.
+ **/
 class PersistentStorage (context: Context) {
 
     companion object {
