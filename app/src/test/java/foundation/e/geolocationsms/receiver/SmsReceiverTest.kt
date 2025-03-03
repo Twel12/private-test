@@ -3,8 +3,8 @@ package foundation.e.geolocationsms.receiver
 import android.content.Context
 import android.telephony.SmsMessage
 import androidx.test.core.app.ApplicationProvider
-import foundation.e.geolocationsms.PersistentStorage
-import foundation.e.geolocationsms.SmsSender
+import foundation.e.geolocationsms.storage.PersistentStorage
+import foundation.e.geolocationsms.util.SmsSender
 import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test

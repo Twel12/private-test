@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.util
 
 import java.util.Random
 
@@ -37,7 +37,7 @@ class PasswordGenerator {
         }
 
         // Fill the rest of the password with random characters
-        while (password.length < Companion.PASSWORD_LENGTH) {
+        while (password.length < PASSWORD_LENGTH) {
             val randomIndex = random.nextInt(ALLOWED_CHARS.length)
             val randomChar = ALLOWED_CHARS[randomIndex]
             password.append(randomChar)

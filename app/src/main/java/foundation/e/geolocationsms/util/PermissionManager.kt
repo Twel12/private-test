@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.util
 
 import android.content.pm.PackageManager
 import androidx.activity.result.ActivityResultLauncher

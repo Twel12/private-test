@@ -11,9 +11,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 
-import foundation.e.geolocationsms.NotificationManagerUtils
+import foundation.e.geolocationsms.util.NotificationHelper
 import foundation.e.geolocationsms.R
-import foundation.e.geolocationsms.SmsSender
+import foundation.e.geolocationsms.util.SmsSender
 
 /**
  * LocationService
@@ -75,7 +75,7 @@ class LocationService : Service() {
         Log.d(TAG, "onCreate")
         super.onCreate()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val notificationBuilder = NotificationManagerUtils()
+        val notificationBuilder = NotificationHelper()
         notificationBuilder.createNotificationChannel(this)
         val notification= notificationBuilder.createNotification(this)
         startForeground(NOTIFICATION_ID, notification)

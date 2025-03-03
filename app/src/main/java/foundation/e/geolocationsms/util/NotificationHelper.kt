@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.util
 
 
 import android.app.Notification
@@ -8,12 +8,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 /**
  * This component handles the display of a low-priority notification to the user.
  **/
-class NotificationManagerUtils {
+class NotificationHelper {
 
 /*
 val notificationIntent = Intent(this, NotificationReceiver::class.java)

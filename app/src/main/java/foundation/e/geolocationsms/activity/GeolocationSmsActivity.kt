@@ -15,8 +15,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import foundation.e.geolocationsms.PermissionManager
-import foundation.e.geolocationsms.PersistentStorage
+import foundation.e.geolocationsms.util.PermissionManager
+import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY

@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import foundation.e.geolocationsms.PasswordGenerator
-import foundation.e.geolocationsms.PersistentStorage
+import foundation.e.geolocationsms.util.PasswordGenerator
+import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms
+package foundation.e.geolocationsms.storage
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider

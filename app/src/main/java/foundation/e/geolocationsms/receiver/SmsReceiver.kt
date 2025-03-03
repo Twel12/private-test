@@ -6,8 +6,7 @@ import android.content.Intent
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
-import foundation.e.geolocationsms.PersistentStorage
-import foundation.e.geolocationsms.SmsSender
+import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.location.LocationService
 
 /**
