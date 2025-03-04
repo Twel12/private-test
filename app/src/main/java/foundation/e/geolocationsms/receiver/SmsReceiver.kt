@@ -31,17 +31,26 @@ class SmsReceiver : BroadcastReceiver() {
     private fun processMessages(context: Context, messages: Array<SmsMessage>) {
         val senders = mutableListOf<String>()
 
+        val password = PersistentStorage(context).getPassword()
+        if (password == null) {
+            Log.e(TAG, "Password is null")
+            return
+        }
+
         for (message in messages) {
             val sender = message.originatingAddress
             val body = message.messageBody
 
-            Log.d(TAG, "SMS received from: $sender")
-            Log.d(TAG, "Message body: $body")
+            //Log.d(TAG, "SMS received from: $sender")
 
             if (sender == null || body == null) {
                 continue
             }
-            senders.add(sender)
+
+            if (body.contains(password, ignoreCase = true)) {
+                Log.d(TAG, "SMS received from: $sender with password.")
+                senders.add(sender)
+            }
         }
         executeLocationWorkOnce(senders.toTypedArray(), context)
     }
