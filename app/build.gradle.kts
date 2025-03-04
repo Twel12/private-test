@@ -19,7 +19,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("debugConfig") {
+            storeFile = file("../keystore/platform.jks")
+            storePassword = "platform"
+            keyAlias = "platform"
+            keyPassword = "platform"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debugConfig")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -41,6 +54,8 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.6.7"
     }
+
+
 }
 
 dependencies {
