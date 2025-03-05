@@ -16,14 +16,15 @@
     <string name="password_save">Save</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
-    <string name="welcome_screen_title">Find my device from a text message</string>
+    <!-- <string name="welcome_screen_title">Find my device from a text message</string> -->
     <string name="welcome_screen_caption">This application allows you to revisit the position of your device using a secret contained in an SMS message.</string>
     <string name="welcome_screen_new_password">Create new password</string>
     <string name="welcome_screen_check_password">Check current password</string>
-    <string name="welcome_screen_on_off">Enable this feature</string>
+    <string name="welcome_screen_on_off">Activate Geolocation by SMS</string>
 
     <string name="location_latitude">Latitude</string>
     <string name="location_longitude">Longitude</string>
     <string name="location_not_found">Impossible to figure out the current location, please try again</string>
 
+    <string name="link_copied_to_clipboard">Link copied to clipboard</string>
 </resources>

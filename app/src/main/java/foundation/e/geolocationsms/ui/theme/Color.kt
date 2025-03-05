@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms.theme
+package foundation.e.geolocationsms.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

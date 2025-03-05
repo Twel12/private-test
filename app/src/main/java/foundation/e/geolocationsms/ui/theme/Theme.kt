@@ -1,4 +1,4 @@
-package foundation.e.geolocationsms.theme
+package foundation.e.geolocationsms.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

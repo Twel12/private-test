@@ -1,29 +1,42 @@
 package foundation.e.geolocationsms.activity
 
 import android.Manifest
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import foundation.e.geolocationsms.util.PermissionManager
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
+import foundation.e.geolocationsms.data.Pages
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_NEW_PASSWORD
+import foundation.e.geolocationsms.ui.theme.GeolocationSmsTheme
 import foundation.e.geolocationsms.ui.ConfirmationPasswordScreen
 import foundation.e.geolocationsms.ui.GenerationPasswordScreen
 import foundation.e.geolocationsms.ui.WelcomeScreen
+import foundation.e.geolocationsms.ui.text.CustomTopAppBar
 
 /**
  * GeolocationSmsActivity
@@ -94,18 +107,31 @@ class GeolocationSmsActivity : FragmentActivity() {
                         showBiometricPrompt()
                     }
                     BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                        displayGeneratePasswordScreen()
-                    BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
+                        displayPage(Pages.GeneratePassword)
+                    BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
                         Log.d(TAG, "Biometric hardware is currently unavailable")
+                        displayPage(Pages.GeneratePassword)
+                    }
                     BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                        displayGeneratePasswordScreen()
+                        displayPage(Pages.GeneratePassword)
+
+                    //K1ZFP TODO Manage all cases
                 }
             } else if (UI_ACTION_CHECK_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
-                displayCheckPasswordScreen()
+                displayPage(Pages.CheckPassword)
             }
         } else {
-            displayWelcomePasswordScreen()
+//            displayPage(Pages.ActivateFeature)
+            displayPage(Pages.GeneratePassword)
         }
+    }
+
+    private fun onExitApp(withResult: Boolean = false) {
+        //if (withResult && !SystemUtils.isSetupFinished(this))
+        {
+            setResult(RESULT_OK)
+        }
+        finishAfterTransition()
     }
 
     private fun showBiometricPrompt() {
@@ -118,7 +144,7 @@ class GeolocationSmsActivity : FragmentActivity() {
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
-                displayGeneratePasswordScreen()
+                displayPage(Pages.GeneratePassword)
             }
 
             override fun onAuthenticationFailed() {
@@ -140,40 +166,49 @@ class GeolocationSmsActivity : FragmentActivity() {
 
 
     //region Display screen
+    private fun displayPage(page: Pages){
+        setContent {
+            GeolocationSmsTheme {
+                window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
+                window.navigationBarColor = MaterialTheme.colorScheme.background.toArgb()
+                Surface(color = MaterialTheme.colorScheme.background) {
 
-    private fun displayWelcomePasswordScreen() {
-        setContent {
-            //GeoSmsTheme { //K1ZFP TODO Add theme
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                WelcomeScreen.displayScreen()
+                    val configuration = LocalConfiguration.current
+                    val isLandscape =
+                        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+                    Column(
+                        modifier =
+                        Modifier.fillMaxSize().let {
+                            if (isLandscape) it.verticalScroll(rememberScrollState()) else it
+                        },
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        BackHandler(onBack = { onExitApp() })
+                        CustomTopAppBar(
+                            title = stringResource(R.string.app_name),
+                            onClick = { onExitApp() })
+                        Column(
+                            modifier =
+                            Modifier.fillMaxSize().let {
+                                if (isLandscape) it.verticalScroll(rememberScrollState()) else it
+                            },
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            when (page) {
+                                Pages.ActivateFeature -> WelcomeScreen.displayScreen()
+                                Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen()
+                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-    private fun displayGeneratePasswordScreen() {
-        setContent {
-            //GeoSmsTheme { //K1ZFP TODO Add theme
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                GenerationPasswordScreen.displayScreen()
-            }
-        }
-    }
-    private fun displayCheckPasswordScreen() {
-        setContent {
-            //GeoSmsTheme { //K1ZFP TODO Add theme
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                ConfirmationPasswordScreen.displayScreen()
-            }
-        }
-    }
+
     // endregion
 
 }
