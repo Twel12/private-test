@@ -50,15 +50,13 @@ class GeolocationSmsActivity : FragmentActivity() {
         permissionManager = PermissionManager(this)
 
         val permissions = mutableListOf(
-            android.Manifest.permission.RECEIVE_SMS,
-            android.Manifest.permission.SEND_SMS,
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.FOREGROUND_SERVICE_LOCATION
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
+        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
 
         permissionManager.checkAndRequestPermissions(permissions) { granted ->
             if (!granted) {
