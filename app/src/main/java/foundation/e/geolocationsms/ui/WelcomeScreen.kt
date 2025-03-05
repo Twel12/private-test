@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
@@ -33,65 +34,76 @@ import kotlinx.coroutines.launch
  *
  * This class implements the initial screen displayed to the user upon launching the application.
  **/
-object WelcomeScreen : ScreenInterface{
-
+object WelcomeScreen : ScreenInterface {
     @Composable
     override fun displayScreen() {
-        val context = LocalContext.current
-        val persistentStorage = PersistentStorage(context)
-        val scope = rememberCoroutineScope()
-        var isSwitchChecked by remember { mutableStateOf(false) }
-
-        LaunchedEffect(key1 = true) {
-            scope.launch {
-                val savedStatus = persistentStorage.getStatus()
-                isSwitchChecked = savedStatus
-            }
-        }
-
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = stringResource(id = R.string.welcome_screen_title),
-                style = MaterialTheme.typography.headlineMedium)
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = stringResource(id = R.string.welcome_screen_caption),
-                style = MaterialTheme.typography.bodyLarge)
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = stringResource(id = R.string.welcome_screen_on_off))
-                Switch(
-                    checked = isSwitchChecked,
-                    onCheckedChange = { isChecked ->
-                        isSwitchChecked = isChecked
-                        persistentStorage.saveStatus(isChecked)
-                        Log.d("WelcomeScreen", "Switch is now ${if (isChecked) "ON" else "OFF"}")
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Row {
-                Button(onClick = {
-                    scope.launch {
-                        val intent = Intent(UiReceiver.UI_ACTION_NEW_PASSWORD)
-                        intent.setPackage(context.packageName)
-                        context.sendBroadcast(intent)
-                    }
-                }) {
-                    Text(text = stringResource(id = R.string.welcome_screen_new_password))
-                }
-                Button(onClick = {
-                    scope.launch {
-                        val intent = Intent(UiReceiver.UI_ACTION_CHECK_PASSWORD)
-                        intent.setPackage(context.packageName)
-                        context.sendBroadcast(intent)
-                    }
-                }) {
-                    Text(text = stringResource(id = R.string.welcome_screen_check_password))
-                }
-            }
-
-        }
+        WelcomeScreenContent()
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun WelcomeScreenPreview() {
+    WelcomeScreenContent()
+}
+
+@Composable
+fun WelcomeScreenContent() {
+    val context = LocalContext.current
+    val persistentStorage = PersistentStorage(context)
+    val scope = rememberCoroutineScope()
+    var isSwitchChecked by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = true) {
+        scope.launch {
+            val savedStatus = persistentStorage.getStatus()
+            isSwitchChecked = savedStatus
+        }
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = stringResource(id = R.string.welcome_screen_title),
+            style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = stringResource(id = R.string.welcome_screen_caption),
+            style = MaterialTheme.typography.bodyLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = stringResource(id = R.string.welcome_screen_on_off))
+            Switch(
+                checked = isSwitchChecked,
+                onCheckedChange = { isChecked ->
+                    isSwitchChecked = isChecked
+                    persistentStorage.saveStatus(isChecked)
+                    Log.d("WelcomeScreen", "Switch is now ${if (isChecked) "ON" else "OFF"}")
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Row {
+            Button(onClick = {
+                scope.launch {
+                    val intent = Intent(UiReceiver.UI_ACTION_NEW_PASSWORD)
+                    intent.setPackage(context.packageName)
+                    context.sendBroadcast(intent)
+                }
+            }) {
+                Text(text = stringResource(id = R.string.welcome_screen_new_password))
+            }
+            Button(onClick = {
+                scope.launch {
+                    val intent = Intent(UiReceiver.UI_ACTION_CHECK_PASSWORD)
+                    intent.setPackage(context.packageName)
+                    context.sendBroadcast(intent)
+                }
+            }) {
+                Text(text = stringResource(id = R.string.welcome_screen_check_password))
+            }
+        }
+
+    }
+}
+

@@ -104,7 +104,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                 displayCheckPasswordScreen()
             }
         } else {
-            displayWelomePasswordScreen()
+            displayWelcomePasswordScreen()
         }
     }
 
@@ -141,7 +141,7 @@ class GeolocationSmsActivity : FragmentActivity() {
 
     //region Display screen
 
-    private fun displayWelomePasswordScreen() {
+    private fun displayWelcomePasswordScreen() {
         setContent {
             //GeoSmsTheme { //K1ZFP TODO Add theme
             Surface(

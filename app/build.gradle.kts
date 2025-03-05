@@ -72,6 +72,8 @@ dependencies {
     implementation(libs.androidx.junit.ktx)
     implementation(libs.material)
 
+    implementation(libs.androidx.ui.tooling.preview)
+
     // Murena elib
     implementation(libs.elib)
 
@@ -93,6 +95,11 @@ dependencies {
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+
+    implementation("androidx.compose.ui:ui:1.6.8") // ou la dernière version
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.8") // ou la dernière version
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.8") // ou la dernière version
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
 
 }
 
