@@ -42,6 +42,8 @@ class LocationService : Service() {
 
             val latitude = location.latitude
             val longitude = location.longitude
+
+            Log.d(TAG, "Location: $latitude, $longitude")
             sendLocation(latitude, longitude)
             onLocationReceived?.invoke(location)
             stopLocationUpdatesAndFinish()
@@ -49,16 +51,8 @@ class LocationService : Service() {
     }
 
     private fun sendLocation(latitude: Double?, longitude: Double?) {
-        val body = if (latitude != null && longitude != null) {
-            val lat = this.getString(R.string.location_latitude)
-            val long = this.getString(R.string.location_longitude)
-
-            "$lat: $latitude, $long: $longitude"
-        } else {
-            this.getString(R.string.location_longitude)
-        }
         for (sender in senders) {
-            SmsSender(this).sendSms(sender, body)
+            SmsSender(this).sendSms(sender, latitude, longitude)
         }
     }
 

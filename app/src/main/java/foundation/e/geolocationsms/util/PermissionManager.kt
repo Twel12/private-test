@@ -1,6 +1,7 @@
 package foundation.e.geolocationsms.util
 
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -8,6 +9,7 @@ import foundation.e.geolocationsms.activity.GeolocationSmsActivity
 
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import foundation.e.geolocationsms.R
 
 /**
@@ -64,6 +66,7 @@ class PermissionManager(private val activity: GeolocationSmsActivity) {
         return permissionsToRequest.isEmpty()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun checkAndRequestPermissionsWithBackground(callback: (granted: Boolean) -> Unit){
         val permissions = mutableListOf(
             android.Manifest.permission.RECEIVE_SMS,
@@ -91,10 +94,12 @@ class PermissionManager(private val activity: GeolocationSmsActivity) {
                     Toast.makeText(activity, activity.getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
                     callback(false)
                 } else{
-                    checkAndRequestPermissions(listOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)) { granted ->
+                    checkAndRequestPermissions(listOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        granted ->
                         if (!granted) {
                             Log.e(TAG, "Permission error (2)")
-                            Toast.makeText(activity, activity.getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity,
+                                activity.getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
                             callback(false)
                         } else{
                             callback(true)
