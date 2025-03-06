@@ -15,8 +15,8 @@ class PersistentStorage (context: Context) {
 
     companion object {
         const val PREFERENCE_STORE = "GeoSmsPrefs"
-        const val PASSORD_KEY = "password"
-        const val STATUS_KEY = "status"
+        const val PASSWORD_KEY = "password"
+        const val STATUS_KEY = "status" // Geolocation by SMS is On/off
         const val DATE_BOOLEAN_LIST_KEY = "date_boolean_list"
     }
 
@@ -31,13 +31,13 @@ class PersistentStorage (context: Context) {
     // region Password
     fun savePassword(password: String) {
         with(sharedPreferences.edit()) {
-            putString(PASSORD_KEY, password)
+            putString(PASSWORD_KEY, password)
             apply()
         }
     }
 
     fun getPassword(): String? {
-        return sharedPreferences.getString(PASSORD_KEY, null)
+        return sharedPreferences.getString(PASSWORD_KEY, null)
     }
     //endregion
 

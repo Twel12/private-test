@@ -1,5 +1,6 @@
 package foundation.e.geolocationsms.ui
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import foundation.e.geolocationsms.util.PasswordGenerator
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
-import foundation.e.geolocationsms.ui.buttons.ToggleWithText
+import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import kotlinx.coroutines.launch
 
 /**
@@ -37,17 +38,20 @@ import kotlinx.coroutines.launch
 object GenerationPasswordScreen : ScreenInterface{
     @Composable
     override fun displayScreen() {
-        GeneratePasswordScreenContent()
+        generatePasswordScreenContent()
     }
 }
+
 @Preview(showBackground = true)
+@SuppressLint("ComposableNaming")
 @Composable
-fun GeneratePasswordScreenPreview() {
-    GeneratePasswordScreenContent()
+fun generatePasswordScreenPreview() {
+    generatePasswordScreenContent()
 }
 
+@SuppressLint("ComposableNaming")
 @Composable
-fun GeneratePasswordScreenContent() {
+fun generatePasswordScreenContent() {
     val context = LocalContext.current
     val persistentStorage = PersistentStorage(context)
     val scope = rememberCoroutineScope()
@@ -68,7 +72,7 @@ fun GeneratePasswordScreenContent() {
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        ToggleWithText(
+        toggleWithText(
             text = stringResource(R.string.welcome_screen_on_off),
             isChecked = isSwitchChecked,
             fontWeight = FontWeight.Medium,

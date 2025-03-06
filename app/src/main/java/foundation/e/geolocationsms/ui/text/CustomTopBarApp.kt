@@ -1,5 +1,6 @@
 package foundation.e.geolocationsms.ui.text
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,8 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import foundation.e.geolocationsms.util.Dimens
 
+@SuppressLint("ComposableNaming")
 @Composable
-fun CustomTopAppBar(title: String, onClick: () -> Unit, hideBackButton: Boolean = false) {
+fun customTopAppBar(title: String, onClick: () -> Unit, hideBackButton: Boolean = false) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(top = Dimens.SCREEN_PADDING, bottom = Dimens.SCREEN_PADDING)

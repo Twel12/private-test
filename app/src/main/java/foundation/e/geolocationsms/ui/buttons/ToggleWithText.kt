@@ -1,5 +1,6 @@
 package foundation.e.geolocationsms.ui.buttons
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.spring
@@ -33,9 +34,9 @@ import foundation.e.elib.R
 import foundation.e.geolocationsms.util.Dimens
 import kotlin.math.roundToInt
 
-
+@SuppressLint("ComposableNaming")
 @Composable
-fun ToggleWithText(
+fun toggleWithText(
     text: String,
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -49,12 +50,13 @@ fun ToggleWithText(
     ) {
         Text(text, fontWeight = fontWeight, modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.width(Dimens.SCREEN_PADDING / 2))
-        ESwitch(checked = isChecked, onCheckedChange = onCheckedChange)
+        eSwitch(checked = isChecked, onCheckedChange = onCheckedChange)
     }
 }
 
+@SuppressLint("ComposableNaming")
 @Composable
-fun ESwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun eSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     val thumbSize = 24.dp
     val trackWidth = 52.dp
     val trackHeight = 28.dp

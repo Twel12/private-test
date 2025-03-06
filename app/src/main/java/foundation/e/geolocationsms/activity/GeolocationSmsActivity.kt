@@ -32,11 +32,11 @@ import foundation.e.geolocationsms.data.Pages
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY
 import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_NEW_PASSWORD
-import foundation.e.geolocationsms.ui.theme.GeolocationSmsTheme
+import foundation.e.geolocationsms.ui.theme.geolocationSmsTheme
 import foundation.e.geolocationsms.ui.ConfirmationPasswordScreen
 import foundation.e.geolocationsms.ui.GenerationPasswordScreen
 import foundation.e.geolocationsms.ui.WelcomeScreen
-import foundation.e.geolocationsms.ui.text.CustomTopAppBar
+import foundation.e.geolocationsms.ui.text.customTopAppBar
 
 /**
  * GeolocationSmsActivity
@@ -61,41 +61,13 @@ class GeolocationSmsActivity : FragmentActivity() {
         Log.d(TAG, "Action: $action")
 
         permissionManager = PermissionManager(this)
-
-        val permissions = mutableListOf(
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.FOREGROUND_SERVICE_LOCATION
-        )
-        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-
-        permissionManager.checkAndRequestPermissions(permissions) { granted ->
-            if (!granted) {
-                Log.e(TAG, "Permission error")
-                Toast.makeText(this, getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
-                return@checkAndRequestPermissions
-            } else {
-                val permissions = mutableListOf(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                )
-                permissionManager.checkAndRequestPermissions(permissions) { granted ->
-                    if (!granted) {
-                        Log.e(TAG, "Permission error (2)")
-                        Toast.makeText(this, getString(R.string.check_permission), Toast.LENGTH_SHORT).show()
-                        return@checkAndRequestPermissions
-                    }
-                }
+        permissionManager.checkAndRequestPermissionsWithBackground() {granted ->
+            if (!granted){
+                return@checkAndRequestPermissionsWithBackground
             }
         }
 
-        //For testing
-        //val intent = Intent("foundation.e.accountmanager.ui.setup.CreateAccountActivity")
-        //startActivity(intent)
-
         persistentStorage = PersistentStorage(this)
-
 
         if (intent.hasExtra(UI_ACTION_KEY)) {
             if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
@@ -121,14 +93,15 @@ class GeolocationSmsActivity : FragmentActivity() {
                 displayPage(Pages.CheckPassword)
             }
         } else {
-//            displayPage(Pages.ActivateFeature)
-            displayPage(Pages.GeneratePassword)
+            if (persistentStorage.getStatus())
+                displayPage(Pages.GeneratePassword)
+            else
+                displayPage(Pages.ActivateFeature)
         }
     }
 
     private fun onExitApp(withResult: Boolean = false) {
-        //if (withResult && !SystemUtils.isSetupFinished(this))
-        {
+        if (withResult) {
             setResult(RESULT_OK)
         }
         finishAfterTransition()
@@ -168,7 +141,7 @@ class GeolocationSmsActivity : FragmentActivity() {
     //region Display screen
     private fun displayPage(page: Pages){
         setContent {
-            GeolocationSmsTheme {
+            geolocationSmsTheme {
                 window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
                 window.navigationBarColor = MaterialTheme.colorScheme.background.toArgb()
                 Surface(color = MaterialTheme.colorScheme.background) {
@@ -186,7 +159,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                         verticalArrangement = Arrangement.Top
                     ) {
                         BackHandler(onBack = { onExitApp() })
-                        CustomTopAppBar(
+                        customTopAppBar(
                             title = stringResource(R.string.app_name),
                             onClick = { onExitApp() })
                         Column(
