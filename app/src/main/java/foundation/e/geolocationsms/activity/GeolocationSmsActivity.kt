@@ -1,11 +1,9 @@
 package foundation.e.geolocationsms.activity
 
-import android.Manifest
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -18,6 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -136,7 +136,11 @@ class GeolocationSmsActivity : FragmentActivity() {
         biometricPrompt.authenticate(promptInfo)
     }
 
-
+    private fun getTitleForPage(page: Pages) = when(page){
+        Pages.ActivateFeature -> getString(R.string.title_welcome)
+        Pages.GeneratePassword -> getString(R.string.title_generate_password)
+        Pages.CheckPassword -> getString(R.string.title_check_password)
+    }
 
     //region Display screen
     private fun displayPage(page: Pages){
@@ -146,6 +150,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                 window.navigationBarColor = MaterialTheme.colorScheme.background.toArgb()
                 Surface(color = MaterialTheme.colorScheme.background) {
 
+                    val appBarTitle = remember { mutableStateOf(getTitleForPage(page)) }
                     val configuration = LocalConfiguration.current
                     val isLandscape =
                         configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -160,8 +165,9 @@ class GeolocationSmsActivity : FragmentActivity() {
                     ) {
                         BackHandler(onBack = { onExitApp() })
                         customTopAppBar(
-                            title = stringResource(R.string.app_name),
-                            onClick = { onExitApp() })
+                            title = appBarTitle.value,
+                            onClick = { onExitApp() }
+                        )
                         Column(
                             modifier =
                             Modifier.fillMaxSize().let {
