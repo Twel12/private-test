@@ -2,6 +2,7 @@ package foundation.e.geolocationsms.ui
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import foundation.e.geolocationsms.util.PasswordGenerator
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
+import foundation.e.geolocationsms.ui.buttons.actionColor
 import foundation.e.geolocationsms.ui.buttons.buttonColor
 import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import foundation.e.geolocationsms.util.Dimens
@@ -45,12 +47,14 @@ import kotlinx.coroutines.launch
  **/
 object GenerationPasswordScreen : ScreenInterface{
 
-    const val EMPTY_CODE = "--------"
-    const val CODE_COLOR = 0xFF1A9E24
+    internal const val EMPTY_CODE = "--------"
+    internal const val CODE_COLOR = 0xFF1A9E24
+    internal const val TAG = "GenerationPasswordScreen"
 
     @Composable
-    override fun displayScreen() {
-        generatePasswordScreenContent()
+    override fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
+        BackHandler(onBack = { onBackPressed() })
+        generatePasswordScreenContent(onSelection)
     }
 }
 
@@ -59,12 +63,12 @@ object GenerationPasswordScreen : ScreenInterface{
 @SuppressLint("ComposableNaming")
 @Composable
 fun generatePasswordScreenPreview() {
-    generatePasswordScreenContent()
+    generatePasswordScreenContent {}
 }
 
 @SuppressLint("ComposableNaming")
 @Composable
-fun generatePasswordScreenContent() {
+fun generatePasswordScreenContent(onSelection: () -> Unit) {
     val context = LocalContext.current
     val persistentStorage = PersistentStorage(context)
     val scope = rememberCoroutineScope()
@@ -82,7 +86,78 @@ fun generatePasswordScreenContent() {
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    @Composable
+    fun displayCharacter(char: Char) {
+        Text(
+            text = char.toString(),
+            fontWeight = FontWeight.Medium,
+            fontSize = 24.sp,
+            lineHeight = 40.sp,
+            letterSpacing = 0.15.sp,
+            textAlign = TextAlign.Center,
+            color = Color(GenerationPasswordScreen.CODE_COLOR),
+        )
+    }
+
+    @Composable
+    fun displayPassword(password: String) {
+        var displayedPassword : String = password
+        if (password.isEmpty()) {
+            displayedPassword = GenerationPasswordScreen.EMPTY_CODE
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(space = 25.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            displayedPassword.forEach { char ->
+                displayCharacter(char = char)
+            }
+        }
+    }
+
+    @Composable
+    fun generateNewCode() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        val newPassword = PasswordGenerator().generatePassword()
+                        currentPassword = newPassword
+                        persistentStorage.savePassword(currentPassword)
+                    }
+                },
+                colors = actionColor()
+            ) {
+                Text(text = stringResource(id = R.string.generate_new_password))
+            }
+        }
+    }
+
+    @Composable
+    fun displayNextButton() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        onSelection()
+                    }
+                },
+                colors = buttonColor()
+            ) {
+                Text(text = stringResource(id = R.string.password_next))
+            }
+        }
+    }
+
+    @Composable
+    fun displayStatus() {
         toggleWithText(
             text = stringResource(R.string.welcome_screen_on_off),
             isChecked = isSwitchChecked,
@@ -90,9 +165,14 @@ fun generatePasswordScreenContent() {
             onCheckedChange = { isChecked ->
                 isSwitchChecked = isChecked
                 persistentStorage.saveStatus(isChecked)
-                Log.d("WelcomeScreen", "Switch is now ${if (isChecked) "ON" else "OFF"}")
+                Log.d(GenerationPasswordScreen.TAG,
+                    "Switch is now ${if (isChecked) "ON" else "OFF"}")
             }
         )
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        displayStatus()
 
         Text(text = stringResource(id = R.string.welcome_screen_intro_1),
             style = MaterialTheme.typography.bodyLarge)
@@ -114,55 +194,11 @@ fun generatePasswordScreenContent() {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = {
-                    scope.launch {
-                        val newPassword = PasswordGenerator().generatePassword()
-                        currentPassword = newPassword
-                        persistentStorage.savePassword(currentPassword)
-                    }
-                },
-                colors = buttonColor()
-            ){
-                Text(text = stringResource(id = R.string.generate_new_password))
-            }
-        }
-    }
-}
+        generateNewCode()
 
-@SuppressLint("ComposableNaming")
-@Composable
-fun displayPassword(password: String) {
-    var displayedPassword : String = password
-    if (password.isEmpty()) {
-        displayedPassword = GenerationPasswordScreen.EMPTY_CODE
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(space = 25.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        displayedPassword.forEach { char ->
-            displayCharacter(char = char)
-        }
-    }
-}
+        Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-@SuppressLint("ComposableNaming")
-@Composable
-fun displayCharacter(char: Char) {
-    Text(
-        text = char.toString(),
-        fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        lineHeight = 40.sp,
-        letterSpacing = 0.15.sp,
-        textAlign = TextAlign.Center,
-        color = Color(GenerationPasswordScreen.CODE_COLOR),
-    )
+        displayNextButton()
+    }
 }
 

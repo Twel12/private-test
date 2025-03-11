@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import foundation.e.geolocationsms.util.PermissionManager
@@ -169,17 +168,22 @@ class GeolocationSmsActivity : FragmentActivity() {
                             onClick = { onExitApp() }
                         )
                         Column(
-                            modifier =
-                            Modifier.fillMaxSize().let {
-                                if (isLandscape) it.verticalScroll(rememberScrollState()) else it
-                            },
                             horizontalAlignment = Alignment.Start,
                             verticalArrangement = Arrangement.Top
                         ) {
                             when (page) {
-                                Pages.ActivateFeature -> WelcomeScreen.displayScreen()
-                                Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen()
-                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen()
+                                Pages.ActivateFeature -> WelcomeScreen.displayScreen(
+                                    onBackPressed = { Log.d(TAG, "A BACK")},
+                                    onSelection = { Log.d(TAG, "A SEL")}
+                                )
+                                Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
+                                    onBackPressed = { Log.d(TAG, "G BACK")},
+                                    onSelection = { Log.d(TAG, "G SEL")}
+                                )
+                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen(
+                                    onBackPressed = { Log.d(TAG, "C BACK")},
+                                    onSelection = { Log.d(TAG, "C SEL")}
+                                )
                             }
                         }
                     }

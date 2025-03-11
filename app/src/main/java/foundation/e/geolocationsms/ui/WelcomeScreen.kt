@@ -52,7 +52,7 @@ import androidx.core.net.toUri
  **/
 object WelcomeScreen : ScreenInterface {
     @Composable
-    override fun displayScreen() {
+    override fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
         welcomeScreenContent()
     }
 }

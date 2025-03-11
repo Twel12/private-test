@@ -11,5 +11,5 @@ import androidx.compose.runtime.Composable
 interface ScreenInterface {
     @SuppressLint("ComposableNaming")
     @Composable
-    fun displayScreen()
+    fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit)
 }

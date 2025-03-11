@@ -17,7 +17,7 @@
     <string name="generated_password">Generated Password:</string>
     <string name="password_correct">Password Correct!</string>
     <string name="password_incorrect">Incorrect Password</string>
-    <string name="password_save">Save</string>
+    <string name="password_next">Next</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
     <!-- <string name="welcome_screen_title">Find my device from a text message</string> -->
