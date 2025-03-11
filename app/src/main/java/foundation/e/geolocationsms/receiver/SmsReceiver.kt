@@ -57,7 +57,8 @@ class SmsReceiver : BroadcastReceiver() {
 
     private fun executeLocationWorkOnce(sender: Array<String>, context: Context) {
         val serviceIntent = Intent(context, LocationService::class.java)
-        serviceIntent.putExtra(LocationService.KEY_SENDER, sender)
+
+        serviceIntent.putStringArrayListExtra(LocationService.KEY_SENDER, ArrayList(sender.asList()))
         context.startForegroundService(serviceIntent)
     }
 

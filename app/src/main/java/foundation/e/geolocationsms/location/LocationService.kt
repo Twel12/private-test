@@ -52,6 +52,7 @@ class LocationService : Service() {
 
     private fun sendLocation(latitude: Double?, longitude: Double?) {
         for (sender in senders) {
+            Log.d(TAG, "Sending location to $sender")
             SmsSender(this).sendSms(sender, latitude, longitude)
         }
     }
@@ -127,10 +128,9 @@ class LocationService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         senders.clear()
-        val myStringArray: Array<String>? = intent?.getStringArrayExtra(KEY_SENDER)
-        if (myStringArray != null) {
-            val newSenders = ArrayList(myStringArray.toList())
-            senders.addAll(newSenders)
+        val myStringArrayList = intent?.getStringArrayListExtra(KEY_SENDER)
+        if (!myStringArrayList.isNullOrEmpty()) {
+            senders.addAll(myStringArrayList)
         }
         return START_STICKY
     }
