@@ -174,7 +174,13 @@ class GeolocationSmsActivity : FragmentActivity() {
                             when (page) {
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
                                     onBackPressed = { Log.d(TAG, "A BACK")},
-                                    onSelection = { Log.d(TAG, "A SEL")}
+                                    onSelection = {
+                                        Log.d(TAG, "A SEL")
+                                        if (persistentStorage.getStatus())
+                                            displayPage(Pages.GeneratePassword)
+                                        else
+                                            displayPage(Pages.ActivateFeature)
+                                    }
                                 )
                                 Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
                                     onBackPressed = { Log.d(TAG, "G BACK")},

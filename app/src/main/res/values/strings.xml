@@ -20,8 +20,9 @@
     <string name="password_next">Next</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
-    <!-- <string name="welcome_screen_title">Find my device from a text message</string> -->
-    <string name="welcome_screen_caption">This application allows you to revisit the position of your device using a secret contained in an SMS message.</string>
+    <string name="welcome_screen_title">Find My Phone</string>
+    <string name="welcome_screen_caption_1">Find my Phone will help you reveal this phone\'s location in case you can\'t find it.</string>
+    <string name="welcome_screen_caption_2">Generate a secret code and simply send it to this device via SMS and it will automatically reply to your message with your phone\'s coordinates.</string>
     <string name="welcome_screen_new_password">Create new password</string>
     <string name="welcome_screen_check_password">Check current password</string>
     <string name="welcome_screen_on_off">Activate Geolocation by SMS</string>

@@ -165,8 +165,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
             onCheckedChange = { isChecked ->
                 isSwitchChecked = isChecked
                 persistentStorage.saveStatus(isChecked)
-                Log.d(GenerationPasswordScreen.TAG,
-                    "Switch is now ${if (isChecked) "ON" else "OFF"}")
+                Log.d(GenerationPasswordScreen.TAG, "Switch is now ${if (isChecked) "ON" else "OFF"}")
+                onSelection()
             }
         )
     }
