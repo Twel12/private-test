@@ -40,4 +40,7 @@
     <string name="sms_message_with_location_2">* OpenStreetMap link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
 
     <string name="sms_message_with_location_not_found">Impossible to get current location at the moment. Please try again later.</string>
+
+    <string name="extra_caption">SMS Geolocation</string>
+
 </resources>
