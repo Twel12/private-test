@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
@@ -39,14 +40,16 @@
             </intent-filter>
             <meta-data
                 android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.accounts" />
+                android:value="com.android.settings.category.ia.security" />
             <meta-data
                 android:name="com.android.settings.title"
                 android:resource="@string/extra_caption" />
             <meta-data
                 android:name="com.android.settings.order"
-                android:value="210" />
+                android:value="0" />
         </activity>
+
+
 
         <!-- Receivers -->
         <receiver

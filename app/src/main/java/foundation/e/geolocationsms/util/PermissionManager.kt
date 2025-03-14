@@ -74,7 +74,9 @@ class PermissionManager(private val activity: GeolocationSmsActivity) {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.FOREGROUND_SERVICE_LOCATION,
-            android.Manifest.permission.POST_NOTIFICATIONS
+            android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.READ_PHONE_STATE,
+            android.Manifest.permission.USE_BIOMETRIC,
         )
 
         if (checkPermissions(permissions)){

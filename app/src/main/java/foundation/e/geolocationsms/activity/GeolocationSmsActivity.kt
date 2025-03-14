@@ -1,5 +1,6 @@
 package foundation.e.geolocationsms.activity
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -37,6 +38,7 @@ import foundation.e.geolocationsms.ui.GenerationPasswordScreen
 import foundation.e.geolocationsms.ui.WelcomeScreen
 import foundation.e.geolocationsms.ui.text.customTopAppBar
 
+import android.telephony.TelephonyManager
 /**
  * GeolocationSmsActivity
  *
@@ -66,36 +68,56 @@ class GeolocationSmsActivity : FragmentActivity() {
             }
         }
 
-        persistentStorage = PersistentStorage(this)
+        if (hasSimSupport(this)) {
+            persistentStorage = PersistentStorage(this)
 
-        if (intent.hasExtra(UI_ACTION_KEY)) {
-            if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
+            if (intent.hasExtra(UI_ACTION_KEY)) {
+                if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
 
-                val biometricManager = BiometricManager.from(this)
-                when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
-                    BiometricManager.BIOMETRIC_SUCCESS -> {
-                        showBiometricPrompt()
+                    val biometricManager = BiometricManager.from(this)
+                    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+                        BiometricManager.BIOMETRIC_SUCCESS -> {
+                            showBiometricPrompt()
+                        }
+                        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
+                            displayPage(Pages.GeneratePassword)
+                        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                            Log.d(TAG, "Biometric hardware is currently unavailable")
+                            displayPage(Pages.GeneratePassword)
+                        }
+                        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
+                            displayPage(Pages.GeneratePassword)
+
+                        //K1ZFP TODO Manage all cases
                     }
-                    BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                        displayPage(Pages.GeneratePassword)
-                    BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                        Log.d(TAG, "Biometric hardware is currently unavailable")
-                        displayPage(Pages.GeneratePassword)
-                    }
-                    BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                        displayPage(Pages.GeneratePassword)
-
-                    //K1ZFP TODO Manage all cases
+                } else if (UI_ACTION_CHECK_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
+                    displayPage(Pages.CheckPassword)
                 }
-            } else if (UI_ACTION_CHECK_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
-                displayPage(Pages.CheckPassword)
+            } else {
+                if (persistentStorage.getStatus())
+                    displayPage(Pages.GeneratePassword)
+                else
+                    displayPage(Pages.ActivateFeature)
             }
-        } else {
-            if (persistentStorage.getStatus())
-                displayPage(Pages.GeneratePassword)
-            else
-                displayPage(Pages.ActivateFeature)
+        }
+    }
+
+    fun hasSimSupport(context: Context): Boolean {
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        return when (telephonyManager.simState) {
+            TelephonyManager.SIM_STATE_READY -> {
+                Log.d(TAG, "SIM OK")
+                true
+            }
+            TelephonyManager.SIM_STATE_ABSENT -> {
+                Log.d(TAG, "SIM Not found")
+                false
+            }
+            else -> {
+                Log.d(TAG, "Invalid SIM State: ${telephonyManager.simState}")
+                false
+            }
         }
     }
 
