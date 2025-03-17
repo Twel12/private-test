@@ -208,7 +208,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                                     onBackPressed = { Log.d(TAG, "G BACK")},
                                     onSelection = {
                                         Log.d(TAG, "G SEL")
-                                        onExitApp(false)
+                                        onExitApp(true)
                                     }
                                 )
                                 Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen(
