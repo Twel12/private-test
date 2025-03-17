@@ -39,6 +39,8 @@ import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
 
+import android.provider.Settings;
+
 /**
  * GenerationPasswordScreen
  *
@@ -139,21 +141,30 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
     @Composable
     fun displayNextButton() {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = {
-                    scope.launch {
-                        onSelection()
-                    }
-                },
-                colors = buttonColor()
+
+        val contentResolver = context.getContentResolver()
+        val isProvisioned = Settings.Global.getInt(contentResolver,
+            Settings.Global.DEVICE_PROVISIONED) == 1;
+
+        if (!isProvisioned) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = stringResource(id = R.string.password_next))
+                Button(
+                    onClick = {
+                        scope.launch {
+                            onSelection()
+                        }
+
+                    },
+                    colors = buttonColor()
+                ) {
+                    Text(text = stringResource(id = R.string.password_next))
+                }
             }
         }
+
     }
 
     @Composable

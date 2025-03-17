@@ -40,7 +40,7 @@ this.sendBroadcast(notificationIntent)
         val notificationIntent = Intent(context, GeolocationSmsActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(context.getString(R.string.notification_servcie_caption))
+            .setContentTitle(context.getString(R.string.notification_service_caption))
             .setContentText(context.getString(R.string.notification_service_content))
             .setSmallIcon(R.drawable.ic_launcher_foreground) //K1ZFP TODO
             .setContentIntent(pendingIntent)

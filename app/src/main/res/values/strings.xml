@@ -8,7 +8,7 @@
     <string name="channel_name">Find my device by SMS channel</string>
     <string name="channel_description">This channel is used by the SMS geolocation application</string>
 
-    <string name="notification_servcie_caption">Find my device by SMS</string>
+    <string name="notification_service_caption">Find my device by SMS</string>
     <string name="notification_service_content">Tracking location in background</string>
 
     <string name="current_password">Current code:</string>
@@ -20,12 +20,12 @@
     <string name="password_next">Next</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
-    <string name="welcome_screen_title">Find My Phone</string>
+    <string name="welcome_screen_title">Find my Phone</string>
     <string name="welcome_screen_caption_1">Find my Phone will help you reveal this phone\'s location in case you can\'t find it.</string>
     <string name="welcome_screen_caption_2">Generate a secret code and simply send it to this device via SMS and it will automatically reply to your message with your phone\'s coordinates.</string>
     <string name="welcome_screen_new_password">Create new password</string>
     <string name="welcome_screen_check_password">Check current password</string>
-    <string name="welcome_screen_on_off">Activate Geolocation by SMS</string>
+    <string name="welcome_screen_on_off">Activate Find my Phone</string>
     <string name="welcome_screen_intro_1">Write down this code and keep it in a safe place where only you can find it.</string>
     <string name="welcome_screen_intro_2">If you send the code below by SMS to this phone, it will reply back with its geolocation coordinates.</string>
 
