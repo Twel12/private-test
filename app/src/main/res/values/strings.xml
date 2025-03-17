@@ -18,6 +18,7 @@
     <string name="password_correct">Password Correct!</string>
     <string name="password_incorrect">Incorrect Password</string>
     <string name="password_next">Next</string>
+    <string name="password_test_procedure">Please verify if the code is working by sending it to your phone number from another phone at your disposal.</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
     <string name="welcome_screen_title">Find my Phone</string>

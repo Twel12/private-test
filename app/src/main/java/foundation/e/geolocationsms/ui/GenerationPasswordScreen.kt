@@ -40,6 +40,19 @@ import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
 
 import android.provider.Settings;
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 
 /**
  * GenerationPasswordScreen
@@ -140,6 +153,35 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
     }
 
     @Composable
+    fun displayTestProcedure() {
+        val grayColor = Color.Gray
+        Row(
+            modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = grayColor,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.find_my_phone_test),
+                contentDescription = "",
+                tint = colorResource(foundation.e.elib.R.color.e_icon_color),
+                modifier = Modifier.size(30.dp)
+
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(id = R.string.password_test_procedure),
+                color = grayColor,
+                fontSize = 14.sp
+            )
+        }
+    }
+
+    @Composable
     fun displayNextButton() {
 
         val contentResolver = context.getContentResolver()
@@ -206,6 +248,10 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
         generateNewCode()
+
+        Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
+
+        displayTestProcedure()
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
