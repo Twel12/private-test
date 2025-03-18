@@ -27,7 +27,7 @@ class LocationService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 1234 // K1ZFP Check this
         private const val TAG = "LocationService"
-        private const val STOP_SERVICE_DELAY = 10000L // 10 seconds
+        private const val STOP_SERVICE_DELAY = 15000L // 15 seconds
         const val KEY_SENDER = "sender"
     }
 
@@ -78,6 +78,32 @@ class LocationService : Service() {
     }
 
     @Suppress("MissingPermission")
+    private fun sendLastKnownLocation(): Boolean {
+        Log.d(TAG, "Attempting to send last known location")
+
+        val gpsLastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val networkLastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+        val recentLocation = when {
+            gpsLastKnown != null && networkLastKnown != null -> {
+                if (gpsLastKnown.time > networkLastKnown.time) gpsLastKnown else networkLastKnown
+            }
+            gpsLastKnown != null -> gpsLastKnown
+            networkLastKnown != null -> networkLastKnown
+            else -> null
+        }
+
+        if (recentLocation != null) {
+            Log.d(TAG, "Last known location found: ${recentLocation.latitude}, ${recentLocation.longitude}")
+            sendLocation(recentLocation.latitude, recentLocation.longitude)
+            return true
+        }
+
+        Log.e(TAG, "No last known location available")
+        return false
+    }
+
+    @Suppress("MissingPermission")
     private fun startLocationUpdates() {
         Log.d(TAG, "Starting location updates")
 
@@ -109,8 +135,11 @@ class LocationService : Service() {
 
         handler.postDelayed({
             if (!locationReceived) {
-                Log.e(TAG, "No location received within delay, sending default SMS")
-                sendLocation(null, null)
+                Log.e(TAG, "No location received within delay, attempting last known location")
+                if (!sendLastKnownLocation()) {
+                    Log.e(TAG, "Sending fallback SMS as no last known location was available either.")
+                    sendLocation(null, null)
+                }
             }
             stopLocationUpdatesAndFinish() },
             STOP_SERVICE_DELAY)
