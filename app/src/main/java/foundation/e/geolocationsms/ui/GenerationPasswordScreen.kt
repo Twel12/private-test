@@ -35,7 +35,6 @@ import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.ui.buttons.actionColor
 import foundation.e.geolocationsms.ui.buttons.buttonColor
-import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
 
@@ -85,10 +84,13 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
     LaunchedEffect(key1 = true) {
         scope.launch {
-            val savedPassword = persistentStorage.getPassword()
-            if (savedPassword != null) {
-                currentPassword = savedPassword
+            var savedPassword = persistentStorage.getPassword()
+            if (savedPassword == null || savedPassword.isEmpty()) {
+                val newPassword = PasswordGenerator().generatePassword()
+                persistentStorage.savePassword(newPassword)
+                savedPassword = newPassword
             }
+            currentPassword = savedPassword
             val savedStatus = persistentStorage.getStatus()
             isSwitchChecked = savedStatus
         }
@@ -108,19 +110,13 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
     }
 
     @Composable
-    fun displayPassword(password: String) {
-        var displayedPassword : String = password
-        if (password.isEmpty()) {
-            val newPassword = PasswordGenerator().generatePassword()
-            displayedPassword = newPassword
-            persistentStorage.savePassword(currentPassword)
-        }
+    fun displayPassword() {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(space = 25.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            displayedPassword.forEach { char ->
+            currentPassword.forEach { char ->
                 displayCharacter(char = char)
             }
         }
@@ -204,23 +200,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
     }
 
-    @Composable
-    fun displayStatus() {
-        toggleWithText(
-            text = stringResource(R.string.welcome_screen_on_off),
-            isChecked = isSwitchChecked,
-            fontWeight = FontWeight.Medium,
-            onCheckedChange = { isChecked ->
-                isSwitchChecked = isChecked
-                persistentStorage.saveStatus(isChecked)
-                Log.d(GenerationPasswordScreen.TAG, "Switch is now ${if (isChecked) "ON" else "OFF"}")
-                onSelection()
-            }
-        )
-    }
-
     Column(modifier = Modifier.padding(16.dp)) {
-        displayStatus()
 
         Text(text = stringResource(id = R.string.welcome_screen_intro_1),
             style = MaterialTheme.typography.bodyLarge)
@@ -238,7 +218,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        displayPassword(currentPassword)
+        displayPassword()
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 

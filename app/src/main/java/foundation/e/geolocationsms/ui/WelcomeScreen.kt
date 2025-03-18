@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
+import foundation.e.geolocationsms.activity.GeolocationSmsActivity
+import foundation.e.geolocationsms.ui.buttons.actionColor
 import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
@@ -96,17 +99,15 @@ fun welcomeScreenContent(onSelection: () -> Unit) {
 
     @Composable
     fun drawSwitch(
-        isSwitchChecked: Boolean,
         persistentStorage: PersistentStorage
     ) {
-        var isSwitchChecked1 = isSwitchChecked
         toggleWithText(
             text = stringResource(R.string.welcome_screen_on_off),
-            isChecked = isSwitchChecked1,
+            isChecked = isSwitchChecked,
             fontWeight = FontWeight.Medium,
             onCheckedChange = { isChecked ->
-                isSwitchChecked1 = isChecked
                 persistentStorage.saveStatus(isChecked)
+                isSwitchChecked = isChecked
                 Log.d(WelcomeScreen.TAG, "Switch is now ${if (isChecked) "ON" else "OFF"}")
                 onSelection()
             }
@@ -124,6 +125,27 @@ fun welcomeScreenContent(onSelection: () -> Unit) {
             overflow = TextOverflow.Clip,
             modifier = Modifier.padding(bottom = Dimens.SCREEN_PADDING / 2)
         )
+    }
+
+    @Composable
+    fun manageCode() {
+        if (GeolocationSmsActivity.Companion.persistentStorage.getStatus()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            onSelection()
+                        }
+                    },
+                    colors = actionColor()
+                ) {
+                    Text(text = stringResource(id = R.string.manage_secret_password))
+                }
+            }
+        }
     }
 
     @Composable
@@ -161,6 +183,8 @@ fun welcomeScreenContent(onSelection: () -> Unit) {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        drawSwitch(isSwitchChecked, persistentStorage)
+        drawSwitch(persistentStorage)
+
+        manageCode()
     }
 }

@@ -14,6 +14,7 @@
     <string name="current_password">Current code:</string>
     <string name="enter_password">Enter Password</string>
     <string name="generate_new_password">Generate New Code</string>
+    <string name="manage_secret_password">Manage My Secret Code</string>
     <string name="generated_password">Generated Password:</string>
     <string name="password_correct">Password Correct!</string>
     <string name="password_incorrect">Incorrect Password</string>
