@@ -95,10 +95,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                     displayPage(Pages.CheckPassword)
                 }
             } else {
-                if (persistentStorage.getStatus())
-                    displayPage(Pages.GeneratePassword)
-                else
-                    displayPage(Pages.ActivateFeature)
+                displayPage(Pages.ActivateFeature)
             }
         }
     }
@@ -211,7 +208,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                                         onExitApp(true)
                                     }
                                 )
-                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen(
+                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen( //K1ZFP REMOVE
                                     onBackPressed = { Log.d(TAG, "C BACK")},
                                     onSelection = { Log.d(TAG, "C SEL")}
                                 )

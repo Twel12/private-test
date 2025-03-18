@@ -35,22 +35,15 @@ import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.ui.buttons.actionColor
 import foundation.e.geolocationsms.ui.buttons.buttonColor
-import foundation.e.geolocationsms.ui.buttons.toggleWithText
 import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
 
 import android.provider.Settings;
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 
@@ -62,7 +55,6 @@ import androidx.compose.ui.res.painterResource
  **/
 object GenerationPasswordScreen : ScreenInterface{
 
-    internal const val EMPTY_CODE = "--------"
     internal const val CODE_COLOR = 0xFF1A9E24
     internal const val TAG = "GenerationPasswordScreen"
 
@@ -92,10 +84,13 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
     LaunchedEffect(key1 = true) {
         scope.launch {
-            val savedPassword = persistentStorage.getPassword()
-            if (savedPassword != null) {
-                currentPassword = savedPassword
+            var savedPassword = persistentStorage.getPassword()
+            if (savedPassword == null || savedPassword.isEmpty()) {
+                val newPassword = PasswordGenerator().generatePassword()
+                persistentStorage.savePassword(newPassword)
+                savedPassword = newPassword
             }
+            currentPassword = savedPassword
             val savedStatus = persistentStorage.getStatus()
             isSwitchChecked = savedStatus
         }
@@ -115,17 +110,13 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
     }
 
     @Composable
-    fun displayPassword(password: String) {
-        var displayedPassword : String = password
-        if (password.isEmpty()) {
-            displayedPassword = GenerationPasswordScreen.EMPTY_CODE
-        }
+    fun displayPassword() {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(space = 25.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            displayedPassword.forEach { char ->
+            currentPassword.forEach { char ->
                 displayCharacter(char = char)
             }
         }
@@ -209,23 +200,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
     }
 
-    @Composable
-    fun displayStatus() {
-        toggleWithText(
-            text = stringResource(R.string.welcome_screen_on_off),
-            isChecked = isSwitchChecked,
-            fontWeight = FontWeight.Medium,
-            onCheckedChange = { isChecked ->
-                isSwitchChecked = isChecked
-                persistentStorage.saveStatus(isChecked)
-                Log.d(GenerationPasswordScreen.TAG, "Switch is now ${if (isChecked) "ON" else "OFF"}")
-                onSelection()
-            }
-        )
-    }
-
     Column(modifier = Modifier.padding(16.dp)) {
-        displayStatus()
 
         Text(text = stringResource(id = R.string.welcome_screen_intro_1),
             style = MaterialTheme.typography.bodyLarge)
@@ -243,7 +218,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        displayPassword(currentPassword)
+        displayPassword()
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
