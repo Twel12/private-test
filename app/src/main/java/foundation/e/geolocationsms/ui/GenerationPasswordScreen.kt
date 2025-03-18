@@ -41,16 +41,10 @@ import kotlinx.coroutines.launch
 
 import android.provider.Settings;
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 
@@ -62,7 +56,6 @@ import androidx.compose.ui.res.painterResource
  **/
 object GenerationPasswordScreen : ScreenInterface{
 
-    internal const val EMPTY_CODE = "--------"
     internal const val CODE_COLOR = 0xFF1A9E24
     internal const val TAG = "GenerationPasswordScreen"
 
@@ -118,7 +111,9 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
     fun displayPassword(password: String) {
         var displayedPassword : String = password
         if (password.isEmpty()) {
-            displayedPassword = GenerationPasswordScreen.EMPTY_CODE
+            val newPassword = PasswordGenerator().generatePassword()
+            displayedPassword = newPassword
+            persistentStorage.savePassword(currentPassword)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
