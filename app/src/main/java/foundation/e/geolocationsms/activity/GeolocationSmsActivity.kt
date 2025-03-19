@@ -23,15 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import foundation.e.geolocationsms.util.PermissionManager
 import foundation.e.geolocationsms.storage.PersistentStorage
 import foundation.e.geolocationsms.R
 import foundation.e.geolocationsms.data.Pages
-import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_CHECK_PASSWORD
-import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_KEY
-import foundation.e.geolocationsms.receiver.UiReceiver.Companion.UI_ACTION_NEW_PASSWORD
 import foundation.e.geolocationsms.ui.theme.geolocationSmsTheme
 import foundation.e.geolocationsms.ui.ConfirmationPasswordScreen
 import foundation.e.geolocationsms.ui.GenerationPasswordScreen
@@ -70,37 +66,11 @@ class GeolocationSmsActivity : FragmentActivity() {
 
         if (hasSimSupport(this)) {
             persistentStorage = PersistentStorage(this)
-
-            if (intent.hasExtra(UI_ACTION_KEY)) {
-                if (UI_ACTION_NEW_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
-
-                    val biometricManager = BiometricManager.from(this)
-                    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                            BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
-                        BiometricManager.BIOMETRIC_SUCCESS -> {
-                            showBiometricPrompt()
-                        }
-                        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                            displayPage(Pages.GeneratePassword)
-                        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                            Log.d(TAG, "Biometric hardware is currently unavailable")
-                            displayPage(Pages.GeneratePassword)
-                        }
-                        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                            displayPage(Pages.GeneratePassword)
-
-                        //K1ZFP TODO Manage all cases
-                    }
-                } else if (UI_ACTION_CHECK_PASSWORD == intent.getStringExtra(UI_ACTION_KEY)) {
-                    displayPage(Pages.CheckPassword)
-                }
-            } else {
-                displayPage(Pages.ActivateFeature)
-            }
+            displayPage(Pages.ActivateFeature)
         }
     }
 
-    fun hasSimSupport(context: Context): Boolean {
+    private fun hasSimSupport(context: Context): Boolean {
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         return when (telephonyManager.simState) {
             TelephonyManager.SIM_STATE_READY -> {
@@ -125,35 +95,6 @@ class GeolocationSmsActivity : FragmentActivity() {
         finishAfterTransition()
     }
 
-    private fun showBiometricPrompt() {
-        val executor = ContextCompat.getMainExecutor(this)
-        val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                //handleFailedUnlock()
-            }
-
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                super.onAuthenticationSucceeded(result)
-                displayPage(Pages.GeneratePassword)
-            }
-
-            override fun onAuthenticationFailed() {
-                super.onAuthenticationFailed()
-                //handleFailedUnlock()
-            }
-        })
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric login for my app")
-            .setSubtitle("Log in using your biometric credential")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-            .build()
-
-        biometricPrompt.authenticate(promptInfo)
-    }
-
     private fun getTitleForPage(page: Pages) = when(page){
         Pages.ActivateFeature -> getString(R.string.title_welcome)
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
@@ -161,7 +102,7 @@ class GeolocationSmsActivity : FragmentActivity() {
     }
 
     //region Display screen
-    private fun displayPage(page: Pages){
+    fun displayPage(page: Pages){
         setContent {
             geolocationSmsTheme {
                 window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
@@ -205,8 +146,8 @@ class GeolocationSmsActivity : FragmentActivity() {
                                     onBackPressed = { Log.d(TAG, "G BACK")},
                                     onSelection = {
                                         Log.d(TAG, "G SEL")
-                                        onExitApp(true)
-                                    }
+                                        onExitApp(true) },
+                                    geolocationSmsActivity = this@GeolocationSmsActivity
                                 )
                                 Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen( //K1ZFP REMOVE
                                     onBackPressed = { Log.d(TAG, "C BACK")},

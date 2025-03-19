@@ -38,7 +38,9 @@ import foundation.e.geolocationsms.ui.buttons.buttonColor
 import foundation.e.geolocationsms.util.Dimens
 import kotlinx.coroutines.launch
 
-import android.provider.Settings;
+import android.provider.Settings
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +48,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
+import foundation.e.geolocationsms.activity.GeolocationSmsActivity
+import foundation.e.geolocationsms.activity.GeolocationSmsActivity.Companion.TAG
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * GenerationPasswordScreen
@@ -53,15 +61,20 @@ import androidx.compose.ui.res.painterResource
  * This class implements a screen within the application's user interface that
  * is responsible for generating and displaying a new, random password.
  **/
-object GenerationPasswordScreen : ScreenInterface{
+object GenerationPasswordScreen {
 
     internal const val CODE_COLOR = 0xFF1A9E24
     internal const val TAG = "GenerationPasswordScreen"
 
+    @SuppressLint("ComposableNaming")
     @Composable
-    override fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
+    fun displayScreen(
+        onBackPressed: () -> Unit,
+        onSelection: () -> Unit,
+        geolocationSmsActivity: GeolocationSmsActivity?
+    ) {
         BackHandler(onBack = { onBackPressed() })
-        generatePasswordScreenContent(onSelection)
+        generatePasswordScreenContent(onSelection, geolocationSmsActivity)
     }
 }
 
@@ -70,22 +83,99 @@ object GenerationPasswordScreen : ScreenInterface{
 @SuppressLint("ComposableNaming")
 @Composable
 fun generatePasswordScreenPreview() {
-    generatePasswordScreenContent {}
+    generatePasswordScreenContent(onSelection = {}, geolocationSmsActivity = null)
 }
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @SuppressLint("ComposableNaming")
 @Composable
-fun generatePasswordScreenContent(onSelection: () -> Unit) {
+fun generatePasswordScreenContent(onSelection: () -> Unit,
+                                  geolocationSmsActivity: GeolocationSmsActivity? = null) {
     val context = LocalContext.current
     val persistentStorage = PersistentStorage(context)
     val scope = rememberCoroutineScope()
     var currentPassword by remember { mutableStateOf("") }
     var isSwitchChecked by remember { mutableStateOf(false) }
 
+    var hasSecurity by remember { mutableStateOf(false) }
+
+    suspend fun showBiometricPromptAsync(geolocationSmsActivity: GeolocationSmsActivity): Boolean =
+        suspendCancellableCoroutine { continuation ->
+            val executor = ContextCompat.getMainExecutor(geolocationSmsActivity)
+
+            val biometricPrompt = BiometricPrompt(
+                geolocationSmsActivity,
+                executor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        continuation.resume(false)
+                    }
+
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        continuation.resume(true)
+                    }
+                })
+
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(geolocationSmsActivity.getString(R.string.main_security_title))
+                .setSubtitle(geolocationSmsActivity.getString(R.string.main_security_description))
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .build()
+
+            biometricPrompt.authenticate(promptInfo)
+
+            continuation.invokeOnCancellation {
+                biometricPrompt.cancelAuthentication()
+            }
+        }
+
+    fun checkSecurity(geolocationSmsActivity: GeolocationSmsActivity): Boolean {
+        val biometricManager = BiometricManager.from(geolocationSmsActivity)
+
+        return when (biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+
+            BiometricManager.BIOMETRIC_SUCCESS -> true // disponible et utilisable immédiatement
+
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                // pas d'éléments biométriques enregistrés ou pas de matériel disponible,
+                // tu peux dégrader de façon transparente
+                false
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                Log.d(TAG, "Biometric hardware is currently unavailable")
+                // matériel non disponible temporairement
+                false
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
+            BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED,
+            BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> {
+                Log.d(TAG, "Biometric security unsupported or unknown")
+                false
+            }
+
+            else -> {
+                Log.d(TAG, "Unknown error when checking biometric capability")
+                false
+            }
+        }
+    }
+
+
     LaunchedEffect(key1 = true) {
         scope.launch {
             var savedPassword = persistentStorage.getPassword()
-            if (savedPassword == null || savedPassword.isEmpty()) {
+            if (savedPassword.isNullOrEmpty()) {
                 val newPassword = PasswordGenerator().generatePassword()
                 persistentStorage.savePassword(newPassword)
                 savedPassword = newPassword
@@ -93,6 +183,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
             currentPassword = savedPassword
             val savedStatus = persistentStorage.getStatus()
             isSwitchChecked = savedStatus
+
+            hasSecurity = checkSecurity(geolocationSmsActivity!!)
         }
     }
 
@@ -123,7 +215,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
     }
 
     @Composable
-    fun generateNewCode() {
+    fun generateNewCode(geolocationSmsActivity: GeolocationSmsActivity) {
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -131,9 +224,17 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
             Button(
                 onClick = {
                     scope.launch {
-                        val newPassword = PasswordGenerator().generatePassword()
-                        currentPassword = newPassword
-                        persistentStorage.savePassword(currentPassword)
+                        var performSave = true
+                        if (hasSecurity) {
+                            performSave = showBiometricPromptAsync(geolocationSmsActivity)
+                        }
+                        if (performSave) {
+                            val newPassword = PasswordGenerator().generatePassword()
+                            currentPassword = newPassword
+                            persistentStorage.savePassword(currentPassword)
+                        } else {
+                            Log.d(TAG, "Password not saved")
+                        }
                     }
                 },
                 colors = actionColor()
@@ -197,7 +298,6 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
                 }
             }
         }
-
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -222,7 +322,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        generateNewCode()
+        generateNewCode(geolocationSmsActivity = geolocationSmsActivity!!)
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
@@ -233,4 +333,3 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
         displayNextButton()
     }
 }
-

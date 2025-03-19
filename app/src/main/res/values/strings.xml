@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GeolocationSMS</string>
+    <string name="app_name">Find my Device</string>
 
     <string name="title_welcome">  </string>
     <string name="title_generate_password">Your phone\'s secret code</string>
@@ -20,6 +20,9 @@
     <string name="password_incorrect">Incorrect Password</string>
     <string name="password_next">Next</string>
     <string name="password_test_procedure">Please verify if the code is working by sending it to your phone number from another phone at your disposal.</string>
+
+    <string name="main_security_title">Authentication required</string>
+    <string name="main_security_description">Enter your unlock code</string>
 
     <string name="check_permission">Permissions not granted, the service will not work at all.</string>
     <string name="welcome_screen_title">Find my Phone</string>

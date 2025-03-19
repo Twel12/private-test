@@ -46,11 +46,12 @@ import kotlinx.coroutines.launch
  *
  * This class implements the initial screen displayed to the user upon launching the application.
  **/
-object WelcomeScreen : ScreenInterface {
+object WelcomeScreen {
     internal const val TAG = "WelcomeScreen"
 
+    @SuppressLint("ComposableNaming")
     @Composable
-    override fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
+    fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
         BackHandler(onBack = { onBackPressed() })
         welcomeScreenContent(onSelection)
     }
@@ -129,7 +130,7 @@ fun welcomeScreenContent(onSelection: () -> Unit) {
 
     @Composable
     fun manageCode() {
-        if (GeolocationSmsActivity.Companion.persistentStorage.getStatus()) {
+        if (GeolocationSmsActivity.persistentStorage.getStatus()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center

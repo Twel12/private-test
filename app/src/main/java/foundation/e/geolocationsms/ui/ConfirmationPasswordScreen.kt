@@ -34,9 +34,9 @@ import kotlinx.coroutines.launch
  * This class implements a screen within the application's user interface that
  * allows the user to confirm a previously generated password.
  **/
-object ConfirmationPasswordScreen: ScreenInterface {
+object ConfirmationPasswordScreen {
     @Composable
-    override fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
+    fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
         generateConfirmationPasswordScreen()
     }
 }
