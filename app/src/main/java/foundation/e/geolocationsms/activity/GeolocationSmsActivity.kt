@@ -122,7 +122,9 @@ class GeolocationSmsActivity : FragmentActivity() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.Top
                     ) {
-                        BackHandler(onBack = { onExitApp() })
+                        BackHandler(onBack = {
+                            onExitApp() }
+                        )
                         customTopAppBar(
                             title = appBarTitle.value,
                             onClick = { onExitApp() }
@@ -133,14 +135,15 @@ class GeolocationSmsActivity : FragmentActivity() {
                         ) {
                             when (page) {
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
-                                    onBackPressed = { Log.d(TAG, "A BACK")},
+                                    onBackPressed = {
+                                        Log.d(TAG, "A BACK")
+                                        onExitApp() },
                                     onSelection = {
                                         Log.d(TAG, "A SEL")
                                         if (persistentStorage.getStatus())
                                             displayPage(Pages.GeneratePassword)
                                         else
-                                            displayPage(Pages.ActivateFeature)
-                                    }
+                                            displayPage(Pages.ActivateFeature) }
                                 )
                                 Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
                                     onBackPressed = { Log.d(TAG, "G BACK")},
