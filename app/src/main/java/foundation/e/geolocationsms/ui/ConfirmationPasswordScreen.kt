@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
  **/
 object ConfirmationPasswordScreen {
     @Composable
-    fun displayScreen(onBackPressed: () -> Unit, onSelection: () -> Unit) {
+    fun displayScreen() {
         generateConfirmationPasswordScreen()
     }
 }

@@ -78,7 +78,6 @@ object GenerationPasswordScreen {
     }
 }
 
-
 @Preview(showBackground = true)
 @SuppressLint("ComposableNaming")
 @Composable
@@ -86,8 +85,77 @@ fun generatePasswordScreenPreview() {
     generatePasswordScreenContent(onSelection = {}, geolocationSmsActivity = null)
 }
 
+suspend fun showBiometricPromptAsync(geolocationSmsActivity: GeolocationSmsActivity): Boolean =
+    suspendCancellableCoroutine { continuation ->
+        val executor = ContextCompat.getMainExecutor(geolocationSmsActivity)
 
-@OptIn(ExperimentalCoroutinesApi::class)
+        val biometricPrompt = BiometricPrompt(
+            geolocationSmsActivity,
+            executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    continuation.resume(false)
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    continuation.resume(true)
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(geolocationSmsActivity.getString(R.string.main_security_title))
+            .setSubtitle(geolocationSmsActivity.getString(R.string.main_security_description))
+            .setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
+
+        continuation.invokeOnCancellation {
+            biometricPrompt.cancelAuthentication()
+        }
+    }
+
+fun checkSecurity(geolocationSmsActivity: GeolocationSmsActivity): Boolean {
+    val biometricManager = BiometricManager.from(geolocationSmsActivity)
+
+    return when (biometricManager.canAuthenticate(
+        BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+
+        BiometricManager.BIOMETRIC_SUCCESS -> true // disponible et utilisable immédiatement
+
+        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+            // pas d'éléments biométriques enregistrés ou pas de matériel disponible,
+            // tu peux dégrader de façon transparente
+            false
+        }
+
+        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+            Log.d(TAG, "Biometric hardware is currently unavailable")
+            // matériel non disponible temporairement
+            false
+        }
+
+        BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
+        BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED,
+        BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> {
+            Log.d(TAG, "Biometric security unsupported or unknown")
+            false
+        }
+
+        else -> {
+            Log.d(TAG, "Unknown error when checking biometric capability")
+            false
+        }
+    }
+}
+
 @SuppressLint("ComposableNaming")
 @Composable
 fun generatePasswordScreenContent(onSelection: () -> Unit,
@@ -99,77 +167,6 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
     var isSwitchChecked by remember { mutableStateOf(false) }
 
     var hasSecurity by remember { mutableStateOf(false) }
-
-    suspend fun showBiometricPromptAsync(geolocationSmsActivity: GeolocationSmsActivity): Boolean =
-        suspendCancellableCoroutine { continuation ->
-            val executor = ContextCompat.getMainExecutor(geolocationSmsActivity)
-
-            val biometricPrompt = BiometricPrompt(
-                geolocationSmsActivity,
-                executor,
-                object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
-                        continuation.resume(false)
-                    }
-
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
-                        continuation.resume(true)
-                    }
-                })
-
-            val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle(geolocationSmsActivity.getString(R.string.main_security_title))
-                .setSubtitle(geolocationSmsActivity.getString(R.string.main_security_description))
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                )
-                .build()
-
-            biometricPrompt.authenticate(promptInfo)
-
-            continuation.invokeOnCancellation {
-                biometricPrompt.cancelAuthentication()
-            }
-        }
-
-    fun checkSecurity(geolocationSmsActivity: GeolocationSmsActivity): Boolean {
-        val biometricManager = BiometricManager.from(geolocationSmsActivity)
-
-        return when (biometricManager.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
-
-            BiometricManager.BIOMETRIC_SUCCESS -> true // disponible et utilisable immédiatement
-
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                // pas d'éléments biométriques enregistrés ou pas de matériel disponible,
-                // tu peux dégrader de façon transparente
-                false
-            }
-
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                Log.d(TAG, "Biometric hardware is currently unavailable")
-                // matériel non disponible temporairement
-                false
-            }
-
-            BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
-            BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED,
-            BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> {
-                Log.d(TAG, "Biometric security unsupported or unknown")
-                false
-            }
-
-            else -> {
-                Log.d(TAG, "Unknown error when checking biometric capability")
-                false
-            }
-        }
-    }
 
 
     LaunchedEffect(key1 = true) {
