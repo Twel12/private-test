@@ -41,13 +41,11 @@ class SmsReceiver : BroadcastReceiver() {
             val sender = message.originatingAddress
             val body = message.messageBody
 
-            //Log.d(TAG, "SMS received from: $sender")
-
             if (sender == null || body == null) {
                 continue
             }
 
-            if (body.contains(password, ignoreCase = true)) {
+            if (body.equals(password, ignoreCase = true)) {
                 Log.d(TAG, "SMS received from: $sender with password.")
                 senders.add(sender)
             }
@@ -77,9 +75,6 @@ class SmsReceiver : BroadcastReceiver() {
         for (message in messages) {
             val sender = message.originatingAddress
             val body = message.messageBody
-
-            Log.d(TAG, "SMS received from: $sender")
-            Log.d(TAG, "Message body: $body")
 
             if (sender != null  && body != null) {
                 found = true
