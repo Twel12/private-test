@@ -127,18 +127,13 @@ fun checkSecurity(geolocationSmsActivity: GeolocationSmsActivity): Boolean {
         BiometricManager.Authenticators.BIOMETRIC_STRONG or
                 BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
 
-        BiometricManager.BIOMETRIC_SUCCESS -> true // disponible et utilisable immédiatement
+        BiometricManager.BIOMETRIC_SUCCESS -> true
 
         BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-            // pas d'éléments biométriques enregistrés ou pas de matériel disponible,
-            // tu peux dégrader de façon transparente
-            false
-        }
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> false
 
         BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
             Log.d(TAG, "Biometric hardware is currently unavailable")
-            // matériel non disponible temporairement
             false
         }
 
@@ -181,7 +176,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             val savedStatus = persistentStorage.getStatus()
             isSwitchChecked = savedStatus
 
-            hasSecurity = checkSecurity(geolocationSmsActivity!!)
+            // Step2 Existing feature allowing to use biometric authentication
+            hasSecurity = false //checkSecurity(geolocationSmsActivity!!)
         }
     }
 
