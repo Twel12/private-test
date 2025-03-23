@@ -152,10 +152,7 @@ class GeolocationSmsActivity : FragmentActivity() {
                                         onExitApp(true) },
                                     geolocationSmsActivity = this@GeolocationSmsActivity
                                 )
-                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen( //K1ZFP REMOVE
-                                    onBackPressed = { Log.d(TAG, "C BACK")},
-                                    onSelection = { Log.d(TAG, "C SEL")}
-                                )
+                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen()
                             }
                         }
                     }
