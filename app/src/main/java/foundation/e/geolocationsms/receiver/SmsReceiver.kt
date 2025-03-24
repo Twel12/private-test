@@ -54,6 +54,10 @@ class SmsReceiver : BroadcastReceiver() {
     }
 
     private fun executeLocationWorkOnce(sender: Array<String>, context: Context) {
+        if (sender.isEmpty()) {
+            Log.d(TAG, "No sender found")
+            return
+        }
         val serviceIntent = Intent(context, LocationService::class.java)
 
         serviceIntent.putStringArrayListExtra(LocationService.KEY_SENDER, ArrayList(sender.asList()))
