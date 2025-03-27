@@ -1,6 +1,8 @@
 package foundation.e.geolocationsms.activity
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -45,6 +47,7 @@ class GeolocationSmsActivity : FragmentActivity() {
     companion object {
         const val TAG = "GeolocationSmsActivity"
         lateinit var persistentStorage: PersistentStorage
+        const val APP_FIND_MY_DEVICE_ASK_STATUS = "FMD_ASK_STATUS" // Shared with parental control
     }
 
     private lateinit var permissionManager: PermissionManager
@@ -53,9 +56,18 @@ class GeolocationSmsActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        persistentStorage = PersistentStorage(this)
+
         val intent = intent
-        val action = intent.action
-        Log.d(TAG, "Action: $action")
+        // Ask for status. Do not really start the activity
+        val fmdAskStatus : Boolean= intent.getBooleanExtra(APP_FIND_MY_DEVICE_ASK_STATUS, false)
+        if (fmdAskStatus) {
+            val resultIntent = Intent()
+            resultIntent.putExtra(APP_FIND_MY_DEVICE_ASK_STATUS, persistentStorage.getStatus())
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
+            return
+        }
 
         permissionManager = PermissionManager(this)
         permissionManager.checkAndRequestPermissionsWithBackground() {granted ->
@@ -65,7 +77,6 @@ class GeolocationSmsActivity : FragmentActivity() {
         }
 
         if (hasSimSupport(this)) {
-            persistentStorage = PersistentStorage(this)
             displayPage(Pages.ActivateFeature)
         }
     }
