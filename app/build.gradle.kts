@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "foundation.e.geolocationsms"
+    namespace = "foundation.e.findmydevice"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "foundation.e.geolocationsms"
+        applicationId = "foundation.e.findmydevice"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

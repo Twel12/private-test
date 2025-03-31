@@ -24,11 +24,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GeolocationSMS"
+        android:theme="@style/Theme.FindMyDevice"
         android:resizeableActivity="true"
         tools:ignore="UnusedAttribute">
         <activity
-            android:name=".activity.GeolocationSmsActivity"
+            android:name=".activity.FindMyDeviceActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:theme="@style/NoAnimationTheme">
@@ -70,9 +70,9 @@
             android:name=".receiver.UiReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="foundation.e.geolocationsms.NEW_PASSWORD" />
-                <action android:name="foundation.e.geolocationsms.CHECK_PASSWORD" />
-                <action android:name="foundation.e.geolocationsms.STATUS" />
+                <action android:name="foundation.e.findmydevice.NEW_PASSWORD" />
+                <action android:name="foundation.e.findmydevice.CHECK_PASSWORD" />
+                <action android:name="foundation.e.findmydevice.STATUS" />
             </intent-filter>
         </receiver>
 
