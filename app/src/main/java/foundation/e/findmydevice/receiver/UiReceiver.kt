@@ -12,6 +12,8 @@ import foundation.e.findmydevice.activity.FindMyDeviceActivity
  **/
 class  UiReceiver :  BroadcastReceiver() {
 
+    // REmove
+
     companion object {
         private const val TAG = "UiReceiver"
         const val UI_ACTION_KEY = "ACTION_KEY"

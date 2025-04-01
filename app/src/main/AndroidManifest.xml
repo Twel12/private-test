@@ -32,6 +32,8 @@
             android:exported="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:theme="@style/NoAnimationTheme">
+
+            <!-- remove -->
             <intent-filter>
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
             </intent-filter>
