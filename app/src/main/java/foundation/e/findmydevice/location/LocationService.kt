@@ -24,149 +24,143 @@ import foundation.e.findmydevice.util.SmsSender
 class LocationService : Service() {
 
     companion object {
-        private const val NOTIFICATION_ID = 1234 // K1ZFP Check this
+        private const val NOTIFICATION_ID = 1234
         private const val TAG = "LocationService"
-        private const val STOP_SERVICE_DELAY = 15000L // 15 seconds
+        private const val STOP_SERVICE_DELAY = 15000L
         const val KEY_SENDER = "sender"
     }
 
     private lateinit var locationManager: LocationManager
-    private var senders = mutableListOf<String>()
+    private val senders = mutableListOf<String>()
     private var locationReceived = false
 
-    private val locationListener = LocationListener { location ->
-        if (!locationReceived) {
-            locationReceived = true
-            Log.d(TAG, "Location changed: $location")
+    private val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            if (!locationReceived) {
+                locationReceived = true
+                Log.d(TAG, "Location received: $location")
+                handleLocationReceived(location)
+            }
+        }
 
-            val latitude = location.latitude
-            val longitude = location.longitude
+        override fun onProviderDisabled(provider: String) {
+            Log.w(TAG, "Provider disabled: $provider")
+        }
 
-            Log.d(TAG, "Location: $latitude, $longitude")
-            sendLocation(latitude, longitude)
-            onLocationReceived?.invoke(location)
-            stopLocationUpdatesAndFinish()
+        override fun onProviderEnabled(provider: String) {
+            Log.d(TAG, "Provider enabled: $provider")
         }
     }
 
-    private fun sendLocation(latitude: Double?, longitude: Double?) {
-        for (sender in senders) {
-            Log.d(TAG, "Sending location to $sender")
-            SmsSender(this).sendSms(sender, latitude, longitude)
-        }
-    }
-
-    private var onLocationReceived: ((Location) -> Unit)? = null
-    private val handler = Handler(Looper.getMainLooper())
-
-    private fun stopLocationUpdates() {
-        Log.d(TAG, "Stopping location updates")
-        locationManager.removeUpdates(locationListener)
-        handler.removeCallbacksAndMessages(null)
-    }
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate() {
-        Log.d(TAG, "onCreate")
         super.onCreate()
+        Log.d(TAG, "Service created")
+
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val notificationBuilder = NotificationHelper()
-        notificationBuilder.createNotificationChannel(this)
-        val notification= notificationBuilder.createNotification(this)
-        startForeground(NOTIFICATION_ID, notification)
-        startLocationUpdates()
+        setupForegroundNotification()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand received")
+
+        intent?.getStringArrayListExtra(KEY_SENDER)?.let {
+            senders.clear()
+            senders.addAll(it)
+        }
+
+        startLocationUpdatesWithTimeout()
+
+        return START_STICKY
     }
 
     @Suppress("MissingPermission")
-    private fun sendLastKnownLocation(): Boolean {
-        Log.d(TAG, "Attempting to send last known location")
-
-        val gpsLastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        val networkLastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-        val recentLocation = when {
-            gpsLastKnown != null && networkLastKnown != null -> {
-                if (gpsLastKnown.time > networkLastKnown.time) gpsLastKnown else networkLastKnown
-            }
-            gpsLastKnown != null -> gpsLastKnown
-            networkLastKnown != null -> networkLastKnown
-            else -> null
-        }
-
-        if (recentLocation != null) {
-            Log.d(TAG, "Last known location found: ${recentLocation.latitude}, ${recentLocation.longitude}")
-            sendLocation(recentLocation.latitude, recentLocation.longitude)
-            return true
-        }
-
-        Log.e(TAG, "No last known location available")
-        return false
-    }
-
-    @Suppress("MissingPermission")
-    private fun startLocationUpdates() {
+    private fun startLocationUpdatesWithTimeout() {
         Log.d(TAG, "Starting location updates")
 
-        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        Log.d(TAG, "GPS enabled: $isGpsEnabled, Network enabled: $isNetworkEnabled")
+        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        val networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
-        if (isGpsEnabled) {
+        if (!gpsEnabled && !networkEnabled) {
+            Log.e(TAG, "No location providers enabled, sending fallback")
+            fallbackToLastKnownOrSendNull()
+            return
+        }
+
+        if (gpsEnabled) {
             locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                0L,
-                0f,
-                locationListener
+                LocationManager.GPS_PROVIDER, 0L, 0f, locationListener
             )
         }
 
-        if (isNetworkEnabled) {
+        if (networkEnabled) {
             locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER,
-                0L,
-                0f,
-                locationListener
+                LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener
             )
         }
 
-        if (!isGpsEnabled && !isNetworkEnabled) {
-            Log.e(TAG, "No provider enabled")
-        }
-
-        handler.postDelayed({
-            if (!locationReceived) {
-                Log.e(TAG, "No location received within delay, attempting last known location")
-                if (!sendLastKnownLocation()) {
-                    Log.e(TAG, "Sending fallback SMS as no last known location was available either.")
-                    sendLocation(null, null)
-                }
-            }
-            stopLocationUpdatesAndFinish() },
-            STOP_SERVICE_DELAY)
+        handler.postDelayed(::onLocationTimeout, STOP_SERVICE_DELAY)
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        // This is not a bound service
-        return null
+    private fun onLocationTimeout() {
+        Log.w(TAG, "Timeout reached without receiving new location, using last known")
+        fallbackToLastKnownOrSendNull()
+    }
+
+    @Suppress("MissingPermission")
+    private fun fallbackToLastKnownOrSendNull() {
+        val recentLocation = listOfNotNull(
+            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER),
+            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        ).maxByOrNull { it.time }
+
+        if (recentLocation != null) {
+            Log.d(TAG, "Found last known location: ${recentLocation.latitude}, ${recentLocation.longitude}")
+            handleLocationReceived(recentLocation)
+        } else {
+            Log.w(TAG, "No last known location found, sending null coordinates")
+            sendLocationToAll(null, null)
+        }
+
+        stopLocationUpdatesAndFinish()
+    }
+
+    private fun handleLocationReceived(location: Location) {
+        sendLocationToAll(location.latitude, location.longitude)
+        stopLocationUpdatesAndFinish()
+    }
+
+    private fun sendLocationToAll(latitude: Double?, longitude: Double?) {
+        Log.d(TAG, "Sending location to senders: $latitude, $longitude")
+        val senderUtil = SmsSender(this)
+        senders.forEach { sender ->
+            senderUtil.sendSms(sender, latitude, longitude)
+        }
+    }
+
+    private fun setupForegroundNotification() {
+        val notificationBuilder = NotificationHelper()
+        notificationBuilder.createNotificationChannel(this)
+        val notification = notificationBuilder.createNotification(this)
+        startForeground(NOTIFICATION_ID, notification)
+    }
+
+    private fun stopLocationUpdatesAndFinish() {
+        Log.d(TAG, "Stopping location updates and finishing service")
+        locationManager.removeUpdates(locationListener)
+        handler.removeCallbacksAndMessages(null)
+        stopForeground(STOP_FOREGROUND_DETACH)
+        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopLocationUpdates()
+        Log.d(TAG, "Service destroyed, cleaning resources")
+        stopLocationUpdatesAndFinish()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        senders.clear()
-        val myStringArrayList = intent?.getStringArrayListExtra(KEY_SENDER)
-        if (!myStringArrayList.isNullOrEmpty()) {
-            senders.addAll(myStringArrayList)
-        }
-        return START_STICKY
-    }
-
-    private fun stopLocationUpdatesAndFinish() {
-        Log.d(TAG, "stopLocationUpdatesAndFinish")
-        stopLocationUpdates()
-        stopForeground(STOP_FOREGROUND_DETACH)
-        stopSelf()
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 }

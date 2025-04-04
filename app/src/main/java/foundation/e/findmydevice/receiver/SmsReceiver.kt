@@ -53,14 +53,14 @@ class SmsReceiver : BroadcastReceiver() {
         executeLocationWorkOnce(senders.toTypedArray(), context)
     }
 
-    private fun executeLocationWorkOnce(sender: Array<String>, context: Context) {
-        if (sender.isEmpty()) {
-            Log.d(TAG, "No sender found")
+    private fun executeLocationWorkOnce(senders: Array<String>, context: Context) {
+        if (senders.isEmpty()) {
+            Log.d(TAG, "No sender (with password) found.")
             return
         }
         val serviceIntent = Intent(context, LocationService::class.java)
 
-        serviceIntent.putStringArrayListExtra(LocationService.KEY_SENDER, ArrayList(sender.asList()))
+        serviceIntent.putStringArrayListExtra(LocationService.KEY_SENDER, ArrayList(senders.asList()))
         context.startForegroundService(serviceIntent)
     }
 

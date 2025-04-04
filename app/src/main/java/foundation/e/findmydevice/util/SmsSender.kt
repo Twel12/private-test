@@ -6,6 +6,8 @@ import android.content.Intent
 import android.telephony.SmsManager
 import android.util.Log
 import foundation.e.findmydevice.R
+import java.util.ArrayList
+
 
 /**
  * SmsSender
@@ -16,61 +18,58 @@ class SmsSender(private val context: Context) {
 
     companion object {
         private const val TAG = "SmsReceiver"
-        private const val SENT = "SMS_SENT"
         private const val DELIVERED = "SMS_DELIVERED"
-        private const val MAX_SMS_LENGTH = 160
     }
 
     fun sendSms(phoneNumber: String, latitude: Double?, longitude: Double?) {
+        val message: String = if (latitude != null && longitude != null) {
+            context.getString(R.string.sms_message_with_location) + "\n" +
+                    context.getString(R.string.sms_message_with_location_1, latitude.toString(), longitude.toString()) + "\n" +
+                    context.getString(R.string.sms_message_with_location_2, latitude.toString(), longitude.toString())
+        } else {
+            context.getString(R.string.sms_message_with_location_not_found)
+        }
+
+        sendSmsDirect(phoneNumber, message)
+    }
+
+    fun sendSmsDirect(phoneNumber: String, message: String) {
         try {
-            Log.d(TAG, "Sending SMS to $phoneNumber")
-            val sentPI = PendingIntent.getBroadcast(
-                context, 0, Intent(SENT),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
-            )
-            val deliveredPI = PendingIntent.getBroadcast(
-                context, 0, Intent(DELIVERED),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
-            )
-
             val smsManager = context.getSystemService(SmsManager::class.java)
-            var message: String
-            if (latitude != null && longitude != null) {
-                message = context.getString(R.string.sms_message_with_location) + "\n"
-                message += context.getString(R.string.sms_message_with_location_1, latitude.toString(), longitude
-                    .toString()) + "\n"
-                message += context.getString(R.string.sms_message_with_location_2, latitude.toString(), longitude
-                    .toString())
-            } else {
-                message = context.getString(R.string.sms_message_with_location_not_found)
-            }
-            Log.d(TAG, "Sending SMS: $message")
+            val sentPI = PendingIntent.getBroadcast(
+                context,
+                phoneNumber.hashCode(),
+                Intent().apply {},
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
-            if (message.length > MAX_SMS_LENGTH) {
-                Log.w(TAG, "SMS message length exceeds 160 characters. Dividing message.")
-                sendLongSms(phoneNumber, message, sentPI, deliveredPI)
+            val deliveredPI = PendingIntent.getBroadcast(
+                context,
+                phoneNumber.hashCode(),
+                Intent(DELIVERED),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            val parts: List<String> = smsManager.divideMessage(message)
+
+            if (parts.size > 1) {
+                val sentList = List(parts.size) { sentPI }
+                val deliveredList = List(parts.size) { deliveredPI }
+                smsManager.sendMultipartTextMessage(phoneNumber, null,
+                    parts as ArrayList<String>?,
+                    sentList as ArrayList<PendingIntent>?,
+                    deliveredList as ArrayList<PendingIntent>?
+                )
             } else {
+                Log.d(TAG, "Try to sent SMS to $phoneNumber")
                 smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
             }
 
         } catch (e: SecurityException) {
-            Log.e(TAG, "Security exception sending SMS: ${e.message}", e)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "Illegal argument exception sending SMS: ${e.message}", e)
+            Log.e(TAG, "Missing permission to send SMS", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "Cannot send SMS : ${e.message}", e)
+            throw e // This one should retry
         }
-    }
-
-    private fun sendLongSms(phoneNumber: String, message: String, sentPI:PendingIntent, deliveredPI:PendingIntent) {
-        val smsManager = SmsManager.getDefault()
-        val parts = smsManager.divideMessage(message)
-        Log.d(TAG, "Sending long SMS with ${parts.size} parts")
-        val sentIntents = ArrayList<PendingIntent>()
-        val deliveredIntents = ArrayList<PendingIntent>()
-
-        parts.forEach { _ ->
-            sentIntents.add(sentPI)
-            deliveredIntents.add(deliveredPI)
-        }
-        smsManager.sendMultipartTextMessage(phoneNumber, null, parts, sentIntents, deliveredIntents)
     }
 }

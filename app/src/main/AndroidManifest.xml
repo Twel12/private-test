@@ -6,17 +6,20 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
+    <!-- Permissions for all versions (31+) -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- For Android 13 (SDK 33) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        android:minSdkVersion="33" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- For Android 14 (SDK 34) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+        android:minSdkVersion="34" />
 
     <application
         android:allowBackup="false"
@@ -32,23 +35,7 @@
             android:exported="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:theme="@style/NoAnimationTheme">
-
-            <!-- remove -->
-            <intent-filter>
-                <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
-            </intent-filter>
-            <meta-data
-                android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.security" />
-            <meta-data
-                android:name="com.android.settings.title"
-                android:resource="@string/extra_caption" />
-            <meta-data
-                android:name="com.android.settings.order"
-                android:value="0" />
         </activity>
-
-
 
         <!-- Receivers -->
         <receiver

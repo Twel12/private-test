@@ -35,6 +35,8 @@ import foundation.e.findmydevice.ui.WelcomeScreen
 import foundation.e.findmydevice.ui.text.customTopAppBar
 
 import android.telephony.TelephonyManager
+import foundation.e.findmydevice.ui.NoSimScreen
+
 /**
  * FindMyDeviceActivity
  *
@@ -68,14 +70,13 @@ class FindMyDeviceActivity : FragmentActivity() {
         }
 
         permissionManager = PermissionManager(this)
-        permissionManager.checkAndRequestPermissionsWithBackground() {granted ->
-            if (!granted){
-                return@checkAndRequestPermissionsWithBackground
-            }
-        }
+        permissionManager.checkAndRequestPermissionsWithBackground {  }
 
-        if (hasSimSupport(this)) {
+        if (hasSimSupport(this))
+        {
             displayPage(Pages.ActivateFeature)
+        } else {
+            displayPage(Pages.NoSIM)
         }
     }
 
@@ -108,9 +109,11 @@ class FindMyDeviceActivity : FragmentActivity() {
         Pages.ActivateFeature -> getString(R.string.title_welcome)
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
         Pages.CheckPassword -> getString(R.string.title_check_password)
+        Pages.NoSIM -> "SIM Missing"//TODO()
     }
 
     //region Display screen
+
     fun displayPage(page: Pages){
         setContent {
             findMyDeviceTheme {
@@ -143,6 +146,8 @@ class FindMyDeviceActivity : FragmentActivity() {
                             verticalArrangement = Arrangement.Top
                         ) {
                             when (page) {
+                                Pages.NoSIM -> NoSimScreen.displayScreen(
+                                    onBackPressed = { onExitApp() },)
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
                                     onBackPressed = {
                                         Log.d(TAG, "A BACK")
