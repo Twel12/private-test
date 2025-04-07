@@ -3,9 +3,11 @@ package foundation.e.findmydevice.activity
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -24,18 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.fragment.app.FragmentActivity
-import foundation.e.findmydevice.util.PermissionManager
-import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.R
 import foundation.e.findmydevice.data.Pages
-import foundation.e.findmydevice.ui.theme.findMyDeviceTheme
+import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.ui.ConfirmationPasswordScreen
 import foundation.e.findmydevice.ui.GenerationPasswordScreen
+import foundation.e.findmydevice.ui.NoSimScreen
 import foundation.e.findmydevice.ui.WelcomeScreen
 import foundation.e.findmydevice.ui.text.customTopAppBar
+import foundation.e.findmydevice.ui.theme.findMyDeviceTheme
+import foundation.e.findmydevice.util.PermissionManager
 
-import android.telephony.TelephonyManager
-import foundation.e.findmydevice.ui.NoSimScreen
 
 /**
  * FindMyDeviceActivity
@@ -63,7 +64,13 @@ class FindMyDeviceActivity : FragmentActivity() {
         val fmdAskStatus : Boolean= intent.getBooleanExtra(APP_FIND_MY_DEVICE_ASK_STATUS, false)
         if (fmdAskStatus) {
             val resultIntent = Intent()
-            resultIntent.putExtra(APP_FIND_MY_DEVICE_ASK_STATUS, persistentStorage.getStatus())
+            var status = persistentStorage.getStatus()
+            if (!hasSimSupport(this) || !hasTelephony(this)) {
+                // If no SIM present (or not supported) do not offer to configure FMD from PaCo
+                // Consider it configured
+                status = true;
+            }
+            resultIntent.putExtra(APP_FIND_MY_DEVICE_ASK_STATUS, status)
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
             return
@@ -98,6 +105,11 @@ class FindMyDeviceActivity : FragmentActivity() {
         }
     }
 
+    fun hasTelephony(context: Context): Boolean {
+        val packageManager = context.packageManager
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
+    }
+
     private fun onExitApp(withResult: Boolean = false) {
         if (withResult) {
             setResult(RESULT_OK)
@@ -128,9 +140,11 @@ class FindMyDeviceActivity : FragmentActivity() {
 
                     Column(
                         modifier =
-                        Modifier.fillMaxSize().let {
-                            if (isLandscape) it.verticalScroll(rememberScrollState()) else it
-                        },
+                        Modifier
+                            .fillMaxSize()
+                            .let {
+                                if (isLandscape) it.verticalScroll(rememberScrollState()) else it
+                            },
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.Top
                     ) {
@@ -147,7 +161,8 @@ class FindMyDeviceActivity : FragmentActivity() {
                         ) {
                             when (page) {
                                 Pages.NoSIM -> NoSimScreen.displayScreen(
-                                    onBackPressed = { onExitApp() },)
+                                    onBackPressed = { onExitApp() },
+                                )
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
                                     onBackPressed = {
                                         Log.d(TAG, "A BACK")
