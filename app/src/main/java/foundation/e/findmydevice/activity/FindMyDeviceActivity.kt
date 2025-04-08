@@ -31,11 +31,12 @@ import foundation.e.findmydevice.data.Pages
 import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.ui.ConfirmationPasswordScreen
 import foundation.e.findmydevice.ui.GenerationPasswordScreen
-import foundation.e.findmydevice.ui.NoSimScreen
 import foundation.e.findmydevice.ui.WelcomeScreen
 import foundation.e.findmydevice.ui.text.customTopAppBar
 import foundation.e.findmydevice.ui.theme.findMyDeviceTheme
 import foundation.e.findmydevice.util.PermissionManager
+import foundation.e.findmydevice.util.hasSimSupport
+import foundation.e.findmydevice.util.hasTelephony
 
 
 /**
@@ -78,36 +79,7 @@ class FindMyDeviceActivity : FragmentActivity() {
 
         permissionManager = PermissionManager(this)
         permissionManager.checkAndRequestPermissionsWithBackground {  }
-
-        if (hasSimSupport(this))
-        {
-            displayPage(Pages.ActivateFeature)
-        } else {
-            displayPage(Pages.NoSIM)
-        }
-    }
-
-    private fun hasSimSupport(context: Context): Boolean {
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        return when (telephonyManager.simState) {
-            TelephonyManager.SIM_STATE_READY -> {
-                Log.d(TAG, "SIM OK")
-                true
-            }
-            TelephonyManager.SIM_STATE_ABSENT -> {
-                Log.d(TAG, "SIM Not found")
-                false
-            }
-            else -> {
-                Log.d(TAG, "Invalid SIM State: ${telephonyManager.simState}")
-                false
-            }
-        }
-    }
-
-    fun hasTelephony(context: Context): Boolean {
-        val packageManager = context.packageManager
-        return packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
+        displayPage(Pages.ActivateFeature)
     }
 
     private fun onExitApp(withResult: Boolean = false) {
@@ -121,7 +93,6 @@ class FindMyDeviceActivity : FragmentActivity() {
         Pages.ActivateFeature -> getString(R.string.title_welcome)
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
         Pages.CheckPassword -> getString(R.string.title_check_password)
-        Pages.NoSIM -> "SIM Missing"//TODO()
     }
 
     //region Display screen
@@ -160,9 +131,6 @@ class FindMyDeviceActivity : FragmentActivity() {
                             verticalArrangement = Arrangement.Top
                         ) {
                             when (page) {
-                                Pages.NoSIM -> NoSimScreen.displayScreen(
-                                    onBackPressed = { onExitApp() },
-                                )
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
                                     onBackPressed = {
                                         Log.d(TAG, "A BACK")

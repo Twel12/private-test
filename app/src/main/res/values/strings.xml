@@ -46,6 +46,7 @@
 
     <string name="sms_message_with_location_not_found">Impossible to get current location at the moment. Please try again later.</string>
 
-    <string name="extra_caption">SMS Geolocation</string>
-
+    <string name="no_sim_caption">No SIM card</string>
+    <string name="no_sim_details">Find my Device works with SMS. To enable Find my Device please insert a SIM card.</string>
+    <string name="no_sim_button">OK</string>
 </resources>
