@@ -37,6 +37,12 @@
             android:theme="@style/NoAnimationTheme">
         </activity>
 
+        <provider
+            android:name=".data.FindMyDeviceContentProvider"
+            android:authorities="foundation.e.findmydevice.provider"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
         <!-- Receivers -->
         <receiver
             android:name=".receiver.BootReceiver"

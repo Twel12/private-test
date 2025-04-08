@@ -49,7 +49,6 @@ class FindMyDeviceActivity : FragmentActivity() {
     companion object {
         const val TAG = "FindMyDeviceActivity"
         lateinit var persistentStorage: PersistentStorage
-        const val APP_FIND_MY_DEVICE_ASK_STATUS = "FMD_ASK_STATUS" // Shared with parental control
     }
 
     private lateinit var permissionManager: PermissionManager
@@ -59,23 +58,6 @@ class FindMyDeviceActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         persistentStorage = PersistentStorage(this)
-
-        val intent = intent
-        // Ask for status. Do not really start the activity
-        val fmdAskStatus : Boolean= intent.getBooleanExtra(APP_FIND_MY_DEVICE_ASK_STATUS, false)
-        if (fmdAskStatus) {
-            val resultIntent = Intent()
-            var status = persistentStorage.getStatus()
-            if (!hasSimSupport(this) || !hasTelephony(this)) {
-                // If no SIM present (or not supported) do not offer to configure FMD from PaCo
-                // Consider it configured
-                status = true;
-            }
-            resultIntent.putExtra(APP_FIND_MY_DEVICE_ASK_STATUS, status)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
-            return
-        }
 
         permissionManager = PermissionManager(this)
         permissionManager.checkAndRequestPermissionsWithBackground {  }
