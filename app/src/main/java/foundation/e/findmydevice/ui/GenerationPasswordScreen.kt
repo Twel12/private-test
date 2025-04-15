@@ -84,72 +84,6 @@ fun generatePasswordScreenPreview() {
     generatePasswordScreenContent(onSelection = {}, findMyDeviceActivity = null)
 }
 
-suspend fun showBiometricPromptAsync(findMyDeviceActivity: FindMyDeviceActivity): Boolean =
-    suspendCancellableCoroutine { continuation ->
-        val executor = ContextCompat.getMainExecutor(findMyDeviceActivity)
-
-        val biometricPrompt = BiometricPrompt(
-            findMyDeviceActivity,
-            executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    continuation.resume(false)
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    continuation.resume(true)
-                }
-            })
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(findMyDeviceActivity.getString(R.string.main_security_title))
-            .setSubtitle(findMyDeviceActivity.getString(R.string.main_security_description))
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            )
-            .build()
-
-        biometricPrompt.authenticate(promptInfo)
-
-        continuation.invokeOnCancellation {
-            biometricPrompt.cancelAuthentication()
-        }
-    }
-
-fun checkSecurity(findMyDeviceActivity: FindMyDeviceActivity): Boolean {
-    val biometricManager = BiometricManager.from(findMyDeviceActivity)
-
-    return when (biometricManager.canAuthenticate(
-        BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
-
-        BiometricManager.BIOMETRIC_SUCCESS -> true
-
-        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> false
-
-        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-            Log.d(TAG, "Biometric hardware is currently unavailable")
-            false
-        }
-
-        BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
-        BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED,
-        BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> {
-            Log.d(TAG, "Biometric security unsupported or unknown")
-            false
-        }
-
-        else -> {
-            Log.d(TAG, "Unknown error when checking biometric capability")
-            false
-        }
-    }
-}
-
 @SuppressLint("ComposableNaming")
 @Composable
 fun generatePasswordScreenContent(onSelection: () -> Unit,
@@ -159,9 +93,6 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
     val scope = rememberCoroutineScope()
     var currentPassword by remember { mutableStateOf("") }
     var isSwitchChecked by remember { mutableStateOf(false) }
-
-    var hasSecurity by remember { mutableStateOf(false) }
-
 
     LaunchedEffect(key1 = true) {
         scope.launch {
@@ -175,8 +106,6 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             val savedStatus = persistentStorage.getStatus()
             isSwitchChecked = savedStatus
 
-            // Step2 Existing feature allowing to use biometric authentication
-            hasSecurity = false //checkSecurity(findMyDeviceActivity!!)
         }
     }
 
@@ -216,17 +145,11 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             Button(
                 onClick = {
                     scope.launch {
-                        var performSave = true
-                        if (hasSecurity) {
-                            performSave = showBiometricPromptAsync(findMyDeviceActivity)
-                        }
-                        if (performSave) {
-                            val newPassword = PasswordGenerator().generatePassword()
-                            currentPassword = newPassword
-                            persistentStorage.savePassword(currentPassword)
-                        } else {
-                            Log.d(TAG, "Password not saved")
-                        }
+
+                        val newPassword = PasswordGenerator().generatePassword()
+                        currentPassword = newPassword
+                        persistentStorage.savePassword(currentPassword)
+
                     }
                 },
                 colors = actionColor()
