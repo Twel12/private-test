@@ -24,7 +24,6 @@ import androidx.fragment.app.FragmentActivity
 import foundation.e.findmydevice.R
 import foundation.e.findmydevice.data.Pages
 import foundation.e.findmydevice.storage.PersistentStorage
-import foundation.e.findmydevice.ui.ConfirmationPasswordScreen
 import foundation.e.findmydevice.ui.GenerationPasswordScreen
 import foundation.e.findmydevice.ui.WelcomeScreen
 import foundation.e.findmydevice.ui.text.customTopAppBar
@@ -67,7 +66,6 @@ class FindMyDeviceActivity : FragmentActivity() {
     private fun getTitleForPage(page: Pages) = when(page){
         Pages.ActivateFeature -> getString(R.string.title_welcome)
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
-        Pages.CheckPassword -> getString(R.string.title_check_password)
     }
 
     //region Display screen
@@ -124,7 +122,6 @@ class FindMyDeviceActivity : FragmentActivity() {
                                         onExitApp(true) },
                                     findMyDeviceActivity = this@FindMyDeviceActivity
                                 )
-                                Pages.CheckPassword -> ConfirmationPasswordScreen.displayScreen()
                             }
                         }
                     }
