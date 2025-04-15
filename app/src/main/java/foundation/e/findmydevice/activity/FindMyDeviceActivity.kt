@@ -1,13 +1,8 @@
 package foundation.e.findmydevice.activity
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -35,8 +30,6 @@ import foundation.e.findmydevice.ui.WelcomeScreen
 import foundation.e.findmydevice.ui.text.customTopAppBar
 import foundation.e.findmydevice.ui.theme.findMyDeviceTheme
 import foundation.e.findmydevice.util.PermissionManager
-import foundation.e.findmydevice.util.hasSimSupport
-import foundation.e.findmydevice.util.hasTelephony
 
 
 /**
