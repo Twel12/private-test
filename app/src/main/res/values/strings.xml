@@ -40,6 +40,7 @@
 
     <string name="link_copied_to_clipboard">Link copied to clipboard</string>
 
+    <string name="set">Set</string>
     <string name="sms_message_with_location">Your device is at the following location: </string>
     <string name="sms_message_with_location_1">* GPS coordinates: Latitude: %s, Longitude: %s</string>
     <string name="sms_message_with_location_2">* OpenStreetMap link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>

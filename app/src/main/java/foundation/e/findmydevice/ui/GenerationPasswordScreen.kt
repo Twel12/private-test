@@ -41,13 +41,17 @@ import kotlinx.coroutines.launch
 import android.provider.Settings
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.core.content.ContextCompat
 import foundation.e.findmydevice.activity.FindMyDeviceActivity
 import foundation.e.findmydevice.activity.FindMyDeviceActivity.Companion.TAG
@@ -63,6 +67,7 @@ import kotlin.coroutines.resume
 object GenerationPasswordScreen {
 
     internal const val CODE_COLOR = 0xFF1A9E24
+    internal const val CODE_COLOR_BG = 0x321A9E24
     internal const val TAG = "GenerationPasswordScreen"
 
     @SuppressLint("ComposableNaming")
@@ -115,10 +120,10 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             text = char.toString(),
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
-            lineHeight = 40.sp,
-            letterSpacing = 0.15.sp,
+            lineHeight = 32.sp,
             textAlign = TextAlign.Center,
             color = Color(GenerationPasswordScreen.CODE_COLOR),
+            letterSpacing = 16.sp
         )
     }
 
@@ -126,17 +131,25 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
     fun displayPassword() {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(space = 25.dp, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             currentPassword.forEach { char ->
-                displayCharacter(char = char)
+                Column(
+                    Modifier
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(Color(GenerationPasswordScreen.CODE_COLOR_BG))
+                        .width(32.dp)
+                        .height(32.dp)
+                ) {
+                    displayCharacter(char = char)
+                }
             }
         }
     }
 
     @Composable
-    fun generateNewCode(findMyDeviceActivity: FindMyDeviceActivity) {
+    fun generateNewCode() {
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -148,13 +161,39 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
 
                         val newPassword = PasswordGenerator().generatePassword()
                         currentPassword = newPassword
-                        persistentStorage.savePassword(currentPassword)
 
                     }
                 },
                 colors = actionColor()
             ) {
                 Text(text = stringResource(id = R.string.generate_new_password))
+            }
+        }
+    }
+
+    @Composable
+    fun setNewCode(findMyDeviceActivity: FindMyDeviceActivity) {
+        val contentResolver = context.getContentResolver()
+        val isProvisioned = Settings.Global.getInt(
+            contentResolver,
+            Settings.Global.DEVICE_PROVISIONED
+        ) == 1;
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        persistentStorage.savePassword(currentPassword)
+                        if(isProvisioned) {
+                            onSelection()
+                        }
+                    }
+                },
+                colors = buttonColor()
+            ) {
+                Text(text = stringResource(id = R.string.set))
             }
         }
     }
@@ -192,20 +231,23 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
     fun displayNextButton() {
 
         val contentResolver = context.getContentResolver()
-        val isProvisioned = Settings.Global.getInt(contentResolver,
-            Settings.Global.DEVICE_PROVISIONED) == 1;
+        val isProvisioned = Settings.Global.getInt(
+            contentResolver,
+            Settings.Global.DEVICE_PROVISIONED
+        ) == 1;
 
         if (!isProvisioned) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.Bottom
             ) {
                 Button(
                     onClick = {
                         scope.launch {
                             onSelection()
+                            persistentStorage.savePassword(currentPassword)
                         }
-
                     },
                     colors = buttonColor()
                 ) {
@@ -217,19 +259,25 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
 
     Column(modifier = Modifier.padding(16.dp)) {
 
-        Text(text = stringResource(id = R.string.welcome_screen_intro_1),
-            style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = stringResource(id = R.string.welcome_screen_intro_1),
+            style = MaterialTheme.typography.bodyLarge
+        )
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        Text(text = stringResource(id = R.string.welcome_screen_intro_2),
-            style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = stringResource(id = R.string.welcome_screen_intro_2),
+            style = MaterialTheme.typography.bodyLarge
+        )
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        Text(text = stringResource(id = R.string.current_password),
+        Text(
+            text = stringResource(id = R.string.current_password),
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold)
+            fontWeight = FontWeight.Bold
+        )
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
@@ -237,11 +285,15 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        generateNewCode(findMyDeviceActivity = findMyDeviceActivity!!)
+        generateNewCode()
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
         displayTestProcedure()
+
+        Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
+
+        setNewCode(findMyDeviceActivity = findMyDeviceActivity!!)
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
