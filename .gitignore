@@ -5,8 +5,6 @@
 # Log files
 *.log
 
-# Package files
-*.jar
 
 # folders
 target/
