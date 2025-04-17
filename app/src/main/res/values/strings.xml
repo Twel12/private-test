@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">Find my Device</string>
+
+    <string name="title_welcome">  </string>
+    <string name="title_generate_password">Your phone\'s secret code</string>
+    <string name="title_check_password">Check password</string>
+
+    <string name="channel_name">Find my Device by SMS channel</string>
+    <string name="channel_description">This channel is used by the SMS geolocation application</string>
+
+    <string name="notification_service_caption">Find my Device by SMS</string>
+    <string name="notification_service_content">Tracking location in background</string>
+
+    <string name="current_password">Current code:</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="generate_new_password">Generate New Code</string>
+    <string name="manage_secret_password">Manage My Secret Code</string>
+    <string name="generated_password">Generated Password:</string>
+    <string name="password_correct">Password Correct!</string>
+    <string name="password_incorrect">Incorrect Password</string>
+    <string name="password_next">Next</string>
+    <string name="password_test_procedure">Please verify if the code is working by sending it to your phone number from another phone at your disposal.</string>
+
+    <string name="main_security_title">Authentication required</string>
+    <string name="main_security_description">Enter your unlock code</string>
+
+    <string name="check_permission">Permissions not granted, the service will not work at all.</string>
+    <string name="welcome_screen_title">Find my Device</string>
+    <string name="welcome_screen_caption_1">Find my Device will help you reveal this phone\'s location in case you can\'t find it.</string>
+    <string name="welcome_screen_caption_2">Generate a secret code and simply send it to this device via SMS and it will automatically reply to your message with your phone\'s coordinates.</string>
+    <string name="welcome_screen_new_password">Create new password</string>
+    <string name="welcome_screen_check_password">Check current password</string>
+    <string name="welcome_screen_on_off">Activate Find my Device</string>
+    <string name="welcome_screen_intro_1">Write down this code and keep it in a safe place where only you can find it.</string>
+    <string name="welcome_screen_intro_2">If you send the code below by SMS to this phone, it will reply back with its geolocation coordinates.</string>
+
+    <string name="location_latitude">Latitude</string>
+    <string name="location_longitude">Longitude</string>
+    <string name="location_not_found">Impossible to figure out the current location, please try again</string>
+
+    <string name="link_copied_to_clipboard">Link copied to clipboard</string>
+
+    <string name="set">Set</string>
+    <string name="sms_message_with_location">Your device is at the following location: </string>
+    <string name="sms_message_with_location_1">* GPS coordinates: Latitude: %s, Longitude: %s</string>
+    <string name="sms_message_with_location_2">* OpenStreetMap link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+
+    <string name="sms_message_with_location_not_found">Impossible to get current location at the moment. Please try again later.</string>
+
+    <string name="no_sim_caption">No SIM card</string>
+    <string name="no_sim_details">Find my Device works with SMS. To enable Find my Device please insert a SIM card.</string>
+    <string name="no_sim_button">OK</string>
+</resources>

@@ -1,0 +1,19 @@
+# Naming rules
+naming:
+  ConstructorParameterNaming:
+    active: false
+  VariableNaming:
+    active: false
+
+# Style rules
+style:
+  ForbiddenComment:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+
+# Complexity rules
+complexity:
+  TooManyFunctions:
+    ignorePrivate: true
