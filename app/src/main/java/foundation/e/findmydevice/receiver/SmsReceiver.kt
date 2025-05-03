@@ -8,6 +8,7 @@ import android.telephony.SmsMessage
 import android.util.Log
 import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.location.LocationService
+import kotlin.collections.indexOf
 
 /**
  * This component is responsible for receiving and processing incoming SMS messages.
@@ -47,7 +48,9 @@ class SmsReceiver : BroadcastReceiver() {
 
             if (body.equals(password, ignoreCase = true)) {
                 Log.d(TAG, "SMS received from: $sender with password.")
-                senders.add(sender)
+                if (senders.indexOf(sender) == -1) {
+                    senders.add(sender)
+                }
             }
         }
         executeLocationWorkOnce(senders.toTypedArray(), context)
