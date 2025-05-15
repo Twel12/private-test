@@ -42,7 +42,7 @@ this.sendBroadcast(notificationIntent)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(context.getString(R.string.notification_service_caption))
             .setContentText(context.getString(R.string.notification_service_content))
-            .setSmallIcon(R.drawable.ic_launcher_foreground) //K1ZFP TODO
+            .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(pendingIntent)
             .build()
         return notification
