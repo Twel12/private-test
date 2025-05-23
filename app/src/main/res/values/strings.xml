@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Find my Device</string>
 
-    <string name="title_welcome">  </string>
+    <string name="title_welcome" translatable="false">  </string>
     <string name="title_generate_password">Your phone\'s secret code</string>
     <string name="title_check_password">Check password</string>
 

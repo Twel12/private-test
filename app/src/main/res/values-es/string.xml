@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_welcome"> </string>
+    <string name="title_generate_password">Código secreto de tu teléfono</string>
+    <string name="title_check_password">Verificar contraseña</string>
+    <string name="channel_name">Canal Find my Device por SMS</string>
+    <string name="channel_description">Este canal es utilizado por la aplicación de geolocalización por SMS</string>
+    <string name="notification_service_caption">Find my Device por SMS</string>
+    <string name="notification_service_content">Localizando en segundo plano</string>
+    <string name="current_password">Código actual:</string>
+    <string name="enter_password">Introducir contraseña</string>
+    <string name="generate_new_password">Generar nuevo código</string>
+    <string name="manage_secret_password">Gestionar mi código secreto</string>
+    <string name="generated_password">Código generado:</string>
+    <string name="password_correct">¡Contraseña correcta!</string>
+    <string name="password_incorrect">Contraseña incorrecta</string>
+    <string name="password_next">Siguiente</string>
+    <string name="password_test_procedure">Por favor verifica que el código funciona enviándolo a este teléfono mediante SMS desde otro teléfono a tu disposición.</string>
+    <string name="main_security_title">Autenticación requerida</string>
+    <string name="main_security_description">Introduce tu código de desbloqueo</string>
+    <string name="check_permission">Permisos no concedidos, el servicio no funcionará en absoluto.</string>
+    <string name="welcome_screen_title">Find my Device</string>
+    <string name="welcome_screen_caption_1">Find my Device te ayudará a localizar este teléfono en caso de que no lo encuentres.</string>
+    <string name="welcome_screen_caption_2">Genera un código secreto y envíalo a este dispositivo vía SMS, que responderá automáticamente con la ubicación de tu teléfono.</string>
+    <string name="welcome_screen_new_password">Crear nueva contraseña</string>
+    <string name="welcome_screen_check_password">Verificar contraseña actual</string>
+    <string name="welcome_screen_on_off">Activar Find my Device</string>
+    <string name="welcome_screen_intro_1">Escribe este código y guárdalo en un lugar seguro donde solo tú puedas encontrarlo.</string>
+    <string name="welcome_screen_intro_2">Si envías el código siguiente mediante SMS a este teléfono, responderá con sus coordenadas de geolocalización.</string>
+    <string name="location_latitude">Latitud</string>
+    <string name="location_longitude">Longitud</string>
+    <string name="location_not_found">No se puede determinar la ubicación actual, por favor inténtalo otra vez.</string>
+    <string name="link_copied_to_clipboard">Enlace copiado al portapapeles</string>
+    <string name="set">Establecer</string>
+    <string name="sms_message_with_location">Tu dispositivo se encuentra en la siguiente ubicación: </string>
+    <string name="sms_message_with_location_1">* Coordenadas GPS: Latitud: %s, Longitud: %s</string>
+    <string name="sms_message_with_location_2">* Enlace OpenStreetMap: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+    <string name="sms_message_with_location_not_found">Imposible obtener la ubicación actual en este momento. Por favor inténtalo más tarde.</string>
+    <string name="no_sim_caption">Sin tarjeta SIM</string>
+    <string name="no_sim_details">Find my Device utiliza mensajes SMS. Para activar Find my Device, inserta una tarjeta SIM.</string>
+    <string name="no_sim_button">OK</string>
+</resources>
