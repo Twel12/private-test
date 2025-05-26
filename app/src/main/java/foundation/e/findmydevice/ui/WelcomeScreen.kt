@@ -58,6 +58,7 @@ object WelcomeScreen {
         welcomeScreenContent(onSelection, onBackPressed)
     }
 }
+var isSwitchChecked by mutableStateOf(false)
 
 @SuppressLint("ComposableNaming")
 @Composable
@@ -67,7 +68,7 @@ fun welcomeScreenContent(onSelection: () -> Unit,
     val context = LocalContext.current
     val persistentStorage = PersistentStorage(context)
     val scope = rememberCoroutineScope()
-    var isSwitchChecked by remember { mutableStateOf(false) }
+
 
     val hasSimSupport = hasSimSupport(context)
 
@@ -103,7 +104,6 @@ fun welcomeScreenContent(onSelection: () -> Unit,
             isChecked = isSwitchChecked,
             fontWeight = FontWeight.Medium,
             onCheckedChange = { isChecked ->
-                persistentStorage.saveStatus(isChecked)
                 isSwitchChecked = isChecked
                 Log.d(WelcomeScreen.TAG, "Switch is now ${if (isChecked) "ON" else "OFF"}")
                 onSelection()

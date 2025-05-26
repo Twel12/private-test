@@ -26,6 +26,7 @@ import foundation.e.findmydevice.data.Pages
 import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.ui.GenerationPasswordScreen
 import foundation.e.findmydevice.ui.WelcomeScreen
+import foundation.e.findmydevice.ui.isSwitchChecked
 import foundation.e.findmydevice.ui.text.customTopAppBar
 import foundation.e.findmydevice.ui.theme.findMyDeviceTheme
 import foundation.e.findmydevice.util.PermissionManager
@@ -105,20 +106,19 @@ class FindMyDeviceActivity : FragmentActivity() {
                         ) {
                             when (page) {
                                 Pages.ActivateFeature -> WelcomeScreen.displayScreen(
-                                    onBackPressed = {
-                                        Log.d(TAG, "A BACK")
-                                        onExitApp() },
+                                    onBackPressed = { onExitApp() },
                                     onSelection = {
-                                        Log.d(TAG, "A SEL")
-                                        if (persistentStorage.getStatus())
+                                        if (isSwitchChecked)
                                             displayPage(Pages.GeneratePassword)
-                                        else
-                                            displayPage(Pages.ActivateFeature) }
+                                        else {
+                                            persistentStorage.saveStatus(false)
+                                            displayPage(Pages.ActivateFeature)
+                                        }
+                                    }
                                 )
                                 Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
-                                    onBackPressed = { Log.d(TAG, "G BACK")},
+                                    onBackPressed = {},
                                     onSelection = {
-                                        Log.d(TAG, "G SEL")
                                         onExitApp(true) },
                                     findMyDeviceActivity = this@FindMyDeviceActivity
                                 )

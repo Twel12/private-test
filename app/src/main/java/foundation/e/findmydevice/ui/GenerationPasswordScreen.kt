@@ -186,6 +186,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
                 onClick = {
                     scope.launch {
                         persistentStorage.savePassword(currentPassword)
+                        persistentStorage.saveStatus(true)
                         if(isProvisioned) {
                             onSelection()
                         }
@@ -247,6 +248,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
                         scope.launch {
                             onSelection()
                             persistentStorage.savePassword(currentPassword)
+                            persistentStorage.saveStatus(true)
                         }
                     },
                     colors = buttonColor()
