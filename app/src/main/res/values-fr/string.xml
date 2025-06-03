@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_welcome"> </string>
     <string name="title_generate_password">Code secret de votre téléphone</string>
     <string name="title_check_password">Vérifier le mot de passe</string>
     <string name="channel_name">Canal Find my Device par SMS</string>
