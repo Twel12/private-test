@@ -11,19 +11,19 @@
     <string name="enter_password">Passwort eingeben</string>
     <string name="generate_new_password">Neuen Code generieren</string>
     <string name="manage_secret_password">Meinen Geheimcode verwalten</string>
-    <string name="generated_password">Generierter Code:</string>
+    <string name="generated_password">Generiertes Passwort:</string>
     <string name="password_correct">Passwort korrekt!</string>
     <string name="password_incorrect">Falsches Passwort</string>
     <string name="password_next">Weiter</string>
     <string name="password_test_procedure">Bitte prüfen Sie, ob der Code funktioniert, indem Sie ihn von einem anderen zur Verfügung stehenden Telefon per SMS an dieses Telefon senden.</string>
     <string name="main_security_title">Authentifizierung erforderlich</string>
     <string name="main_security_description">Entsperrcode eingeben</string>
-    <string name="check_permission">Berechtigungen nicht erteilt, der Dienst wird nicht funktionieren.</string>
+    <string name="check_permission">Die Berechtigungen wurden nicht erteilt, der Dienst wird nicht funktionieren.</string>
     <string name="welcome_screen_title">Find my Device</string>
     <string name="welcome_screen_caption_1">Find my Device hilft Ihnen dabei, den Standort dieses Telefons zu ermitteln, falls Sie es nicht finden können.</string>
     <string name="welcome_screen_caption_2">Generieren Sie einen Geheimcode und senden Sie ihn einfach per SMS an dieses Gerät. Es antwortet automatisch mit den Standortdaten.</string>
     <string name="welcome_screen_new_password">Neues Passwort erstellen</string>
-    <string name="welcome_screen_check_password">Aktuelles Passwort prüfen</string>
+    <string name="welcome_screen_check_password">Aktuelles Passwort überprüfen</string>
     <string name="welcome_screen_on_off">Find my Device aktivieren</string>
     <string name="welcome_screen_intro_1">Notieren Sie diesen Code und bewahren Sie ihn an einem sicheren Ort auf, zu dem nur Sie Zugang haben.</string>
     <string name="welcome_screen_intro_2">Wenn Sie den untenstehenden Code per SMS an dieses Telefon senden, erhalten Sie eine Antwort mit seinen geografischen Koordinaten.</string>
@@ -32,7 +32,7 @@
     <string name="location_not_found">Der aktuelle Standort konnte nicht ermittelt werden, versuchen Sie es erneut.</string>
     <string name="link_copied_to_clipboard">Link in die Zwischenablage kopiert</string>
     <string name="set">Festlegen</string>
-    <string name="sms_message_with_location">Ihr Gerät befindet sich hier: </string>
+    <string name="sms_message_with_location">Ihr Gerät befindet sich hier:</string>
     <string name="sms_message_with_location_1">* GPS-Koordinaten: Breitengrad: %s, Längengrad: %s</string>
     <string name="sms_message_with_location_2">* OpenStreetMap-Link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Standort momentan nicht verfügbar. Versuchen Sie es später erneut.</string>
