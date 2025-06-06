@@ -44,7 +44,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +53,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.core.content.ContextCompat
 import foundation.e.findmydevice.activity.FindMyDeviceActivity
 import foundation.e.findmydevice.activity.FindMyDeviceActivity.Companion.TAG
@@ -238,9 +238,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
 
         if (!isProvisioned) {
             Row(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Bottom
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
                 Button(
                     onClick = {
@@ -258,7 +257,12 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .padding(16.dp)
+    ) {
 
         Text(
             text = stringResource(id = R.string.welcome_screen_intro_1),
