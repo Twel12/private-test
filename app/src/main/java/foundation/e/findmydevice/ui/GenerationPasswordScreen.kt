@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -120,10 +121,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             text = char.toString(),
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
-            lineHeight = 32.sp,
             textAlign = TextAlign.Center,
-            color = Color(GenerationPasswordScreen.CODE_COLOR),
-            letterSpacing = 16.sp
+            color = Color(GenerationPasswordScreen.CODE_COLOR)
         )
     }
 
@@ -135,12 +134,12 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             currentPassword.forEach { char ->
-                Column(
-                    Modifier
+                Box(
+                    modifier = Modifier
                         .clip(RoundedCornerShape(5.dp))
                         .background(Color(GenerationPasswordScreen.CODE_COLOR_BG))
-                        .width(32.dp)
-                        .height(32.dp)
+                        .size(32.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     displayCharacter(char = char)
                 }
