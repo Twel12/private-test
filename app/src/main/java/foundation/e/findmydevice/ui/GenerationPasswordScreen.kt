@@ -56,6 +56,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import foundation.e.findmydevice.activity.FindMyDeviceActivity
 import foundation.e.findmydevice.activity.FindMyDeviceActivity.Companion.TAG
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.BOX_SIZE
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.CORNER_SIZE
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.FONT_SIZE
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -70,6 +73,10 @@ object GenerationPasswordScreen {
     internal const val CODE_COLOR = 0xFF1A9E24
     internal const val CODE_COLOR_BG = 0x321A9E24
     internal const val TAG = "GenerationPasswordScreen"
+
+    internal val BOX_SIZE = 32.dp
+    internal val FONT_SIZE= 24.sp
+    internal val CORNER_SIZE = 5.dp
 
     @SuppressLint("ComposableNaming")
     @Composable
@@ -120,7 +127,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
         Text(
             text = char.toString(),
             fontWeight = FontWeight.Medium,
-            fontSize = 24.sp,
+            fontSize = FONT_SIZE,
             textAlign = TextAlign.Center,
             color = Color(GenerationPasswordScreen.CODE_COLOR)
         )
@@ -136,9 +143,9 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             currentPassword.forEach { char ->
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(5.dp))
+                        .clip(RoundedCornerShape(CORNER_SIZE))
                         .background(Color(GenerationPasswordScreen.CODE_COLOR_BG))
-                        .size(32.dp),
+                        .size(BOX_SIZE),
                     contentAlignment = Alignment.Center
                 ) {
                     displayCharacter(char = char)
