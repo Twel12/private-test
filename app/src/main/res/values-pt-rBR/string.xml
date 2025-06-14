@@ -1,2 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="title_check_password">Verificar senha</string>
+    <string name="channel_name">Localizar meu dispositivo por canal SMS</string>
+    <string name="notification_service_caption">Localizar meu dispositivo por SMS</string>
+    <string name="notification_service_content">Rastreamento de localização em segundo plano</string>
+    <string name="current_password">Código atual:</string>
+    <string name="enter_password">Digite a Senha</string>
+    <string name="generate_new_password">Gerar Novo Código</string>
+    <string name="manage_secret_password">Gerenciar Meu Código Secreto</string>
+    <string name="generated_password">Senha Gerada:</string>
+    <string name="password_incorrect">Senha Incorreta</string>
+    <string name="password_next">Próximo</string>
+    <string name="main_security_title">Autenticação necessária</string>
+    <string name="main_security_description">Digite seu código de desbloqueio</string>
+    <string name="check_permission">As permissões não foram concedidas, o serviço não funcionará.</string>
+    <string name="welcome_screen_title">Localizar meu Dispositivo</string>
+    <string name="welcome_screen_caption_1">O Localizar meu Dispositivo ajudará você a revelar a localização do telefone caso não consiga encontrá-lo.</string>
+    <string name="welcome_screen_new_password">Criar nova senha</string>
+    <string name="welcome_screen_check_password">Verificar a senha atual</string>
+    <string name="welcome_screen_on_off">Ativar o Localizar meu Dispositivo</string>
+    <string name="welcome_screen_intro_1">Anote este código e guarde-o em um local seguro, onde somente você possa encontrá-lo.</string>
+    <string name="location_latitude">Latitude</string>
+    <string name="location_longitude">Longitude</string>
+    <string name="location_not_found">Não foi possível descobrir a localização atual, tente novamente</string>
+    <string name="welcome_screen_caption_2">Gere um código secreto e simplesmente envie-o para este dispositivo via SMS e ele responderá automaticamente à sua mensagem com as coordenadas do seu telefone.</string>
+    <string name="link_copied_to_clipboard">Link copiado para a área de transferência</string>
+    <string name="set">Definir</string>
+    <string name="sms_message_with_location">Seu dispositivo está no seguinte local:</string>
+    <string name="sms_message_with_location_1">* Coordenadas de GPS: Latitude: %s, Longitude: %s</string>
+    <string name="sms_message_with_location_2">* Link do OpenStreetMap: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+    <string name="sms_message_with_location_not_found">Não é possível obter a localização atual no momento. Tente novamente mais tarde.</string>
+    <string name="no_sim_caption">Sem cartão SIM</string>
+    <string name="no_sim_details">O Localizar meu Dispositivo funciona com SMS. Para ativar o Localizar meu Dispositivo, insira um cartão SIM.</string>
+    <string name="no_sim_button">OK</string>
+    <string name="title_generate_password">O código secreto do seu telefone</string>
+    <string name="welcome_screen_intro_2">Se você enviar o código abaixo por SMS para este telefone, ele responderá com suas coordenadas de geolocalização.</string>
+    <string name="channel_description">Este canal é usado pelo aplicativo de geolocalização de SMS</string>
+    <string name="password_correct">Senha Correta!</string>
+    <string name="password_test_procedure">Por favor, verifique se o código está funcionando enviando-o para o seu número de telefone de outro telefone à sua disposição.</string>
+</resources>
