@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +44,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,10 +53,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.core.content.ContextCompat
 import foundation.e.findmydevice.activity.FindMyDeviceActivity
 import foundation.e.findmydevice.activity.FindMyDeviceActivity.Companion.TAG
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.BOX_SIZE
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.CORNER_SIZE
+import foundation.e.findmydevice.ui.GenerationPasswordScreen.FONT_SIZE
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -69,6 +73,10 @@ object GenerationPasswordScreen {
     internal const val CODE_COLOR = 0xFF1A9E24
     internal const val CODE_COLOR_BG = 0x321A9E24
     internal const val TAG = "GenerationPasswordScreen"
+
+    internal val BOX_SIZE = 32.dp
+    internal val FONT_SIZE= 24.sp
+    internal val CORNER_SIZE = 5.dp
 
     @SuppressLint("ComposableNaming")
     @Composable
@@ -119,11 +127,9 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
         Text(
             text = char.toString(),
             fontWeight = FontWeight.Medium,
-            fontSize = 24.sp,
-            lineHeight = 32.sp,
+            fontSize = FONT_SIZE,
             textAlign = TextAlign.Center,
-            color = Color(GenerationPasswordScreen.CODE_COLOR),
-            letterSpacing = 16.sp
+            color = Color(GenerationPasswordScreen.CODE_COLOR)
         )
     }
 
@@ -135,12 +141,12 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             currentPassword.forEach { char ->
-                Column(
-                    Modifier
-                        .clip(RoundedCornerShape(5.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(CORNER_SIZE))
                         .background(Color(GenerationPasswordScreen.CODE_COLOR_BG))
-                        .width(32.dp)
-                        .height(32.dp)
+                        .size(BOX_SIZE),
+                    contentAlignment = Alignment.Center
                 ) {
                     displayCharacter(char = char)
                 }
@@ -239,9 +245,8 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
 
         if (!isProvisioned) {
             Row(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Bottom
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
                 Button(
                     onClick = {
@@ -259,7 +264,12 @@ fun generatePasswordScreenContent(onSelection: () -> Unit,
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .padding(16.dp)
+    ) {
 
         Text(
             text = stringResource(id = R.string.welcome_screen_intro_1),
