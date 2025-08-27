@@ -1,2 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="location_not_found">Kon huidige locatie niet bepalen, probeer het opnieuw</string>
+    <string name="title_generate_password">Geheime code van jouw telefoon</string>
+    <string name="title_check_password">Geheime code controleren</string>
+    <string name="channel_name">Vind mijn apparaat via SMS-kanaal</string>
+    <string name="channel_description">Dit kanaal wordt gebruikt door de SMS-geolocatieapp</string>
+    <string name="notification_service_caption">Vind mijn apparaat via SMS</string>
+    <string name="notification_service_content">Locatie aan het volgen in de achtergrond</string>
+    <string name="current_password">Huidige geheime code:</string>
+    <string name="enter_password">Vul geheime code in</string>
+    <string name="generate_new_password">Genereer nieuwe geheime code</string>
+    <string name="manage_secret_password">Beheer geheime code</string>
+    <string name="generated_password">Gegenereerde geheime code:</string>
+    <string name="password_correct">Geheime code correct!</string>
+    <string name="password_incorrect">Onjuiste geheime code</string>
+    <string name="password_next">Volgende</string>
+    <string name="password_test_procedure">Controleer of de code werkt door het via SMS naar jouw telefoonnummer te versturen vanaf een andere telefoon.</string>
+    <string name="main_security_title">Authenticatie vereist</string>
+    <string name="main_security_description">Vul je pincode in</string>
+    <string name="check_permission">Rechten niet toegekend, deze service zal niet werken.</string>
+    <string name="welcome_screen_title">Vind mijn apparaat</string>
+    <string name="welcome_screen_caption_1">Vind mijn apparaat kan de locatie van je apparaat doorgeven wanneer je hem kwijt bent.</string>
+    <string name="welcome_screen_new_password">Genereer een nieuwe geheime code</string>
+    <string name="welcome_screen_check_password">Huidige code controleren</string>
+    <string name="welcome_screen_on_off">Activeer Vind mijn apparaat</string>
+    <string name="welcome_screen_intro_1">Schrijf deze code op en bewaar het op een veilige plek waar alleen jij erbij kan.</string>
+    <string name="welcome_screen_intro_2">Als je de code via SMS verstuurt naar deze telefoon, zal het antwoorden met de huidige coördinaten.</string>
+    <string name="location_latitude">Breedtegraad</string>
+    <string name="location_longitude">Lengtegraad</string>
+    <string name="link_copied_to_clipboard">Link gekopieerd naar klembord</string>
+    <string name="set">Instellen</string>
+    <string name="sms_message_with_location">Jouw apparaat is op de volgende locatie:</string>
+    <string name="sms_message_with_location_1">* GPS-coördinaten: Breedtegraad: %s, Lengtegraad: %s</string>
+    <string name="welcome_screen_caption_2">Genereer een geheime code en bewaar deze. Stuur deze via SMS naar je telefoonnummer om de coördinaten van je telefoon te ontvangen.</string>
+</resources>
