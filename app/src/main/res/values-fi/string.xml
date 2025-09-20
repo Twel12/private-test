@@ -1,2 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="title_generate_password">Puhelimesi salainen koodi</string>
+    <string name="title_check_password">Tarkista salasana</string>
+    <string name="channel_name">Löydä laitteeni tekstiviestikanavan kautta</string>
+    <string name="channel_description">Tätä kanavaa käyttää Löydä laitteeni tekstiviestillä -paikannussovellus</string>
+    <string name="notification_service_caption">Löydä laitteeni tekstiviestillä</string>
+    <string name="notification_service_content">Paikannetaan taustalla</string>
+    <string name="current_password">Nykyinen koodi:</string>
+    <string name="enter_password">Anna salasana</string>
+    <string name="generate_new_password">Luo uusi koodi</string>
+    <string name="manage_secret_password">Hallitse salaista koodiani</string>
+    <string name="password_correct">Salasana oikein!</string>
+    <string name="password_incorrect">Väärä salasana</string>
+    <string name="password_next">Seuraava</string>
+    <string name="main_security_title">Tunnistautuminen vaaditaan</string>
+    <string name="main_security_description">Anna avauskoodisi</string>
+    <string name="check_permission">Lupia ei myönnetty, palvelu ei toimi ollenkaan.</string>
+    <string name="welcome_screen_title">Löydä laitteeni</string>
+    <string name="welcome_screen_caption_1">Löydä laitteeni auttaa sinua selvittämään tämän puhelimen sijainnin, jos et löydä sitä.</string>
+    <string name="welcome_screen_new_password">Luo uusi salasana</string>
+    <string name="welcome_screen_check_password">Tarkista nykyinen salasana</string>
+    <string name="welcome_screen_on_off">Käynnistä Löydä laitteeni</string>
+    <string name="welcome_screen_intro_1">Ota tämä koodi talteen ja säilytä sitä turvallisessa paikassa, josta vain sinä löydät sen.</string>
+    <string name="welcome_screen_intro_2">Jos lähetät alla olevan koodin tekstiviestillä tähän puhelimeen, se lähettää vastauksena maantieteelliset koordinaattinsa.</string>
+    <string name="location_latitude">Leveysaste</string>
+    <string name="location_longitude">Pituusaste</string>
+    <string name="link_copied_to_clipboard">Linkki kopioitu leikepöydälle</string>
+    <string name="set">Aseta</string>
+    <string name="sms_message_with_location">Laitteesi on sijainnissa:</string>
+    <string name="sms_message_with_location_1">* GPS-koordinaatit: Leveysaste: %s, Pituusaste: %s</string>
+    <string name="sms_message_with_location_not_found">Nykyistä sijaintia ei voida tällä hetkellä määrittää. Yritä myöhemmin uudelleen.</string>
+    <string name="no_sim_caption">Ei SIM-korttia</string>
+    <string name="no_sim_details">Löydä laitteeni toimii tekstiviestillä. Mahdollista Löydä laitteeni -toiminto asettamalla SIM-kortti paikalleen.</string>
+    <string name="welcome_screen_caption_2">Luo salainen koodi ja lähetä se tekstiviestillä tähän laitteeseen, niin se vastaa automaattisesti viestiisi puhelimesi koordinaateilla.</string>
+    <string name="generated_password">Luotu salasana:</string>
+    <string name="location_not_found">Nykyistä sijaintia ei voida selvittää, yritä uudelleen</string>
+    <string name="password_test_procedure">Varmista koodin toimivuus lähettämällä se puhelinnumeroosi toisesta puhelimesta.</string>
+    <string name="sms_message_with_location_2">* OpenStreetMap -karttalinkki: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+</resources>
