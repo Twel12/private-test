@@ -32,7 +32,7 @@
     <string name="sms_message_with_location_not_found">Nykyistä sijaintia ei voida tällä hetkellä määrittää. Yritä myöhemmin uudelleen.</string>
     <string name="no_sim_caption">Ei SIM-korttia</string>
     <string name="no_sim_details">Löydä laitteeni toimii tekstiviestillä. Mahdollista Löydä laitteeni -toiminto asettamalla SIM-kortti paikalleen.</string>
-    <string name="welcome_screen_caption_2">Luo salainen koodi ja lähetä se tekstiviestillä tähän laitteeseen, niin se vastaa automaattisesti viestiisi puhelimesi koordinaateilla.</string>
+    <string name="welcome_screen_caption_2">Luo salainen koodi ja lähetä se tekstiviestillä tähän puhelimeen, niin se lähettää vastauksena maantieteelliset koordinaattinsa.</string>
     <string name="generated_password">Luotu salasana:</string>
     <string name="location_not_found">Nykyistä sijaintia ei voida selvittää, yritä uudelleen</string>
     <string name="password_test_procedure">Varmista koodin toimivuus lähettämällä se puhelinnumeroosi toisesta puhelimesta.</string>
