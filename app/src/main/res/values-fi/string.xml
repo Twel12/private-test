@@ -3,7 +3,7 @@
     <string name="title_generate_password">Puhelimesi salainen koodi</string>
     <string name="title_check_password">Tarkista salasana</string>
     <string name="channel_name">Löydä laitteeni tekstiviestikanavan kautta</string>
-    <string name="channel_description">Tätä kanavaa käyttää Löydä laitteeni tekstiviestillä -paikannussovellus</string>
+    <string name="channel_description">Tätä kanavaa käyttää tekstiviestillä toimiva Löydä laitteeni -paikannussovellus</string>
     <string name="notification_service_caption">Löydä laitteeni tekstiviestillä</string>
     <string name="notification_service_content">Paikannetaan taustalla</string>
     <string name="current_password">Nykyinen koodi:</string>
