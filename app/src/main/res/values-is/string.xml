@@ -1,2 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="title_check_password">Athuga lykilorð</string>
+    <string name="set">Setja</string>
+    <string name="title_generate_password">Leynilykill símans þíns</string>
+    <string name="channel_name">Finna tækið mitt með SMS-rás</string>
+    <string name="channel_description">Þessi rás er notuð af SMS-hnattstaðsetningarforritinu</string>
+    <string name="notification_service_caption">Finna tækið mitt með SMS</string>
+    <string name="notification_service_content">Rakning staðsetningar í bakgrunni</string>
+    <string name="current_password">Fyrirliggjandi kóði:</string>
+    <string name="enter_password">Settu inn lykilorð</string>
+    <string name="generate_new_password">Útbúa nýjan aóða</string>
+    <string name="manage_secret_password">Sýsla með leynilykilinn minn</string>
+    <string name="generated_password">Framkallað lykilorð:</string>
+    <string name="password_correct">Rétt lykilorð!</string>
+    <string name="password_incorrect">Rangt lykilorð</string>
+    <string name="password_next">Næsta</string>
+    <string name="main_security_title">Auðkenningar krafist</string>
+    <string name="main_security_description">Settu inn aflæsingarkóðann þinn</string>
+    <string name="check_permission">Heimildir ekki veittar, þjónustan mun alls ekki virka.</string>
+    <string name="welcome_screen_title">Finna tækið mitt</string>
+    <string name="welcome_screen_caption_1">\'Finna tækið mitt\' mun hjálpa til við að upplýsa um staðsetningu símans þíns ef þú finnur hann ekki.</string>
+    <string name="welcome_screen_new_password">Búðu til nýtt lykilorð</string>
+    <string name="welcome_screen_check_password">Athuga núverandi lykilorð</string>
+    <string name="welcome_screen_on_off">Virkja að finna tækið mitt</string>
+    <string name="welcome_screen_intro_1">Þú skalt endilega skrifa þennan kóða niður og geyma hann á öruggum stað, eða leggja hann á minnið.</string>
+    <string name="location_latitude">Breiddargráða</string>
+    <string name="location_longitude">Lengdargráða</string>
+    <string name="location_not_found">Ómögulegt er að fá núverandi staðsetningu, reyndu aftur síðar</string>
+    <string name="link_copied_to_clipboard">Tengill afritaður á klippispjald</string>
+    <string name="sms_message_with_location">Tækið þitt er á eftirfarandi staðsetningu:</string>
+    <string name="sms_message_with_location_1">* GPS-hnit: breiddargráða: %s, lengdargráða: %s</string>
+    <string name="sms_message_with_location_2">* OpenStreetMap tengill: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+    <string name="sms_message_with_location_not_found">Tekst ekki í augnablikinu að fá núverandi staðsetningu. Reyndu aftur síðar.</string>
+    <string name="no_sim_caption">Ekkert SIM-kort</string>
+    <string name="no_sim_details">\'Finna tækið mitt\' virkar með SMS. Til að virkja það skaltu setja inn SIM-kort.</string>
+    <string name="no_sim_button">Í lagi</string>
+</resources>
