@@ -38,4 +38,5 @@
     <string name="password_test_procedure">Sannreyndu hvort kóðinn virkar með því að senda hann á símann þinn úr einhverjum öðrum síma sem þú hefur aðgang að.</string>
     <string name="welcome_screen_intro_2">Ef þú sendir kóðann hér fyrir neðan með SMS á þennan síma, þá mun hann svara með staðsetningarhnitum sínum.</string>
     <string name="welcome_screen_caption_2">Útbúðu leynikóða og einfaldlega sendu hann með SMS á þetta tæki, sem mun þá svara sjálfvirkt skilaboðunum með staðsetningarhnitum símans þíns.</string>
+    <string name="title_welcome">" "</string>
 </resources>
