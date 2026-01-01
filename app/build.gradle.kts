@@ -24,7 +24,7 @@ android {
     }
 
     signingConfigs {
-        create("debugConfig") {
+        create("platformConfig") {
             storeFile = file("../keystore/platform.jks")
             storePassword = "platform"
             keyAlias = "platform"
@@ -34,12 +34,13 @@ android {
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("debugConfig")
+            signingConfig = signingConfigs.getByName("platformConfig")
         }
 
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("platformConfig")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
