@@ -137,9 +137,7 @@ class FindMyDeviceActivity : FragmentActivity() {
                                 )
                                 Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
                                     onBackPressed = {},
-                                    onSelection = {
-                                        onExitApp(true) },
-                                    findMyDeviceActivity = this@FindMyDeviceActivity
+                                    onSelection = { onExitApp(true) }
                                 )
                             }
                         }

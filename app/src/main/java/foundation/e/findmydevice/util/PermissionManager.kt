@@ -2,15 +2,13 @@ package foundation.e.findmydevice.util
 
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import foundation.e.findmydevice.activity.FindMyDeviceActivity
-
-import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import foundation.e.findmydevice.R
+import foundation.e.findmydevice.activity.FindMyDeviceActivity
 
 
 data class PermissionResult(

@@ -1,5 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -88,13 +86,4 @@ detekt {
     config.setFrom(file("../detekt.yml"))
     buildUponDefaultConfig = true
     autoCorrect = true
-}
-
-// Detekt
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = "25"
-}
-
-tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = "25"
 }

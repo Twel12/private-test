@@ -1,11 +1,11 @@
 package foundation.e.findmydevice.ui.buttons
-import foundation.e.elib.R
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import foundation.e.elib.R
 
 @Composable
 fun buttonColor(): ButtonColors {

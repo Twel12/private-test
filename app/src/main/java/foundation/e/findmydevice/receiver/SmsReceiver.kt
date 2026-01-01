@@ -6,9 +6,8 @@ import android.content.Intent
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
-import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.location.LocationService
-import kotlin.collections.indexOf
+import foundation.e.findmydevice.storage.PersistentStorage
 
 /**
  * This component is responsible for receiving and processing incoming SMS messages.

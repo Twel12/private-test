@@ -6,7 +6,6 @@ import android.content.Intent
 import android.telephony.SmsManager
 import android.util.Log
 import foundation.e.findmydevice.R
-import java.util.ArrayList
 
 
 /**
@@ -24,7 +23,8 @@ class SmsSender(private val context: Context) {
     fun sendSms(phoneNumber: String, latitude: Double?, longitude: Double?) {
         val message: String = if (latitude != null && longitude != null) {
             context.getString(R.string.sms_message_with_location) + "\n" +
-                    context.getString(R.string.sms_message_with_location_1, latitude.toString(), longitude.toString()) + "\n" +
+                    context.getString(R.string.sms_message_with_location_1,
+                        latitude.toString(), longitude.toString()) + "\n" +
                     context.getString(R.string.sms_message_with_location_2, latitude.toString(), longitude.toString())
         } else {
             context.getString(R.string.sms_message_with_location_not_found)
