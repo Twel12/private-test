@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -47,13 +48,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+    kotlin { compilerOptions { jvmTarget = JvmTarget.JVM_25 } }
 
     buildFeatures {
         compose = true
@@ -93,9 +92,9 @@ detekt {
 
 // Detekt
 tasks.withType<Detekt>().configureEach {
-    jvmTarget = "11"
+    jvmTarget = "25"
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = "11"
+    jvmTarget = "25"
 }

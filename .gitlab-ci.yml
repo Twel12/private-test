@@ -4,6 +4,7 @@ stages:
   - build
 
 before_script:
+  - export JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
 
