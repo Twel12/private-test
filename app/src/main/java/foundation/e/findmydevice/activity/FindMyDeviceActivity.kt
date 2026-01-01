@@ -83,9 +83,9 @@ class FindMyDeviceActivity : FragmentActivity() {
         finishAfterTransition()
     }
 
-    private fun getTitleForPage(page: Pages) = when(page){
-        Pages.ActivateFeature -> getString(R.string.title_welcome)
+    private fun getTitleForPage(page: Pages) = when(page) {
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
+        else -> ""
     }
 
     //region Display screen

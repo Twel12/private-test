@@ -186,7 +186,7 @@ fun welcomeScreenContent(onSelection: () -> Unit,
                                 .clickable { onBackPressed() }
                                 .padding(start = Dimens.SCREEN_PADDING / 2),
                         color = colorResource(id = foundation.e.elib.R.color.e_accent),
-                        text = stringResource(R.string.no_sim_button),
+                        text = stringResource(android.R.string.ok),
                         fontSize = 14.sp
                     )
                 }

@@ -32,10 +32,9 @@
     <string name="link_copied_to_clipboard">Link in die Zwischenablage kopiert</string>
     <string name="set">Festlegen</string>
     <string name="sms_message_with_location">Ihr Gerät befindet sich hier:</string>
-    <string name="sms_message_with_location_1">* GPS-Koordinaten: Breitengrad: %s, Längengrad: %s</string>
+    <string name="sms_message_with_location_1">* GPS-Koordinaten: Breitengrad: %1$s, Längengrad: %2$s</string>
     <string name="sms_message_with_location_2">* OpenStreetMap-Link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Standort momentan nicht verfügbar. Versuchen Sie es später erneut.</string>
     <string name="no_sim_caption">Keine SIM-Karte</string>
     <string name="no_sim_details">Find my Device verwendet SMS-Nachrichten. Bitte legen Sie zur Aktivierung eine SIM-Karte ein.</string>
-    <string name="no_sim_button">OK</string>
 </resources>
