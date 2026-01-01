@@ -18,7 +18,7 @@ build:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
-    - ./gradlew assemble
+    - ./gradlew lint assemble
   artifacts:
     paths:
       - app/build/outputs/apk/
