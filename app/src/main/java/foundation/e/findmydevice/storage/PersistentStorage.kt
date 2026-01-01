@@ -2,8 +2,10 @@ package foundation.e.findmydevice.storage
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import foundation.e.findmydevice.data.PasswordCheckResult
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import androidx.core.content.edit
 
 /**
  * PersistentStorage
@@ -22,17 +24,16 @@ class PersistentStorage (context: Context) {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREFERENCE_STORE, Context.MODE_PRIVATE)
-    private val gson: Gson = Gson()
+    private val json = Json { ignoreUnknownKeys = true }
 
     fun clear() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
     }
 
     // region Password
     fun savePassword(password: String) {
-        with(sharedPreferences.edit()) {
+        sharedPreferences.edit {
             putString(PASSWORD_KEY, password)
-            apply()
         }
     }
 
@@ -43,9 +44,8 @@ class PersistentStorage (context: Context) {
 
     // region Status
     fun saveStatus(status: Boolean) {
-        with(sharedPreferences.edit()) {
+        sharedPreferences.edit {
             putBoolean(STATUS_KEY, status)
-            apply()
         }
     }
 
@@ -58,20 +58,22 @@ class PersistentStorage (context: Context) {
 
     // Using Pair<Long,Boolean> structure to save password test results in a list
     fun getCheckedPasswordResultHistory(): List<Pair<Long, Boolean>> {
-        val json = sharedPreferences.getString(DATE_BOOLEAN_LIST_KEY, null)
-        return if (json != null) {
-            val type = object : TypeToken<List<Pair<Long, Boolean>>>() {}.type
-            gson.fromJson(json, type)
-        } else {
-            emptyList()
-        }
+        val stored = sharedPreferences.getString(DATE_BOOLEAN_LIST_KEY, null) ?: return emptyList()
+        return runCatching {
+            json.decodeFromString<List<PasswordCheckResult>>(stored)
+                .map { result -> Pair(result.first, result.second) }
+        }.getOrDefault(emptyList())
     }
 
     fun addCheckedPasswordResult(value: Boolean) {
         val currentList = getCheckedPasswordResultHistory().toMutableList()
         currentList.add(Pair(System.currentTimeMillis(), value))
-        val json = gson.toJson(currentList)
-        sharedPreferences.edit().putString(DATE_BOOLEAN_LIST_KEY, json).apply()
+        val serialized = json.encodeToString(
+            currentList.map { (timestamp, result) ->
+                PasswordCheckResult(first = timestamp, second = result)
+            }
+        )
+        sharedPreferences.edit { putString(DATE_BOOLEAN_LIST_KEY, serialized) }
     }
 
     //endregion

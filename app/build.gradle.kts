@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.detekt.plugin)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -75,7 +76,7 @@ dependencies {
     implementation(libs.elib)
 
     // Utilities
-    implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.material)
 
     // Tests
