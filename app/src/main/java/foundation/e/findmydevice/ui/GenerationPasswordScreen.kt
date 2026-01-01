@@ -40,8 +40,6 @@ import foundation.e.findmydevice.util.Dimens
 import kotlinx.coroutines.launch
 
 import android.provider.Settings
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.rememberScrollState
