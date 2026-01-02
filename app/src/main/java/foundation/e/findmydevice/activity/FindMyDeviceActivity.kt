@@ -93,8 +93,6 @@ class FindMyDeviceActivity : FragmentActivity() {
     fun displayPage(page: Pages){
         setContent {
             findMyDeviceTheme {
-                window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
-                window.navigationBarColor = MaterialTheme.colorScheme.background.toArgb()
                 Surface(color = MaterialTheme.colorScheme.background) {
 
                     val appBarTitle = remember { mutableStateOf(getTitleForPage(page)) }
