@@ -1,5 +1,6 @@
 package foundation.e.findmydevice.activity
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
 import foundation.e.findmydevice.R
 import foundation.e.findmydevice.data.Pages
@@ -49,11 +52,28 @@ class FindMyDeviceActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            setupEdgeToEdge(this)
+        }
+
         persistentStorage = PersistentStorage(this)
 
         permissionManager = PermissionManager(this)
         permissionManager.checkAndRequestPermissionsWithBackground {  }
         displayPage(Pages.ActivateFeature)
+    }
+
+    fun setupEdgeToEdge(activity: Activity) {
+        ViewCompat.setOnApplyWindowInsetsListener(activity.findViewById(android.R.id.content)) {
+                v,
+                windowInsets ->
+            val insets =
+                windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
+                )
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun onExitApp(withResult: Boolean = false) {
@@ -63,9 +83,9 @@ class FindMyDeviceActivity : FragmentActivity() {
         finishAfterTransition()
     }
 
-    private fun getTitleForPage(page: Pages) = when(page){
-        Pages.ActivateFeature -> getString(R.string.title_welcome)
+    private fun getTitleForPage(page: Pages) = when(page) {
         Pages.GeneratePassword -> getString(R.string.title_generate_password)
+        else -> ""
     }
 
     //region Display screen
@@ -73,8 +93,6 @@ class FindMyDeviceActivity : FragmentActivity() {
     fun displayPage(page: Pages){
         setContent {
             findMyDeviceTheme {
-                window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
-                window.navigationBarColor = MaterialTheme.colorScheme.background.toArgb()
                 Surface(color = MaterialTheme.colorScheme.background) {
 
                     val appBarTitle = remember { mutableStateOf(getTitleForPage(page)) }
@@ -117,9 +135,7 @@ class FindMyDeviceActivity : FragmentActivity() {
                                 )
                                 Pages.GeneratePassword ->GenerationPasswordScreen.displayScreen(
                                     onBackPressed = {},
-                                    onSelection = {
-                                        onExitApp(true) },
-                                    findMyDeviceActivity = this@FindMyDeviceActivity
+                                    onSelection = { onExitApp(true) }
                                 )
                             }
                         }

@@ -31,11 +31,10 @@
     <string name="link_copied_to_clipboard">Link gekopieerd naar klembord</string>
     <string name="set">Instellen</string>
     <string name="sms_message_with_location">Jouw apparaat is op de volgende locatie:</string>
-    <string name="sms_message_with_location_1">* GPS-coördinaten: Breedtegraad: %s, Lengtegraad: %s</string>
+    <string name="sms_message_with_location_1">* GPS-coördinaten: Breedtegraad: %1$s, Lengtegraad: %2$s</string>
     <string name="welcome_screen_caption_2">Genereer een geheime code en bewaar deze. Stuur deze via SMS naar je telefoonnummer om de coördinaten van je telefoon te ontvangen.</string>
     <string name="sms_message_with_location_2">* OpenStreetMap-link: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Kon huidige locatie niet bepalen. Probeer later opnieuw.</string>
     <string name="no_sim_caption">Geen SIM-kaart</string>
     <string name="no_sim_details">Vind mijn apparaat werkt via SMS. Om Vind mijn apparaat te gebruiken, plaats een SIM-kaart.</string>
-    <string name="no_sim_button">OK</string>
 </resources>

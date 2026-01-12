@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_generate_password">Секретный код вашего телефона</string>
+    <string name="title_check_password">Проверить пароль</string>
+    <string name="channel_name">Канал Find my Device по SMS</string>
+    <string name="channel_description">Этот канал используется приложением геолокации по SMS</string>
+    <string name="notification_service_caption">Find my Device по SMS</string>
+    <string name="notification_service_content">Отслеживание местоположения в фоновом режиме</string>
+    <string name="current_password">Текущий код:</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="generate_new_password">Сгенерировать новый код</string>
+    <string name="manage_secret_password">Управление моим секретным кодом</string>
+    <string name="generated_password">Сгенерированный пароль:</string>
+    <string name="password_correct">Пароль верный!</string>
+    <string name="password_incorrect">Неверный пароль</string>
+    <string name="password_next">Далее</string>
+    <string name="password_test_procedure">Проверьте, работает ли код, отправив его на этот номер с другого доступного телефона.</string>
+    <string name="main_security_title">Требуется аутентификация</string>
+    <string name="main_security_description">Введите код разблокировки</string>
+    <string name="check_permission">Разрешения не предоставлены, сервис работать не будет.</string>
+    <string name="welcome_screen_title">Find my Device</string>
+    <string name="welcome_screen_caption_1">Find my Device поможет определить местоположение этого телефона, если вы его потеряете.</string>
+    <string name="welcome_screen_caption_2">Сгенерируйте секретный код и просто отправьте его на это устройство по SMS — оно автоматически ответит координатами вашего телефона.</string>
+    <string name="welcome_screen_new_password">Создать новый пароль</string>
+    <string name="welcome_screen_check_password">Проверить текущий пароль</string>
+    <string name="welcome_screen_on_off">Включить Find my Device</string>
+    <string name="welcome_screen_intro_1">Запишите этот код и храните его в безопасном месте, где его найдете только вы.</string>
+    <string name="welcome_screen_intro_2">Если вы отправите код ниже по SMS на этот телефон, он ответит, отправив свои координаты.</string>
+    <string name="location_latitude">Широта</string>
+    <string name="location_longitude">Долгота</string>
+    <string name="location_not_found">Не удалось определить текущее местоположение, попробуйте снова</string>
+    <string name="link_copied_to_clipboard">Ссылка скопирована в буфер обмена</string>
+    <string name="set">Установить</string>
+    <string name="sms_message_with_location">Ваше устройство находится по адресу: </string>
+    <string name="sms_message_with_location_1">* Координаты GPS: широта: %1$s, долгота: %2$s</string>
+    <string name="sms_message_with_location_2">* Ссылка OpenStreetMap: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+    <string name="sms_message_with_location_not_found">Не удалось получить текущее местоположение. Пожалуйста, попробуйте позже.</string>
+    <string name="no_sim_caption">Нет SIM-карты</string>
+    <string name="no_sim_details">Find my Device работает через SMS. Чтобы активировать Find my Device, вставьте SIM-карту.</string>
 </resources>

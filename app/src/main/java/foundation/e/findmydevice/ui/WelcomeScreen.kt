@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,9 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.R
 import foundation.e.findmydevice.activity.FindMyDeviceActivity
+import foundation.e.findmydevice.storage.PersistentStorage
 import foundation.e.findmydevice.ui.buttons.actionColor
 import foundation.e.findmydevice.ui.buttons.toggleWithText
 import foundation.e.findmydevice.util.Dimens
@@ -98,7 +98,7 @@ fun welcomeScreenContent(onSelection: () -> Unit,
     }
 
     @Composable
-    fun drawSwitch(persistentStorage: PersistentStorage) {
+    fun drawSwitch() {
         toggleWithText(
             text = stringResource(R.string.welcome_screen_on_off),
             isChecked = isSwitchChecked,
@@ -186,10 +186,11 @@ fun welcomeScreenContent(onSelection: () -> Unit,
                                 .clickable { onBackPressed() }
                                 .padding(start = Dimens.SCREEN_PADDING / 2),
                         color = colorResource(id = foundation.e.elib.R.color.e_accent),
-                        text = stringResource(R.string.no_sim_button),
+                        text = stringResource(android.R.string.ok),
                         fontSize = 14.sp
                     )
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
     }
@@ -217,7 +218,7 @@ fun welcomeScreenContent(onSelection: () -> Unit,
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
-        drawSwitch(persistentStorage)
+        drawSwitch()
 
         manageCode()
     }

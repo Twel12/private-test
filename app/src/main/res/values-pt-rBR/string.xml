@@ -27,12 +27,11 @@
     <string name="link_copied_to_clipboard">Link copiado para a área de transferência</string>
     <string name="set">Definir</string>
     <string name="sms_message_with_location">Seu dispositivo está no seguinte local:</string>
-    <string name="sms_message_with_location_1">* Coordenadas de GPS: Latitude: %s, Longitude: %s</string>
+    <string name="sms_message_with_location_1">* Coordenadas de GPS: Latitude: %1$s, Longitude: %2$s</string>
     <string name="sms_message_with_location_2">* Link do OpenStreetMap: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Não é possível obter a localização atual no momento. Tente novamente mais tarde.</string>
     <string name="no_sim_caption">Sem cartão SIM</string>
     <string name="no_sim_details">O Localizar meu Dispositivo funciona com SMS. Para ativar o Localizar meu Dispositivo, insira um cartão SIM.</string>
-    <string name="no_sim_button">OK</string>
     <string name="title_generate_password">O código secreto do seu telefone</string>
     <string name="welcome_screen_intro_2">Se você enviar o código abaixo por SMS para este telefone, ele responderá com suas coordenadas de geolocalização.</string>
     <string name="channel_description">Este canal é usado pelo aplicativo de geolocalização de SMS</string>

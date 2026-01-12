@@ -32,10 +32,9 @@
     <string name="link_copied_to_clipboard">Enlace copiado al portapapeles</string>
     <string name="set">Establecer</string>
     <string name="sms_message_with_location">Tu dispositivo se encuentra en la siguiente ubicación: </string>
-    <string name="sms_message_with_location_1">* Coordenadas GPS: Latitud: %s, Longitud: %s</string>
+    <string name="sms_message_with_location_1">* Coordenadas GPS: Latitud: %1$s, Longitud: %2$s</string>
     <string name="sms_message_with_location_2">* Enlace OpenStreetMap: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Imposible obtener la ubicación actual en este momento. Por favor inténtalo más tarde.</string>
     <string name="no_sim_caption">Sin tarjeta SIM</string>
     <string name="no_sim_details">Find my Device utiliza mensajes SMS. Para activar Find my Device, inserta una tarjeta SIM.</string>
-    <string name="no_sim_button">OK</string>
 </resources>

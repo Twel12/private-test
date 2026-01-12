@@ -28,7 +28,7 @@
     <string name="link_copied_to_clipboard">Linkki kopioitu leikepöydälle</string>
     <string name="set">Aseta</string>
     <string name="sms_message_with_location">Laitteesi on sijainnissa:</string>
-    <string name="sms_message_with_location_1">* GPS-koordinaatit: Leveysaste: %s, Pituusaste: %s</string>
+    <string name="sms_message_with_location_1">* GPS-koordinaatit: Leveysaste: %1$s, Pituusaste: %2$s</string>
     <string name="sms_message_with_location_not_found">Nykyistä sijaintia ei voida tällä hetkellä määrittää. Yritä myöhemmin uudelleen.</string>
     <string name="no_sim_caption">Ei SIM-korttia</string>
     <string name="no_sim_details">Löydä laitteeni toimii tekstiviestillä. Mahdollista Löydä laitteeni -toiminto asettamalla SIM-kortti paikalleen.</string>

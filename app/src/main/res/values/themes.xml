@@ -2,6 +2,9 @@
     <style name="Theme.FindMyDevice" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowLightStatusBar">@bool/isLight</item>
         <item name="android:windowLightNavigationBar">@bool/isLight</item>
+        <item name="android:statusBarColor">@color/e_action_bar</item>
+        <item name="android:navigationBarColor">@color/e_action_bar</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
     </style>
 
     <style name="TransparentTheme" parent="Theme.FindMyDevice">

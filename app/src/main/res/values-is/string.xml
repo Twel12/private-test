@@ -29,14 +29,12 @@
     <string name="location_not_found">Ómögulegt er að fá núverandi staðsetningu, reyndu aftur síðar</string>
     <string name="link_copied_to_clipboard">Tengill afritaður á klippispjald</string>
     <string name="sms_message_with_location">Tækið þitt er á eftirfarandi staðsetningu:</string>
-    <string name="sms_message_with_location_1">* GPS-hnit: breiddargráða: %s, lengdargráða: %s</string>
+    <string name="sms_message_with_location_1">* GPS-hnit: breiddargráða: %1$s, lengdargráða: %2$s</string>
     <string name="sms_message_with_location_2">* OpenStreetMap tengill: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
     <string name="sms_message_with_location_not_found">Tekst ekki í augnablikinu að fá núverandi staðsetningu. Reyndu aftur síðar.</string>
     <string name="no_sim_caption">Ekkert SIM-kort</string>
     <string name="no_sim_details">\'Finna tækið mitt\' virkar með SMS. Til að virkja það skaltu setja inn SIM-kort.</string>
-    <string name="no_sim_button">Í lagi</string>
     <string name="password_test_procedure">Sannreyndu hvort kóðinn virkar með því að senda hann á símann þinn úr einhverjum öðrum síma sem þú hefur aðgang að.</string>
     <string name="welcome_screen_intro_2">Ef þú sendir kóðann hér fyrir neðan með SMS á þennan síma, þá mun hann svara með staðsetningarhnitum sínum.</string>
     <string name="welcome_screen_caption_2">Útbúðu leynikóða og einfaldlega sendu hann með SMS á þetta tæki, sem mun þá svara sjálfvirkt skilaboðunum með staðsetningarhnitum símans þíns.</string>
-    <string name="title_welcome">" "</string>
 </resources>
