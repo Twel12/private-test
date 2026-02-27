@@ -1,0 +1,31 @@
+image: "registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:latest"
+
+stages:
+  - update-from-upstream
+  - build
+
+include:
+  - project: "e/templates"
+    ref: main
+    file: "/.gitlab/gitlab-ci/gitlab-ci-import-updates-from-upstream.yml"
+
+upstream_update:
+  extends: .update-from-upstream
+  variables:
+    UPSTREAM_BRANCH: main
+    LOCAL_BRANCH: develop
+
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+
+build:
+  stage: build
+  cache:
+    key: ${CI_PROJECT_ID}
+    paths:
+      - .gradle/
+  script:
+    - ./gradlew assembleRelease
+  artifacts:
+    paths:
+      - app/build/outputs/apk
