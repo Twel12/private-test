@@ -43,16 +43,28 @@ android {
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas".toString())
     }
+
+    signingConfigs {
+        platform {
+            storeFile file("keystore/platform.jks")
+            storePassword "platform"
+            keyAlias "platform"
+            keyPassword "platform"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.platform
         }
         debug {
             debuggable true
             applicationIdSuffix ".debug"
             versionNameSuffix "-DEBUG"
+            signingConfig signingConfigs.platform
         }
     }
     splits {
