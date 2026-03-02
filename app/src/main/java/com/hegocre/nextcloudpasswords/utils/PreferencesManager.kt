@@ -114,7 +114,7 @@ class PreferencesManager private constructor(context: Context) {
         _encryptedSharedPrefs.edit().putBoolean("SKIP_CERTIFICATE_VALIDATION", value).commit()
 
     fun getUseInlineAutofill(): Boolean =
-        _encryptedSharedPrefs.getBoolean("USE_INLINE_AUTOFILL", false)
+        _encryptedSharedPrefs.getBoolean("USE_INLINE_AUTOFILL", true)
 
     fun setUseInlineAutofill(value: Boolean): Boolean =
         _encryptedSharedPrefs.edit().putBoolean("USE_INLINE_AUTOFILL", value).commit()
