@@ -19,7 +19,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId "com.hegocre.nextcloudpasswords"
+        applicationId "foundation.e.passwords"
         minSdk 24
         targetSdk 36
         versionCode 38
