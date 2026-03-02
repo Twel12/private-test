@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "foundation.e.passwords"
-        minSdk 24
+        minSdk 30
         targetSdk 36
         versionCode 38
         versionName "1.0.12"
