@@ -128,7 +128,7 @@ class PreferencesManager private constructor(context: Context) {
     fun setPasswordGenerationOptions(value: String?): Boolean =
         _encryptedSharedPrefs.edit().putString("PASSWORD_GENERATION_OPTIONS", value).commit()
 
-    fun getShowIcons(): Flow<Boolean> = getPreference(PreferenceKeys.SHOW_ICONS, false)
+    fun getShowIcons(): Flow<Boolean> = getPreference(PreferenceKeys.SHOW_ICONS, true)
     suspend fun setShowIcons(value: Boolean) = setPreference(PreferenceKeys.SHOW_ICONS, value)
 
     fun getOrderBy(): Flow<String> = getPreference(PreferenceKeys.ORDER_BY, ORDER_BY_TITLE_ASCENDING)
