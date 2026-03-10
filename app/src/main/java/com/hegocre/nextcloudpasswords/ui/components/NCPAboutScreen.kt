@@ -118,10 +118,10 @@ fun NCPAboutScreen(
                                             .width(50.dp)
                                             .clip(CircleShape),
                                         painter = painterResource(id = R.drawable.app_icon),
-                                        contentDescription = stringResource(id = R.string.app_name)
+                                        contentDescription = stringResource(id = R.string.e_os_app_name)
                                     )
                                     Text(
-                                        text = stringResource(id = R.string.app_name),
+                                        text = stringResource(id = R.string.e_os_app_name),
                                         style = MaterialTheme.typography.headlineMedium
                                     )
                                 }

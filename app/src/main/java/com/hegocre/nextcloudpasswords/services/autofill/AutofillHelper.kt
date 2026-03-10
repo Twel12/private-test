@@ -111,7 +111,7 @@ object AutofillHelper {
         label: String?,
         value: String?,
     ) {
-        val autofillLabel = label ?: context.getString(R.string.app_name)
+        val autofillLabel = label ?: context.getString(R.string.e_os_app_name)
 
         val presentation = if (label == null) {
             RemoteViews(context.packageName, R.layout.password_list_item).apply {
@@ -152,7 +152,7 @@ object AutofillHelper {
         value: String?,
         inlinePresentationSpec: InlinePresentationSpec,
     ) {
-        val autofillLabel = label ?: context.getString(R.string.app_name)
+        val autofillLabel = label ?: context.getString(R.string.e_os_app_name)
 
         val authIntent = Intent().apply {
             setPackage(context.packageName)

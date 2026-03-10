@@ -90,7 +90,7 @@ fun NCPSearchTopBar(
     username: String,
     serverAddress: String,
     modifier: Modifier = Modifier,
-    title: String = stringResource(R.string.app_name),
+    title: String = stringResource(R.string.e_os_app_name),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         rememberTopAppBarState()
     ),
@@ -429,7 +429,7 @@ fun PopupAppMenu(
                             LocalContentColor provides LocalContentColor.current.copy(alpha = ContentAlpha.medium)
                         ) {
                             Text(
-                                text = "${stringResource(id = R.string.app_name)} v${
+                                text = "${stringResource(id = R.string.e_os_app_name)} v${
                                     stringResource(
                                         id = R.string.version_name
                                     )

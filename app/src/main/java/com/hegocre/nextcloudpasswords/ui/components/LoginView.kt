@@ -193,7 +193,7 @@ fun LoginCard(
                     .clip(CircleShape)
                     .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = R.drawable.app_icon),
-                contentDescription = stringResource(id = R.string.app_name)
+                contentDescription = stringResource(id = R.string.e_os_app_name)
             )
 
             OutlinedTextFieldWithCaption(
@@ -327,7 +327,7 @@ fun NCPWebLoginScreen(
 
                             settings.domStorageEnabled = true
                             settings.javaScriptEnabled = true
-                            settings.userAgentString = it.getString(R.string.app_name)
+                            settings.userAgentString = it.getString(R.string.e_os_app_name)
 
                             loadUrl(url, mapOf("OCS-APIREQUEST" to "true"))
                         }
