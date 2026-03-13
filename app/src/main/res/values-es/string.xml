@@ -28,7 +28,7 @@
     <string name="welcome_screen_intro_2">Si envías el código siguiente mediante SMS a este teléfono, responderá con sus coordenadas de geolocalización.</string>
     <string name="location_latitude">Latitud</string>
     <string name="location_longitude">Longitud</string>
-    <string name="location_not_found">No se puede determinar la ubicación actual, por favor inténtalo otra vez.</string>
+    <string name="location_not_found">Imposible determinar la ubicación actual, por favor, inténtalo de nuevo</string>
     <string name="link_copied_to_clipboard">Enlace copiado al portapapeles</string>
     <string name="set">Establecer</string>
     <string name="sms_message_with_location">Tu dispositivo se encuentra en la siguiente ubicación: </string>
