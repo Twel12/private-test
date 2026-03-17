@@ -14,7 +14,7 @@
     <string name="main_security_title">Autenticação necessária</string>
     <string name="main_security_description">Digite seu código de desbloqueio</string>
     <string name="check_permission">As permissões não foram concedidas, o serviço não funcionará.</string>
-    <string name="welcome_screen_title">Localizar meu Dispositivo</string>
+    <string name="welcome_screen_title">Localizar meu dispositivo</string>
     <string name="welcome_screen_caption_1">O Localizar meu Dispositivo ajudará você a revelar a localização do telefone caso não consiga encontrá-lo.</string>
     <string name="welcome_screen_new_password">Criar nova senha</string>
     <string name="welcome_screen_check_password">Verificar a senha atual</string>
