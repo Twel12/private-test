@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="e_os_app_name">Паролі</string>
+    <string name="password_app_dashboard_summary">Безпечно зберігайте та синхронізуйте свої паролі</string>
+</resources>
