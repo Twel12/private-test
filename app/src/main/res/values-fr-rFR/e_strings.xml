@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="e_os_app_name">Mots de passe</string>
+    <string name="password_app_dashboard_summary">Stockez et synchronisez vos mots de passe en toute sécurité</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="e_os_app_name">Κωδικοί πρόσβασης</string>
+    <string name="password_app_dashboard_summary">Αποθηκεύστε και συγχρονίστε τους κωδικούς σας με ασφάλεια</string>
+</resources>

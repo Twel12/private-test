@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="e_os_app_name">비밀번호</string>
+    <string name="password_app_dashboard_summary">비밀번호를 안전하게 저장하고 동기화하세요</string>
+</resources>
