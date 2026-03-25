@@ -98,6 +98,16 @@
                 android:name="android.autofill"
                 android:resource="@xml/service_configuration" />
         </service>
+
+        <!-- START -->
+        <!-- Remove these once the app is ready for production -->
+        <meta-data
+            android:name="foundation.e.featureflags.opt_in"
+            android:value="true" />
+        <meta-data
+            android:name="foundation.e.featureflags.app_enabled"
+            android:value="false" />
+        <!-- END -->
     </application>
 
 </manifest>
