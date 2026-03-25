@@ -2,4 +2,9 @@
 <resources>
     <string name="e_os_app_name">Passwords</string>
     <string name="password_app_dashboard_summary">Store and sync your passwords securely</string>
+    <string name="error_sso_unavailable_generic">Single sign-on unavailable. Please log in manually.</string>
+    <string name="error_sso_app_signature">Single sign-on unavailable for this app signature.</string>
+    <string name="error_sso_no_account_found">No murena account found, please log in using traditional methods</string>
+    <string name="error_sso_sync_disabled">Sync is disabled for password app, please enable from (Settings -> Accounts -> Murena account -> Account Sync -> Password)</string>
+    <string name="error_sso_failed">Auto logging failed, Please log in manually.</string>
 </resources>

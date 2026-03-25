@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="foundation.e.accountmanager.permission.ACCOUNT_EVENTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -28,11 +32,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.activities.AutoLoginActivity"
+            android:exported="false" />
+
         <activity-alias
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.activities.AutoLoginActivityAlias"
             android:exported="true"
             android:label="@string/e_os_app_name"
-            android:targetActivity=".ui.activities.MainActivity">
+            android:targetActivity=".ui.activities.AutoLoginActivity">
             <intent-filter>
                 <action android:name="com.android.settings.action.IA_SETTINGS" />
             </intent-filter>
@@ -86,6 +94,16 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".receiver.AccountRemovedReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="foundation.e.accountmanager.permission.ACCOUNT_EVENTS">
+            <intent-filter>
+                <action android:name="foundation.e.accountmanager.action.ACCOUNT_REMOVED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".services.autofill.NCPAutofillService"
             android:exported="true"
@@ -98,6 +116,14 @@
                 android:name="android.autofill"
                 android:resource="@xml/service_configuration" />
         </service>
+
+        <provider
+            android:name=".providers.PasswordSyncProvider"
+            android:authorities="foundation.e.passwords.providers.PasswordSyncProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/e_os_app_name"
+            tools:ignore="ExportedContentProvider" />
 
         <!-- START -->
         <!-- Remove these once the app is ready for production -->

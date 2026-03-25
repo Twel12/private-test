@@ -1,9 +1,11 @@
 package com.hegocre.nextcloudpasswords.ui.activities
 
 import android.app.assist.AssistStructure
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.autofill.AutofillManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -24,7 +26,8 @@ import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import com.hegocre.nextcloudpasswords.utils.LogHelper
-import com.hegocre.nextcloudpasswords.utils.OkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
+import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,7 +40,9 @@ class MainActivity : FragmentActivity() {
 
         super.onCreate(savedInstanceState)
         if (!UserController.getInstance(this).isLoggedIn) {
-            login()
+            //try auto login, it will start regular login if it fails
+            startActivity(Intent(this, AutoLoginActivity::class.java))
+            finish()
             return
         }
 
@@ -88,7 +93,6 @@ class MainActivity : FragmentActivity() {
 
         Coil.setImageLoader {
             ImageLoader.Builder(this)
-                .okHttpClient { OkHttpRequest.getInstance().client }
                 .diskCache {
                     DiskCache.Builder()
                         .directory(this.cacheDir.resolve("image_cache"))
@@ -112,6 +116,11 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun logOut() {
+        if (OkHttpRequestInterface.getInstance() is SsoOkHttpRequest) {
+            // logout is unsupported from client app (password app in this case) when using murena account
+            startActivity(Intent(Settings.ACTION_SYNC_SETTINGS))
+            return
+        }
         val logOutJob = SupervisorJob()
         val logOutScope = CoroutineScope(Dispatchers.IO + logOutJob)
         logOutScope.launch {
@@ -122,9 +131,9 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun triggerRebirth() {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        val componentName = intent?.component
-        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        val mainIntent = Intent.makeRestartActivityTask(
+            ComponentName(this, MainActivity::class.java)
+        )
         startActivity(mainIntent)
         Runtime.getRuntime().exit(0)
     }

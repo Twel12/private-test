@@ -4,7 +4,12 @@ import android.content.Context
 import com.hegocre.nextcloudpasswords.api.Server
 import com.hegocre.nextcloudpasswords.databases.AppDatabase
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
+import com.nextcloud.android.sso.AccountImporter
+import com.nextcloud.android.sso.helper.SingleAccountHelper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -13,13 +18,14 @@ import kotlinx.coroutines.withContext
  *
  * @param context Context of the application.
  */
-class UserController private constructor(context: Context) {
+class UserController private constructor(val context: Context) {
     private val _preferencesManager = PreferencesManager.getInstance(context)
     private val passwordDatabase = AppDatabase.getInstance(context)
     private val folderDatabase = AppDatabase.getInstance(context)
 
     val isLoggedIn: Boolean
-        get() = _preferencesManager.getLoggedInServer() != null
+        get() = _preferencesManager.getLoggedInServer() != null ||
+            SsoAccount.getCurrentSingleSignOnAccount(context) != null
 
     /**
      * Method to store the server URl and credentials on the storage.
@@ -46,7 +52,18 @@ class UserController private constructor(context: Context) {
             passwordDatabase.passwordDao.deleteDatabase()
             folderDatabase.folderDao.deleteDatabase()
         }
+        SingleAccountHelper.commitCurrentAccount(context, "")
+        AccountImporter.clearAllAuthTokens(context)
         _preferencesManager.clear()
+    }
+
+    fun onMurenaAccountRemoved() {
+        val isLoggedInUsingSso = SsoAccount.getCurrentSingleSignOnAccount(context) != null
+        if (isLoggedInUsingSso) {
+            CoroutineScope(Dispatchers.IO).launch{
+                logOut()
+            }
+        }
     }
 
     /**
@@ -57,6 +74,13 @@ class UserController private constructor(context: Context) {
      */
     @Throws(UserException::class)
     fun getServer(): Server {
+        val ssoAccount = SsoAccount.getCurrentSingleSignOnAccount(context)
+        if (ssoAccount != null) {
+            return with(ssoAccount) {
+                Server(url, userId, token)
+            }
+        }
+
         return with(_preferencesManager) {
             val url = getLoggedInServer() ?: throw UserException("Not logged in")
             val username = getLoggedInUser() ?: throw UserException("Not logged in")
