@@ -6,7 +6,7 @@ import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.folder.NewFolder
 import com.hegocre.nextcloudpasswords.data.folder.UpdatedFolder
 import com.hegocre.nextcloudpasswords.utils.Error
-import com.hegocre.nextcloudpasswords.utils.OkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -102,7 +102,7 @@ class FoldersApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            if (code != 201) {
+            if (code !in 200..201) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
 

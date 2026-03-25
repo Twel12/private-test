@@ -18,9 +18,10 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker
 import com.hegocre.nextcloudpasswords.utils.Error
-import com.hegocre.nextcloudpasswords.utils.OkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.Result
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -82,8 +83,15 @@ class ApiController private constructor(context: Context) {
             preferencesManager.setServerSettings(settings)
             preferencesManager.setInstanceColor(settings.themeColorPrimary)
         }
-        OkHttpRequest.getInstance().allowInsecureRequests =
-            preferencesManager.getSkipCertificateValidation()
+
+        val currentAccount = SsoAccount.getCurrentSingleSignOnAccount(context)
+
+        if (currentAccount != null) {
+            OkHttpRequestInterface.useSso(context, currentAccount)
+        } else {
+            OkHttpRequestInterface.useBasic(preferencesManager.getSkipCertificateValidation())
+        }
+
     }
 
     private fun decryptCSEv1Keychain(
@@ -356,6 +364,16 @@ class ApiController private constructor(context: Context) {
     fun getAvatarServiceRequest(): Pair<String, Server> =
         Pair(serviceApi.getAvatarUrl(), server)
 
+    suspend fun getFaviconBytes(domain: String): ByteArray? {
+        if (!sessionOpen.value) return null
+        return serviceApi.getFaviconBytes(domain, sessionCode)
+    }
+
+    suspend fun getAvatarBytes(): ByteArray? {
+        if (!sessionOpen.value) return null
+        return serviceApi.getAvatarBytes(sessionCode)
+    }
+
     companion object {
         private var instance: ApiController? = null
 
@@ -380,4 +398,3 @@ class ApiController private constructor(context: Context) {
     }
 
 }
-

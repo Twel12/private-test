@@ -9,7 +9,9 @@ import android.content.res.ColorStateList
 import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +48,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.Credentials
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -105,6 +106,9 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         private set
     var visibleFolder = mutableStateOf<Folder?>(null)
         private set
+
+    private val faviconBytesCache = mutableMapOf<String, ByteArray>()
+    private var avatarBytesCache: ByteArray? = null
 
     init {
         val screenLockFilter = IntentFilter().apply {
@@ -287,18 +291,34 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     @Composable
     fun getPainterForUrl(url: String): Painter {
         val context = LocalContext.current
+        val isSessionOpen = sessionOpen.collectAsState(initial = false).value
         val domain = try {
             URL(url).host
         } catch (_: MalformedURLException) {
             url
         }
-        val (requestUrl, server) = apiController.getFaviconServiceRequest(domain)
+        val faviconBytes = produceState(
+            initialValue = faviconBytesCache[domain],
+            key1 = domain,
+            key2 = isSessionOpen
+        ) {
+            if (value == null && isSessionOpen) {
+                val fetched = apiController.getFaviconBytes(domain)
+                if (fetched != null) {
+                    faviconBytesCache[domain] = fetched
+                }
+                value = fetched
+            }
+        }.value
+
         return rememberAsyncImagePainter(
             ImageRequest.Builder(context).apply {
-                data(requestUrl)
-                addHeader("OCS-APIRequest", "true")
-                addHeader("Authorization", Credentials.basic(server.username, server.password))
-                crossfade(true)
+                data(faviconBytes)
+                if (faviconBytes != null) {
+                    memoryCacheKey("favicon:$domain")
+                    diskCacheKey("favicon:$domain")
+                }
+                crossfade(false)
                 val lockDrawable = context.getDrawable(R.drawable.ic_lock)?.apply {
                     setTintList(
                         ColorStateList.valueOf(
@@ -316,14 +336,30 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     @Composable
     fun getPainterForAvatar(): Painter {
         val context = LocalContext.current
+        val isSessionOpen = sessionOpen.collectAsState(initial = false).value
 
-        val (requestUrl, server) = apiController.getAvatarServiceRequest()
+        val avatarBytes = produceState<ByteArray?>(
+            initialValue = avatarBytesCache,
+            key1 = "avatar",
+            key2 = isSessionOpen
+        ) {
+            if (value == null && isSessionOpen) {
+                val fetched = apiController.getAvatarBytes()
+                if (fetched != null) {
+                    avatarBytesCache = fetched
+                }
+                value = fetched
+            }
+        }.value
+
         return rememberAsyncImagePainter(
             model = ImageRequest.Builder(context).apply {
-                data(requestUrl)
-                addHeader("OCS-APIRequest", "true")
-                addHeader("Authorization", Credentials.basic(server.username, server.password))
-                crossfade(true)
+                data(avatarBytes)
+                if (avatarBytes != null) {
+                    memoryCacheKey("avatar:${server.username}")
+                    diskCacheKey("avatar:${server.username}")
+                }
+                crossfade(false)
                 val accountDrawable = context.getDrawable(R.drawable.ic_account_circle)?.apply {
                     setTintList(
                         ColorStateList.valueOf(

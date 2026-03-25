@@ -2,6 +2,7 @@ package com.hegocre.nextcloudpasswords.ui.components
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
 import android.net.http.SslError
 import android.view.View
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hegocre.nextcloudpasswords.R
+import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
 import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 
@@ -237,8 +239,7 @@ fun NCPWebLoginScreen(
         }
 
         BackHandler(enabled = skipTlsValidation) {
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            val componentName = intent?.component
+            val componentName = ComponentName(context, MainActivity::class.java)
             val mainIntent = Intent.makeRestartActivityTask(componentName)
             context.startActivity(mainIntent)
             Runtime.getRuntime().exit(0)

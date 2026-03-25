@@ -6,7 +6,7 @@ import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.utils.Error
-import com.hegocre.nextcloudpasswords.utils.OkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -103,7 +103,7 @@ class PasswordsApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            if (code != 201) {
+            if (code !in 200..201) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
 

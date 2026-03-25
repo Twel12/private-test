@@ -25,6 +25,14 @@
 -keep class com.sun.jna.* { *; }
 -keepclassmembers class * extends com.sun.jna.* { public *; }
 
+# Nextcloud SSO AIDL models are java.io.Serializable and are exchanged
+# across process/app boundaries. R8 must not alter their class structure,
+# otherwise serialVersionUID mismatches occur at runtime.
+#-keep class com.nextcloud.android.sso.aidl.** { *; }
+-keep interface com.nextcloud.android.sso.aidl.** { *; }
+-keep class com.nextcloud.** implements java.io.Serializable { *; }
+-keep class com.nextcloud.** implements android.os.Parcelable { *; }
+
 # OkHttp platform used only on JVM and when Conscrypt and other security providers are available.
 -dontwarn okhttp3.internal.platform.**
 -dontwarn org.conscrypt.**

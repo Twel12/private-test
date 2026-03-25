@@ -6,10 +6,14 @@ import com.hegocre.nextcloudpasswords.data.password.GeneratedPassword
 import com.hegocre.nextcloudpasswords.data.password.RequestedPassword
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import okhttp3.Response
+import java.io.IOException
+import java.net.MalformedURLException
 import java.net.SocketTimeoutException
 import java.net.URLEncoder
 import java.util.Locale
@@ -41,7 +45,7 @@ class ServiceApi private constructor(private val server: Server) {
             )
 
             val apiResponse = withContext(Dispatchers.IO) {
-                OkHttpRequest.getInstance().post(
+                OkHttpRequestInterface.getInstance().post(
                     sUrl = server.url + PASSWORD_URL,
                     sessionCode = sessionCode,
                     username = server.username,
@@ -99,10 +103,51 @@ class ServiceApi private constructor(private val server: Server) {
             256
         )
 
+    suspend fun getFaviconBytes(domain: String, sessionCode: String?) = getRawBytes {
+        OkHttpRequestInterface.getInstance().get(
+            sUrl = getFaviconUrl(domain),
+            sessionCode = sessionCode,
+            username = server.username,
+            password = server.password
+        )
+    }
+
+    suspend fun getAvatarBytes(sessionCode: String?) = getRawBytes {
+        OkHttpRequestInterface.getInstance().get(
+            sUrl = getAvatarUrl(),
+            sessionCode = sessionCode,
+            username = server.username,
+            password = server.password
+        )
+    }
+
+    private suspend fun getRawBytes(response: suspend () -> Response): ByteArray? {
+        return try {
+            withContext(Dispatchers.IO) {
+                response().use { response ->
+                    if (response.code == 200) response.body.bytes() else null
+                }
+            }
+        } catch (e: MalformedURLException) {
+            Log.d(TAG, "getRawBytes: ", e)
+            null
+        } catch (e: IllegalArgumentException) {
+            Log.d(TAG, "getRawBytes: ", e)
+            null
+        } catch (e: IOException) {
+            Log.d(TAG, "getRawBytes: ", e)
+            null
+        } catch (e: IllegalStateException) {
+            Log.d(TAG, "getRawBytes: ", e)
+            null
+        }
+    }
+
     companion object {
         private const val FAVICON_URL = "/index.php/apps/passwords/api/1.0/service/favicon/%s/%d"
         private const val PASSWORD_URL = "/index.php/apps/passwords/api/1.0/service/password"
         private const val AVATAR_URL = "/index.php/apps/passwords/api/1.0/service/avatar/%s/%d"
+        private const val TAG = "ServiceApi"
 
         private var instance: ServiceApi? = null
 
