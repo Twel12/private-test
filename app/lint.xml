@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="MissingTranslation" severity="warning" />
+    <issue id="UnusedResources">
+        <option name="skip-libraries" value="true" />
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" severity="warning" />
+    <issue id="AndroidGradlePluginVersion" severity="warning" />
+</lint>
