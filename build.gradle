@@ -18,6 +18,28 @@ buildscript {
     }
 }
 
+plugins {
+    id 'io.gitlab.arturbosch.detekt' version "1.23.8"
+}
+
+detekt {
+    source.setFrom("app/src/main/java", "app/src/main/kotlin")
+    config.setFrom("detekt.yml")
+    baseline = file("app/detekt-baseline.xml")
+    parallel = false
+    buildUponDefaultConfig = true
+    allRules = false
+    disableDefaultRuleSets = false
+    debug = false
+    ignoreFailures = false
+    basePath = projectDir
+}
+
+dependencies {
+    detektPlugins 'io.nlopez.compose.rules:detekt:0.5.6'
+    detektPlugins 'io.nlopez.compose.rules:detekt:0.5.6'
+}
+
 tasks.register('clean', Delete) {
     delete rootProject.layout.buildDirectory
 }
