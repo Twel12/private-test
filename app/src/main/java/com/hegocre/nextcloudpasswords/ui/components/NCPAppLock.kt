@@ -135,12 +135,14 @@ fun NextcloudPasswordsAppLock(
         }
     }
 
+    val biometricPromptTitle = stringResource(R.string.biometric_prompt_title)
+    val biometricPromptDescription = stringResource(R.string.biometric_prompt_description)
     LaunchedEffect(key1 = hasBiometricAppLock) {
         if (hasBiometricAppLock && canAuthenticateBiometric) {
             showBiometricPrompt(
                 context = context,
-                title = context.getString(R.string.biometric_prompt_title),
-                description = context.getString(R.string.biometric_prompt_description),
+                title = biometricPromptTitle,
+                description = biometricPromptDescription,
                 onBiometricUnlock = onCorrectPasscode
             )
         }
@@ -202,8 +204,8 @@ fun NextcloudPasswordsAppLock(
                             onBiometricClick = {
                                 showBiometricPrompt(
                                     context = context,
-                                    title = context.getString(R.string.biometric_prompt_title),
-                                    description = context.getString(R.string.biometric_prompt_description),
+                                    title = biometricPromptTitle,
+                                    description = biometricPromptDescription,
                                     onBiometricUnlock = onCorrectPasscode
                                 )
                             },
@@ -235,8 +237,8 @@ fun NextcloudPasswordsAppLock(
                                 onBiometricClick = {
                                     showBiometricPrompt(
                                         context = context,
-                                        title = context.getString(R.string.biometric_prompt_title),
-                                        description = context.getString(R.string.biometric_prompt_description),
+                                        title = biometricPromptTitle,
+                                        description = biometricPromptDescription,
                                         onBiometricUnlock = onCorrectPasscode
                                     )
                                 },
