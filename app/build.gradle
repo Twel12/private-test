@@ -88,6 +88,10 @@ android {
     compileOptions {
         coreLibraryDesugaringEnabled true
     }
+    lint {
+        lintConfig = file('lint.xml')
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 dependencies {

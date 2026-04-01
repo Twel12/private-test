@@ -4,6 +4,7 @@ stages:
   - update-from-upstream
   - build
   - ai-review
+  - code-quality
 
 include:
   - project: "e/templates"
@@ -21,6 +22,49 @@ upstream_update:
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
+
+.build_rules: &build_rules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        CACHE_POLICY: pull
+      interruptible: true
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CACHE_POLICY: pull-push
+      interruptible: false
+    - if: $CI_COMMIT_TAG
+      variables:
+        CACHE_POLICY: pull-push
+      interruptible: false
+    - when: never
+  allow_failure: false
+  cache:
+    key: ${CI_PROJECT_ID}
+    paths:
+      - .gradle/
+    policy: $CACHE_POLICY
+
+build-release:
+  <<: *build_rules
+  stage: build
+  script:
+    - ./gradlew assembleRelease
+  artifacts:
+    paths:
+      - app/build/outputs/apk/release
+
+analysis:
+  stage: code-quality
+  <<: *build_rules
+  needs:
+    - build-release
+  script:
+    - ./gradlew detekt lintRelease
+  artifacts:
+    paths:
+      - app/build/reports/
+      - build/reports/
 
 build:
   stage: build
