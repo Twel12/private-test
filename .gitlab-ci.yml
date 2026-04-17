@@ -3,6 +3,7 @@ image: "registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:latest"
 stages:
   - update-from-upstream
   - build
+  - publish
   - ai-review
   - code-quality
 
@@ -81,6 +82,32 @@ build:
   artifacts:
     paths:
       - app/build/outputs/apk
+
+
+.rules_protected_ref:
+  rules: &rules_protected_ref
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+      when: always
+    - when: manual
+
+.rules_publish:
+  rules: &rules_publish
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+    - if: '$CI_COMMIT_TAG !~ "/^$/"'
+      when: always
+
+publish-backupapplib:
+  stage: publish
+  needs:
+    - job: build-release
+  rules: *rules_publish
+  script:
+    - ./gradlew :backup-app-api-lib:build
+    - ./gradlew :backup-app-api-lib:publish
+  allow_failure: true
 
 ai-review:
   needs:

@@ -43,4 +43,55 @@ android {
         aidl = true
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+        singleVariant("debug") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                create<MavenPublication>("release") {
+                    groupId = "foundation.e.passwords"
+                    artifactId = "backupappapi"
+                    version = "1.0.3"
+
+                    from(components["release"])
+
+                    pom {
+                        name = "BackupAppApi"
+                        description = "Library providing a way to fetch e2ee key for backup app"
+
+                        licenses {
+                            license {
+                                name = "The Apache Software License, Version 2.0"
+                                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                            }
+                        }
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    name = "GitLab"
+                    url = uri("https://gitlab.e.foundation/api/v4/projects/3576/packages/maven")
+                    credentials(HttpHeaderCredentials::class) {
+                        name = "Job-Token"
+                        value = System.getenv("CI_JOB_TOKEN")
+                    }
+                    authentication {
+                        create<HttpHeaderAuthentication>("headerAuthentication")
+                    }
+                }
+            }
+        }
+    }
+
 }
