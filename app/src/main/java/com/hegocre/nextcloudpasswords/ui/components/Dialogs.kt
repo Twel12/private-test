@@ -118,7 +118,7 @@ fun MasterPasswordDialog(
                     visualTransformation = if (showPassword)
                         VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardType = KeyboardType.Password,
-                    label = stringResource(R.string.dialog_master_password_title),
+                    label = stringResource(R.string.enter_password_hint),
                     trailingIcon = {
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
