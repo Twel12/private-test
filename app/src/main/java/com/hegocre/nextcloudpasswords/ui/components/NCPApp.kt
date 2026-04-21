@@ -342,7 +342,9 @@ fun NextcloudPasswordsApp(
                 ) {
                     PasswordItem(
                         passwordInfo = passwordsViewModel.visiblePassword.value,
-                        onEditPassword = if (sessionOpen) {
+                        onEditPassword = if (sessionOpen &&
+                            (passwordsViewModel.visiblePassword.value?.first?.canEdit() == true)
+                        ) {
                             {
                                 coroutineScope.launch {
                                     modalSheetState.hide()

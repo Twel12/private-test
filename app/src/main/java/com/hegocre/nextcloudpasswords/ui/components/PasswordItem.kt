@@ -171,7 +171,7 @@ fun PasswordItemContent(
                     .padding(bottom = 2.dp)
                     .weight(1f)
             )
-            if (password.editable) {
+            if (password.canEdit()) {
                 onEditPassword?.let {
                     IconButton(onClick = it) {
                         Icon(

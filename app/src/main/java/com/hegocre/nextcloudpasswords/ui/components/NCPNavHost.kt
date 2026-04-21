@@ -216,7 +216,7 @@ fun NCPNavHost(
                                     folders = visibleFolders,
                                     onPasswordClick = onPasswordClick,
                                     onPasswordLongClick = {
-                                        if (sessionOpen && !isAutofillRequest && it.editable)
+                                        if (sessionOpen && !isAutofillRequest && it.canEdit())
                                             navController.navigate("${NCPScreen.PasswordEdit.name}/${it.id}")
                                     },
                                     onFolderClick = onFolderClick,
@@ -309,7 +309,7 @@ fun NCPNavHost(
                                     folders = visibleFavoriteFolders,
                                     onPasswordClick = onPasswordClick,
                                     onPasswordLongClick = {
-                                        if (sessionOpen && !isAutofillRequest && it.editable)
+                                        if (sessionOpen && !isAutofillRequest && it.canEdit())
                                             navController.navigate("${NCPScreen.PasswordEdit.name}/${it.id}")
                                     },
                                     onFolderClick = onFolderClick,
@@ -394,7 +394,7 @@ fun NCPNavHost(
                                     folders = visibleFolders,
                                     onPasswordClick = onPasswordClick,
                                     onPasswordLongClick = {
-                                        if (sessionOpen && !isAutofillRequest && it.editable)
+                                        if (sessionOpen && !isAutofillRequest && it.canEdit())
                                             navController.navigate("${NCPScreen.PasswordEdit.name}/${it.id}")
                                     },
                                     onFolderClick = onFolderClick,
@@ -447,6 +447,13 @@ fun NCPNavHost(
                     }
 
                     passwordsDecryptionState.decryptedList != null && foldersDecryptionState.decryptedList != null -> {
+                        if (selectedPassword != null && !selectedPassword.canEdit()) {
+                            LaunchedEffect(selectedPassword.id) {
+                                navController.navigateUp()
+                            }
+                            return@NCPNavHostComposable
+                        }
+
                         val editablePasswordState =
                             rememberEditablePasswordState(selectedPassword).apply {
                                 if (selectedPassword == null) {
