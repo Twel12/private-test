@@ -46,7 +46,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -65,6 +64,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -79,10 +79,6 @@ import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
 import foundation.e.elib.compose.components.ELargeTopAppBar
 import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.job
-
-object AppBarDefaults {
-    val TopAppBarElevation = 4.dp
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -209,7 +205,7 @@ fun SearchAppBar(
     val requester = remember { FocusRequester() }
 
     Column(
-        Modifier.background(MaterialTheme.colorScheme.surfaceColorAtElevation(AppBarDefaults.TopAppBarElevation))
+        Modifier.background(colorResource(foundation.e.elib.R.color.e_action_bar))
     ) {
         Spacer(modifier = Modifier.statusBarsPadding())
         Row(

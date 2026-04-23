@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
@@ -52,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,6 +66,7 @@ import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import foundation.e.elib.compose.components.EAlertDialog
 import foundation.e.elib.compose.theme.ETheme
+import foundation.e.elib.R as eR
 
 @Composable
 fun NCPLoginScreen(
@@ -183,7 +186,11 @@ fun LoginCard(
     errorText: String,
     onLoginButtonClick: () -> Unit
 ) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(eR.color.e_floating_background)
+        )
+    ) {
         Column(
             modifier = Modifier
                 .padding(all = 20.dp)

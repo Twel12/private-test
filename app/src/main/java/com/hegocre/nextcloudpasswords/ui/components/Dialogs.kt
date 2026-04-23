@@ -36,7 +36,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.res.colorResource
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -58,6 +57,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -99,10 +99,9 @@ fun MasterPasswordDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 LaunchedEffect(key1 = Unit) {
@@ -276,10 +275,9 @@ fun AddCustomFieldDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(all = 24.dp)) {
                 Text(
@@ -386,10 +384,9 @@ fun SelectFolderDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
                 Text(
@@ -478,10 +475,9 @@ fun AddElementDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
                 Text(
@@ -533,10 +529,9 @@ fun InputPasscodeDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(all = 24.dp)) {
                 Text(
@@ -615,10 +610,9 @@ fun ListPreferenceDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
                 Box(
@@ -695,10 +689,9 @@ fun PasswordGenerationDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surface,
+            color = colorResource(eR.color.e_floating_background),
             contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
         ) {
             Column(modifier = Modifier.padding(vertical = 24.dp)) {
                 Box(
