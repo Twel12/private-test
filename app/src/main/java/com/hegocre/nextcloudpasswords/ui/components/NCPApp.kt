@@ -115,16 +115,16 @@ fun NextcloudPasswordsApp(
                         username = server.username,
                         serverAddress = server.url,
                         title = when (currentScreen) {
-                            NCPScreen.Passwords, NCPScreen.Favorites -> stringResource(currentScreen.title)
-                            NCPScreen.Folders -> {
+                            NCPScreen.Passwords -> {
                                 passwordsViewModel.visibleFolder.value?.let {
-                                    if (it.id == FoldersApi.DEFAULT_FOLDER_UUID)
+                                    if (it.id == FoldersApi.DEFAULT_FOLDER_UUID) {
                                         stringResource(currentScreen.title)
-                                    else
+                                    } else {
                                         it.label
+                                    }
                                 } ?: stringResource(currentScreen.title)
                             }
-
+                            NCPScreen.Favorites -> stringResource(currentScreen.title)
                             else -> ""
                         },
                         userAvatar = { size ->
@@ -146,7 +146,7 @@ fun NextcloudPasswordsApp(
                             setSearchQuery("")
                         },
                         onLogoutClick = { showLogOutDialog = true },
-                        showNavigationIcon = currentScreen == NCPScreen.Folders &&
+                        showNavigationIcon = currentScreen == NCPScreen.Passwords &&
                                 passwordsViewModel.visibleFolder.value?.id != null &&
                                 passwordsViewModel.visibleFolder.value?.id != FoldersApi.DEFAULT_FOLDER_UUID,
                         onNavigationClick = { navController.navigateUp() },
@@ -210,7 +210,9 @@ fun NextcloudPasswordsApp(
             floatingActionButton = {
                 AnimatedVisibility(
                     visible = currentScreen != NCPScreen.PasswordEdit &&
-                            currentScreen != NCPScreen.FolderEdit && sessionOpen,
+                            currentScreen != NCPScreen.FolderEdit &&
+                            currentScreen != NCPScreen.Favorites &&
+                            sessionOpen,
                     enter = scaleIn(),
                     exit = scaleOut(),
                 ) {

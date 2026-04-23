@@ -100,8 +100,7 @@ fun NCPSettingsScreen(
 
                     val startViews = mapOf(
                         NCPScreen.Passwords.name to stringResource(NCPScreen.Passwords.title),
-                        NCPScreen.Favorites.name to stringResource(NCPScreen.Favorites.title),
-                        NCPScreen.Folders.name to stringResource(NCPScreen.Folders.title)
+                        NCPScreen.Favorites.name to stringResource(NCPScreen.Favorites.title)
                     )
 
                     ListPreference(

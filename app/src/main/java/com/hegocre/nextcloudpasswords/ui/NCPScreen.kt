@@ -4,10 +4,8 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.hegocre.nextcloudpasswords.R
@@ -28,11 +26,6 @@ enum class NCPScreen(
         selectedIcon = Icons.Filled.Favorite,
         unselectedIcon = Icons.Outlined.FavoriteBorder
     ),
-    Folders(
-        title = R.string.folders,
-        selectedIcon = Icons.Filled.Folder,
-        unselectedIcon = Icons.Outlined.Folder
-    ),
     PasswordEdit(
         title = R.string.action_edit_password,
         selectedIcon = Icons.Default.Edit,
@@ -51,7 +44,6 @@ enum class NCPScreen(
             when (route?.substringBefore("/")) {
                 Passwords.name -> Passwords
                 Favorites.name -> Favorites
-                Folders.name -> Folders
                 PasswordEdit.name -> PasswordEdit
                 FolderEdit.name -> FolderEdit
                 null -> Passwords

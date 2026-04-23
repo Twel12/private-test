@@ -117,7 +117,7 @@ fun NCPNavHost(
     }
 
     val onFolderClick: (Folder) -> Unit = { folder ->
-        navController.navigate("${NCPScreen.Folders.name}/${folder.id}")
+        navController.navigate("${NCPScreen.Passwords.name}/${folder.id}")
     }
 
     val userStartDestination by PreferencesManager.getInstance(context).getStartScreen()
@@ -169,31 +169,60 @@ fun NCPNavHost(
         exitTransition = { fadeOut(animationSpec = tween(300)) },
     ) {
         composable(NCPScreen.Passwords.name) {
+            val filteredPasswordsParentFolder = remember(filteredPasswordList) {
+                filteredPasswordList?.filter {
+                    it.folder == FoldersApi.DEFAULT_FOLDER_UUID
+                }
+            }
+            val filteredFoldersParentFolder = remember(filteredFolderList) {
+                filteredFolderList?.filter {
+                    it.parent == FoldersApi.DEFAULT_FOLDER_UUID
+                }
+            }
+            val visiblePasswords = remember(searchQuery, filteredPasswordList, filteredPasswordsParentFolder) {
+                if (searchQuery.isBlank()) filteredPasswordsParentFolder else filteredPasswordList
+            }
+            val visibleFolders = remember(searchQuery, filteredFolderList, filteredFoldersParentFolder) {
+                if (searchQuery.isBlank()) filteredFoldersParentFolder else filteredFolderList
+            }
             NCPNavHostComposable(
                 modalSheetState = modalSheetState,
                 searchVisibility = searchVisibility,
                 closeSearch = closeSearch
             ) {
                 when {
-                    passwordsDecryptionState.isLoading -> {
+                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     }
-                    passwordsDecryptionState.decryptedList != null -> {
+                    foldersDecryptionState.decryptedList != null
+                            && passwordsDecryptionState.decryptedList != null -> {
+                        LaunchedEffect(Unit) {
+                            passwordsViewModel.setVisibleFolder(null)
+                        }
+
                         PullToRefreshBody(
                             isRefreshing = isRefreshing,
                             onRefresh = { passwordsViewModel.sync() },
                         ) {
-                            if (filteredPasswordList?.isEmpty() == true) {
+                            if (visiblePasswords?.isEmpty() == true
+                                && visibleFolders?.isEmpty() == true
+                            ) {
                                 if (searchQuery.isBlank()) NoContentText() else NoResultsText()
                             } else {
                                 MixedLazyColumn(
-                                    passwords = filteredPasswordList,
+                                    passwords = visiblePasswords,
+                                    folders = visibleFolders,
                                     onPasswordClick = onPasswordClick,
                                     onPasswordLongClick = {
                                         if (sessionOpen && !isAutofillRequest && it.editable)
                                             navController.navigate("${NCPScreen.PasswordEdit.name}/${it.id}")
+                                    },
+                                    onFolderClick = onFolderClick,
+                                    onFolderLongClick = {
+                                        if (sessionOpen && !isAutofillRequest)
+                                            navController.navigate("${NCPScreen.FolderEdit.name}/${it.id}")
                                     },
                                     getPainterForUrl = { passwordsViewModel.getPainterForUrl(url = it) }
                                 )
@@ -246,71 +275,8 @@ fun NCPNavHost(
             }
         }
 
-        composable(NCPScreen.Folders.name) {
-            NCPNavHostComposable(
-                modalSheetState = modalSheetState,
-                searchVisibility = searchVisibility,
-                closeSearch = closeSearch
-            ) {
-                val filteredPasswordsParentFolder = remember(filteredPasswordList) {
-                    filteredPasswordList?.filter {
-                        it.folder == FoldersApi.DEFAULT_FOLDER_UUID
-                    }
-                }
-                val filteredFoldersParentFolder = remember(filteredFolderList) {
-                    filteredFolderList?.filter {
-                        it.parent == FoldersApi.DEFAULT_FOLDER_UUID
-                    }
-                }
-                when {
-                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-                    }
-                    foldersDecryptionState.decryptedList != null
-                            && passwordsDecryptionState.decryptedList != null -> {
-
-                        LaunchedEffect(Unit) {
-                            passwordsViewModel.setVisibleFolder(null)
-                        }
-
-                        PullToRefreshBody(
-                            isRefreshing = isRefreshing,
-                            onRefresh = { passwordsViewModel.sync() },
-                        ) {
-                            if (filteredFoldersParentFolder?.isEmpty() == true
-                                && filteredPasswordsParentFolder?.isEmpty() == true
-                            ) {
-                                if (searchQuery.isBlank())
-                                    NoContentText()
-                                else
-                                    NoResultsText { navController.navigate(NCPScreen.Passwords.name) }
-                            } else {
-                                MixedLazyColumn(
-                                    passwords = filteredPasswordsParentFolder,
-                                    folders = filteredFoldersParentFolder,
-                                    onPasswordClick = onPasswordClick,
-                                    onPasswordLongClick = {
-                                        if (sessionOpen && !isAutofillRequest && it.editable)
-                                            navController.navigate("${NCPScreen.PasswordEdit.name}/${it.id}")
-                                    },
-                                    onFolderClick = onFolderClick,
-                                    onFolderLongClick = {
-                                        if (sessionOpen && !isAutofillRequest)
-                                            navController.navigate("${NCPScreen.FolderEdit.name}/${it.id}")
-                                    },
-                                    getPainterForUrl = { passwordsViewModel.getPainterForUrl(url = it) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         composable(
-            route = "${NCPScreen.Folders.name}/{folder_uuid}",
+            route = "${NCPScreen.Passwords.name}/{folder_uuid}",
             arguments = listOf(
                 navArgument("folder_uuid") {
                     type = NavType.StringType
@@ -319,7 +285,7 @@ fun NCPNavHost(
         ) { entry ->
             val folderUuid =
                 entry.arguments?.getString("folder_uuid") ?: FoldersApi.DEFAULT_FOLDER_UUID
-            val filteredPasswordsSelectedFolder = remember(filteredPasswordList) {
+            val filteredPasswordsSelectedFolder = remember(filteredPasswordList, folderUuid) {
                 filteredPasswordList?.filter {
                     it.folder == folderUuid
                 }
@@ -329,18 +295,25 @@ fun NCPNavHost(
                     it.parent == folderUuid
                 }
             }
+            val visiblePasswords = remember(searchQuery, filteredPasswordList, filteredPasswordsSelectedFolder) {
+                if (searchQuery.isBlank()) filteredPasswordsSelectedFolder else filteredPasswordList
+            }
+            val visibleFolders = remember(searchQuery, filteredFolderList, filteredFoldersSelectedFolder) {
+                if (searchQuery.isBlank()) filteredFoldersSelectedFolder else filteredFolderList
+            }
             NCPNavHostComposable(
                 modalSheetState = modalSheetState,
                 searchVisibility = searchVisibility,
                 closeSearch = closeSearch
             ) {
                 when {
-                    passwordsDecryptionState.isLoading -> {
+                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     }
-                    passwordsDecryptionState.decryptedList != null -> {
+                    foldersDecryptionState.decryptedList != null
+                            && passwordsDecryptionState.decryptedList != null -> {
                         DisposableEffect(folderUuid, foldersDecryptionState.decryptedList) {
                             if (foldersDecryptionState.decryptedList?.isEmpty() == false) {
                                 passwordsViewModel.setVisibleFolder(foldersDecryptionState.decryptedList
@@ -357,17 +330,17 @@ fun NCPNavHost(
                             isRefreshing = isRefreshing,
                             onRefresh = { passwordsViewModel.sync() },
                         ) {
-                            if (filteredFoldersSelectedFolder?.isEmpty() == true
-                                && filteredPasswordsSelectedFolder?.isEmpty() == true
+                            if (visibleFolders?.isEmpty() == true
+                                && visiblePasswords?.isEmpty() == true
                             ) {
                                 if (searchQuery.isBlank())
                                     NoContentText()
                                 else
-                                    NoResultsText { navController.navigate(NCPScreen.Passwords.name) }
+                                    NoResultsText()
                             } else {
                                 MixedLazyColumn(
-                                    passwords = filteredPasswordsSelectedFolder,
-                                    folders = filteredFoldersSelectedFolder,
+                                    passwords = visiblePasswords,
+                                    folders = visibleFolders,
                                     onPasswordClick = onPasswordClick,
                                     onPasswordLongClick = {
                                         if (sessionOpen && !isAutofillRequest && it.editable)
