@@ -101,7 +101,7 @@ fun NextcloudPasswordsApp(
     }
 
     ETheme {
-        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
             rememberTopAppBarState()
         )
 
