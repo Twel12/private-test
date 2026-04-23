@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -19,13 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.Cached
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,10 +63,10 @@ import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
-import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
 import com.hegocre.nextcloudpasswords.utils.isValidEmail
 import com.hegocre.nextcloudpasswords.utils.isValidURL
+import foundation.e.elib.compose.components.EOutlinedButton
+import foundation.e.elib.compose.components.EOutlinedButtonRed
 import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.awaitFrame
@@ -199,60 +201,47 @@ fun EditablePasswordView(
     LazyColumn {
         item(key = "top_spacer") { Spacer(modifier = Modifier.width(16.dp)) }
 
-        item(key = "favorite_button") {
+        item(key = "password_label") {
             val contentColor by animateColorAsState(
                 targetValue = if (editablePasswordState.favorite)
-                    MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
-                    alpha = 0.80f
-                ),
+                    MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 label = "favoriteContentColor"
             )
-            val containerColor by animateColorAsState(
-                targetValue = if (editablePasswordState.favorite)
-                    MaterialTheme.colorScheme.favoriteColor.copy(alpha = 0.3f) else MaterialTheme.colorScheme.onSurface.copy(
-                    alpha = 0.12f
-                ),
-                label = "favoriteContentColor"
-            )
-            Button(
-                onClick = { editablePasswordState.favorite = !editablePasswordState.favorite },
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    contentColor = contentColor,
-                    containerColor = containerColor
-                ),
+                    .padding(horizontal = 16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = stringResource(id = R.string.password_attr_favorite)
+                OutlinedTextField(
+                    value = editablePasswordState.label,
+                    onValueChange = { newText -> editablePasswordState.label = newText },
+                    label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
+                    singleLine = true,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f),
+                    isError = showFieldErrors && editablePasswordState.label.isBlank(),
+                    supportingText = if (showFieldErrors && editablePasswordState.label.isBlank()) {
+                        {
+                            Text(text = stringResource(id = R.string.error_field_cannot_be_empty))
+                        }
+                    } else null
+
                 )
-                Text(
-                    text = stringResource(id = R.string.password_attr_favorite),
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                Icon(
+                    imageVector = if (editablePasswordState.favorite)
+                        Icons.Default.Star
+                    else
+                        Icons.Outlined.StarOutline,
+                    tint = contentColor,
+                    contentDescription = stringResource(id = R.string.password_attr_favorite),
+                    modifier = Modifier
+                        .padding(start = 28.dp)
+                        .clickable { editablePasswordState.favorite = !editablePasswordState.favorite }
                 )
             }
-        }
 
-        item(key = "password_label") {
-            OutlinedTextField(
-                value = editablePasswordState.label,
-                onValueChange = { newText -> editablePasswordState.label = newText },
-                label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp),
-                isError = showFieldErrors && editablePasswordState.label.isBlank(),
-                supportingText = if (showFieldErrors && editablePasswordState.label.isBlank()) {
-                    {
-                        Text(text = stringResource(id = R.string.error_field_cannot_be_empty))
-                    }
-                } else null
-            )
         }
 
         item(key = "password_username") {
@@ -315,7 +304,7 @@ fun EditablePasswordView(
                                 showGenerateDialog = true
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.Casino,
+                                    imageVector = Icons.Default.Cached,
                                     contentDescription = stringResource(id = R.string.action_generate_password)
                                 )
                             }
@@ -504,12 +493,11 @@ fun EditablePasswordView(
         }
 
         item(key = "custom_field_add") {
-            Button(
+            EOutlinedButton (
                 onClick = { showAddCustomFieldDialog = true },
                 content = {
                     Text(text = stringResource(id = R.string.action_add_custom_field))
                 },
-                colors = ButtonDefaults.filledTonalButtonColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -578,12 +566,8 @@ fun EditablePasswordView(
         if (onDeletePassword != null) {
             item(key = "password_delete") {
                 if (!isUpdating) {
-                    Button(
+                    EOutlinedButtonRed(
                         onClick = { showDeleteDialog = true },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                            disabledContentColor = MaterialTheme.colorScheme.error.copy(alpha = ContentAlpha.medium)
-                        ),
                         content = {
                             Text(text = stringResource(id = R.string.action_delete_password))
                         },

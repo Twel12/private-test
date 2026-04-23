@@ -36,6 +36,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.colorResource
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -75,6 +76,7 @@ import foundation.e.elib.compose.components.EAlertDialog
 import foundation.e.elib.compose.components.EDropdownMenuExposed
 import foundation.e.elib.compose.components.EFloatingListItem
 import foundation.e.elib.compose.theme.ETheme
+import foundation.e.elib.R as eR
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -444,7 +446,8 @@ fun SelectFolderDialog(
                                 onFolderClick = {
                                     setSelectedFolderId(folder.id)
                                 },
-                                modifier = Modifier
+                                modifier = Modifier,
+                                containerColor = colorResource(eR.color.e_floating_background)
                             )
                         }
                     }

@@ -2,6 +2,10 @@ package com.hegocre.nextcloudpasswords.ui.components
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
@@ -15,8 +19,8 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +35,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,8 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.data.folder.Folder
-import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
+import foundation.e.elib.compose.components.EOutlinedButtonRed
 import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -129,50 +133,43 @@ fun EditableFolderView(
     LazyColumn {
         item(key = "top_spacer") { Spacer(modifier = Modifier.width(16.dp)) }
 
-        item(key = "favorite_button") {
-            Button(
-                onClick = { editableFolderState.favorite = !editableFolderState.favorite },
+        item(key = "folder_label") {
+            val contentColor by animateColorAsState(
+                targetValue = if (editableFolderState.favorite)
+                    MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                label = "favoriteContentColor"
+            )
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp),
-                colors = if (editableFolderState.favorite) ButtonDefaults.filledTonalButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    containerColor = MaterialTheme.colorScheme.favoriteColor.copy(alpha = 0.3f)
+                    .padding(horizontal = 16.dp)) {
+                OutlinedTextField(
+                    value = editableFolderState.label,
+                    onValueChange = { newText -> editableFolderState.label = newText },
+                    label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
+                    singleLine = true,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f),
+                    isError = showFieldErrors && editableFolderState.label.isBlank(),
+                    supportingText = if (showFieldErrors && editableFolderState.label.isBlank()) {
+                        {
+                            Text(text = stringResource(id = R.string.error_field_cannot_be_empty))
+                        }
+                    } else null
                 )
-                else ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f),
-                    containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                ),
-            ) {
                 Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = stringResource(id = R.string.password_attr_favorite)
-                )
-                Text(
-                    text = stringResource(id = R.string.password_attr_favorite),
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    imageVector = if (editableFolderState.favorite)
+                        Icons.Default.Star
+                    else
+                        Icons.Outlined.StarOutline,
+                    tint = contentColor,
+                    contentDescription = stringResource(id = R.string.password_attr_favorite),
+                    modifier = Modifier
+                        .padding(start = 28.dp)
+                        .clickable { editableFolderState.favorite = !editableFolderState.favorite }
                 )
             }
-        }
-
-        item(key = "folder_label") {
-            OutlinedTextField(
-                value = editableFolderState.label,
-                onValueChange = { newText -> editableFolderState.label = newText },
-                label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp),
-                isError = showFieldErrors && editableFolderState.label.isBlank(),
-                supportingText = if (showFieldErrors && editableFolderState.label.isBlank()) {
-                    {
-                        Text(text = stringResource(id = R.string.error_field_cannot_be_empty))
-                    }
-                } else null
-            )
         }
 
         item(key = "folder_parent") {
@@ -222,12 +219,8 @@ fun EditableFolderView(
         if (onDeleteFolder != null) {
             item(key = "folder_delete") {
                 if (!isUpdating) {
-                    Button(
+                    EOutlinedButtonRed(
                         onClick = { showDeleteDialog = true },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                            disabledContentColor = MaterialTheme.colorScheme.error.copy(alpha = ContentAlpha.medium)
-                        ),
                         content = {
                             Text(text = stringResource(id = R.string.action_delete_folder))
                         },
