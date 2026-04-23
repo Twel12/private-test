@@ -15,4 +15,5 @@
     <string name="password_security_description_safe">The password is perfectly safe</string>
     <string name="password_security_description_weak">This password is being used more than once</string>
     <string name="password_security_description_leaked">The password is bad and can be found in hacker databases on the internet. You need to change it and you should make sure that the account you\'re using it for has not been compromised.</string>
+    <string name="passwords_floating_action_button">New</string>
 </resources>
