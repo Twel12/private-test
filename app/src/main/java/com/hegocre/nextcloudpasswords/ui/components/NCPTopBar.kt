@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BasicAlertDialog
@@ -382,30 +381,6 @@ fun PopupAppMenu(
                                 Icon(
                                     imageVector = Icons.Outlined.Settings,
                                     contentDescription = stringResource(id = R.string.screen_settings),
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .padding(start = 16.dp)
-                                )
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            onClick = {
-                                val intent = Intent("com.hegocre.nextcloudpasswords.action.about")
-                                    .setPackage(context.packageName)
-                                context.startActivity(intent)
-                                onDismissRequest()
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.screen_about),
-                                    modifier = Modifier.padding(end = 16.dp)
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = stringResource(id = R.string.screen_about),
                                     modifier = Modifier
                                         .padding(end = 8.dp)
                                         .padding(start = 16.dp)

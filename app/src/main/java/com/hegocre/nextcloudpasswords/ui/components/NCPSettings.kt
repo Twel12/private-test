@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
-import com.hegocre.nextcloudpasswords.ui.theme.NCPTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.showBiometricPrompt
 import kotlinx.coroutines.Dispatchers
@@ -175,57 +174,6 @@ fun NCPSettingsScreen(
                         title = { Text(stringResource(R.string.search_by_username_preference_title)) },
                         subtitle = { Text(stringResource(R.string.search_by_username_preference_subtitle)) }
                     )
-                }
-
-                PreferencesCategory(title = { Text(text = stringResource(id = R.string.preferences_category_appearance)) }) {
-                    val appTheme by preferencesManager.getAppTheme()
-                        .collectAsState(initial = NCPTheme.SYSTEM)
-                    val useNextcloudInstanceColor by preferencesManager.getUseInstanceColor()
-                        .collectAsState(initial = false)
-                    val useSystemDynamicColor by preferencesManager.getUseSystemDynamicColor()
-                        .collectAsState(initial = false)
-                    val themes = mapOf(
-                        NCPTheme.SYSTEM to stringResource(id = R.string.app_theme_system),
-                        NCPTheme.LIGHT to stringResource(id = R.string.app_theme_light),
-                        NCPTheme.DARK to stringResource(id = R.string.app_theme_dark),
-                        NCPTheme.AMOLED to stringResource(id = R.string.app_theme_black)
-                    )
-
-                    ListPreference(
-                        items = themes,
-                        selectedItem = appTheme,
-                        onItemSelected = { theme ->
-                            scope.launch(Dispatchers.IO) {
-                                preferencesManager.setAppTheme(theme)
-                            }
-                        },
-                        title = { Text(text = stringResource(id = R.string.app_theme_preference_title)) })
-
-                    SwitchPreference(
-                        checked = useNextcloudInstanceColor,
-                        onCheckedChange = { use ->
-                            scope.launch(Dispatchers.IO) {
-                                preferencesManager.setUseInstanceColor(use)
-                            }
-                        },
-                        title = { Text(text = stringResource(id = R.string.use_nextcloud_color_preference_title)) },
-                        subtitle = { Text(text = stringResource(id = R.string.use_nextcloud_color_preference_subtitle)) },
-                        enabled = !useSystemDynamicColor
-                    )
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        SwitchPreference(
-                            checked = useSystemDynamicColor,
-                            onCheckedChange = { use ->
-                                scope.launch(Dispatchers.IO) {
-                                    preferencesManager.setUseSystemDynamicColor(use)
-                                }
-                            },
-                            title = { Text(text = stringResource(id = R.string.use_dynamic_colors_preference_title)) },
-                            subtitle = { Text(text = stringResource(id = R.string.use_dynamic_colors_preference_subtitle)) },
-                            enabled = !useNextcloudInstanceColor
-                        )
-                    }
                 }
 
                 PreferencesCategory(title = { Text(text = stringResource(id = R.string.preferences_category_security)) }) {
