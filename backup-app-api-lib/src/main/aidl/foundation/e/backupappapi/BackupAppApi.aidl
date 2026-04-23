@@ -1,9 +1,10 @@
 package foundation.e.backupappapi;
 
 import foundation.e.backupappapi.BackupKey;
+import foundation.e.backupappapi.IBackupKeyCallback;
 
 interface BackupAppApi {
 
-    BackupKey getKeyForBackup();
+    void getKeyForBackup(IBackupKeyCallback callback);
 
 }

@@ -16,4 +16,11 @@
     <string name="password_security_description_weak">This password is being used more than once</string>
     <string name="password_security_description_leaked">The password is bad and can be found in hacker databases on the internet. You need to change it and you should make sure that the account you\'re using it for has not been compromised.</string>
     <string name="passwords_floating_action_button">New</string>
+
+    <string name="submit">Submit</string>
+    <string name="enter_password_hint">Enter your murena.io password</string>
+    <string name="show_password_hint">Show password</string>
+    <string name="hide_password_hint">Hide password</string>
+    <string name="welcome_user">Welcome back, %s 👋</string>
+
 </resources>
