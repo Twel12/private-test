@@ -146,6 +146,10 @@ fun NextcloudPasswordsApp(
                             setSearchQuery("")
                         },
                         onLogoutClick = { showLogOutDialog = true },
+                        showNavigationIcon = currentScreen == NCPScreen.Folders &&
+                                passwordsViewModel.visibleFolder.value?.id != null &&
+                                passwordsViewModel.visibleFolder.value?.id != FoldersApi.DEFAULT_FOLDER_UUID,
+                        onNavigationClick = { navController.navigateUp() },
                         scrollBehavior = scrollBehavior
                     )
                 } else {

@@ -107,7 +107,9 @@ fun NCPSearchTopBar(
     onLogoutClick: () -> Unit = {},
     searchExpanded: Boolean = false,
     onSearchClick: () -> Unit = {},
-    onSearchCloseClick: () -> Unit = {}
+    onSearchCloseClick: () -> Unit = {},
+    showNavigationIcon: Boolean = false,
+    onNavigationClick: () -> Unit = {},
 ) {
     Surface(
         modifier = modifier,
@@ -128,7 +130,9 @@ fun NCPSearchTopBar(
                     onLogoutClick = onLogoutClick,
                     scrollBehavior = scrollBehavior,
                     showMenu = !isAutofill,
-                    userAvatar = userAvatar
+                    userAvatar = userAvatar,
+                    showNavigationIcon = showNavigationIcon,
+                    onNavigationClick = onNavigationClick,
                 )
             }
         }
@@ -145,7 +149,9 @@ fun TitleAppBar(
     onLogoutClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     showMenu: Boolean,
-    userAvatar: @Composable (Dp) -> Unit
+    userAvatar: @Composable (Dp) -> Unit,
+    showNavigationIcon: Boolean,
+    onNavigationClick: () -> Unit,
 ) {
     var menuExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -153,6 +159,16 @@ fun TitleAppBar(
         title = { Text(text = title) },
         scrollBehavior = scrollBehavior,
         windowInsets = WindowInsets.statusBars,
+        navigationIcon = {
+            if (showNavigationIcon) {
+                IconButton(onClick = onNavigationClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.navigation_back)
+                    )
+                }
+            }
+        },
         actions = {
             IconButton(onClick = onSearchClick) {
                 Icon(

@@ -7,4 +7,12 @@
     <string name="error_sso_no_account_found">No murena account found, please log in using traditional methods</string>
     <string name="error_sso_sync_disabled">Sync is disabled for password app, please enable from (Settings -> Accounts -> Murena account -> Account Sync -> Password)</string>
     <string name="error_sso_failed">Auto logging failed, Please log in manually.</string>
+    <string name="password_attr_security_rating">Security rating</string>
+    <string name="password_strength_very_strong">Very strong</string>
+    <string name="password_strength_weak">Weak</string>
+    <string name="password_strength_leaked">Leaked</string>
+    <string name="password_security_rating_tooltip">This indication shows the security rating of your credential and represents how strong your password is based on checks performed by the app, such as checking for weak passwords, duplicate usage, or if the password has been leaked.</string>
+    <string name="password_security_description_safe">The password is perfectly safe</string>
+    <string name="password_security_description_weak">This password is being used more than once</string>
+    <string name="password_security_description_leaked">The password is bad and can be found in hacker databases on the internet. You need to change it and you should make sure that the account you\'re using it for has not been compromised.</string>
 </resources>

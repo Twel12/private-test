@@ -341,7 +341,7 @@ fun NCPNavHost(
                         }
                     }
                     passwordsDecryptionState.decryptedList != null -> {
-                        DisposableEffect(folderUuid) {
+                        DisposableEffect(folderUuid, foldersDecryptionState.decryptedList) {
                             if (foldersDecryptionState.decryptedList?.isEmpty() == false) {
                                 passwordsViewModel.setVisibleFolder(foldersDecryptionState.decryptedList
                                     ?.firstOrNull { it.id == folderUuid })
