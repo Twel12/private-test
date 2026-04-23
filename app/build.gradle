@@ -144,6 +144,8 @@ dependencies {
 
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    implementation('foundation.e:elib:0.0.1-alpha12-3d3c9e1a')
 }
 
 // Compiler flag to use experimental Compose APIs
