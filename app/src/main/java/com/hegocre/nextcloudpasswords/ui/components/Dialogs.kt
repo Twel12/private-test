@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +28,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -72,8 +70,11 @@ import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.RequestedPassword
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.elib.compose.components.EAlertDialog
+import foundation.e.elib.compose.components.EDropdownMenuExposed
+import foundation.e.elib.compose.components.EFloatingListItem
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -171,7 +172,7 @@ fun LogOutDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit
 ) {
-    AlertDialog(
+    EAlertDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
         title = { Text(text = stringResource(R.string.action_log_out)) },
         text = { Text(text = stringResource(R.string.dialog_log_out_text)) },
@@ -198,7 +199,7 @@ fun DeleteElementDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit
 ) {
-    AlertDialog(
+    EAlertDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
         title = { Text(text = stringResource(R.string.action_delete)) },
         text = { Text(text = stringResource(R.string.dialog_delete_element_text)) },
@@ -225,7 +226,7 @@ fun DiscardChangesDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit
 ) {
-    AlertDialog(
+    EAlertDialog(
         onDismissRequest = { onDismissRequest?.invoke() },
         title = { Text(text = stringResource(R.string.action_discard)) },
         text = { Text(text = stringResource(R.string.dialog_discard_changes_text)) },
@@ -306,7 +307,7 @@ fun AddCustomFieldDialog(
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
 
-                        ExposedDropdownMenu(
+                        EDropdownMenuExposed(
                             expanded = typeMenuExpanded,
                             onDismissRequest = { typeMenuExpanded = false }
                         ) {
@@ -410,7 +411,7 @@ fun SelectFolderDialog(
                     ) {
                         if (selectedFolderId != FoldersApi.DEFAULT_FOLDER_UUID) {
                             item(key = "parent_${parentFolder?.id ?: FoldersApi.DEFAULT_FOLDER_UUID}") {
-                                ListItem(
+                                EFloatingListItem(
                                     leadingContent = {
                                         Image(
                                             imageVector = Icons.Filled.Folder,
@@ -488,7 +489,7 @@ fun AddElementDialog(
                         .padding(horizontal = 24.dp)
                 )
 
-                ListItem(
+                EFloatingListItem(
                     headlineContent = {
                         Text(text = stringResource(id = R.string.password))
                     },
@@ -497,7 +498,7 @@ fun AddElementDialog(
                         .padding(horizontal = 8.dp)
                 )
 
-                ListItem(
+                EFloatingListItem(
                     headlineContent = {
                         Text(text = stringResource(id = R.string.folder))
                     },
@@ -730,7 +731,7 @@ fun PasswordGenerationDialog(
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
 
-                        ExposedDropdownMenu(
+                        EDropdownMenuExposed(
                             expanded = typeMenuExpanded,
                             onDismissRequest = { typeMenuExpanded = false }
                         ) {
@@ -806,7 +807,7 @@ fun PasswordGenerationDialog(
 @Preview
 @Composable
 fun MasterPasswordDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         MasterPasswordDialog(
             masterPassword = "",
             setMasterPassword = {},
@@ -820,7 +821,7 @@ fun MasterPasswordDialogPreview() {
 @Preview
 @Composable
 fun LogOutDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         LogOutDialog {
 
         }
@@ -830,7 +831,7 @@ fun LogOutDialogPreview() {
 @Preview
 @Composable
 fun DeleteDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         DeleteElementDialog {
 
         }
@@ -840,7 +841,7 @@ fun DeleteDialogPreview() {
 @Preview
 @Composable
 fun AddFieldDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         AddCustomFieldDialog(onAddClick = { _, _ -> })
     }
 }
@@ -848,7 +849,7 @@ fun AddFieldDialogPreview() {
 @Preview
 @Composable
 fun AddElementDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         AddElementDialog({}, {})
     }
 }
@@ -856,7 +857,7 @@ fun AddElementDialogPreview() {
 @Preview
 @Composable
 fun InputPasscodePreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         InputPasscodeDialog(title = "Input passcode", onInputPasscode = {})
     }
 }
@@ -864,7 +865,7 @@ fun InputPasscodePreview() {
 @Preview
 @Composable
 fun ListPreferenceDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         ListPreferenceDialog(
             title = { Text("Language") },
             options = mapOf(
@@ -881,7 +882,7 @@ fun ListPreferenceDialogPreview() {
 @Preview
 @Composable
 fun GeneratePasswordDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         PasswordGenerationDialog(onGenerate = { _, _, _ -> })
     }
 }

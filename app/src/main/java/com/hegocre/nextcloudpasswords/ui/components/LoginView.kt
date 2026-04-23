@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,8 +61,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.elib.compose.components.EAlertDialog
+import foundation.e.elib.compose.theme.ETheme
 
 @Composable
 fun NCPLoginScreen(
@@ -71,7 +71,7 @@ fun NCPLoginScreen(
     onLoginSuccess: () -> Unit,
     onLoginFailed: () -> Unit
 ) {
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             topBar = {
                 Spacer(
@@ -227,7 +227,7 @@ fun NCPWebLoginScreen(
     modifier: Modifier = Modifier,
     url: String = ""
 ) {
-    NextcloudPasswordsTheme {
+    ETheme {
         val context = LocalContext.current
 
         var showTlsDialog by rememberSaveable { mutableStateOf(false) }
@@ -347,7 +347,7 @@ fun NCPWebLoginScreen(
             }
 
             if (showTlsDialog) {
-                AlertDialog(
+                EAlertDialog(
                     onDismissRequest = { showTlsDialog = false },
                     confirmButton = {
                         TextButton(
@@ -379,7 +379,7 @@ fun NCPWebLoginScreen(
 @Preview(name = "Login card")
 @Composable
 fun PreviewCard() {
-    NextcloudPasswordsTheme {
+    ETheme {
         LoginCard("", {}, "") {}
     }
 }

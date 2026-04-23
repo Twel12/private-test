@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.password.Password
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.theme.statusBreached
 import com.hegocre.nextcloudpasswords.ui.theme.statusGood
 import com.hegocre.nextcloudpasswords.ui.theme.statusWeak
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.Dispatchers
 
 data class ListDecryptionState<T>(
@@ -347,7 +347,7 @@ fun Modifier.scrollbar(
 @Preview
 @Composable
 fun PasswordRowPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         PasswordRow(
             password = Password(
                 id = "",
@@ -384,7 +384,7 @@ fun PasswordRowPreview() {
 @Preview
 @Composable
 fun FolderRowPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         FolderRow(
             folder = Folder(
                 id = "",

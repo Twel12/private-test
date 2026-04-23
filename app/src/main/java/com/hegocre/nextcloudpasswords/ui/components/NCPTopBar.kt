@@ -37,7 +37,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -77,7 +76,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.ELargeTopAppBar
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.job
 
 object AppBarDefaults {
@@ -149,7 +149,7 @@ fun TitleAppBar(
 ) {
     var menuExpanded by rememberSaveable { mutableStateOf(false) }
 
-    LargeTopAppBar(
+    ELargeTopAppBar(
         title = { Text(text = title) },
         scrollBehavior = scrollBehavior,
         windowInsets = WindowInsets.statusBars,
@@ -463,7 +463,7 @@ fun PopupAppMenu(
 @Preview(name = "Top bar")
 @Composable
 fun TopBarPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         NCPSearchTopBar("", "")
     }
 }
@@ -471,7 +471,7 @@ fun TopBarPreview() {
 @Preview
 @Composable
 fun SearchBarPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         SearchAppBar(
             searchQuery = "Query",
             setSearchQuery = {},

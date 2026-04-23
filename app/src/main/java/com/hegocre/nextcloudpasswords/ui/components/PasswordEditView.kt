@@ -62,10 +62,10 @@ import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
 import com.hegocre.nextcloudpasswords.utils.isValidEmail
 import com.hegocre.nextcloudpasswords.utils.isValidURL
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -652,7 +652,7 @@ fun EditablePasswordView(
 @Preview
 @Composable
 fun PasswordEditPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         Surface {
             EditablePasswordView(
                 editablePasswordState = rememberEditablePasswordState().apply {

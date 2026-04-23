@@ -10,7 +10,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,7 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.ESwitch
+import foundation.e.elib.compose.theme.ETheme
 
 @Composable
 fun PreferencesCategory(
@@ -79,7 +79,7 @@ fun SwitchPreference(
                 }
             }
         }
-        Switch(
+        ESwitch(
             checked = checked,
             onCheckedChange = { if (enabled) onCheckedChange(it) },
             enabled = enabled,
@@ -130,7 +130,7 @@ fun ListPreference(
 @Preview
 @Composable
 fun PreferencesPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         Surface {
             Column {
                 PreferencesCategory(title = { Text("General") }) {

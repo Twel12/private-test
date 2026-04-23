@@ -59,10 +59,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.showBiometricPrompt
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -151,7 +151,7 @@ fun NextcloudPasswordsAppLock(
 
     val requester = remember { FocusRequester() }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             modifier = Modifier
                 .onKeyEvent { keyEvent ->
@@ -502,7 +502,7 @@ fun buttonPadding(): Int {
 @Preview
 @Composable
 fun AppLockPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         NextcloudPasswordsAppLock(onCheckPasscode = {
             return@NextcloudPasswordsAppLock CoroutineScope(Dispatchers.Default).async {
                 true

@@ -25,10 +25,10 @@ import androidx.compose.material.icons.twotone.Password
 import androidx.compose.material.icons.twotone.Shield
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,9 +57,9 @@ import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.ui.components.markdown.MDDocument
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
 import com.hegocre.nextcloudpasswords.utils.copyToClipboard
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.serialization.json.Json
 import org.commonmark.node.Document
 import org.commonmark.parser.Parser
@@ -536,7 +536,7 @@ fun PasswordMarkdownField(
 @Preview
 @Composable
 fun PasswordItemPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         Surface {
             PasswordItem(
                 passwordInfo = Pair(

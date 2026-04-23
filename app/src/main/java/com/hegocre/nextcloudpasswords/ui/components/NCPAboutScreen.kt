@@ -31,7 +31,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +57,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.EFloatingListItem
+import foundation.e.elib.compose.theme.ETheme
 
 data class LicenseNotice(
     val name: String,
@@ -77,7 +77,7 @@ fun NCPAboutScreen(
 
     var showLicensesDialog by rememberSaveable { mutableStateOf(false) }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -337,7 +337,7 @@ fun LicensesDialog(
 
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                     items(items = licenses, key = { it.name }) { license ->
-                        ListItem(
+                        EFloatingListItem(
                             headlineContent = {
                                 Text(text = license.name)
                             },
@@ -433,7 +433,7 @@ fun NCPAboutPreview() {
 @Preview
 @Composable
 fun LicensesDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         LicensesDialog(licenses = licenses)
     }
 }

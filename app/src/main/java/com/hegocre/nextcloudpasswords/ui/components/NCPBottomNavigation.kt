@@ -3,15 +3,15 @@ package com.hegocre.nextcloudpasswords.ui.components
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.ENavigationBar
+import foundation.e.elib.compose.components.ENavigationBarItem
+import foundation.e.elib.compose.theme.ETheme
 
 @Composable
 fun NCPBottomNavigation(
@@ -20,12 +20,12 @@ fun NCPBottomNavigation(
     onScreenSelected: (NCPScreen) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(
+    ENavigationBar (
         modifier = modifier,
         windowInsets = WindowInsets.navigationBars
     ) {
         allScreens.forEach { screen ->
-            NavigationBarItem(
+            ENavigationBarItem(
                 icon = {
                     Icon(
                         imageVector = if (currentScreen == screen) screen.selectedIcon else screen.unselectedIcon,
@@ -44,7 +44,7 @@ fun NCPBottomNavigation(
 @Preview(name = "Bottom Navigation preview")
 @Composable
 fun NCPBottomNavigationPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         NCPBottomNavigation(
             allScreens = NCPScreen.entries.filter { !it.hidden },
             currentScreen = NCPScreen.Passwords,

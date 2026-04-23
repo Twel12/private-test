@@ -39,8 +39,8 @@ import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
@@ -280,7 +280,7 @@ fun EditableFolderView(
 @Preview
 @Composable
 fun FolderEditPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         Surface {
             EditableFolderView(
                 editableFolderState = rememberEditableFolderState(),

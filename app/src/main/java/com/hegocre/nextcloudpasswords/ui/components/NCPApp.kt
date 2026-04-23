@@ -19,11 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,8 +52,10 @@ import androidx.navigation.compose.rememberNavController
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import foundation.e.elib.compose.components.EFloatingActionButton
+import foundation.e.elib.compose.components.EModalBottomSheet
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,7 +100,7 @@ fun NextcloudPasswordsApp(
         passwordsViewModel.server
     }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             rememberTopAppBarState()
         )
@@ -210,7 +210,7 @@ fun NextcloudPasswordsApp(
                     enter = scaleIn(),
                     exit = scaleOut(),
                 ) {
-                    FloatingActionButton(
+                    EFloatingActionButton(
                         onClick = { showAddElementDialog = true },
                     ) {
                         Icon(
@@ -286,7 +286,7 @@ fun NextcloudPasswordsApp(
             }
 
             if (openBottomSheet) {
-                ModalBottomSheet(
+                EModalBottomSheet(
                     onDismissRequest = { openBottomSheet = false },
                     contentWindowInsets = { WindowInsets.navigationBars },
                     sheetState = modalSheetState

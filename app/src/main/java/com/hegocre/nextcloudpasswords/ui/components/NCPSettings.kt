@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,12 +40,13 @@ import androidx.compose.ui.res.stringResource
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.theme.NCPTheme
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.showBiometricPrompt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import foundation.e.elib.compose.components.ETopAppBar
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,10 +60,10 @@ fun NCPSettingsScreen(
         PreferencesManager.getInstance(context)
     }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             topBar = {
-                TopAppBar(
+                ETopAppBar(
                     title = {
                         Text(stringResource(R.string.screen_settings))
                     },
