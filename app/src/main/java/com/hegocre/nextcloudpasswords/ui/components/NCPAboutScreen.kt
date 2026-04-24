@@ -4,12 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
@@ -111,15 +114,23 @@ fun NCPAboutScreen(
                         ) {
                             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Image(
+                                    Box(
                                         modifier = Modifier
                                             .padding(20.dp)
-                                            .height(50.dp)
-                                            .width(50.dp)
-                                            .clip(CircleShape),
-                                        painter = painterResource(id = R.drawable.app_icon),
-                                        contentDescription = stringResource(id = R.string.e_os_app_name)
-                                    )
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = R.mipmap.ic_launcher_background),
+                                            contentDescription = stringResource(id = R.string.e_os_app_name),
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                        Image(
+                                            painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                                            contentDescription = stringResource(id = R.string.e_os_app_name),
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
                                     Text(
                                         text = stringResource(id = R.string.e_os_app_name),
                                         style = MaterialTheme.typography.headlineMedium
