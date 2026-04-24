@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,8 +13,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,21 +33,26 @@ fun OutlinedTextFieldWithCaption(
     text: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     label: String = "",
     captionText: String = "",
     errorText: String = "",
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
+    enabled: Boolean = true,
     trailingIcon: @Composable (() -> Unit)? = null,
     onDone: () -> Unit = {}
 ) {
-    val isError by remember { derivedStateOf { errorText.isNotBlank() } }
+    val isError = errorText.isNotBlank()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
         OutlinedTextField(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            enabled = enabled,
+            modifier = textFieldModifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
             value = text,
             maxLines = 1,
             singleLine = true,
