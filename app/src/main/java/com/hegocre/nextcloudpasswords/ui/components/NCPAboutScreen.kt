@@ -4,12 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
@@ -31,7 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +60,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.EFloatingListItem
+import foundation.e.elib.compose.theme.ETheme
 
 data class LicenseNotice(
     val name: String,
@@ -77,7 +80,7 @@ fun NCPAboutScreen(
 
     var showLicensesDialog by rememberSaveable { mutableStateOf(false) }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -111,15 +114,23 @@ fun NCPAboutScreen(
                         ) {
                             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Image(
+                                    Box(
                                         modifier = Modifier
                                             .padding(20.dp)
-                                            .height(50.dp)
-                                            .width(50.dp)
-                                            .clip(CircleShape),
-                                        painter = painterResource(id = R.drawable.app_icon),
-                                        contentDescription = stringResource(id = R.string.e_os_app_name)
-                                    )
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = R.mipmap.ic_launcher_background),
+                                            contentDescription = stringResource(id = R.string.e_os_app_name),
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                        Image(
+                                            painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                                            contentDescription = stringResource(id = R.string.e_os_app_name),
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
                                     Text(
                                         text = stringResource(id = R.string.e_os_app_name),
                                         style = MaterialTheme.typography.headlineMedium
@@ -337,7 +348,7 @@ fun LicensesDialog(
 
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                     items(items = licenses, key = { it.name }) { license ->
-                        ListItem(
+                        EFloatingListItem(
                             headlineContent = {
                                 Text(text = license.name)
                             },
@@ -433,7 +444,7 @@ fun NCPAboutPreview() {
 @Preview
 @Composable
 fun LicensesDialogPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         LicensesDialog(licenses = licenses)
     }
 }

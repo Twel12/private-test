@@ -1,5 +1,7 @@
 package com.hegocre.nextcloudpasswords.ui.components
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -7,6 +9,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,12 +22,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,8 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -54,8 +60,10 @@ import androidx.navigation.compose.rememberNavController
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import foundation.e.elib.compose.components.EFloatingActionButtonExtended
+import foundation.e.elib.compose.components.EModalBottomSheet
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,22 +94,31 @@ fun NextcloudPasswordsApp(
     val isRefreshing by passwordsViewModel.isRefreshing.collectAsState()
 
     var showLogOutDialog by rememberSaveable { mutableStateOf(false) }
-    var showAddElementDialog by rememberSaveable { mutableStateOf(false) }
-
+    var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         if (isAutofillRequest) searchExpanded = true
     }
+    LaunchedEffect(currentScreen) {
+        fabMenuExpanded = false
+    }
+    BackHandler(enabled = fabMenuExpanded) {
+        fabMenuExpanded = false
+    }
+    val fabIconRotation by animateFloatAsState(
+        targetValue = if (fabMenuExpanded) 45f else 0f,
+        label = "fabIconRotation"
+    )
     val (searchQuery, setSearchQuery) = rememberSaveable { mutableStateOf(defaultSearchQuery) }
 
     val server = remember {
         passwordsViewModel.server
     }
 
-    NextcloudPasswordsTheme {
-        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+    ETheme {
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
             rememberTopAppBarState()
         )
 
@@ -115,16 +132,16 @@ fun NextcloudPasswordsApp(
                         username = server.username,
                         serverAddress = server.url,
                         title = when (currentScreen) {
-                            NCPScreen.Passwords, NCPScreen.Favorites -> stringResource(currentScreen.title)
-                            NCPScreen.Folders -> {
+                            NCPScreen.Passwords -> {
                                 passwordsViewModel.visibleFolder.value?.let {
-                                    if (it.id == FoldersApi.DEFAULT_FOLDER_UUID)
+                                    if (it.id == FoldersApi.DEFAULT_FOLDER_UUID) {
                                         stringResource(currentScreen.title)
-                                    else
+                                    } else {
                                         it.label
+                                    }
                                 } ?: stringResource(currentScreen.title)
                             }
-
+                            NCPScreen.Favorites -> stringResource(currentScreen.title)
                             else -> ""
                         },
                         userAvatar = { size ->
@@ -146,6 +163,10 @@ fun NextcloudPasswordsApp(
                             setSearchQuery("")
                         },
                         onLogoutClick = { showLogOutDialog = true },
+                        showNavigationIcon = currentScreen == NCPScreen.Passwords &&
+                                passwordsViewModel.visibleFolder.value?.id != null &&
+                                passwordsViewModel.visibleFolder.value?.id != FoldersApi.DEFAULT_FOLDER_UUID,
+                        onNavigationClick = { navController.navigateUp() },
                         scrollBehavior = scrollBehavior
                     )
                 } else {
@@ -206,16 +227,60 @@ fun NextcloudPasswordsApp(
             floatingActionButton = {
                 AnimatedVisibility(
                     visible = currentScreen != NCPScreen.PasswordEdit &&
-                            currentScreen != NCPScreen.FolderEdit && sessionOpen,
+                            currentScreen != NCPScreen.FolderEdit &&
+                            currentScreen != NCPScreen.Favorites &&
+                            sessionOpen,
                     enter = scaleIn(),
                     exit = scaleOut(),
                 ) {
-                    FloatingActionButton(
-                        onClick = { showAddElementDialog = true },
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = stringResource(id = R.string.action_create_element)
+                        AnimatedVisibility(visible = fabMenuExpanded) {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                FloatingActionMenuItem(
+                                    label = stringResource(R.string.password),
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.VpnKey,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    onClick = {
+                                        fabMenuExpanded = false
+                                        navController.navigate("${NCPScreen.PasswordEdit.name}/none")
+                                    }
+                                )
+                                FloatingActionMenuItem(
+                                    label = stringResource(R.string.folder),
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Folder,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    onClick = {
+                                        fabMenuExpanded = false
+                                        navController.navigate("${NCPScreen.FolderEdit.name}/none")
+                                    }
+                                )
+                            }
+                        }
+
+                        EFloatingActionButtonExtended(
+                            onClick = {
+                                fabMenuExpanded = !fabMenuExpanded
+                            },
+                            text =  {Text(text = stringResource(R.string.passwords_floating_action_button))},
+                            icon = {Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(id = R.string.action_create_element),
+                                modifier = Modifier.rotate(fabIconRotation)
+                            )}
                         )
                     }
                 }
@@ -248,22 +313,6 @@ fun NextcloudPasswordsApp(
                 )
             }
 
-            if (showAddElementDialog) {
-                AddElementDialog(
-                    onPasswordAdd = {
-                        navController.navigate("${NCPScreen.PasswordEdit.name}/none")
-                        showAddElementDialog = false
-                    },
-                    onFolderAdd = {
-                        navController.navigate("${NCPScreen.FolderEdit.name}/none")
-                        showAddElementDialog = false
-                    },
-                    onDismissRequest = {
-                        showAddElementDialog = false
-                    }
-                )
-            }
-
             if (needsMasterPassword) {
                 val (masterPassword, setMasterPassword) = rememberSaveable {
                     mutableStateOf("")
@@ -286,7 +335,7 @@ fun NextcloudPasswordsApp(
             }
 
             if (openBottomSheet) {
-                ModalBottomSheet(
+                EModalBottomSheet(
                     onDismissRequest = { openBottomSheet = false },
                     contentWindowInsets = { WindowInsets.navigationBars },
                     sheetState = modalSheetState
@@ -309,6 +358,31 @@ fun NextcloudPasswordsApp(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FloatingActionMenuItem(
+    label: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.surface,
+        shape = MaterialTheme.shapes.extraLarge,
+        shadowElevation = 6.dp,
+        tonalElevation = 0.dp,
+        modifier = modifier.clickable(onClick = onClick)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            icon()
+            Text(text = label)
         }
     }
 }

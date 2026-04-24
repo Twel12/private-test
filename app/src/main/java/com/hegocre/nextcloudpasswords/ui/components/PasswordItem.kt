@@ -3,46 +3,62 @@ package com.hegocre.nextcloudpasswords.ui.components
 import android.content.ActivityNotFoundException
 import android.webkit.URLUtil
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.twotone.AccountCircle
-import androidx.compose.material.icons.twotone.AlternateEmail
-import androidx.compose.material.icons.twotone.ContentCopy
-import androidx.compose.material.icons.twotone.Info
-import androidx.compose.material.icons.twotone.Link
-import androidx.compose.material.icons.twotone.Password
-import androidx.compose.material.icons.twotone.Shield
+import androidx.compose.material.icons.outlined.AlternateEmail
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -56,10 +72,13 @@ import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.ui.components.markdown.MDDocument
-import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
-import com.hegocre.nextcloudpasswords.ui.theme.favoriteColor
+import com.hegocre.nextcloudpasswords.ui.models.PasswordStrength
+import com.hegocre.nextcloudpasswords.ui.models.passwordStrengthForStatus
+import com.hegocre.nextcloudpasswords.ui.theme.Typography
 import com.hegocre.nextcloudpasswords.utils.copyToClipboard
+import foundation.e.elib.compose.theme.ETheme
+import foundation.e.elib.R as eR
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.commonmark.node.Document
 import org.commonmark.parser.Parser
@@ -83,6 +102,8 @@ fun PasswordItem(
     )
 }
 
+const val UNKNOWN_SECURITY_STATUS = 3
+
 @Composable
 fun PasswordItemContent(
     passwordInfo: Pair<Password, List<String>>,
@@ -95,15 +116,8 @@ fun PasswordItemContent(
     val uriHandler = LocalUriHandler.current
 
     val password = passwordInfo.first
-    val folderPath = remember {
-        buildAnnotatedString {
-            appendInlineContent("folder")
-            append(" ")
-            passwordInfo.second.reversed().forEachIndexed { index, folderName ->
-                if (index != 0) append(" /")
-                append(" $folderName")
-            }
-        }
+    val folderPath = remember(passwordInfo.second) {
+        passwordInfo.second.reversed().joinToString(" / ")
     }
 
     val customFields by remember {
@@ -138,7 +152,7 @@ fun PasswordItemContent(
                             contentDescription = stringResource(
                                 id = R.string.password_attr_favorite
                             ),
-                            tint = MaterialTheme.colorScheme.favoriteColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 )
@@ -169,36 +183,6 @@ fun PasswordItemContent(
             }
         }
         LazyColumn {
-            item(key = "${password.id}_path") {
-                val folderInlineContent = mapOf(
-                    Pair(
-                        "folder",
-                        InlineTextContent(
-                            placeholder = Placeholder(
-                                width = LocalTextStyle.current.fontSize,
-                                height = LocalTextStyle.current.fontSize,
-                                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Folder,
-                                contentDescription = stringResource(
-                                    id = R.string.folder
-                                ),
-                                tint = MaterialTheme.colorScheme.onSurface
-                                    .copy(alpha = ContentAlpha.medium)
-                            )
-                        }
-                    )
-                )
-                Text(
-                    text = folderPath,
-                    inlineContent = folderInlineContent,
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .padding(horizontal = 16.dp)
-                )
-            }
 
             if (password.username.isNotBlank()) {
                 item(key = "${password.id}_username") {
@@ -209,7 +193,8 @@ fun PasswordItemContent(
                         label = usernameLabel,
                         icon = {
                             Icon(
-                                imageVector = Icons.TwoTone.AccountCircle,
+                                imageVector = Icons.Outlined.PersonOutline,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 contentDescription = stringResource(id = R.string.password_attr_username)
                             )
                         },
@@ -223,7 +208,7 @@ fun PasswordItemContent(
                                 ).show()
                             }) {
                                 Icon(
-                                    imageVector = Icons.TwoTone.ContentCopy,
+                                    imageVector = Icons.Outlined.ContentCopy,
                                     contentDescription = stringResource(id = R.string.action_copy_value)
                                 )
                             }
@@ -238,11 +223,12 @@ fun PasswordItemContent(
                 val passwordLabel = stringResource(id = R.string.password_attr_password)
 
                 PasswordTextField(
-                    text = if (showPassword) password.password else "●".repeat(password.password.length),
+                    text = if (showPassword) password.password else "•".repeat(password.password.length),
                     label = passwordLabel,
                     icon = {
                         Icon(
-                            imageVector = Icons.TwoTone.Password,
+                            imageVector = Icons.Outlined.Password,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             contentDescription = stringResource(id = R.string.password_attr_password)
                         )
                     },
@@ -256,7 +242,7 @@ fun PasswordItemContent(
                             ).show()
                         }) {
                             Icon(
-                                imageVector = Icons.TwoTone.ContentCopy,
+                                imageVector = Icons.Outlined.ContentCopy,
                                 contentDescription = stringResource(id = R.string.action_copy_value)
                             )
                         }
@@ -275,7 +261,8 @@ fun PasswordItemContent(
                         label = urlLabel,
                         icon = {
                             Icon(
-                                imageVector = Icons.TwoTone.Link,
+                                imageVector = Icons.Outlined.Link,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 contentDescription = stringResource(id = R.string.password_attr_url)
                             )
                         },
@@ -289,7 +276,7 @@ fun PasswordItemContent(
                                 ).show()
                             }) {
                                 Icon(
-                                    imageVector = Icons.TwoTone.ContentCopy,
+                                    imageVector = Icons.Outlined.ContentCopy,
                                     contentDescription = stringResource(id = R.string.action_copy_value)
                                 )
                             }
@@ -323,6 +310,50 @@ fun PasswordItemContent(
                 }
             }
 
+            item(key = "${password.id}_path") {
+                PasswordTextField(
+                    text = folderPath,
+                    label = "Folder",
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Folder,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            contentDescription = stringResource(
+                                id = R.string.folder
+                            ),
+
+                            )
+                    }
+                )
+            }
+
+            if (password.status != UNKNOWN_SECURITY_STATUS) {
+                item(key = "${password.id}_security_rating") {
+                    val securityRating = passwordStrengthForStatus(password.status)
+
+                    if (securityRating != null) {
+                        PasswordSecurityRating(
+                            strength = securityRating,
+                            description = securityRating.description
+                        )
+                    }
+                }
+            }
+
+            if (password.notes.isNotBlank()) {
+                item(key = "${password.id}_notes") {
+                    val notesLabel = stringResource(id = R.string.password_attr_notes)
+
+                    PasswordMarkdownField(
+                        markdown = password.notes.replace("\n", "\n\n"),
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .padding(horizontal = 4.dp),
+                        label = notesLabel
+                    )
+                }
+            }
+
             if (customFields.isNotEmpty()) {
                 itemsIndexed(
                     items = customFields,
@@ -335,12 +366,14 @@ fun PasswordItemContent(
                                 icon = {
                                     if (customField.type == CustomField.TYPE_TEXT) {
                                         Icon(
-                                            imageVector = Icons.TwoTone.Info,
+                                            imageVector = Icons.Outlined.Info,
+                                            tint = MaterialTheme.colorScheme.onSurface,
                                             contentDescription = stringResource(id = R.string.custom_field_type_text)
                                         )
                                     } else {
                                         Icon(
-                                            imageVector = Icons.TwoTone.AlternateEmail,
+                                            imageVector = Icons.Outlined.AlternateEmail,
+                                            tint = MaterialTheme.colorScheme.onSurface,
                                             contentDescription = stringResource(id = R.string.custom_field_type_email)
                                         )
                                     }
@@ -355,7 +388,7 @@ fun PasswordItemContent(
                                         ).show()
                                     }) {
                                         Icon(
-                                            imageVector = Icons.TwoTone.ContentCopy,
+                                            imageVector = Icons.Outlined.ContentCopy,
                                             contentDescription = stringResource(id = R.string.action_copy_value)
                                         )
                                     }
@@ -368,11 +401,12 @@ fun PasswordItemContent(
 
                             PasswordTextField(
                                 text = if (showSecret) customField.value else
-                                    "●".repeat(customField.value.length),
+                                    "•".repeat(customField.value.length),
                                 label = customField.label,
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.TwoTone.Shield,
+                                        imageVector = Icons.Outlined.Shield,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         contentDescription = stringResource(id = R.string.custom_field_type_secret)
                                     )
                                 },
@@ -386,7 +420,7 @@ fun PasswordItemContent(
                                         ).show()
                                     }) {
                                         Icon(
-                                            imageVector = Icons.TwoTone.ContentCopy,
+                                            imageVector = Icons.Outlined.ContentCopy,
                                             contentDescription = stringResource(id = R.string.action_copy_value)
                                         )
                                     }
@@ -403,7 +437,8 @@ fun PasswordItemContent(
                                 label = customField.label,
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.TwoTone.Link,
+                                        imageVector = Icons.Outlined.Link,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         contentDescription = stringResource(id = R.string.password_attr_url)
                                     )
                                 },
@@ -417,7 +452,7 @@ fun PasswordItemContent(
                                         ).show()
                                     }) {
                                         Icon(
-                                            imageVector = Icons.TwoTone.ContentCopy,
+                                            imageVector = Icons.Outlined.ContentCopy,
                                             contentDescription = stringResource(id = R.string.action_copy_value)
                                         )
                                     }
@@ -452,20 +487,6 @@ fun PasswordItemContent(
                     }
                 }
             }
-
-            if (password.notes.isNotBlank()) {
-                item(key = "${password.id}_notes") {
-                    val notesLabel = stringResource(id = R.string.password_attr_notes)
-
-                    PasswordMarkdownField(
-                        markdown = password.notes.replace("\n", "\n\n"),
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .padding(horizontal = 4.dp),
-                        label = notesLabel
-                    )
-                }
-            }
         }
     }
 }
@@ -488,6 +509,7 @@ fun PasswordTextField(
                 maxLines = maxLines ?: Int.MAX_VALUE,
                 overflow = TextOverflow.Ellipsis,
                 fontFamily = fontFamily,
+                style = Typography.bodySmall,
                 modifier = Modifier
                     .clickable(
                         enabled = onClickText != null,
@@ -497,8 +519,10 @@ fun PasswordTextField(
         },
         overlineContent = {
             Text(
-                text = label.uppercase(),
-                maxLines = 1
+                text = label,
+                maxLines = 1,
+                style = Typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         leadingContent = icon,
@@ -506,6 +530,64 @@ fun PasswordTextField(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = modifier
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PasswordSecurityRating(
+    strength: PasswordStrength,
+    description: String,
+    modifier: Modifier = Modifier,
+) {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    Column(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.password_attr_security_rating),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Row(verticalAlignment = CenterVertically) {
+                Text(
+                    text = strength.label,
+                    color = strength.color,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above),
+                    tooltip = {
+                        PlainTooltip(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+                            Text(text = stringResource(R.string.password_security_rating_tooltip))
+                        }
+                    },
+                    state = tooltipState
+                ) {
+                    IconButton(
+                        onClick = {scope.launch { tooltipState.show() }},
+                        modifier = Modifier.size(32.dp).padding(start = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Info,
+                            contentDescription = stringResource(R.string.password_security_rating_tooltip)
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -517,17 +599,24 @@ fun PasswordMarkdownField(
     val root = remember(markdown) {
         Parser.builder().build().parse(markdown) as Document
     }
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
-        if (label.isNotBlank()) {
-            Text(
-                text = label.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        SelectionContainer {
-            Column {
-                MDDocument(root)
+    Box(Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 8.dp)
+        .clip(RoundedCornerShape(12.dp))
+        .background(colorResource(eR.color.e_floating_background_variant))
+        ) {
+        Column(modifier = modifier.padding(horizontal = 8.dp).padding(vertical = 16.dp)) {
+            if (label.isNotBlank()) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleSmall,
+
+                )
+            }
+            SelectionContainer {
+                Column {
+                    MDDocument(root)
+                }
             }
         }
     }
@@ -536,7 +625,7 @@ fun PasswordMarkdownField(
 @Preview
 @Composable
 fun PasswordItemPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         Surface {
             PasswordItem(
                 passwordInfo = Pair(

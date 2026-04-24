@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BasicAlertDialog
@@ -37,7 +36,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -47,7 +45,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -66,6 +63,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -77,12 +75,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.components.ELargeTopAppBar
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.job
-
-object AppBarDefaults {
-    val TopAppBarElevation = 4.dp
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +102,9 @@ fun NCPSearchTopBar(
     onLogoutClick: () -> Unit = {},
     searchExpanded: Boolean = false,
     onSearchClick: () -> Unit = {},
-    onSearchCloseClick: () -> Unit = {}
+    onSearchCloseClick: () -> Unit = {},
+    showNavigationIcon: Boolean = false,
+    onNavigationClick: () -> Unit = {},
 ) {
     Surface(
         modifier = modifier,
@@ -128,7 +125,9 @@ fun NCPSearchTopBar(
                     onLogoutClick = onLogoutClick,
                     scrollBehavior = scrollBehavior,
                     showMenu = !isAutofill,
-                    userAvatar = userAvatar
+                    userAvatar = userAvatar,
+                    showNavigationIcon = showNavigationIcon,
+                    onNavigationClick = onNavigationClick,
                 )
             }
         }
@@ -145,14 +144,26 @@ fun TitleAppBar(
     onLogoutClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     showMenu: Boolean,
-    userAvatar: @Composable (Dp) -> Unit
+    userAvatar: @Composable (Dp) -> Unit,
+    showNavigationIcon: Boolean,
+    onNavigationClick: () -> Unit,
 ) {
     var menuExpanded by rememberSaveable { mutableStateOf(false) }
 
-    LargeTopAppBar(
+    ELargeTopAppBar(
         title = { Text(text = title) },
         scrollBehavior = scrollBehavior,
         windowInsets = WindowInsets.statusBars,
+        navigationIcon = {
+            if (showNavigationIcon) {
+                IconButton(onClick = onNavigationClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.navigation_back)
+                    )
+                }
+            }
+        },
         actions = {
             IconButton(onClick = onSearchClick) {
                 Icon(
@@ -193,7 +204,7 @@ fun SearchAppBar(
     val requester = remember { FocusRequester() }
 
     Column(
-        Modifier.background(MaterialTheme.colorScheme.surfaceColorAtElevation(AppBarDefaults.TopAppBarElevation))
+        Modifier.background(colorResource(foundation.e.elib.R.color.e_action_bar))
     ) {
         Spacer(modifier = Modifier.statusBarsPadding())
         Row(
@@ -379,30 +390,6 @@ fun PopupAppMenu(
 
                         DropdownMenuItem(
                             onClick = {
-                                val intent = Intent("com.hegocre.nextcloudpasswords.action.about")
-                                    .setPackage(context.packageName)
-                                context.startActivity(intent)
-                                onDismissRequest()
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.screen_about),
-                                    modifier = Modifier.padding(end = 16.dp)
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = stringResource(id = R.string.screen_about),
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .padding(start = 16.dp)
-                                )
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            onClick = {
                                 onLogoutClick()
                                 onDismissRequest()
                             },
@@ -463,7 +450,7 @@ fun PopupAppMenu(
 @Preview(name = "Top bar")
 @Composable
 fun TopBarPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         NCPSearchTopBar("", "")
     }
 }
@@ -471,7 +458,7 @@ fun TopBarPreview() {
 @Preview
 @Composable
 fun SearchBarPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         SearchAppBar(
             searchQuery = "Query",
             setSearchQuery = {},

@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.awaitCancellation
 
 @Composable
@@ -126,7 +126,7 @@ fun OutlinedClickableTextField(
 @Preview
 @Composable
 fun OutlinedTextFieldPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         OutlinedTextFieldWithCaption(
             text = "Hello World",
             onValueChange = {},
@@ -134,4 +134,3 @@ fun OutlinedTextFieldPreview() {
         )
     }
 }
-

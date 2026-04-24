@@ -20,10 +20,12 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
 import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.materialkolor.dynamicColorScheme
+import foundation.e.elib.R
 
 private val defaultLightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -192,17 +194,18 @@ val ColorScheme.favoriteColor: Color
 
 val ColorScheme.statusGood: Color
     get() {
-        return if (isLight()) Green500 else Green200
+        return e_status_green
     }
 
 val ColorScheme.statusWeak: Color
     get() {
-        return if (isLight()) Amber500 else Amber200
+        return e_status_yellow
     }
 
 val ColorScheme.statusBreached: Color
+    @Composable
     get() {
-        return if (isLight()) Red500 else Red200
+        return colorResource(R.color.e_error)
     }
 
 object NCPTheme {

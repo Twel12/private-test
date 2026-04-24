@@ -23,9 +23,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material.icons.outlined.Fingerprint
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,15 +56,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.showBiometricPrompt
+import foundation.e.elib.compose.theme.ETheme
+import foundation.e.elib.R as eR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -151,7 +155,7 @@ fun NextcloudPasswordsAppLock(
 
     val requester = remember { FocusRequester() }
 
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             modifier = Modifier
                 .onKeyEvent { keyEvent ->
@@ -277,7 +281,7 @@ fun PasscodeIndicator(
             LazyRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(count = inputPassword.length, key = { it }) {
                     KeyboardDigitIndicator(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -354,8 +358,12 @@ fun KeyPad(
 
         Row {
             if (showBiometricIndicator) {
-                FilledTonalIconButton(
+                IconButton(
                     onClick = onBiometricClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier
                         .padding(buttonPadding().dp)
                         .height(buttonSize().dp)
@@ -407,9 +415,13 @@ fun KeyPad(
                     }
                 }
 
-                FilledTonalIconButton(
+                IconButton(
                     onClick = {},
                     interactionSource = interactionSource,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier
                         .padding(buttonPadding().dp)
                         .height(buttonSize().dp)
@@ -438,10 +450,14 @@ fun KeyboardNumber(
     number: String,
     onPressNumber: (String) -> Unit
 ) {
-    FilledTonalButton(
+    Button(
         onClick = {
             onPressNumber(number)
         },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorResource(eR.color.e_floating_background_variant),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         modifier = Modifier
             .padding(buttonPadding().dp)
             .height(buttonSize().dp)
@@ -502,7 +518,7 @@ fun buttonPadding(): Int {
 @Preview
 @Composable
 fun AppLockPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         NextcloudPasswordsAppLock(onCheckPasscode = {
             return@NextcloudPasswordsAppLock CoroutineScope(Dispatchers.Default).async {
                 true

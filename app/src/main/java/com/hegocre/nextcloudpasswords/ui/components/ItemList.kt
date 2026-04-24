@@ -4,7 +4,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,12 +15,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.twotone.Security
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -42,11 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.password.Password
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
-import com.hegocre.nextcloudpasswords.ui.theme.statusBreached
-import com.hegocre.nextcloudpasswords.ui.theme.statusGood
-import com.hegocre.nextcloudpasswords.ui.theme.statusWeak
+import com.hegocre.nextcloudpasswords.ui.models.passwordStrengthForStatus
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.Dispatchers
 
 data class ListDecryptionState<T>(
@@ -131,30 +136,37 @@ fun PasswordRow(
         headlineContent = {
             Text(
                 text = password.label,
+                style = MaterialTheme.typography.titleMedium
             )
         },
         supportingContent = if (password.username.isNotBlank()) {
             {
                 Text(
                     text = password.username,
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         } else null,
         trailingContent = if (password.status != 3) {
             {
-                Icon(
-                    imageVector = Icons.TwoTone.Security,
-                    contentDescription = stringResource(id = R.string.password_attr_security_status),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(all = 8.dp),
-                    tint = (when (password.status) {
-                        0 -> MaterialTheme.colorScheme.statusGood
-                        1 -> MaterialTheme.colorScheme.statusWeak
-                        2 -> MaterialTheme.colorScheme.statusBreached
-                        else -> Color.Unspecified
-                    })
-                )
+                val passwordStrength = passwordStrengthForStatus(password.status)
+                if (passwordStrength != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = passwordStrength.label,
+                            color = passwordStrength.color,
+                            modifier = Modifier.padding(end = 8.dp),
+                            style = MaterialTheme.typography.bodySmall)
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(passwordStrength.color, shape = CircleShape)
+                        )
+                    }
+                }
+
             }
         } else null,
         leadingContent = if (shouldShowIcon) {
@@ -163,9 +175,8 @@ fun PasswordRow(
                     Image(
                         painter = getPainterForUrl(password.url.ifBlank { password.label }),
                         modifier = Modifier
-                            .size(45.dp)
-                            .padding(all = 8.dp)
-                            .clip(RoundedCornerShape(4.dp)),
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(10.5.dp)),
                         contentDescription = stringResource(R.string.content_description_site_favicon)
                     )
                 }
@@ -181,6 +192,7 @@ fun FolderRow(
     modifier: Modifier = Modifier,
     onFolderClick: ((Folder) -> Unit)? = null,
     onFolderLongClick: ((Folder) -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surface
 ) {
     ListItem(
         leadingContent = {
@@ -189,13 +201,24 @@ fun FolderRow(
                 contentDescription = stringResource(R.string.content_description_folder_icon),
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                 modifier = Modifier
-                    .size(45.dp)
-                    .padding(8.dp)
+                    .size(42.dp)
             )
         },
         headlineContent = {
-            Text(text = folder.label)
+            Text(
+                text = folder.label,
+                style = MaterialTheme.typography.titleMedium)
         },
+        trailingContent = if (onFolderLongClick != null) {
+            {
+                IconButton(onClick = { onFolderLongClick.invoke(folder) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = stringResource(R.string.edit_folder)
+                    )
+                }
+            }
+        } else null,
         modifier = modifier
             .combinedClickable(
                 onClick = {
@@ -204,7 +227,10 @@ fun FolderRow(
                 onLongClick = {
                     onFolderLongClick?.invoke(folder)
                 }
-            )
+            ),
+        colors = ListItemDefaults.colors(
+            containerColor = containerColor
+        )
     )
 }
 
@@ -347,7 +373,7 @@ fun Modifier.scrollbar(
 @Preview
 @Composable
 fun PasswordRowPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         PasswordRow(
             password = Password(
                 id = "",
@@ -384,7 +410,7 @@ fun PasswordRowPreview() {
 @Preview
 @Composable
 fun FolderRowPreview() {
-    NextcloudPasswordsTheme {
+    ETheme {
         FolderRow(
             folder = Folder(
                 id = "",

@@ -25,16 +25,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
@@ -53,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,8 +65,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
-import com.hegocre.nextcloudpasswords.ui.theme.NextcloudPasswordsTheme
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.elib.compose.components.EAlertDialog
+import foundation.e.elib.compose.theme.ETheme
+import foundation.e.elib.R as eR
 
 @Composable
 fun NCPLoginScreen(
@@ -71,7 +76,7 @@ fun NCPLoginScreen(
     onLoginSuccess: () -> Unit,
     onLoginFailed: () -> Unit
 ) {
-    NextcloudPasswordsTheme {
+    ETheme {
         Scaffold(
             topBar = {
                 Spacer(
@@ -183,20 +188,32 @@ fun LoginCard(
     errorText: String,
     onLoginButtonClick: () -> Unit
 ) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(eR.color.e_floating_background)
+        )
+    ) {
         Column(
             modifier = Modifier
                 .padding(all = 20.dp)
         ) {
-            Image(
+            Box(
                 modifier = Modifier
-                    .height(70.dp)
-                    .width(70.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.app_icon),
-                contentDescription = stringResource(id = R.string.e_os_app_name)
-            )
+                    .size(70.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Image(
+                    painter = painterResource(id = R.mipmap.ic_launcher_background),
+                    contentDescription = stringResource(id = R.string.e_os_app_name),
+                    modifier = Modifier.fillMaxSize()
+                )
+                Image(
+                    painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                    contentDescription = stringResource(id = R.string.e_os_app_name),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             OutlinedTextFieldWithCaption(
                 text = text,
@@ -227,7 +244,7 @@ fun NCPWebLoginScreen(
     modifier: Modifier = Modifier,
     url: String = ""
 ) {
-    NextcloudPasswordsTheme {
+    ETheme {
         val context = LocalContext.current
 
         var showTlsDialog by rememberSaveable { mutableStateOf(false) }
@@ -347,7 +364,7 @@ fun NCPWebLoginScreen(
             }
 
             if (showTlsDialog) {
-                AlertDialog(
+                EAlertDialog(
                     onDismissRequest = { showTlsDialog = false },
                     confirmButton = {
                         TextButton(
@@ -379,7 +396,7 @@ fun NCPWebLoginScreen(
 @Preview(name = "Login card")
 @Composable
 fun PreviewCard() {
-    NextcloudPasswordsTheme {
+    ETheme {
         LoginCard("", {}, "") {}
     }
 }
