@@ -38,7 +38,6 @@
 
         <activity-alias
             android:name=".ui.activities.AutoLoginActivityAlias"
-            android:enabled="false"
             android:exported="true"
             android:label="@string/e_os_app_name"
             android:targetActivity=".ui.activities.AutoLoginActivity">
@@ -134,9 +133,6 @@
         <meta-data
             android:name="foundation.e.featureflags.app_enabled"
             android:value="false" />
-        <meta-data
-            android:name="foundation.e.featureflags.disabled_component"
-            android:value="com.hegocre.nextcloudpasswords.ui.activities.AutoLoginActivityAlias" />
         <!-- END -->
     </application>
 
