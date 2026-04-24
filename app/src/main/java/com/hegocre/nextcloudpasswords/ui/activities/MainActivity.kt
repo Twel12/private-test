@@ -8,10 +8,10 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.autofill.AutofillManager
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import coil.Coil
 import coil.ImageLoader
@@ -100,7 +100,7 @@ class MainActivity : FragmentActivity() {
                 }.build()
         }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
         setContent {
             NCPAppLockWrapper {
