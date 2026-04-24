@@ -191,7 +191,7 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
     companion object {
         const val TAG = "BackupAppSetupViewModel"
-        const val MINIMUM_PASSWORD_LENGTH = 12
+        const val MINIMUM_PASSWORD_LENGTH = 8
 
         fun factory(application: Application): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {

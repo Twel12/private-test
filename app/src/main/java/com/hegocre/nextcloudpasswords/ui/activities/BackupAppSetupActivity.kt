@@ -59,7 +59,6 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "BackupAppSetupActivity"
-        const val MINIMUM_PASSWORD_LENGTH = 12
         const val HALF_SCREEN_FRACTION = 0.5f
     }
 

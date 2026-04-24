@@ -18,7 +18,7 @@
     <string name="passwords_floating_action_button">New</string>
 
     <string name="submit">Submit</string>
-    <string name="enter_password_hint">Enter your murena.io password</string>
+    <string name="enter_password_hint">Enter your Murena Workspace password</string>
     <string name="show_password_hint">Show password</string>
     <string name="hide_password_hint">Hide password</string>
     <string name="welcome_user">Welcome back, %s 👋</string>
