@@ -125,15 +125,6 @@
             android:label="@string/e_os_app_name"
             tools:ignore="ExportedContentProvider" />
 
-        <!-- START -->
-        <!-- Remove these once the app is ready for production -->
-        <meta-data
-            android:name="foundation.e.featureflags.opt_in"
-            android:value="true" />
-        <meta-data
-            android:name="foundation.e.featureflags.app_enabled"
-            android:value="false" />
-        <!-- END -->
     </application>
 
 </manifest>
