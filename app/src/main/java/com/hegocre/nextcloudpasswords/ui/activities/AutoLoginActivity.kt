@@ -16,76 +16,61 @@
  */
 package com.hegocre.nextcloudpasswords.ui.activities
 
-import android.accounts.Account
-import android.content.ContentResolver
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.data.user.UserController.Companion.getInstance
 import com.hegocre.nextcloudpasswords.utils.ActionsConst
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
-import com.nextcloud.android.sso.AccountImporter
-import com.nextcloud.android.sso.exceptions.AccountImportCancelledException
-import com.nextcloud.android.sso.helper.SingleAccountHelper
-import com.nextcloud.android.sso.model.SingleSignOnAccount
 
 class AutoLoginActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        baseAutoLogin.start()
+    }
 
-        if (getInstance(this).isLoggedIn) {
-            startMain()
-            return
+    private fun startMain() {
+        val mainScreen = Intent(ActionsConst.MAIN_SCREEN)
+            .setPackage(packageName)
+        startActivity(mainScreen)
+        finish()
+    }
+
+    private val baseAutoLogin by lazy {
+        object : BaseAutoLogin(this@AutoLoginActivity) {
+            override fun accountExist() {
+                startMain()
+            }
+
+            override fun onLoginSuccess() {
+                startMain()
+            }
+
+            override fun signatureError() {
+                openClassicLogin(R.string.error_sso_app_signature)
+            }
+
+            override fun accountUnavailable() {
+                openClassicLogin(R.string.error_sso_no_account_found)
+            }
+
+            override fun syncDisabled() {
+                openClassicLogin(R.string.error_sso_sync_disabled)
+            }
+
+            override fun ssoFailed() {
+                openClassicLogin(R.string.error_sso_failed)
+            }
+
         }
-
-        if (isSignatureMismatchWithAccountManager()) {
-            openClassicLogin(R.string.error_sso_app_signature)
-            return
-        }
-
-        val murenaAccount = AccountImporter.findAccounts(this)
-            .firstOrNull { it != null && it.type == MURENA_ACCOUNT_TYPE }
-
-        if (murenaAccount == null) {
-            openClassicLogin(R.string.error_sso_no_account_found)
-            return
-        }
-
-        if (!murenaAccount.isSyncEnabled()) {
-            openClassicLogin(R.string.error_sso_sync_disabled)
-            return
-        }
-
-        AccountImporter.pickAccount(this, murenaAccount)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        try {
-            AccountImporter.onActivityResult(requestCode, resultCode, data, this, ::onSsoLoginSuccess)
-        } catch (e: AccountImportCancelledException) {
-            openClassicLogin(R.string.error_sso_failed)
-        }
-    }
-
-    private fun Account.isSyncEnabled() =
-        ContentResolver.getMasterSyncAutomatically()
-            && ContentResolver.getSyncAutomatically(this, CONTENT_AUTHORITY)
-
-    private fun isSignatureMismatchWithAccountManager() = packageManager.checkSignatures(
-        ACCOUNT_MANAGER_PACKAGE,
-        packageName
-    ) != PackageManager.SIGNATURE_MATCH
-
-    private fun onSsoLoginSuccess(ssoAccount: SingleSignOnAccount) {
-        SingleAccountHelper.commitCurrentAccount(applicationContext, ssoAccount.name)
-        OkHttpRequestInterface.useSso(this, ssoAccount)
-        startMain()
+        baseAutoLogin.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun openClassicLogin(@StringRes error: Int = R.string.error_sso_unavailable_generic) {
@@ -97,21 +82,5 @@ class AutoLoginActivity : ComponentActivity() {
         )
 
         finish()
-    }
-
-    private fun startMain() {
-        val mainScreen = Intent(ActionsConst.MAIN_SCREEN)
-            .setPackage(packageName)
-        startActivity(mainScreen)
-        finish()
-    }
-
-    companion object {
-        private const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
-
-        private const val ACCOUNT_MANAGER_PACKAGE = "foundation.e.accountmanager"
-
-        private const val CONTENT_AUTHORITY =
-            "foundation.e.passwords.providers.PasswordSyncProvider"
     }
 }
