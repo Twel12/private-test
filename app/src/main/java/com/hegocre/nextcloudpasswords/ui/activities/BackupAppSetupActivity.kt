@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +19,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,7 +62,6 @@ import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel.Back
 import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
 import foundation.e.elib.compose.components.ELargeTopAppBar
-import foundation.e.elib.compose.components.ETopAppBar
 import foundation.e.elib.compose.theme.ETheme
 
 @ExperimentalMaterial3Api
@@ -109,6 +107,8 @@ class BackupAppSetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         baseAutoLogin.start()
+
+        enableEdgeToEdge()
 
         setContent {
             val uiState by viewModel.uiState.collectAsState()
@@ -164,6 +164,13 @@ class BackupAppSetupActivity : ComponentActivity() {
         onSubmit: () -> Unit,
         onBack: () -> Unit,
     ) {
+        val focusRequester = remember { FocusRequester() }
+
+        LaunchedEffect(state) {
+            if (state != BackupAppSetupPasswordState.Checking) {
+                focusRequester.requestFocus()
+            }
+        }
         ETheme {
             BackHandler(onBack = onBack)
 
@@ -190,21 +197,18 @@ class BackupAppSetupActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        PasswordInputField(
-                            state = state,
-                            password = password,
-                            onValueChange = onPasswordChange,
-                            onSubmit = onSubmit,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.CenterEnd
                         ) {
-                            SubmitButton(state = state, onSubmit = onSubmit)
+                            Button(
+                                onClick = {
+                                    onSubmit()
+                                },
+                                enabled = state == BackupAppSetupPasswordState.Unknown,
+                            ) {
+                                Text(stringResource(R.string.backup_app_setup_cta))
+                            }
                         }
                     }
                 },
@@ -230,6 +234,25 @@ class BackupAppSetupActivity : ComponentActivity() {
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (state == BackupAppSetupPasswordState.Checking) {
+                            CircularProgressIndicator()
+                        } else {
+                            PasswordInputField(
+                                state = state,
+                                password = password,
+                                onValueChange = onPasswordChange,
+                                onSubmit = onSubmit,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(focusRequester)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -278,26 +301,6 @@ class BackupAppSetupActivity : ComponentActivity() {
                 .contentType(ContentType.Password),
             textFieldModifier = Modifier.fillMaxWidth(),
             onDone = { onSubmit() })
-    }
-
-    @Composable
-    private fun SubmitButton(state: BackupAppSetupPasswordState, onSubmit: () -> Unit) {
-        Button(
-            onClick = {
-                onSubmit()
-            },
-            enabled = state == BackupAppSetupPasswordState.Unknown,
-            modifier = Modifier.sizeIn(minWidth = 176.dp, minHeight = 56.dp),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            if (state == BackupAppSetupPasswordState.Checking) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp)
-                )
-            } else {
-                Text(stringResource(R.string.backup_app_setup_cta))
-            }
-        }
     }
 
     private fun response(response: SetupResponse) {
