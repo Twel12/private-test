@@ -116,6 +116,7 @@ fun NextcloudPasswordsApp(
     val server = remember {
         passwordsViewModel.server
     }
+    val showLogoutAction = passwordsViewModel.supportsLocalLogout
 
     ETheme {
         val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
@@ -162,6 +163,7 @@ fun NextcloudPasswordsApp(
                             searchExpanded = false
                             setSearchQuery("")
                         },
+                        showLogoutAction = showLogoutAction,
                         onLogoutClick = { showLogOutDialog = true },
                         showNavigationIcon = currentScreen == NCPScreen.Passwords &&
                                 passwordsViewModel.visibleFolder.value?.id != null &&
