@@ -15,9 +15,12 @@ import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordExcep
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import foundation.e.data.SetupResponse
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class BackupAppSetupViewModel(private val application: Application) : AndroidViewModel(application) {
 
@@ -32,7 +35,15 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
     private val _response = MutableStateFlow<SetupResponse?>(null)
     val response = _response.asStateFlow()
 
+    private var refreshAccountsJob: Job? = null
+    private var submitPasswordJob: Job? = null
+    private var passwordSubmissionVersion = 0L
+
     fun refreshAccounts() {
+        if (refreshAccountsJob?.isActive == true) {
+            return
+        }
+
         val account = SsoAccount.getCurrentSingleSignOnAccount(application)
 
         if (account == null) {
@@ -41,8 +52,8 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
             return
         }
 
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        refreshAccountsJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
             when (restoreExistingE2eeState()) {
                 SetupResponse.Success -> {
                     Log.d(TAG, "account and e2ee is already configured.")
@@ -56,10 +67,12 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
                 null -> {
                     Log.d(TAG, "e2ee key is not available asking user for the key")
-                    _uiState.value = BackupAppSetupUiState(
-                        isLoading = false,
-                        accountName = account.name,
-                    )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            accountName = account.name,
+                        )
+                    }
                 }
 
                 else -> finishWithResponse(SetupResponse.Failed)
@@ -68,74 +81,112 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
     }
 
     fun onPasswordChanged(password: String) {
-        _uiState.value = _uiState.value.copy(
-            password = password,
-            passwordState = if (password.length < MINIMUM_PASSWORD_LENGTH) {
-                BackupAppSetupPasswordState.Empty
-            } else {
-                BackupAppSetupPasswordState.Unknown
-            }
-        )
+        submitPasswordJob?.cancel()
+        passwordSubmissionVersion++
+        _uiState.update {
+            it.copy(
+                password = password,
+                isCheckingPassword = false,
+                isWrongPassword = false,
+            )
+        }
+    }
+
+    fun clearPasswordInput() {
+        submitPasswordJob?.cancel()
+        passwordSubmissionVersion++
+        _uiState.update {
+            it.copy(
+                password = "",
+                isCheckingPassword = false,
+                isWrongPassword = false,
+            )
+        }
     }
 
     fun submitPassword() {
-        val passphrase = _uiState.value.password
-        _uiState.value = _uiState.value.copy(
-            passwordState = BackupAppSetupPasswordState.Checking
-        )
+        val currentUiState = _uiState.value
+        if (!currentUiState.canSubmitPassword) return
 
-        viewModelScope.launch {
-            var responseState: SetupResponse? = null
-            val hadSession = apiController.sessionOpen.value
-            var openedTemporarySession = false
-            val passwordResult = try {
-                val sessionOpened = if (hadSession) {
-                    apiController.restoreStoredKeychain(passphrase)
-                } else {
-                    apiController.openSession(passphrase).also { sessionOpened ->
-                        openedTemporarySession = sessionOpened
-                    }
-                }
-                if (sessionOpened) {
-                    preferencesManager.setMasterPassword(passphrase)
-                }
-                sessionOpened to BackupAppSetupPasswordState.Wrong
-            } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-                false to BackupAppSetupPasswordState.Wrong
-            } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
-                false to BackupAppSetupPasswordState.Wrong
-            } catch (_: PWDv1ChallengePasswordException) {
-                false to BackupAppSetupPasswordState.Wrong
-            } catch (_: ClientDeauthorizedException) {
-                Log.d(TAG, "please re-login again")
-                responseState = SetupResponse.AccountUnavailable
-                false to BackupAppSetupPasswordState.Unknown
-            } finally {
-                if (openedTemporarySession) {
-                    apiController.clearSession()
-                }
+        val passphrase = currentUiState.password
+        val submissionVersion = ++passwordSubmissionVersion
+
+        submitPasswordJob?.cancel()
+        _uiState.update {
+            it.copy(
+                isCheckingPassword = true,
+                isWrongPassword = false,
+            )
+        }
+
+        submitPasswordJob = viewModelScope.launch {
+            val passwordCheckResult = verifySubmittedPassword(passphrase)
+
+            if (
+                !isActive ||
+                submissionVersion != passwordSubmissionVersion ||
+                _uiState.value.password != passphrase
+            ) {
+                return@launch
             }
 
-            val (isCorrect, failureState) = passwordResult
-            _uiState.value = _uiState.value.copy(
-                passwordState = if (isCorrect) {
-                    BackupAppSetupPasswordState.Correct
-                } else {
-                    failureState
-                }
-            )
+            _uiState.update {
+                it.copy(
+                    isCheckingPassword = false,
+                    isWrongPassword = !passwordCheckResult.isCorrect && passwordCheckResult.response == null,
+                )
+            }
 
-            if (isCorrect) {
+            if (passwordCheckResult.isCorrect) {
                 Log.d(TAG, "setup completed, isSuccessful : true")
                 finishWithResponse(SetupResponse.Success)
             } else {
-                responseState?.let(::finishWithResponse)
+                passwordCheckResult.response?.let(::finishWithResponse)
             }
         }
     }
 
     fun finishWithResponse(response: SetupResponse) {
         _response.value = response
+    }
+
+    private suspend fun verifySubmittedPassword(passphrase: String): PasswordCheckResult {
+        var response: SetupResponse? = null
+        val hadSession = apiController.sessionOpen.value
+        var openedTemporarySession = false
+
+        val isCorrect = try {
+            val sessionOpened = if (hadSession) {
+                apiController.restoreStoredKeychain(passphrase)
+            } else {
+                apiController.openSession(passphrase).also { sessionOpened ->
+                    openedTemporarySession = sessionOpened
+                }
+            }
+            if (sessionOpened) {
+                preferencesManager.setMasterPassword(passphrase)
+            }
+            sessionOpened
+        } catch (_: PWDv1ChallengeMasterKeyNeededException) {
+            false
+        } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
+            false
+        } catch (_: PWDv1ChallengePasswordException) {
+            false
+        } catch (_: ClientDeauthorizedException) {
+            Log.d(TAG, "please re-login again")
+            response = SetupResponse.AccountUnavailable
+            false
+        } finally {
+            if (openedTemporarySession) {
+                apiController.clearSession()
+            }
+        }
+
+        return PasswordCheckResult(
+            isCorrect = isCorrect,
+            response = response,
+        )
     }
 
     private suspend fun restoreExistingE2eeState(): SetupResponse? {
@@ -178,16 +229,17 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
         val isLoading: Boolean = true,
         val accountName: String? = null,
         val password: String = "",
-        val passwordState: BackupAppSetupPasswordState = BackupAppSetupPasswordState.Empty
-    )
-
-    enum class BackupAppSetupPasswordState {
-        Unknown,
-        Wrong,
-        Correct,
-        Empty,
-        Checking
+        val isCheckingPassword: Boolean = false,
+        val isWrongPassword: Boolean = false,
+    ) {
+        val canSubmitPassword: Boolean
+            get() = !isCheckingPassword && password.length >= MINIMUM_PASSWORD_LENGTH
     }
+
+    private data class PasswordCheckResult(
+        val isCorrect: Boolean,
+        val response: SetupResponse?,
+    )
 
     companion object {
         const val TAG = "BackupAppSetupViewModel"

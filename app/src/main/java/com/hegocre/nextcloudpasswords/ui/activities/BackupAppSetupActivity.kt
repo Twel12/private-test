@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -36,12 +35,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
@@ -58,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.components.OutlinedTextFieldWithCaption
 import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel
-import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel.BackupAppSetupPasswordState
 import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
 import foundation.e.elib.compose.components.ELargeTopAppBar
@@ -111,8 +109,8 @@ class BackupAppSetupActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val uiState by viewModel.uiState.collectAsState()
-            val response by viewModel.response.collectAsState()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val response by viewModel.response.collectAsStateWithLifecycle()
 
             LaunchedEffect(response) {
                 response?.let(::response)
@@ -130,8 +128,10 @@ class BackupAppSetupActivity : ComponentActivity() {
                 }
             } else {
                 MasterKeyScreen(
-                    state = uiState.passwordState,
+                    isCheckingPassword = uiState.isCheckingPassword,
+                    isWrongPassword = uiState.isWrongPassword,
                     password = uiState.password,
+                    canSubmit = uiState.canSubmitPassword,
                     onPasswordChange = viewModel::onPasswordChanged,
                     onSubmit = viewModel::submitPassword,
                     onBack = ::finishCanceled
@@ -149,8 +149,10 @@ class BackupAppSetupActivity : ComponentActivity() {
     @Composable
     private fun Demo() {
         MasterKeyScreen(
-            state = BackupAppSetupPasswordState.Empty,
+            isCheckingPassword = false,
+            isWrongPassword = false,
             password = "",
+            canSubmit = false,
             onPasswordChange = {},
             onSubmit = {},
             onBack = {})
@@ -158,16 +160,18 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     @Composable
     private fun MasterKeyScreen(
-        state: BackupAppSetupPasswordState,
+        isCheckingPassword: Boolean,
+        isWrongPassword: Boolean,
         password: String,
+        canSubmit: Boolean,
         onPasswordChange: (String) -> Unit,
         onSubmit: () -> Unit,
         onBack: () -> Unit,
     ) {
         val focusRequester = remember { FocusRequester() }
 
-        LaunchedEffect(state) {
-            if (state != BackupAppSetupPasswordState.Checking) {
+        LaunchedEffect(isCheckingPassword) {
+            if (!isCheckingPassword) {
                 focusRequester.requestFocus()
             }
         }
@@ -205,7 +209,7 @@ class BackupAppSetupActivity : ComponentActivity() {
                                 onClick = {
                                     onSubmit()
                                 },
-                                enabled = state == BackupAppSetupPasswordState.Unknown,
+                                enabled = canSubmit,
                             ) {
                                 Text(stringResource(R.string.backup_app_setup_cta))
                             }
@@ -239,11 +243,11 @@ class BackupAppSetupActivity : ComponentActivity() {
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (state == BackupAppSetupPasswordState.Checking) {
+                        if (isCheckingPassword) {
                             CircularProgressIndicator()
                         } else {
                             PasswordInputField(
-                                state = state,
+                                isWrongPassword = isWrongPassword,
                                 password = password,
                                 onValueChange = onPasswordChange,
                                 onSubmit = onSubmit,
@@ -260,26 +264,18 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     @Composable
     private fun PasswordInputField(
-        state: BackupAppSetupPasswordState,
+        isWrongPassword: Boolean,
         password: String,
         onValueChange: (String) -> Unit,
         onSubmit: () -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        val shouldEnable = listOf(
-            BackupAppSetupPasswordState.Empty,
-            BackupAppSetupPasswordState.Unknown,
-            BackupAppSetupPasswordState.Wrong
-        ).contains(state)
         var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
-
-        val requester = remember { FocusRequester() }
 
         OutlinedTextFieldWithCaption(
             text = password,
-            enabled = shouldEnable,
             onValueChange = onValueChange,
-            errorText = if (state == BackupAppSetupPasswordState.Wrong) {
+            errorText = if (isWrongPassword) {
                 stringResource(R.string.backup_app_setup_password_error)
             } else {
                 ""
@@ -297,19 +293,20 @@ class BackupAppSetupActivity : ComponentActivity() {
             },
             modifier = Modifier
                 .then(modifier)
-                .focusRequester(requester)
                 .contentType(ContentType.Password),
             textFieldModifier = Modifier.fillMaxWidth(),
             onDone = { onSubmit() })
     }
 
     private fun response(response: SetupResponse) {
+        viewModel.clearPasswordInput()
         val code = if (response == SetupResponse.Success) RESULT_OK else RESULT_CANCELED
         setResult(code, response.toExtra())
         finish()
     }
 
     private fun finishCanceled() {
+        viewModel.clearPasswordInput()
         setResult(RESULT_CANCELED)
         finish()
     }
