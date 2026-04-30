@@ -52,6 +52,20 @@ data class NCPAutofillSaveCandidate(
     val url: String
 )
 
+private data class ExistingSaveLookup(
+    val packageName: String?,
+    val username: String,
+    val password: String,
+    val passwords: List<Password>,
+    val candidates: List<String>
+)
+
+private sealed interface ExistingSaveSelection {
+    data object NoMatch : ExistingSaveSelection
+    data object NeedsUserInteraction : ExistingSaveSelection
+    data class Update(val password: Password) : ExistingSaveSelection
+}
+
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
     private val preferencesManager = PreferencesManager.getInstance(appContext)
@@ -210,7 +224,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 debugLog("save ignored: username is missing package=${request.packageName}")
                 return@withContext PasswordSaveResult.Failed("Username is required to save a password")
             }
-            debugLog("save creating new entry from user interaction package=${request.packageName}, username=${request.username}")
+            debugLog(
+                "save creating new entry from user interaction package=${request.packageName}, " +
+                    "username=${request.username}"
+            )
             return@withContext createNewPassword(request, apiController)
         }
 
@@ -296,68 +313,104 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         request: PasswordSaveRequest,
         apiController: ApiController
     ): PasswordSaveResult? {
-        val packageName = request.packageName?.takeIf { it.isNotBlank() }
-        val username = request.username?.takeIf { it.isNotBlank() } ?: return null
+        val lookup = existingSaveLookup(request) ?: return null
 
+        return exactPasswordMatchSaveResult(lookup, apiController)
+            ?: matchingUsernameSaveResult(lookup, apiController)
+    }
+
+    private suspend fun existingSaveLookup(request: PasswordSaveRequest): ExistingSaveLookup? {
+        val username = request.username?.takeIf { it.isNotBlank() } ?: return null
         val savedPasswords = passwordDatabase.passwordDao.fetchAllPasswordsList()
             .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
-        val decryptedPasswords = decryptIfUnlocked(savedPasswords)
 
-        val candidates = matcher.candidates(request)
+        return ExistingSaveLookup(
+            packageName = request.packageName?.takeIf { it.isNotBlank() },
+            username = username,
+            password = request.password,
+            passwords = decryptIfUnlocked(savedPasswords),
+            candidates = matcher.candidates(request)
+        )
+    }
 
-        val exactPasswordMatch = decryptedPasswords.firstOrNull { password ->
-            password.username.equals(username, ignoreCase = true) &&
-                password.password == request.password &&
-                matcher.matches(password, candidates)
-        }
-        if (exactPasswordMatch != null) {
-            if (packageName == null ||
-                matcher.hasPackage(exactPasswordMatch, packageName)
-            ) {
-                debugLog("save duplicate ignored id=${exactPasswordMatch.id}")
-                return PasswordSaveResult.DuplicateIgnored
-            }
+    private suspend fun exactPasswordMatchSaveResult(
+        lookup: ExistingSaveLookup,
+        apiController: ApiController
+    ): PasswordSaveResult? {
+        val exactPasswordMatch = lookup.passwords.firstOrNull { password ->
+            password.username.equals(lookup.username, ignoreCase = true) &&
+                password.password == lookup.password &&
+                matcher.matches(password, lookup.candidates)
+        } ?: return null
 
+        return if (
+            lookup.packageName == null ||
+            matcher.hasPackage(exactPasswordMatch, lookup.packageName)
+        ) {
+            debugLog("save duplicate ignored id=${exactPasswordMatch.id}")
+            PasswordSaveResult.DuplicateIgnored
+        } else {
             debugLog("save linking package to existing id=${exactPasswordMatch.id}")
-            return updateExistingPassword(
+            updateExistingPassword(
                 password = exactPasswordMatch,
                 apiController = apiController,
                 updatedPassword = exactPasswordMatch.password,
-                packageName = packageName
+                packageName = lookup.packageName
             )
         }
+    }
 
-        val matchingUsernameEntries = decryptedPasswords.filter { password ->
-            password.username.equals(username, ignoreCase = true) &&
-                matcher.matches(password, candidates)
+    private suspend fun matchingUsernameSaveResult(
+        lookup: ExistingSaveLookup,
+        apiController: ApiController
+    ): PasswordSaveResult? {
+        val matchingUsernameEntries = lookup.passwords.filter { password ->
+            password.username.equals(lookup.username, ignoreCase = true) &&
+                matcher.matches(password, lookup.candidates)
         }
 
-        val existingPassword = when (matchingUsernameEntries.size) {
-            0 -> return null
-            1 -> matchingUsernameEntries.single()
-            else -> {
-                val appLinkedMatches = packageName?.let { packageName ->
-                    matchingUsernameEntries.filter {
-                        matcher.hasPackage(it, packageName)
-                    }
-                }.orEmpty()
-                if (appLinkedMatches.size == 1) {
-                    appLinkedMatches.single()
-                } else {
-                    debugLog("save needs user selection ids=${matchingUsernameEntries.map { it.id }}")
-                    return PasswordSaveResult.NeedsUserInteraction(
-                        "Multiple matching passwords found; select manually to update one"
-                    )
-                }
+        return when (
+            val selection = matchingUsernameEntries.existingSaveSelection(lookup.packageName)
+        ) {
+            ExistingSaveSelection.NoMatch -> null
+            ExistingSaveSelection.NeedsUserInteraction -> {
+                debugLog("save needs user selection ids=${matchingUsernameEntries.map { it.id }}")
+                PasswordSaveResult.NeedsUserInteraction(
+                    "Multiple matching passwords found; select manually to update one"
+                )
             }
+            is ExistingSaveSelection.Update -> updateMatchingUsernameEntry(
+                password = selection.password,
+                lookup = lookup,
+                apiController = apiController
+            )
         }
+    }
 
-        debugLog("save updating existing id=${existingPassword.id}")
+    private fun List<Password>.existingSaveSelection(packageName: String?): ExistingSaveSelection {
+        return when (size) {
+            0 -> ExistingSaveSelection.NoMatch
+            1 -> ExistingSaveSelection.Update(single())
+            else -> packageName
+                ?.let { name -> filter { matcher.hasPackage(it, name) } }
+                ?.takeIf { it.size == 1 }
+                ?.single()
+                ?.let { ExistingSaveSelection.Update(it) }
+                ?: ExistingSaveSelection.NeedsUserInteraction
+        }
+    }
+
+    private suspend fun updateMatchingUsernameEntry(
+        password: Password,
+        lookup: ExistingSaveLookup,
+        apiController: ApiController
+    ): PasswordSaveResult {
+        debugLog("save updating existing id=${password.id}")
         return updateExistingPassword(
-            password = existingPassword,
+            password = password,
             apiController = apiController,
-            updatedPassword = request.password,
-            packageName = packageName
+            updatedPassword = lookup.password,
+            packageName = lookup.packageName
         )
     }
 
@@ -367,31 +420,57 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         updatedPassword: String,
         packageName: String?
     ): PasswordSaveResult {
-        if (apiController.updatePassword(
+        return if (apiController.updatePassword(
                 password.toUpdatedPassword(apiController, updatedPassword, packageName)
             )
         ) {
             PasswordController.getInstance(appContext).syncPasswords()
-            return PasswordSaveResult.Saved
+            PasswordSaveResult.Saved
+        } else {
+            retryExistingPasswordUpdate(password, apiController, updatedPassword, packageName)
         }
+    }
 
+    private suspend fun retryExistingPasswordUpdate(
+        password: Password,
+        apiController: ApiController,
+        updatedPassword: String,
+        packageName: String?
+    ): PasswordSaveResult {
         debugLog("update failed for id=${password.id}; syncing and retrying once")
         PasswordController.getInstance(appContext).syncPasswords()
 
         val latestPassword = passwordDatabase.passwordDao.fetchAllPasswordsList()
             .firstOrNull { it.id == password.id && !it.trashed && !it.hidden }
             ?.let { decryptIfUnlocked(listOf(it)).firstOrNull() }
-            ?: return PasswordSaveResult.Failed("Could not refresh existing password")
 
-        val retried = apiController.updatePassword(
-            latestPassword.toUpdatedPassword(apiController, updatedPassword, packageName)
-        )
-        if (!retried) {
-            return PasswordSaveResult.Failed("Could not update existing password")
+        return if (latestPassword == null) {
+            PasswordSaveResult.Failed("Could not refresh existing password")
+        } else {
+            updateRefreshedExistingPassword(
+                password = latestPassword,
+                apiController = apiController,
+                updatedPassword = updatedPassword,
+                packageName = packageName
+            )
         }
+    }
 
-        PasswordController.getInstance(appContext).syncPasswords()
-        return PasswordSaveResult.Saved
+    private suspend fun updateRefreshedExistingPassword(
+        password: Password,
+        apiController: ApiController,
+        updatedPassword: String,
+        packageName: String?
+    ): PasswordSaveResult {
+        return if (apiController.updatePassword(
+                password.toUpdatedPassword(apiController, updatedPassword, packageName)
+            )
+        ) {
+            PasswordController.getInstance(appContext).syncPasswords()
+            PasswordSaveResult.Saved
+        } else {
+            PasswordSaveResult.Failed("Could not update existing password")
+        }
     }
 
     private suspend fun createNewPassword(
@@ -415,7 +494,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val serverSettings = apiController.serverSettings.value
         val currentKeychain = apiController.csEv1Keychain.value
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
-        val hashLength = serverSettings?.passwordSecurityHash ?: 40
+        val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
         val updatedCustomFields = packageName
             ?.takeIf { it.isNotBlank() }
@@ -475,7 +554,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val customFields = packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
             NCPAutofillMetadata.withPackage("[]", packageName)
         } ?: "[]"
-        val hashLength = serverSettings?.passwordSecurityHash ?: 40
+        val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
 
         return if (shouldEncrypt) {
             NewPassword(
@@ -551,6 +630,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private companion object {
         const val TAG = "NCPPasswordBackend"
         const val DEFAULT_SAVE_LABEL = "Autofill password"
+        const val DEFAULT_PASSWORD_HASH_LENGTH = 40
         const val LOCKED_DISPLAY_NAME = "Locked password"
         const val LOCKED_USERNAME = "Unlock to view"
     }

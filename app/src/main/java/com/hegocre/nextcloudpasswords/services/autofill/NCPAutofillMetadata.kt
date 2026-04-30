@@ -85,16 +85,18 @@ class NCPAutofillMatcher(private val context: Context) {
 
     private fun Password.matchesCandidate(candidate: String): Boolean {
         val normalizedCandidate = candidate.lowercase()
-        if (label.lowercase().contains(normalizedCandidate)) return true
-        if (username.lowercase().contains(normalizedCandidate)) return true
-        if (url.lowercase().contains(normalizedCandidate)) return true
-        if (packageNames(this).any { it.equals(candidate, ignoreCase = true) }) return true
 
+        return listOf(label, username, url).any {
+            it.lowercase().contains(normalizedCandidate)
+        } ||
+            packageNames(this).any { it.equals(candidate, ignoreCase = true) } ||
+            matchesEffectiveDomain(candidate) ||
+            matches(candidate, strictUrlMatching = false)
+    }
+
+    private fun Password.matchesEffectiveDomain(candidate: String): Boolean {
         val candidateDomain = candidate.effectiveDomainOrNull()
-        val passwordDomain = url.effectiveDomainOrNull()
-        if (candidateDomain != null && candidateDomain == passwordDomain) return true
-
-        return matches(candidate, strictUrlMatching = false)
+        return candidateDomain != null && candidateDomain == url.effectiveDomainOrNull()
     }
 
     private fun applicationLabel(packageName: String): String? {
