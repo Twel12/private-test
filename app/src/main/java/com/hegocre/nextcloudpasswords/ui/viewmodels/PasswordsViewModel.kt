@@ -41,7 +41,9 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
+import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,6 +98,9 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
 
     val server
         get() = UserController.getInstance(getApplication()).getServer()
+
+    val supportsLocalLogout: Boolean
+        get() = OkHttpRequestInterface.getInstance() !is SsoOkHttpRequest
 
     val passwords: LiveData<List<Password>>
         get() = PasswordController.getInstance(getApplication()).getPasswords()

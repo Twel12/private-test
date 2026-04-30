@@ -99,6 +99,7 @@ fun NCPSearchTopBar(
     searchQuery: String = "",
     setSearchQuery: (String) -> Unit = {},
     isAutofill: Boolean = false,
+    showLogoutAction: Boolean = true,
     onLogoutClick: () -> Unit = {},
     searchExpanded: Boolean = false,
     onSearchClick: () -> Unit = {},
@@ -122,6 +123,7 @@ fun NCPSearchTopBar(
                     serverAddress = serverAddress,
                     title = title,
                     onSearchClick = onSearchClick,
+                    showLogoutAction = showLogoutAction,
                     onLogoutClick = onLogoutClick,
                     scrollBehavior = scrollBehavior,
                     showMenu = !isAutofill,
@@ -141,6 +143,7 @@ fun TitleAppBar(
     serverAddress: String,
     title: String,
     onSearchClick: () -> Unit,
+    showLogoutAction: Boolean,
     onLogoutClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     showMenu: Boolean,
@@ -186,6 +189,7 @@ fun TitleAppBar(
                         menuExpanded = menuExpanded,
                         userAvatar = userAvatar,
                         onDismissRequest = { menuExpanded = false },
+                        showLogoutAction = showLogoutAction,
                         onLogoutClick = onLogoutClick
                     )
                 }
@@ -272,6 +276,7 @@ fun PopupAppMenu(
     menuExpanded: Boolean,
     userAvatar: @Composable (Dp) -> Unit,
     onDismissRequest: () -> Unit,
+    showLogoutAction: Boolean,
     onLogoutClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -388,29 +393,31 @@ fun PopupAppMenu(
                             }
                         )
 
-                        DropdownMenuItem(
-                            onClick = {
-                                onLogoutClick()
-                                onDismissRequest()
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.action_log_out),
-                                    modifier = Modifier.padding(end = 16.dp)
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.Logout,
-                                    contentDescription = stringResource(id = R.string.action_log_out),
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .padding(start = 16.dp)
-                                )
-                            }
-                        )
+                        if (showLogoutAction) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    onLogoutClick()
+                                    onDismissRequest()
+                                },
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.action_log_out),
+                                        modifier = Modifier.padding(end = 16.dp)
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Outlined.Logout,
+                                        contentDescription = stringResource(id = R.string.action_log_out),
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .padding(start = 16.dp)
+                                    )
+                                }
+                            )
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        }
 
                         CompositionLocalProvider(
                             LocalContentColor provides LocalContentColor.current.copy(alpha = ContentAlpha.medium)
