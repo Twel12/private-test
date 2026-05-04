@@ -23,4 +23,12 @@
     <string name="enter_password_hint">Enter your Murena Workspace password</string>
     <string name="description">Enter your Murena Workspace password to save the encryption key in Murena Passwords</string>
 
+    <string name="autofill_password_saved">Password saved</string>
+    <string name="autofill_saving_password">Saving password</string>
+    <string name="autofill_saving_password_message">Please wait while %1$s saves this credential.</string>
+    <string name="autofill_save_choice_title">Complete save</string>
+    <string name="autofill_save_update_entry">Update %1$s</string>
+    <string name="autofill_save_create_new_entry">Create new entry</string>
+    <string name="autofill_save_select_password_to_update">Select the password to update</string>
+
 </resources>

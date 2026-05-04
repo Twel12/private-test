@@ -9,6 +9,9 @@ interface PasswordDatabaseDao {
     @Query("SELECT * FROM passwords")
     fun fetchAllPasswords(): LiveData<List<Password>>
 
+    @Query("SELECT * FROM passwords")
+    suspend fun fetchAllPasswordsList(): List<Password>
+
     @Query("SELECT id FROM passwords")
     suspend fun fetchAllPasswordsId(): List<String>
 

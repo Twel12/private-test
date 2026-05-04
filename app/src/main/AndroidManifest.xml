@@ -18,6 +18,7 @@
     <uses-permission android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API" />
 
     <application
+        android:name=".NCPApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/e_os_app_name"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -121,6 +122,62 @@
                 android:name="android.autofill"
                 android:resource="@xml/service_configuration" />
         </service>
+
+        <service
+            android:name=".services.autofill.NCPCredentialProviderService"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@drawable/ic_autofill_provider"
+            android:label="@string/e_os_app_name"
+            android:permission="android.permission.BIND_CREDENTIAL_PROVIDER_SERVICE"
+            tools:targetApi="34">
+            <intent-filter>
+                <action android:name="android.service.credentials.CredentialProviderService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.credentials.provider"
+                android:resource="@xml/credential_provider" />
+        </service>
+
+        <activity
+            android:name=".services.autofill.NCPCredentialSaveConfirmationActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent" />
+
+        <activity
+            android:name=".services.autofill.NCPAutofillSaveInteractionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent" />
+
+        <activity
+            android:name=".services.autofill.NCPAutofillPendingSaveUnlockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".services.autofill.NCPAutofillUnlockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".services.autofill.NCPCredentialGetActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent" />
+
+        <activity
+            android:name=".services.autofill.NCPCredentialUnlockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".services.autofill.NCPAutofillDatasetAuthActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent" />
 
         <provider
             android:name=".providers.PasswordSyncProvider"

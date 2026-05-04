@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.autofill.AutofillManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +54,7 @@ class MainActivity : FragmentActivity() {
         } else {
             false
         }
+        Log.d(TAG, "autofillRequested=$autofillRequested")
 
         val autofillSearchQuery =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && autofillRequested) {
@@ -143,6 +145,10 @@ class MainActivity : FragmentActivity() {
             .setPackage(packageName)
         startActivity(intent)
         finish()
+    }
+
+    private companion object {
+        const val TAG = "MainActivity"
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

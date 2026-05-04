@@ -3,7 +3,6 @@ package com.hegocre.nextcloudpasswords.api.encryption
 import com.goterl.lazysodium.interfaces.Box
 import com.goterl.lazysodium.interfaces.GenericHash
 import com.goterl.lazysodium.interfaces.PwHash
-import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
 import com.hegocre.nextcloudpasswords.api.exceptions.SodiumDecryptionException
@@ -11,7 +10,6 @@ import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.LazySodiumUtils
 import com.hegocre.nextcloudpasswords.utils.Result
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -101,15 +99,7 @@ data class PWDv1Challenge(
         fun fromJson(data: String): PWDv1Challenge {
             val obj = JSONObject(data)
 
-            val saltsArray = try {
-                val challengeObj = obj.getJSONObject("challenge")
-                challengeObj.getJSONArray("salts")
-            } catch (e: JSONException) {
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace()
-                }
-                JSONArray()
-            }
+            val saltsArray = obj.optJSONObject("challenge")?.optJSONArray("salts") ?: JSONArray()
 
             val salts = Array(saltsArray.length()) { "" }
 

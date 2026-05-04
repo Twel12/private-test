@@ -129,6 +129,10 @@ class SessionApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: PWDv1ChallengeMasterKeyInvalidException) {
+            throw e
+        } catch (e: ClientDeauthorizedException) {
+            throw e
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()

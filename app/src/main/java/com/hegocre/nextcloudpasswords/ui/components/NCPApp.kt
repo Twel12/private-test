@@ -1,5 +1,7 @@
 package com.hegocre.nextcloudpasswords.ui.components
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedVisibility
@@ -49,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -57,10 +60,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillPendingSaveStore
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillSaveInteractionActivity
+import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import foundation.e.auto_fill.PasswordSaveResult
 import foundation.e.elib.compose.components.EFloatingActionButtonExtended
 import foundation.e.elib.compose.components.EModalBottomSheet
 import foundation.e.elib.compose.theme.ETheme
@@ -72,10 +80,14 @@ fun NextcloudPasswordsApp(
     passwordsViewModel: PasswordsViewModel,
     onLogOut: () -> Unit,
     isAutofillRequest: Boolean = false,
+    isAutofillUnlockRequest: Boolean = false,
+    pendingAutofillSave: NCPAutofillPendingSaveStore.PendingSave? = null,
     defaultSearchQuery: String = "",
+    onAutofillUnlockComplete: (() -> Unit)? = null,
     replyAutofill: ((String, String, String) -> Unit)? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
@@ -95,11 +107,67 @@ fun NextcloudPasswordsApp(
 
     var showLogOutDialog by rememberSaveable { mutableStateOf(false) }
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var pendingSaveToComplete by remember { mutableStateOf(pendingAutofillSave) }
+    var unlockCompleteDelivered by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         if (isAutofillRequest) searchExpanded = true
+    }
+    LaunchedEffect(isAutofillUnlockRequest) {
+        if (isAutofillUnlockRequest) {
+            passwordsViewModel.requestMasterPassword()
+        }
+    }
+    LaunchedEffect(sessionOpen, pendingSaveToComplete) {
+        if (!sessionOpen || !isAutofillUnlockRequest) return@LaunchedEffect
+        val pendingSave = pendingSaveToComplete
+        if (pendingSave == null) {
+            if (!unlockCompleteDelivered) {
+                unlockCompleteDelivered = true
+                onAutofillUnlockComplete?.invoke()
+            }
+            return@LaunchedEffect
+        }
+        pendingSaveToComplete = null
+        val backend = NCPApplication.passwordBackend(context) as? NCPPasswordBackend
+            ?: return@LaunchedEffect
+        val saveResult = if (pendingSave.createNew || pendingSave.selectedCredentialId != null) {
+            backend.saveFromUserInteraction(
+                request = pendingSave.request,
+                selectedCredentialId = pendingSave.selectedCredentialId
+            )
+        } else {
+            backend.save(pendingSave.request)
+        }
+        when (saveResult) {
+            PasswordSaveResult.Saved,
+            PasswordSaveResult.DuplicateIgnored,
+            is PasswordSaveResult.QueuedForRetry -> {
+                Toast.makeText(context, R.string.autofill_password_saved, Toast.LENGTH_SHORT).show()
+            }
+
+            PasswordSaveResult.NeedsUnlock -> {
+                pendingSaveToComplete = pendingSave
+                passwordsViewModel.requestMasterPassword()
+            }
+
+            is PasswordSaveResult.NeedsUserInteraction -> {
+                context.startActivity(
+                    NCPAutofillSaveInteractionActivity.intent(context, pendingSave.request)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+
+            is PasswordSaveResult.Failed -> {
+                Toast.makeText(
+                    context,
+                    saveResult.message ?: context.getString(R.string.error_password_saving_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
     LaunchedEffect(currentScreen) {
         fabMenuExpanded = false
