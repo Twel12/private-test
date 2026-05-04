@@ -20,20 +20,19 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.lifecycleScope
-import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.NCPApplication
 import foundation.e.auto_fill.PasswordRequestSource
 import foundation.e.auto_fill.PasswordSaveRequest
 import foundation.e.auto_fill.PasswordSaveResult
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class NCPAutofillSaveInteractionActivity : ComponentActivity() {
 
@@ -78,7 +77,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
             return
         }
         saveRequest = request
-        debugLog(
+        Timber.d(
             "opened package=${saveRequest.packageName}, username=${saveRequest.username}, " +
                 "source=${saveRequest.source}"
         )
@@ -86,7 +85,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         showSavingUi()
         lifecycleScope.launch {
             val candidates = backend.saveInteractionCandidates(saveRequest)
-            debugLog("loaded save candidates count=${candidates.size}")
+            Timber.d("loaded save candidates count=${candidates.size}")
             if (candidates.isEmpty()) {
                 saveNormally()
             } else {
@@ -103,7 +102,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
     }
 
     private fun saveNormally() {
-        debugLog("saveNormally")
+        Timber.d("saveNormally")
         showSavingUi()
         lifecycleScope.launch {
             handleSaveResult(backend.save(saveRequest), selectedCredentialId = null, createNew = false)
@@ -114,7 +113,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         selectedCredentialId: String?,
         createNew: Boolean
     ) {
-        debugLog("saveWithSelection selected=$selectedCredentialId createNew=$createNew")
+        Timber.d("saveWithSelection selected=$selectedCredentialId createNew=$createNew")
         showSavingUi()
         lifecycleScope.launch {
             handleSaveResult(
@@ -140,7 +139,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
             }
 
             PasswordSaveResult.NeedsUnlock -> {
-                debugLog("save needs unlock; opening app unlock")
+                Timber.d("save needs unlock; opening app unlock")
                 openAppUnlock(
                     selectedCredentialId = selectedCredentialId,
                     createNew = createNew
@@ -180,7 +179,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         selectedCredentialId: String?,
         createNew: Boolean
     ) {
-        debugLog("openAppUnlock selected=$selectedCredentialId createNew=$createNew")
+        Timber.d("openAppUnlock selected=$selectedCredentialId createNew=$createNew")
         hideSavingUi()
         val unlockIntent = NCPAutofillPendingSaveStore.putExtras(
             intent = Intent(this, NCPAutofillPendingSaveUnlockActivity::class.java)
@@ -210,12 +209,6 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         showSavingDialog.value = false
     }
 
-    private fun debugLog(message: String) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, message)
-        }
-    }
-
     companion object {
         private const val EXTRA_SOURCE = "foundation.e.passwords.autofill.EXTRA_SOURCE"
         private const val EXTRA_PACKAGE_NAME = "foundation.e.passwords.autofill.EXTRA_PACKAGE_NAME"
@@ -223,7 +216,6 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         private const val EXTRA_ORIGIN = "foundation.e.passwords.autofill.EXTRA_ORIGIN"
         private const val EXTRA_USERNAME = "foundation.e.passwords.autofill.EXTRA_USERNAME"
         private const val EXTRA_PASSWORD = "foundation.e.passwords.autofill.EXTRA_PASSWORD"
-        private const val TAG = "AutofillSaveInteraction"
 
         fun intent(context: Context, request: PasswordSaveRequest): Intent {
             return Intent(context, NCPAutofillSaveInteractionActivity::class.java)

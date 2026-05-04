@@ -21,7 +21,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.credentials.exceptions.GetCredentialUnknownException
@@ -32,7 +31,6 @@ import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.user.UserController
@@ -44,6 +42,7 @@ import foundation.e.auto_fill.PasswordEntry
 import foundation.e.auto_fill.PasswordQuery
 import foundation.e.auto_fill.PasswordRequestSource
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class NCPCredentialUnlockActivity : FragmentActivity() {
     private val passwordsViewModel by viewModels<PasswordsViewModel>()
@@ -55,14 +54,14 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
 
         beginGetRequest = PendingIntentHandler.retrieveBeginGetCredentialRequest(intent)
         if (beginGetRequest == null) {
-            debugLog("missing BeginGetCredentialRequest")
+            Timber.d("missing BeginGetCredentialRequest")
             setResult(RESULT_CANCELED)
             finish()
             return
         }
 
         if (!UserController.getInstance(this).isLoggedIn) {
-            debugLog("user is not logged in")
+            Timber.d("user is not logged in")
             setResult(RESULT_CANCELED)
             finish()
             return
@@ -108,7 +107,7 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
                 }
                 setResult(RESULT_OK, result)
             }.getOrElse { error ->
-                debugError("failed to complete credential unlock", error)
+                Timber.e(error,"failed to complete credential unlock")
                 setResult(RESULT_CANCELED)
             }
             finish()
@@ -135,7 +134,7 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
                 hasPasswordField = true
             )
         )
-        debugLog(
+        Timber.d(
             "unlocked query package=${request.callingAppInfo?.packageName}, " +
                 "credentials=${queryResult.credentials.size}, vaultLocked=${queryResult.vaultLocked}"
         )
@@ -179,20 +178,7 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
         )
     }
 
-    private fun debugLog(message: String) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, message)
-        }
-    }
-
-    private fun debugError(message: String, error: Throwable) {
-        if (BuildConfig.DEBUG) {
-            Log.e(TAG, message, error)
-        }
-    }
-
     private companion object {
-        const val TAG = "CredentialUnlock"
         const val PASSWORD_GET_REQUEST_CODE = 28043
     }
 }

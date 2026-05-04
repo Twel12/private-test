@@ -26,6 +26,7 @@ import androidx.activity.ComponentActivity
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.provider.PendingIntentHandler
+import timber.log.Timber
 
 abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
     protected abstract fun passwordBackend(): MurenaPasswordBackend
@@ -56,11 +57,11 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
             username = passwordRequest.id,
             password = passwordRequest.password
         )
-        debugLog(TAG) {
+        Timber.d(
             "onCreate save request package=${saveRequest.packageName}, " +
                 "usernamePresent=${saveRequest.username?.isNotBlank() == true}, " +
                 "passwordPresent=${saveRequest.password.isNotBlank()}"
-        }
+        )
         showSavingUi()
         savePassword(saveRequest, triedUnlock = false)
     }
@@ -75,13 +76,13 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
             },
             onSuccess = { saveResult ->
                 runOnUiThread {
-                    debugLog(TAG) { "save result=$saveResult triedUnlock=$triedUnlock" }
+                    Timber.d("save result=$saveResult triedUnlock=$triedUnlock")
                     handleSaveResult(saveRequest, saveResult, triedUnlock)
                 }
             },
             onError = { error ->
                 runOnUiThread {
-                    debugError(TAG, error) { "Credential Manager save failed" }
+                    Timber.e(error,"Credential Manager save failed")
                     hideSavingUi()
                     setResult(RESULT_CANCELED)
                     finish()
@@ -112,7 +113,7 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
                 }
 
 
-                debugLog(TAG) { "save needs unlock; falling back to vault unlock request" }
+                Timber.d("save needs unlock; falling back to vault unlock request")
                 hideSavingUi()
                 requestVaultUnlock(
                     request = VaultUnlockRequest(
@@ -140,7 +141,7 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
             }
 
             is PasswordSaveResult.Failed -> {
-                debugWarn(TAG) { "Credential Manager save failed: ${saveResult.message}" }
+                Timber.w("Credential Manager save failed: ${saveResult.message}")
                 hideSavingUi()
                 setResult(RESULT_CANCELED)
             }
@@ -148,9 +149,7 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
             is PasswordSaveResult.NeedsUserInteraction -> {
                 val intent = saveInteractionIntent(saveRequest)
                 if (intent == null) {
-                    debugWarn(TAG) {
-                        "Credential Manager save needs user interaction but no intent is provided"
-                    }
+                    Timber.w("Credential Manager save needs user interaction but no intent is provided")
                     hideSavingUi()
                     setResult(RESULT_CANCELED)
                     finish()
@@ -169,7 +168,7 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
     @Deprecated("Uses legacy result API because credential provider pending intents use Activity results.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        debugLog(TAG) { "onActivityResult requestCode=$requestCode resultCode=$resultCode" }
+        Timber.d("onActivityResult requestCode=$requestCode resultCode=$resultCode")
         hideSavingUi()
         if (requestCode == SAVE_INTERACTION_REQUEST_CODE && resultCode == RESULT_OK) {
             finishWithSuccess()
@@ -215,7 +214,7 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
                     },
                     onError = { error ->
                         runOnUiThread {
-                            debugError(TAG, error) { "Failed to unlock vault" }
+                            Timber.e(error,"Failed to unlock vault" )
                             onResult(VaultUnlockResult.Failed(error.message))
                         }
                     }
@@ -228,7 +227,6 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
     }
 
     private companion object {
-        private const val TAG = "CredentialSaveConfirm"
         private const val SAVE_INTERACTION_REQUEST_CODE = 31001
     }
 }

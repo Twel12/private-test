@@ -54,6 +54,7 @@ import android.widget.inline.InlinePresentationSpec
 import androidx.annotation.RequiresApi
 import androidx.autofill.inline.v1.InlineSuggestionUi
 import androidx.core.os.BundleCompat
+import timber.log.Timber
 import java.util.regex.Pattern
 
 abstract class MurenaAutoFillService : AutofillService() {
@@ -96,14 +97,14 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         val loginFields = LoginFieldParser(structure).parse()
-        debugLog(
+        Timber.d(
             "onFillRequest parsed package=${loginFields.packageName}, " +
                 "webDomain=${loginFields.webDomain}, usernameIds=${loginFields.usernameIds.size}, " +
                 "passwordIds=${loginFields.passwordIds.size}, ignoredIds=${loginFields.ignoredIds.size}, " +
                 "hasTrigger=${loginFields.triggerId != null}"
         )
         if (loginFields.packageName == packageName) {
-            debugLog("Ignoring own package=${loginFields.packageName}")
+            Timber.d("Ignoring own package=${loginFields.packageName}")
             fillCallback.onSuccess(
                 FillResponse.Builder()
                     .disableAutofill(DISABLE_AUTOFILL_DURATION_MILLIS)
@@ -113,20 +114,20 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         if (loginFields.usernameIds.isEmpty() && loginFields.passwordIds.isEmpty()) {
-            debugLog("No username/password AutofillIds found; returning null response")
+            Timber.d("No username/password AutofillIds found; returning null response")
             fillCallback.onSuccess(null)
             return
         }
 
         val query = loginFields.toPasswordQuery()
-        debugLog("Querying backend: $query")
+        Timber.d("Querying backend: $query")
         runBackendCall(
             cancellationSignal = cancellationSignal,
             call = {
                 passwordBackend().query(query)
             },
             onSuccess = { queryResult ->
-                debugLog(
+                Timber.d(
                     "Backend result credentials=${queryResult.credentials.size}, " +
                         "savedPasswordCount=${queryResult.savedPasswordCount}, " +
                         "allowSavePrompt=${queryResult.allowSavePrompt}, " +
@@ -141,7 +142,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                 )
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to query password backend" }
+                Timber.e(error,"Failed to query password backend" )
                 fillCallback.onSuccess(null)
             }
         )
@@ -177,14 +178,14 @@ abstract class MurenaAutoFillService : AutofillService() {
         val username = saveRequest.fillContexts.findLatestTextValue(usernameIds).orEmpty()
         val password = saveRequest.fillContexts.findLatestTextValue(passwordIds).orEmpty()
 
-        debugLog(
+        Timber.d(
             "onSaveRequest parsed package=${loginFields.packageName}, webDomain=${loginFields.webDomain}, " +
                 "usernameIds=${usernameIds.size}, passwordIds=${passwordIds.size}, " +
                 "usernamePresent=${username.isNotBlank()}, passwordPresent=${password.isNotBlank()}"
         )
 
         if (password.isBlank()) {
-            debugLog("onSaveRequest failed: no password entered")
+            Timber.d("onSaveRequest failed: no password entered")
             saveCallback.onFailure("No password entered")
             return
         }
@@ -207,7 +208,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                 passwordBackend().save(passwordSaveRequest)
             },
             onSuccess = { result ->
-                debugLog("Backend save result=$result")
+                Timber.d("Backend save result=$result")
                 when (result) {
                     PasswordSaveResult.Saved,
                     PasswordSaveResult.DuplicateIgnored,
@@ -231,7 +232,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                 }
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to save password" }
+                Timber.e( error, "Failed to save password")
                 saveCallback.onFailure(error.message ?: "Could not save password")
             }
         )
@@ -242,7 +243,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         runCatching { startActivity(intent) }
             .onFailure { error ->
-                debugWarn(TAG, error) { "Failed to open save interaction" }
+                Timber.w(error,"Failed to open save interaction" )
             }
     }
 
@@ -272,7 +273,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                 )
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to load saved datasets info" }
+                Timber.e(error,"Failed to load saved datasets info")
                 callback.onSuccess(emptySet())
             }
         )
@@ -347,11 +348,11 @@ abstract class MurenaAutoFillService : AutofillService() {
             (loginFields.passwordIds.isNotEmpty() || loginFields.usernameIds.isNotEmpty())
 
         if (!hasCredentialDatasets && !hasUnlockAuthentication && !hasSelectionDataset && !hasSaveInfo) {
-            debugLog("No datasets and no SaveInfo; returning null FillResponse")
+            Timber.d("No datasets and no SaveInfo; returning null FillResponse")
             return null
         }
 
-        debugLog(
+        Timber.d(
             "Building FillResponse hasCredentialDatasets=$hasCredentialDatasets, " +
                 "hasUnlockAuthentication=$hasUnlockAuthentication, " +
                 "hasSelectionDataset=$hasSelectionDataset, " +
@@ -378,12 +379,12 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         if (hasUnlockAuthentication) {
-            debugLog("Adding unlock vault response authentication")
+            Timber.d("Adding unlock vault response authentication")
             responseBuilder.applyUnlockVaultAuthentication(loginFields)
         }
 
         selectionIntent?.let { intent ->
-            debugLog("Adding open-app selection dataset")
+            Timber.d("Adding open-app selection dataset")
             responseBuilder.addDataset(
                 buildAutofillSelectionDataset(loginFields, intent)
             )
@@ -395,12 +396,12 @@ abstract class MurenaAutoFillService : AutofillService() {
 
             queryResult.credentials.forEach { credential ->
                 if (credential.password.isNullOrBlank() || credential.locked) {
-                    debugLog("Adding locked/auth dataset id=${credential.id}, username=${credential.username}")
+                    Timber.d("Adding locked/auth dataset id=${credential.id}, username=${credential.username}")
                     responseBuilder.addDataset(
                         buildAuthenticatedCredentialDataset(loginFields, credential)
                     )
                 } else {
-                    debugLog("Adding password dataset id=${credential.id}, username=${credential.username}")
+                    Timber.d("Adding password dataset id=${credential.id}, username=${credential.username}")
                     responseBuilder.addDataset(
                         buildCredentialDataset(
                             context = this,
@@ -419,7 +420,7 @@ abstract class MurenaAutoFillService : AutofillService() {
             }
         } else {
             queryResult.credentials.filter { it.username.isNotBlank() }.forEach { credential ->
-                debugLog("Adding email-only dataset id=${credential.id}, username=${credential.username}")
+                Timber.d("Adding email-only dataset id=${credential.id}, username=${credential.username}")
                 responseBuilder.addDataset(
                     buildCredentialDataset(
                         context = this,
@@ -438,9 +439,6 @@ abstract class MurenaAutoFillService : AutofillService() {
 
         return responseBuilder.build()
     }
-
-    private fun debugLog(message: String) = debugLog(TAG) { message }
-
 
     private fun SaveInfo.Builder.applySanitizers(loginFields: LoginFields): SaveInfo.Builder {
         val ids = (loginFields.usernameIds + loginFields.passwordIds).distinct().toTypedArray()

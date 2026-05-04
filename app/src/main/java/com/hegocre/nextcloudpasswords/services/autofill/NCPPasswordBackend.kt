@@ -18,10 +18,8 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Context
-import android.util.Log
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
-import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
@@ -44,6 +42,7 @@ import foundation.e.auto_fill.VaultUnlockRequest
 import foundation.e.auto_fill.VaultUnlockResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 data class NCPAutofillSaveCandidate(
     val id: String,
@@ -80,7 +79,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val vaultLocked = savedPasswords.isNotEmpty() && !isUnlocked()
 
             if (!userController.isLoggedIn) {
-                debugLog(
+                Timber.d(
                     "query backend unavailable package=${request.packageName}, " +
                         "cachedPasswords=${savedPasswords.size}, vaultLocked=$vaultLocked"
                 )
@@ -93,7 +92,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
 
             if (vaultLocked) {
-                debugLog(
+                Timber.d(
                     "query locked vault package=${request.packageName}, " +
                         "cachedPasswords=${savedPasswords.size}"
                 )
@@ -106,7 +105,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
 
             val matchingPasswords = matchingPasswords(savedPasswords, request)
-            debugLog(
+            Timber.d(
                 "query package=${request.packageName}, webDomain=${request.webDomain}, " +
                     "origin=${request.origin}, matches=${matchingPasswords.map { it.id }}"
             )
@@ -136,7 +135,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
 
             if (!isUnlocked()) {
-                debugLog("save needs unlock package=${request.packageName}, username=${request.username}")
+                Timber.d("save needs unlock package=${request.packageName}, username=${request.username}")
                 return@withContext PasswordSaveResult.NeedsUnlock
             }
 
@@ -149,16 +148,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 apiController = apiController
             )
             if (existingSaveResult != null) {
-                debugLog("save handled by existing entry result=$existingSaveResult")
+                Timber.d("save handled by existing entry result=$existingSaveResult")
                 return@withContext existingSaveResult
             }
 
             if (request.username.isNullOrBlank()) {
-                debugLog("save ignored: username is missing package=${request.packageName}")
+                Timber.d("save ignored: username is missing package=${request.packageName}")
                 return@withContext PasswordSaveResult.Failed("Username is required to save a password")
             }
 
-            debugLog("save creating new entry package=${request.packageName}, username=${request.username}")
+            Timber.d("save creating new entry package=${request.packageName}, username=${request.username}")
             createNewPassword(request, apiController)
         }
 
@@ -172,7 +171,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val unlocked = runCatching {
                 apiController.openSession(secret)
             }.getOrElse { error ->
-                debugWarn("Failed to unlock vault", error)
+                Timber.e(error,"Failed to unlock vault")
                 false
             }
 
@@ -221,10 +220,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
         if (selectedCredentialId == null) {
             if (request.username.isNullOrBlank()) {
-                debugLog("save ignored: username is missing package=${request.packageName}")
+                Timber.d("save ignored: username is missing package=${request.packageName}")
                 return@withContext PasswordSaveResult.Failed("Username is required to save a password")
             }
-            debugLog(
+            Timber.d(
                 "save creating new entry from user interaction package=${request.packageName}, " +
                     "username=${request.username}"
             )
@@ -237,7 +236,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val decryptedPassword = decryptIfUnlocked(listOf(password)).firstOrNull()
             ?: return@withContext PasswordSaveResult.NeedsUnlock
 
-        debugLog("save updating selected existing id=$selectedCredentialId")
+        Timber.d("save updating selected existing id=$selectedCredentialId")
         updateExistingPassword(
             password = decryptedPassword,
             apiController = apiController,
@@ -263,7 +262,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         return runCatching {
             apiController.openSession(masterPassword)
         }.getOrElse { error ->
-            debugLog("stored master password failed to open session: ${error.javaClass.simpleName}")
+            Timber.d("stored master password failed to open session: ${error.javaClass.simpleName}")
             preferencesManager.setMasterPassword(null)
             false
         }
@@ -347,10 +346,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             lookup.packageName == null ||
             matcher.hasPackage(exactPasswordMatch, lookup.packageName)
         ) {
-            debugLog("save duplicate ignored id=${exactPasswordMatch.id}")
+            Timber.d("save duplicate ignored id=${exactPasswordMatch.id}")
             PasswordSaveResult.DuplicateIgnored
         } else {
-            debugLog("save linking package to existing id=${exactPasswordMatch.id}")
+            Timber.d("save linking package to existing id=${exactPasswordMatch.id}")
             updateExistingPassword(
                 password = exactPasswordMatch,
                 apiController = apiController,
@@ -374,7 +373,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         ) {
             ExistingSaveSelection.NoMatch -> null
             ExistingSaveSelection.NeedsUserInteraction -> {
-                debugLog("save needs user selection ids=${matchingUsernameEntries.map { it.id }}")
+                Timber.d("save needs user selection ids=${matchingUsernameEntries.map { it.id }}")
                 PasswordSaveResult.NeedsUserInteraction(
                     "Multiple matching passwords found; select manually to update one"
                 )
@@ -405,7 +404,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         lookup: ExistingSaveLookup,
         apiController: ApiController
     ): PasswordSaveResult {
-        debugLog("save updating existing id=${password.id}")
+        Timber.d("save updating existing id=${password.id}")
         return updateExistingPassword(
             password = password,
             apiController = apiController,
@@ -437,7 +436,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         updatedPassword: String,
         packageName: String?
     ): PasswordSaveResult {
-        debugLog("update failed for id=${password.id}; syncing and retrying once")
+        Timber.d("update failed for id=${password.id}; syncing and retrying once")
         PasswordController.getInstance(appContext).syncPasswords()
 
         val latestPassword = passwordDatabase.passwordDao.fetchAllPasswordsList()
@@ -615,20 +614,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }.getOrNull()
     }
 
-    private fun debugLog(message: String) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, message)
-        }
-    }
-
-    private fun debugWarn(message: String, error: Throwable) {
-        if (BuildConfig.DEBUG) {
-            Log.w(TAG, message, error)
-        }
-    }
-
     private companion object {
-        const val TAG = "NCPPasswordBackend"
         const val DEFAULT_SAVE_LABEL = "Autofill password"
         const val DEFAULT_PASSWORD_HASH_LENGTH = 40
         const val LOCKED_DISPLAY_NAME = "Locked password"

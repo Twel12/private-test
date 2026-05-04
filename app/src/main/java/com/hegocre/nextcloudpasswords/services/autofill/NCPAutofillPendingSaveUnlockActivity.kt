@@ -18,16 +18,15 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
-import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import timber.log.Timber
 
 class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
 
@@ -38,7 +37,7 @@ class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
 
         val pendingSave = NCPAutofillPendingSaveStore.fromIntent(intent)
         if (pendingSave == null || !UserController.getInstance(this).isLoggedIn) {
-            debugLog("missing pending save or logged-out user")
+            Timber.d("missing pending save or logged-out user")
             setResult(RESULT_CANCELED)
             finish()
             return
@@ -64,15 +63,5 @@ class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
                 )
             }
         }
-    }
-
-    private fun debugLog(message: String) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, message)
-        }
-    }
-
-    private companion object {
-        private const val TAG = "AutofillPendingUnlock"
     }
 }

@@ -18,10 +18,9 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Intent
-import android.util.Log
-import com.hegocre.nextcloudpasswords.BuildConfig
 import foundation.e.auto_fill.PasswordRequestSource
 import foundation.e.auto_fill.PasswordSaveRequest
+import timber.log.Timber
 
 object NCPAutofillPendingSaveStore {
     data class PendingSave(
@@ -45,7 +44,7 @@ object NCPAutofillPendingSaveStore {
             .putExtra(EXTRA_PASSWORD, request.password)
             .putExtra(EXTRA_SELECTED_CREDENTIAL_ID, selectedCredentialId)
             .putExtra(EXTRA_CREATE_NEW, createNew)
-        debugLog(
+        Timber.d(
             "attached pending save package=${request.packageName}, username=${request.username}, " +
                 "selected=$selectedCredentialId, createNew=$createNew"
         )
@@ -54,14 +53,14 @@ object NCPAutofillPendingSaveStore {
 
     fun fromIntent(intent: Intent): PendingSave? {
         return runCatching {
-            debugLog("fromIntent extras=${intent.extras?.keySet()?.joinToString().orEmpty()}")
+            Timber.d("fromIntent extras=${intent.extras?.keySet()?.joinToString().orEmpty()}")
             val source = intent.getStringExtra(EXTRA_SOURCE)
                 ?.takeIf { it.isNotBlank() }
                 ?.let { runCatching { PasswordRequestSource.valueOf(it) }.getOrNull() }
                 ?: PasswordRequestSource.AUTOFILL
             val password = intent.getStringExtra(EXTRA_PASSWORD)?.takeIf { it.isNotBlank() }
                 ?: return@runCatching null
-            debugLog(
+            Timber.d(
                 "fromIntent source=$source, package=${intent.getStringExtra(EXTRA_PACKAGE_NAME)}, " +
                     "username=${intent.getStringExtra(EXTRA_USERNAME)}, passwordPresent=true"
             )
@@ -78,13 +77,7 @@ object NCPAutofillPendingSaveStore {
                 createNew = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
             )
         }.getOrNull().also { pendingSave ->
-            debugLog("read pending save from intent present=${pendingSave != null}")
-        }
-    }
-
-    private fun debugLog(message: String) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, message)
+            Timber.d("read pending save from intent present=${pendingSave != null}")
         }
     }
 
@@ -92,7 +85,6 @@ object NCPAutofillPendingSaveStore {
         return getStringExtra(key)?.takeIf { it.isNotBlank() }
     }
 
-    private const val TAG = "AutofillPendingSave"
     private const val EXTRA_SOURCE = "foundation.e.passwords.autofill.PENDING_SOURCE"
     private const val EXTRA_PACKAGE_NAME = "foundation.e.passwords.autofill.PENDING_PACKAGE_NAME"
     private const val EXTRA_WEB_DOMAIN = "foundation.e.passwords.autofill.PENDING_WEB_DOMAIN"

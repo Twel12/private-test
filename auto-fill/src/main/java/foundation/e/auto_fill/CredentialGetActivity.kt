@@ -27,6 +27,7 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderGetCredentialRequest
+import timber.log.Timber
 
 abstract class CredentialGetActivity : ComponentActivity() {
     protected abstract fun passwordBackend(): MurenaPasswordBackend
@@ -105,7 +106,7 @@ abstract class CredentialGetActivity : ComponentActivity() {
                     return@runBackendCall
                 }
 
-                debugInfo(TAG) { "Returning password credential for $packageName" }
+                Timber.d("Returning password credential for $packageName" )
 
                 val getRequest = providerRequest
                 if (getRequest == null) {
@@ -138,7 +139,7 @@ abstract class CredentialGetActivity : ComponentActivity() {
                 finish()
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to resolve password credential" }
+                Timber.e(error,"Failed to resolve password credential" )
                 setResult(RESULT_CANCELED)
                 finish()
             }
@@ -169,7 +170,7 @@ abstract class CredentialGetActivity : ComponentActivity() {
                     },
                     onSuccess = onResult,
                     onError = { error ->
-                        debugError(TAG, error) { "Failed to unlock vault" }
+                        Timber.e(error,"Failed to unlock vault" )
                         onResult(VaultUnlockResult.Failed(error.message))
                     }
                 )

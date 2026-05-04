@@ -27,6 +27,7 @@ import android.view.autofill.AutofillManager
 import android.widget.EditText
 import androidx.activity.ComponentActivity
 import androidx.core.content.IntentCompat
+import timber.log.Timber
 
 abstract class AutofillDatasetAuthActivity : ComponentActivity() {
     protected abstract fun passwordBackend(): MurenaPasswordBackend
@@ -149,7 +150,7 @@ abstract class AutofillDatasetAuthActivity : ComponentActivity() {
                 finishWithCredential(credential, usernameIds, passwordIds)
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to resolve autofill credential" }
+                Timber.e(error,"Failed to resolve autofill credential" )
                 setResult(RESULT_CANCELED)
                 finish()
             }
@@ -180,7 +181,7 @@ abstract class AutofillDatasetAuthActivity : ComponentActivity() {
                     },
                     onSuccess = onResult,
                     onError = { error ->
-                        debugError(TAG, error) { "Failed to unlock vault" }
+                        Timber.e(error,"Failed to unlock vault")
                         onResult(VaultUnlockResult.Failed(error.message))
                     }
                 )
@@ -248,7 +249,7 @@ abstract class AutofillDatasetAuthActivity : ComponentActivity() {
                 finish()
             },
             onError = { error ->
-                debugError(TAG, error) { "Failed to query unlocked autofill credentials" }
+                Timber.e(error,"Failed to query unlocked autofill credentials")
                 setResult(RESULT_CANCELED)
                 finish()
             }
