@@ -23,12 +23,26 @@ import android.os.Bundle
 import android.text.InputType
 import android.widget.EditText
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.provider.PendingIntentHandler
 import timber.log.Timber
 
 abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
+    private val saveInteractionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Timber.d("save interaction resultCode=${result.resultCode}")
+        hideSavingUi()
+        if (result.resultCode == RESULT_OK) {
+            finishWithSuccess()
+        } else {
+            setResult(RESULT_CANCELED)
+        }
+        finish()
+    }
+
     protected abstract fun passwordBackend(): MurenaPasswordBackend
 
     protected open fun saveInteractionIntent(request: PasswordSaveRequest): Intent? = null
@@ -157,23 +171,9 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
                 }
 
                 hideSavingUi()
-                @Suppress("DEPRECATION")
-                startActivityForResult(intent, SAVE_INTERACTION_REQUEST_CODE)
+                saveInteractionLauncher.launch(intent)
                 return
             }
-        }
-        finish()
-    }
-
-    @Deprecated("Uses legacy result API because credential provider pending intents use Activity results.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Timber.d("onActivityResult requestCode=$requestCode resultCode=$resultCode")
-        hideSavingUi()
-        if (requestCode == SAVE_INTERACTION_REQUEST_CODE && resultCode == RESULT_OK) {
-            finishWithSuccess()
-        } else {
-            setResult(RESULT_CANCELED)
         }
         finish()
     }
@@ -224,9 +224,5 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
                 onResult(VaultUnlockResult.Canceled)
             }
             .show()
-    }
-
-    private companion object {
-        private const val SAVE_INTERACTION_REQUEST_CODE = 31001
     }
 }

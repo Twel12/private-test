@@ -101,8 +101,7 @@ class NCPAutofillMatcher(private val context: Context) {
 
     private fun applicationLabel(packageName: String): String? {
         return runCatching {
-            @Suppress("DEPRECATION")
-            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
+            val appInfo = context.packageManager.getApplicationInfoCompat(packageName)
             context.packageManager.getApplicationLabel(appInfo).toString()
         }.getOrNull()
     }

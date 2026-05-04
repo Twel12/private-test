@@ -608,8 +608,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private fun applicationLabel(packageName: String): String? {
         return runCatching {
-            @Suppress("DEPRECATION")
-            val appInfo = appContext.packageManager.getApplicationInfo(packageName, 0)
+            val appInfo = appContext.packageManager.getApplicationInfoCompat(packageName)
             appContext.packageManager.getApplicationLabel(appInfo).toString()
         }.getOrNull()
     }
