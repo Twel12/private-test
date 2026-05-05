@@ -32,5 +32,6 @@ dependencies {
     implementation("androidx.autofill:autofill:1.3.0")
     implementation("androidx.core:core-ktx:1.18.0")
     implementation("androidx.credentials:credentials:1.7.0-alpha01")
+    implementation("androidx.fragment:fragment:1.8.9")
     implementation("com.jakewharton.timber:timber:5.0.1")
 }
