@@ -45,15 +45,15 @@ object NCPAutofillPendingSaveStore {
             .putExtra(EXTRA_SELECTED_CREDENTIAL_ID, selectedCredentialId)
             .putExtra(EXTRA_CREATE_NEW, createNew)
         Timber.d(
-            "attached pending save package=${request.packageName}, username=${request.username}, " +
-                "selected=$selectedCredentialId, createNew=$createNew"
+            "attached pending save package=**, usernamePresent=${request.username?.isNotBlank() == true}, " +
+                "selectedPresent=${selectedCredentialId.isNullOrBlank().not()}, createNew=$createNew"
         )
         return intent
     }
 
     fun fromIntent(intent: Intent): PendingSave? {
         return runCatching {
-            Timber.d("fromIntent extras=${intent.extras?.keySet()?.joinToString().orEmpty()}")
+            Timber.d("fromIntent extrasPresent=${intent.extras != null}")
             val source = intent.getStringExtra(EXTRA_SOURCE)
                 ?.takeIf { it.isNotBlank() }
                 ?.let { runCatching { PasswordRequestSource.valueOf(it) }.getOrNull() }
@@ -61,8 +61,9 @@ object NCPAutofillPendingSaveStore {
             val password = intent.getStringExtra(EXTRA_PASSWORD)?.takeIf { it.isNotBlank() }
                 ?: return@runCatching null
             Timber.d(
-                "fromIntent source=$source, package=${intent.getStringExtra(EXTRA_PACKAGE_NAME)}, " +
-                    "username=${intent.getStringExtra(EXTRA_USERNAME)}, passwordPresent=true"
+                "fromIntent source=$source, package=**, " +
+                    "usernamePresent=${intent.getStringExtra(EXTRA_USERNAME)?.isNotBlank() == true}, " +
+                    "passwordPresent=true"
             )
             PendingSave(
                 request = PasswordSaveRequest(

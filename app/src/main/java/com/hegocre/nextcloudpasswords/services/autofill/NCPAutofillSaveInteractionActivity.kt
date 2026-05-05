@@ -79,7 +79,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         }
         saveRequest = request
         Timber.d(
-            "opened package=${saveRequest.packageName}, username=${saveRequest.username}, " +
+            "opened package=**, usernamePresent=${saveRequest.username?.isNotBlank() == true}, " +
                 "source=${saveRequest.source}"
         )
 
@@ -114,7 +114,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         selectedCredentialId: String?,
         createNew: Boolean
     ) {
-        Timber.d("saveWithSelection selected=$selectedCredentialId createNew=$createNew")
+        Timber.d("saveWithSelection selectedPresent=${selectedCredentialId.isNullOrBlank().not()} createNew=$createNew")
         showSavingUi()
         launchBackendCall {
             handleSaveResult(
@@ -205,7 +205,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         selectedCredentialId: String?,
         createNew: Boolean
     ) {
-        Timber.d("openAppUnlock selected=$selectedCredentialId createNew=$createNew")
+        Timber.d("openAppUnlock selectedPresent=${selectedCredentialId.isNullOrBlank().not()} createNew=$createNew")
         hideSavingUi()
         val unlockIntent = NCPAutofillPendingSaveStore.putExtras(
             intent = Intent(this, NCPAutofillPendingSaveUnlockActivity::class.java)
