@@ -31,6 +31,7 @@ import com.hegocre.nextcloudpasswords.NCPApplication
 import foundation.e.auto_fill.PasswordRequestSource
 import foundation.e.auto_fill.PasswordSaveRequest
 import foundation.e.auto_fill.PasswordSaveResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -83,7 +84,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         )
 
         showSavingUi()
-        lifecycleScope.launch {
+        launchBackendCall {
             val candidates = backend.saveInteractionCandidates(saveRequest)
             Timber.d("loaded save candidates count=${candidates.size}")
             if (candidates.isEmpty()) {
@@ -104,7 +105,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
     private fun saveNormally() {
         Timber.d("saveNormally")
         showSavingUi()
-        lifecycleScope.launch {
+        launchBackendCall {
             handleSaveResult(backend.save(saveRequest), selectedCredentialId = null, createNew = false)
         }
     }
@@ -115,13 +116,38 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
     ) {
         Timber.d("saveWithSelection selected=$selectedCredentialId createNew=$createNew")
         showSavingUi()
-        lifecycleScope.launch {
+        launchBackendCall {
             handleSaveResult(
                 result = backend.saveFromUserInteraction(saveRequest, selectedCredentialId),
                 selectedCredentialId = selectedCredentialId,
                 createNew = createNew
             )
         }
+    }
+
+    private fun launchBackendCall(block: suspend () -> Unit) {
+        lifecycleScope.launch {
+            runCatching {
+                block()
+            }.onFailure { error ->
+                when (error) {
+                    is CancellationException -> throw error
+                    else -> finishWithBackendFailure(error)
+                }
+            }
+        }
+    }
+
+    private fun finishWithBackendFailure(error: Throwable) {
+        Timber.e(error, "Autofill save interaction backend call failed")
+        hideSavingUi()
+        Toast.makeText(
+            this,
+            getString(R.string.error_password_saving_failed),
+            Toast.LENGTH_LONG
+        ).show()
+        setResult(RESULT_CANCELED)
+        finish()
     }
 
     private suspend fun handleSaveResult(
