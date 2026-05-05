@@ -168,11 +168,12 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
 
     private fun createPasswordGetPendingIntent(credentialId: String): PendingIntent {
         val intent = Intent(this, NCPCredentialGetActivity::class.java)
+            .setIdentifier(credentialId)
             .putExtra(CredentialGetActivity.EXTRA_CREDENTIAL_ID, credentialId)
 
         return PendingIntent.getActivity(
             this,
-            PASSWORD_GET_REQUEST_CODE + credentialId.hashCode(),
+            PASSWORD_GET_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

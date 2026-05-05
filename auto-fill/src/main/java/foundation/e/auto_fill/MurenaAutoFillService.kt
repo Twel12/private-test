@@ -474,6 +474,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         credential: PasswordEntry
     ): Dataset {
         val authIntent = Intent(this, autofillDatasetAuthActivityClass()).apply {
+            setIdentifier(credential.id)
             putExtra(AutofillDatasetAuthActivity.EXTRA_CREDENTIAL_ID, credential.id)
             putExtra(AutofillDatasetAuthActivity.EXTRA_PACKAGE_NAME, loginFields.packageName)
             putExtra(AutofillDatasetAuthActivity.EXTRA_WEB_DOMAIN, loginFields.webDomain)
