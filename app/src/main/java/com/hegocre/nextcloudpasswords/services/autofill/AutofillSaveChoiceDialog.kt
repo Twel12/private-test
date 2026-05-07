@@ -43,6 +43,7 @@ import foundation.e.elib.R as eR
 @Composable
 internal fun AutofillSaveChoiceDialog(
     candidates: List<NCPAutofillSaveCandidate>,
+    allowCreateNew: Boolean,
     onSelectCandidate: (NCPAutofillSaveCandidate) -> Unit,
     onCreateNew: () -> Unit,
     onDismissRequest: () -> Unit
@@ -70,19 +71,21 @@ internal fun AutofillSaveChoiceDialog(
                         }
                     }
 
-                    HorizontalDivider(
-                        modifier = Modifier.padding(top = 8.dp),
-                        thickness = DividerDefaults.Thickness,
-                        color = DividerDefaults.color
-                    )
+                    if (allowCreateNew) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(top = 8.dp),
+                            thickness = DividerDefaults.Thickness,
+                            color = DividerDefaults.color
+                        )
 
-                    TextButton(
-                        onClick = onCreateNew,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp)
-                    ) {
-                        Text(text = stringResource(R.string.autofill_save_create_new_entry))
+                        TextButton(
+                            onClick = onCreateNew,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text(text = stringResource(R.string.autofill_save_create_new_entry))
+                        }
                     }
                 }
             }

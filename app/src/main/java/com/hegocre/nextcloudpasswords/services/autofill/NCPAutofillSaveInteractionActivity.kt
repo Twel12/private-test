@@ -54,6 +54,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
             if (showSaveChoiceDialog.value) {
                 AutofillSaveChoiceDialog(
                     candidates = saveCandidates,
+                    allowCreateNew = saveRequest.username?.isNotBlank() == true,
                     onSelectCandidate = { candidate ->
                         showSaveChoiceDialog.value = false
                         saveWithSelection(candidate.id, createNew = false)

@@ -153,11 +153,20 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
 
             if (request.username.isNullOrBlank()) {
-                Timber.d("save ignored: username is missing package=${request.packageName}")
-                return@withContext PasswordSaveResult.Failed("Username is required to save a password")
+                val candidates = saveInteractionCandidates(request)
+                return@withContext if (candidates.isEmpty()) {
+                    Timber.d("save ignored: username is missing package=${request.packageName}")
+                    PasswordSaveResult.Failed("Username is required to save a new password")
+                } else {
+                    Timber.d("save needs user selection for password-only request")
+                    PasswordSaveResult.NeedsUserInteraction("Select the password to update")
+                }
             }
 
-            Timber.d("save creating new entry package=${request.packageName}, username=${request.username}")
+            Timber.d(
+                "save creating new entry package=${request.packageName}, " +
+                    "usernamePresent=${request.username?.isNotBlank() == true}"
+            )
             createNewPassword(request, apiController)
         }
 
@@ -188,16 +197,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     suspend fun saveInteractionCandidates(request: PasswordSaveRequest): List<NCPAutofillSaveCandidate> =
         withContext(Dispatchers.IO) {
-            val username = request.username?.takeIf { it.isNotBlank() }
-                ?: return@withContext emptyList()
             val candidates = matcher.candidates(request)
+            if (candidates.isEmpty()) return@withContext emptyList()
             val savedPasswords = passwordDatabase.passwordDao.fetchAllPasswordsList()
                 .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
             val decryptedPasswords = decryptIfUnlocked(savedPasswords)
+            val username = request.username?.takeIf { it.isNotBlank() }
 
             decryptedPasswords
                 .filter { password ->
-                    password.username.equals(username, ignoreCase = true) &&
+                    (username == null || password.username.equals(username, ignoreCase = true)) &&
                         matcher.matches(password, candidates)
                 }
                 .map {
@@ -221,11 +230,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         if (selectedCredentialId == null) {
             if (request.username.isNullOrBlank()) {
                 Timber.d("save ignored: username is missing package=${request.packageName}")
-                return@withContext PasswordSaveResult.Failed("Username is required to save a password")
+                return@withContext PasswordSaveResult.Failed("Username is required to save a new password")
             }
             Timber.d(
                 "save creating new entry from user interaction package=${request.packageName}, " +
-                    "username=${request.username}"
+                    "usernamePresent=${request.username?.isNotBlank() == true}"
             )
             return@withContext createNewPassword(request, apiController)
         }
