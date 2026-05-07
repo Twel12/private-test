@@ -57,4 +57,7 @@ class NCPCredentialProviderService : MurenaCredentialProviderService() {
         return getString(R.string.autofill_unlock_vault)
     }
 
+    override fun privilegedAppAllowlistJson(): String {
+        return NCPCredentialManagerPrivilegedApps.json(this)
+    }
 }

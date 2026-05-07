@@ -40,7 +40,8 @@ data class PasswordQuery(
     val webDomain: String?,
     val origin: String?,
     val usernameHint: String?,
-    val hasPasswordField: Boolean
+    val hasPasswordField: Boolean,
+    val isWebOriginRequest: Boolean = false
 )
 
 data class PasswordResolveRequest(
@@ -48,7 +49,8 @@ data class PasswordResolveRequest(
     val credentialId: String,
     val packageName: String?,
     val webDomain: String?,
-    val origin: String?
+    val origin: String?,
+    val isWebOriginRequest: Boolean = false
 )
 
 data class PasswordSaveRequest(
@@ -57,7 +59,8 @@ data class PasswordSaveRequest(
     val webDomain: String?,
     val origin: String?,
     val username: String?,
-    val password: String
+    val password: String,
+    val isWebOriginRequest: Boolean = false
 )
 
 data class VaultUnlockRequest(
@@ -65,6 +68,7 @@ data class VaultUnlockRequest(
     val packageName: String?,
     val webDomain: String?,
     val origin: String?,
+    val isWebOriginRequest: Boolean = false,
     val secret: String? = null
 )
 
@@ -107,6 +111,7 @@ sealed interface PasswordEvent {
         val credentialId: String,
         val packageName: String?,
         val webDomain: String?,
-        val origin: String?
+        val origin: String?,
+        val isWebOriginRequest: Boolean = false
     ) : PasswordEvent
 }

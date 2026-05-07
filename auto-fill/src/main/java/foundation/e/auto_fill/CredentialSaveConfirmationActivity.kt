@@ -51,6 +51,8 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
 
     protected open fun hideSavingUi() = Unit
 
+    protected open fun privilegedAppAllowlistJson(): String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,16 +65,21 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
             return
         }
 
+        val credentialContext = providerRequest.callingAppInfo.toCredentialManagerRequestContext(
+            privilegedAppAllowlistJson()
+        )
         val saveRequest = PasswordSaveRequest(
             source = PasswordRequestSource.CREDENTIAL_MANAGER,
-            packageName = providerRequest.callingAppInfo.packageName,
-            webDomain = null,
-            origin = null,
+            packageName = credentialContext.packageName,
+            webDomain = credentialContext.webDomain,
+            origin = credentialContext.origin,
             username = passwordRequest.id,
-            password = passwordRequest.password
+            password = passwordRequest.password,
+            isWebOriginRequest = credentialContext.isWebOriginRequest
         )
         Timber.d(
             "onCreate save request package=${saveRequest.packageName}, " +
+                "webDomain=${saveRequest.webDomain}, origin=${saveRequest.origin}, " +
                 "usernamePresent=${saveRequest.username?.isNotBlank() == true}, " +
                 "passwordPresent=${saveRequest.password.isNotBlank()}"
         )
@@ -134,7 +141,8 @@ abstract class CredentialSaveConfirmationActivity : ComponentActivity() {
                         source = saveRequest.source,
                         packageName = saveRequest.packageName,
                         webDomain = saveRequest.webDomain,
-                        origin = saveRequest.origin
+                        origin = saveRequest.origin,
+                        isWebOriginRequest = saveRequest.isWebOriginRequest
                     ),
                     onResult = { result ->
                         when (result) {

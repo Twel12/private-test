@@ -36,6 +36,7 @@ import foundation.e.auto_fill.PasswordEvent
 import foundation.e.auto_fill.PasswordQuery
 import foundation.e.auto_fill.PasswordQueryResult
 import foundation.e.auto_fill.PasswordResolveRequest
+import foundation.e.auto_fill.PasswordRequestSource
 import foundation.e.auto_fill.PasswordSaveRequest
 import foundation.e.auto_fill.PasswordSaveResult
 import foundation.e.auto_fill.VaultUnlockRequest
@@ -91,6 +92,19 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 )
             }
 
+            if (request.hasUntrustedCredentialManagerBrowserContext()) {
+                Timber.d(
+                    "query ignored untrusted browser context package=${request.packageName}, " +
+                        "cachedPasswords=${savedPasswords.size}"
+                )
+                return@withContext PasswordQueryResult(
+                    credentials = emptyList(),
+                    savedPasswordCount = savedPasswords.size,
+                    allowSavePrompt = false,
+                    vaultLocked = false
+                )
+            }
+
             if (vaultLocked) {
                 Timber.d(
                     "query locked vault package=${request.packageName}, " +
@@ -124,14 +138,33 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 .firstOrNull { it.id == request.credentialId && !it.trashed && !it.hidden }
                 ?: return@withContext null
 
-            decryptIfUnlocked(listOf(password)).firstOrNull()?.toPasswordEntry()
-                ?: password.toLockedPasswordEntry()
+            val candidates = matcher.candidates(request)
+            if (candidates.isEmpty()) {
+                Timber.d("resolve ignored: no trusted context for credential=${request.credentialId}")
+                return@withContext null
+            }
+
+            val decryptedPassword = decryptIfUnlocked(listOf(password)).firstOrNull()
+            if (decryptedPassword != null) {
+                if (!matcher.matches(decryptedPassword, candidates)) {
+                    Timber.d("resolve ignored: context mismatch for credential=${request.credentialId}")
+                    return@withContext null
+                }
+                return@withContext decryptedPassword.toPasswordEntry()
+            }
+
+            password.toLockedPasswordEntry()
         }
 
     override suspend fun save(request: PasswordSaveRequest): PasswordSaveResult =
         withContext(Dispatchers.IO) {
             if (!userController.isLoggedIn) {
                 return@withContext PasswordSaveResult.Failed("No account is configured")
+            }
+
+            if (request.hasUntrustedCredentialManagerBrowserContext()) {
+                Timber.d("save ignored: untrusted browser context package=${request.packageName}")
+                return@withContext PasswordSaveResult.Failed("Web origin could not be verified")
             }
 
             if (!isUnlocked()) {
@@ -223,6 +256,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         request: PasswordSaveRequest,
         selectedCredentialId: String?
     ): PasswordSaveResult = withContext(Dispatchers.IO) {
+        if (request.hasUntrustedCredentialManagerBrowserContext()) {
+            Timber.d("save interaction ignored: untrusted browser context package=${request.packageName}")
+            return@withContext PasswordSaveResult.Failed("Web origin could not be verified")
+        }
+
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
         if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
@@ -250,7 +288,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             password = decryptedPassword,
             apiController = apiController,
             updatedPassword = request.password,
-            packageName = request.packageName
+            packageName = request.appPackageNameForLink()
         )
     }
 
@@ -333,7 +371,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
 
         return ExistingSaveLookup(
-            packageName = request.packageName?.takeIf { it.isNotBlank() },
+            packageName = request.appPackageNameForLink(),
             username = username,
             password = request.password,
             passwords = decryptIfUnlocked(savedPasswords),
@@ -559,7 +597,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val url = saveUrl()
         val usernameValue = username.orEmpty()
         val notes = ""
-        val customFields = packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
+        val customFields = appPackageNameForLink()?.let { packageName ->
             NCPAutofillMetadata.withPackage("[]", packageName)
         } ?: "[]"
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
@@ -602,7 +640,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private fun PasswordSaveRequest.saveLabel(): String {
         return webDomain?.takeIf { it.isNotBlank() }
             ?: origin?.takeIf { it.isNotBlank() }
-            ?: packageName?.let { applicationLabel(it) }
+            ?: appPackageNameForLink()?.let { applicationLabel(it) }
             ?: username?.takeIf { it.isNotBlank() }
             ?: DEFAULT_SAVE_LABEL
     }
@@ -620,6 +658,28 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val appInfo = appContext.packageManager.getApplicationInfoCompat(packageName)
             appContext.packageManager.getApplicationLabel(appInfo).toString()
         }.getOrNull()
+    }
+
+    private fun PasswordQuery.hasUntrustedCredentialManagerBrowserContext(): Boolean {
+        return source == PasswordRequestSource.CREDENTIAL_MANAGER &&
+            (isWebOriginRequest || matcher.isKnownBrowserPackage(packageName)) &&
+            webDomain.isNullOrBlank() &&
+            origin.isNullOrBlank()
+    }
+
+    private fun PasswordSaveRequest.hasUntrustedCredentialManagerBrowserContext(): Boolean {
+        return source == PasswordRequestSource.CREDENTIAL_MANAGER &&
+            (isWebOriginRequest || matcher.isKnownBrowserPackage(packageName)) &&
+            webDomain.isNullOrBlank() &&
+            origin.isNullOrBlank()
+    }
+
+    private fun PasswordSaveRequest.hasWebContext(): Boolean {
+        return isWebOriginRequest || !webDomain.isNullOrBlank() || !origin.isNullOrBlank()
+    }
+
+    private fun PasswordSaveRequest.appPackageNameForLink(): String? {
+        return packageName?.takeIf { it.isNotBlank() && !hasWebContext() }
     }
 
     private companion object {

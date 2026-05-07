@@ -71,6 +71,10 @@ class NCPCredentialSaveConfirmationActivity : CredentialSaveConfirmationActivity
         showSavingDialog.value = false
     }
 
+    override fun privilegedAppAllowlistJson(): String {
+        return NCPCredentialManagerPrivilegedApps.json(this)
+    }
+
     override fun requestVaultUnlock(
         request: VaultUnlockRequest,
         onResult: (VaultUnlockResult) -> Unit

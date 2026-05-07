@@ -19,17 +19,24 @@ package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Context
 import androidx.core.net.toUri
+import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
 import foundation.e.auto_fill.PasswordQuery
+import foundation.e.auto_fill.PasswordResolveRequest
+import foundation.e.auto_fill.PasswordRequestSource
 import foundation.e.auto_fill.PasswordSaveRequest
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import okhttp3.internal.publicsuffix.PublicSuffixDatabase
+import org.xmlpull.v1.XmlPullParser
 
 class NCPAutofillMatcher(private val context: Context) {
+    private val browserPackages: Set<String> by lazy { loadBrowserPackages() }
 
     fun candidates(request: PasswordQuery): List<String> {
+        val hasWebContext = request.hasWebContext()
+        val canUsePackageContext = !hasWebContext && !request.isKnownBrowserCredentialManagerRequest()
         return buildList {
             request.webDomain?.takeIf { it.isNotBlank() }?.let { domain ->
                 add(domain)
@@ -38,19 +45,39 @@ class NCPAutofillMatcher(private val context: Context) {
                 add(domain.substringBefore('.'))
             }
             request.origin?.takeIf { it.isNotBlank() }?.let(::add)
-            request.packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
-                addPackageCandidates(packageName)
+            if (canUsePackageContext) {
+                request.packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
+                    addPackageCandidates(packageName)
+                }
             }
             request.usernameHint?.takeIf { it.isNotBlank() }?.let(::add)
         }.normalized()
     }
 
     fun candidates(request: PasswordSaveRequest): List<String> {
+        val hasWebContext = request.hasWebContext()
+        val canUsePackageContext = !hasWebContext && !request.isKnownBrowserCredentialManagerRequest()
         return buildList {
             request.webDomain?.takeIf { it.isNotBlank() }?.let(::add)
             request.origin?.takeIf { it.isNotBlank() }?.let(::add)
-            request.packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
-                addPackageCandidates(packageName)
+            if (canUsePackageContext) {
+                request.packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
+                    addPackageCandidates(packageName)
+                }
+            }
+        }.normalized()
+    }
+
+    fun candidates(request: PasswordResolveRequest): List<String> {
+        val hasWebContext = request.hasWebContext()
+        val canUsePackageContext = !hasWebContext && !request.isKnownBrowserCredentialManagerRequest()
+        return buildList {
+            request.webDomain?.takeIf { it.isNotBlank() }?.let(::add)
+            request.origin?.takeIf { it.isNotBlank() }?.let(::add)
+            if (canUsePackageContext) {
+                request.packageName?.takeIf { it.isNotBlank() }?.let { packageName ->
+                    addPackageCandidates(packageName)
+                }
             }
         }.normalized()
     }
@@ -66,6 +93,10 @@ class NCPAutofillMatcher(private val context: Context) {
     fun hasPackage(password: Password, packageName: String): Boolean {
         return packageName in packageNames(password) ||
             password.url.contains(androidUri(packageName), ignoreCase = true)
+    }
+
+    fun isKnownBrowserPackage(packageName: String?): Boolean {
+        return packageName != null && packageName in browserPackages
     }
 
     fun androidUri(packageName: String): String = "android://$packageName"
@@ -106,11 +137,63 @@ class NCPAutofillMatcher(private val context: Context) {
         }.getOrNull()
     }
 
+    private fun PasswordQuery.hasWebContext(): Boolean {
+        return isWebOriginRequest || !webDomain.isNullOrBlank() || !origin.isNullOrBlank()
+    }
+
+    private fun PasswordQuery.isKnownBrowserCredentialManagerRequest(): Boolean {
+        return source == PasswordRequestSource.CREDENTIAL_MANAGER &&
+            isKnownBrowserPackage(packageName)
+    }
+
+    private fun PasswordSaveRequest.hasWebContext(): Boolean {
+        return isWebOriginRequest || !webDomain.isNullOrBlank() || !origin.isNullOrBlank()
+    }
+
+    private fun PasswordSaveRequest.isKnownBrowserCredentialManagerRequest(): Boolean {
+        return source == PasswordRequestSource.CREDENTIAL_MANAGER &&
+            isKnownBrowserPackage(packageName)
+    }
+
+    private fun PasswordResolveRequest.hasWebContext(): Boolean {
+        return isWebOriginRequest || !webDomain.isNullOrBlank() || !origin.isNullOrBlank()
+    }
+
+    private fun PasswordResolveRequest.isKnownBrowserCredentialManagerRequest(): Boolean {
+        return source == PasswordRequestSource.CREDENTIAL_MANAGER &&
+            isKnownBrowserPackage(packageName)
+    }
+
     private fun String.effectiveDomainOrNull(): String? {
         return runCatching {
             val host = toUri().host ?: "https://$this".toUri().host ?: return null
             PublicSuffixDatabase.get().getEffectiveTldPlusOne(host) ?: host
         }.getOrNull()
+    }
+
+    private fun loadBrowserPackages(): Set<String> {
+        return runCatching {
+            context.resources.getXml(R.xml.service_configuration).use { parser ->
+                buildSet {
+                    while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                        if (
+                            parser.eventType == XmlPullParser.START_TAG &&
+                            parser.name == COMPATIBILITY_PACKAGE_TAG
+                        ) {
+                            parser.getAttributeValue(ANDROID_NAMESPACE, NAME_ATTRIBUTE)
+                                ?.takeIf { it.isNotBlank() }
+                                ?.let(::add)
+                        }
+                    }
+                }
+            }
+        }.getOrDefault(emptySet())
+    }
+
+    private companion object {
+        const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
+        const val COMPATIBILITY_PACKAGE_TAG = "compatibility-package"
+        const val NAME_ATTRIBUTE = "name"
     }
 }
 

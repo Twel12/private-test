@@ -34,7 +34,12 @@ abstract class CredentialGetActivity : ComponentActivity() {
 
     private var credentialId: String? = null
     private var packageName: String? = null
+    private var webDomain: String? = null
+    private var origin: String? = null
+    private var isWebOriginRequest: Boolean = false
     private var providerRequest: ProviderGetCredentialRequest? = null
+
+    protected open fun privilegedAppAllowlistJson(): String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +53,13 @@ abstract class CredentialGetActivity : ComponentActivity() {
         }
 
         credentialId = intent.getStringExtra(EXTRA_CREDENTIAL_ID)
-        packageName = getRequest.callingAppInfo.packageName
+        val credentialContext = getRequest.callingAppInfo.toCredentialManagerRequestContext(
+            privilegedAppAllowlistJson()
+        )
+        packageName = credentialContext.packageName
+        webDomain = credentialContext.webDomain
+        origin = credentialContext.origin
+        isWebOriginRequest = credentialContext.isWebOriginRequest
         val selectedCredentialId = credentialId
         if (selectedCredentialId.isNullOrBlank()) {
             setResult(RESULT_CANCELED)
@@ -70,8 +81,9 @@ abstract class CredentialGetActivity : ComponentActivity() {
                         source = PasswordRequestSource.CREDENTIAL_MANAGER,
                         credentialId = credentialId,
                         packageName = packageName,
-                        webDomain = null,
-                        origin = null
+                        webDomain = webDomain,
+                        origin = origin,
+                        isWebOriginRequest = isWebOriginRequest
                     )
                 )
             },
@@ -85,8 +97,9 @@ abstract class CredentialGetActivity : ComponentActivity() {
                             request = VaultUnlockRequest(
                                 source = PasswordRequestSource.CREDENTIAL_MANAGER,
                                 packageName = packageName,
-                                webDomain = null,
-                                origin = null
+                                webDomain = webDomain,
+                                origin = origin,
+                                isWebOriginRequest = isWebOriginRequest
                             ),
                             onResult = { result ->
                                 when (result) {
@@ -131,8 +144,9 @@ abstract class CredentialGetActivity : ComponentActivity() {
                         source = PasswordRequestSource.CREDENTIAL_MANAGER,
                         credentialId = credential.id,
                         packageName = packageName,
-                        webDomain = null,
-                        origin = null
+                        webDomain = webDomain,
+                        origin = origin,
+                        isWebOriginRequest = isWebOriginRequest
                     )
                 )
                 setResult(RESULT_OK, result)

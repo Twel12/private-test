@@ -61,6 +61,8 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
     protected open fun unlockActionTitle(): String =
         getString(R.string.autofill_unlock_vault)
 
+    protected open fun privilegedAppAllowlistJson(): String? = null
+
     override fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
@@ -71,17 +73,21 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
             return
         }
 
+        val credentialContext = request.callingAppInfo.toCredentialManagerRequestContext(
+            privilegedAppAllowlistJson()
+        )
         runBackendCall(
             cancellationSignal = cancellationSignal,
             call = {
                 passwordBackend().query(
                     PasswordQuery(
                         source = PasswordRequestSource.CREDENTIAL_MANAGER,
-                        packageName = request.callingAppInfo?.packageName,
-                        webDomain = null,
-                        origin = null,
+                        packageName = credentialContext.packageName,
+                        webDomain = credentialContext.webDomain,
+                        origin = credentialContext.origin,
                         usernameHint = null,
-                        hasPasswordField = true
+                        hasPasswordField = true,
+                        isWebOriginRequest = credentialContext.isWebOriginRequest
                     )
                 )
             },
@@ -129,17 +135,21 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
             return
         }
 
+        val credentialContext = request.callingAppInfo.toCredentialManagerRequestContext(
+            privilegedAppAllowlistJson()
+        )
         runBackendCall(
             cancellationSignal = cancellationSignal,
             call = {
                 passwordBackend().query(
                     PasswordQuery(
                         source = PasswordRequestSource.CREDENTIAL_MANAGER,
-                        packageName = request.callingAppInfo?.packageName,
-                        webDomain = null,
-                        origin = null,
+                        packageName = credentialContext.packageName,
+                        webDomain = credentialContext.webDomain,
+                        origin = credentialContext.origin,
                         usernameHint = null,
-                        hasPasswordField = true
+                        hasPasswordField = true,
+                        isWebOriginRequest = credentialContext.isWebOriginRequest
                     )
                 )
             },
@@ -161,7 +171,7 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
                                 displayName = credential.displayName,
                                 icon = Icon.createWithResource(this, R.drawable.ic_autofill_provider),
                                 isAutoSelectAllowed = !credential.locked && credential.password != null,
-                                affiliatedDomain = request.callingAppInfo?.packageName
+                                affiliatedDomain = credentialContext.affiliatedDomain
                             )
                         }
                 }

@@ -41,6 +41,7 @@ import foundation.e.auto_fill.CredentialGetActivity
 import foundation.e.auto_fill.PasswordEntry
 import foundation.e.auto_fill.PasswordQuery
 import foundation.e.auto_fill.PasswordRequestSource
+import foundation.e.auto_fill.toCredentialManagerRequestContext
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -124,18 +125,23 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
             return BeginGetCredentialResponse()
         }
 
+        val credentialContext = request.callingAppInfo.toCredentialManagerRequestContext(
+            NCPCredentialManagerPrivilegedApps.json(this)
+        )
         val queryResult = NCPApplication.passwordBackend(this).query(
             PasswordQuery(
                 source = PasswordRequestSource.CREDENTIAL_MANAGER,
-                packageName = request.callingAppInfo?.packageName,
-                webDomain = null,
-                origin = null,
+                packageName = credentialContext.packageName,
+                webDomain = credentialContext.webDomain,
+                origin = credentialContext.origin,
                 usernameHint = null,
-                hasPasswordField = true
+                hasPasswordField = true,
+                isWebOriginRequest = credentialContext.isWebOriginRequest
             )
         )
         Timber.d(
-            "unlocked query package=${request.callingAppInfo?.packageName}, " +
+            "unlocked query package=${credentialContext.packageName}, " +
+                "webDomain=${credentialContext.webDomain}, origin=${credentialContext.origin}, " +
                 "credentials=${queryResult.credentials.size}, vaultLocked=${queryResult.vaultLocked}"
         )
 
@@ -151,7 +157,7 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
                         displayName = credential.displayName,
                         icon = Icon.createWithResource(this, R.mipmap.ic_launcher),
                         isAutoSelectAllowed = !credential.locked && credential.password != null,
-                        affiliatedDomain = request.callingAppInfo?.packageName
+                        affiliatedDomain = credentialContext.affiliatedDomain
                     )
                 }
         }
