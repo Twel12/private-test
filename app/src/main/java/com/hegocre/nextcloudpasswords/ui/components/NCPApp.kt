@@ -84,6 +84,7 @@ fun NextcloudPasswordsApp(
     pendingAutofillSave: NCPAutofillPendingSaveStore.PendingSave? = null,
     defaultSearchQuery: String = "",
     onAutofillUnlockComplete: (() -> Unit)? = null,
+    onPendingAutofillSaveComplete: ((PasswordSaveResult) -> Unit)? = null,
     replyAutofill: ((String, String, String) -> Unit)? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -146,6 +147,7 @@ fun NextcloudPasswordsApp(
             PasswordSaveResult.DuplicateIgnored,
             is PasswordSaveResult.QueuedForRetry -> {
                 Toast.makeText(context, R.string.autofill_password_saved, Toast.LENGTH_SHORT).show()
+                onPendingAutofillSaveComplete?.invoke(saveResult)
             }
 
             PasswordSaveResult.NeedsUnlock -> {
@@ -158,6 +160,7 @@ fun NextcloudPasswordsApp(
                     NCPAutofillSaveInteractionActivity.intent(context, pendingSave.request)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )
+                onPendingAutofillSaveComplete?.invoke(saveResult)
             }
 
             is PasswordSaveResult.Failed -> {
@@ -166,6 +169,7 @@ fun NextcloudPasswordsApp(
                     saveResult.message ?: context.getString(R.string.error_password_saving_failed),
                     Toast.LENGTH_LONG
                 ).show()
+                onPendingAutofillSaveComplete?.invoke(saveResult)
             }
         }
     }

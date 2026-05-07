@@ -42,6 +42,7 @@ object NCPAutofillPendingSaveStore {
             .putExtra(EXTRA_ORIGIN, request.origin)
             .putExtra(EXTRA_USERNAME, request.username)
             .putExtra(EXTRA_PASSWORD, request.password)
+            .putExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, request.isWebOriginRequest)
             .putExtra(EXTRA_SELECTED_CREDENTIAL_ID, selectedCredentialId)
             .putExtra(EXTRA_CREATE_NEW, createNew)
         Timber.d(
@@ -72,7 +73,8 @@ object NCPAutofillPendingSaveStore {
                     webDomain = intent.getBlankableStringExtra(EXTRA_WEB_DOMAIN),
                     origin = intent.getBlankableStringExtra(EXTRA_ORIGIN),
                     username = intent.getBlankableStringExtra(EXTRA_USERNAME),
-                    password = password
+                    password = password,
+                    isWebOriginRequest = intent.getBooleanExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, false)
                 ),
                 selectedCredentialId = intent.getBlankableStringExtra(EXTRA_SELECTED_CREDENTIAL_ID),
                 createNew = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
@@ -92,6 +94,8 @@ object NCPAutofillPendingSaveStore {
     private const val EXTRA_ORIGIN = "foundation.e.passwords.autofill.PENDING_ORIGIN"
     private const val EXTRA_USERNAME = "foundation.e.passwords.autofill.PENDING_USERNAME"
     private const val EXTRA_PASSWORD = "foundation.e.passwords.autofill.PENDING_PASSWORD"
+    private const val EXTRA_IS_WEB_ORIGIN_REQUEST =
+        "foundation.e.passwords.autofill.PENDING_IS_WEB_ORIGIN_REQUEST"
     private const val EXTRA_SELECTED_CREDENTIAL_ID =
         "foundation.e.passwords.autofill.PENDING_SELECTED_CREDENTIAL_ID"
     private const val EXTRA_CREATE_NEW = "foundation.e.passwords.autofill.PENDING_CREATE_NEW"

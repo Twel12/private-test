@@ -26,6 +26,7 @@ import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import foundation.e.auto_fill.PasswordSaveResult
 import timber.log.Timber
 
 class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
@@ -57,11 +58,27 @@ class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
                     pendingAutofillSave = pendingSave,
                     defaultSearchQuery = pendingSave.request.webDomain
                         ?: pendingSave.request.packageName?.substringAfterLast('.').orEmpty(),
+                    onPendingAutofillSaveComplete = { result ->
+                        setResult(
+                            if (result.isSuccessfulSaveResult()) {
+                                RESULT_OK
+                            } else {
+                                RESULT_CANCELED
+                            }
+                        )
+                        finish()
+                    },
                     onAutofillUnlockComplete = {
                         finish()
                     }
                 )
             }
         }
+    }
+
+    private fun PasswordSaveResult.isSuccessfulSaveResult(): Boolean {
+        return this == PasswordSaveResult.Saved ||
+            this == PasswordSaveResult.DuplicateIgnored ||
+            this is PasswordSaveResult.QueuedForRetry
     }
 }

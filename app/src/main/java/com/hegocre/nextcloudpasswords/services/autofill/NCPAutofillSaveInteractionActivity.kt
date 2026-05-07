@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,17 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
     private val showSavingDialog = mutableStateOf(false)
     private val saveCandidates = mutableStateListOf<NCPAutofillSaveCandidate>()
     private val showSaveChoiceDialog = mutableStateOf(false)
+    private val unlockLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Timber.d("pending save unlock resultCode=${result.resultCode}")
+        if (result.resultCode == RESULT_OK) {
+            setResult(RESULT_OK)
+        } else {
+            setResult(RESULT_CANCELED)
+        }
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -218,9 +230,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
             selectedCredentialId = selectedCredentialId,
             createNew = createNew
         )
-        startActivity(unlockIntent)
-        setResult(RESULT_CANCELED)
-        finish()
+        unlockLauncher.launch(unlockIntent)
     }
 
     override fun onDestroy() {
@@ -243,6 +253,8 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         private const val EXTRA_ORIGIN = "foundation.e.passwords.autofill.EXTRA_ORIGIN"
         private const val EXTRA_USERNAME = "foundation.e.passwords.autofill.EXTRA_USERNAME"
         private const val EXTRA_PASSWORD = "foundation.e.passwords.autofill.EXTRA_PASSWORD"
+        private const val EXTRA_IS_WEB_ORIGIN_REQUEST =
+            "foundation.e.passwords.autofill.EXTRA_IS_WEB_ORIGIN_REQUEST"
 
         fun intent(context: Context, request: PasswordSaveRequest): Intent {
             return Intent(context, NCPAutofillSaveInteractionActivity::class.java)
@@ -252,6 +264,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
                 .putExtra(EXTRA_ORIGIN, request.origin)
                 .putExtra(EXTRA_USERNAME, request.username)
                 .putExtra(EXTRA_PASSWORD, request.password)
+                .putExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, request.isWebOriginRequest)
         }
 
         private fun Intent.toPasswordSaveRequest(): PasswordSaveRequest? {
@@ -265,7 +278,8 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
                 webDomain = getStringExtra(EXTRA_WEB_DOMAIN),
                 origin = getStringExtra(EXTRA_ORIGIN),
                 username = getStringExtra(EXTRA_USERNAME),
-                password = password
+                password = password,
+                isWebOriginRequest = getBooleanExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, false)
             )
         }
     }
