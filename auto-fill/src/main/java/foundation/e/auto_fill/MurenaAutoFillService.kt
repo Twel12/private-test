@@ -450,13 +450,19 @@ abstract class MurenaAutoFillService : AutofillService() {
         loginFields: LoginFields,
         queryResult: PasswordQueryResult
     ): FillResponse.Builder {
-        val fieldIds = (loginFields.usernameIds + loginFields.passwordIds).distinct().toTypedArray()
-        if (fieldIds.isNotEmpty()) {
-            setFieldClassificationIds(*fieldIds)
+        val fillDialogTriggerIds = (loginFields.usernameIds + loginFields.passwordIds)
+            .distinct()
+            .toTypedArray()
+        if (fillDialogTriggerIds.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                setFillDialogTriggerIds(*fieldIds)
+                setFillDialogTriggerIds(*fillDialogTriggerIds)
             }
-            queryResult.credentials.firstOrNull { !it.password.isNullOrBlank() }
+        }
+
+        val fieldClassificationIds = loginFields.usernameIds.distinct().toTypedArray()
+        if (fieldClassificationIds.isNotEmpty()) {
+            setFieldClassificationIds(*fieldClassificationIds)
+            queryResult.credentials.firstOrNull { it.username.isNotBlank() }
                 ?.let { credential ->
                     setUserData(buildUserData(credential))
                 }
@@ -604,9 +610,7 @@ abstract class MurenaAutoFillService : AutofillService() {
             "murena-user-data-${credential.id}",
             credential.username,
             "username"
-        )
-            .add(credential.password.orEmpty(), "password")
-            .build()
+        ).build()
     }
 
     private data class LoginFields(
