@@ -319,8 +319,6 @@ abstract class MurenaAutoFillService : AutofillService() {
     private fun buildSaveValidator(loginFields: LoginFields) = Validators.and(
         *(loginFields.passwordIds.map { passwordId ->
             RegexValidator(passwordId, NON_EMPTY_TEXT_PATTERN)
-        } + loginFields.usernameIds.map { usernameId ->
-            RegexValidator(usernameId, NON_EMPTY_TEXT_PATTERN)
         }).toTypedArray()
     )
 
