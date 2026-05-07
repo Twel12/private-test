@@ -88,7 +88,14 @@ abstract class CredentialGetActivity : ComponentActivity() {
                 )
             },
             onSuccess = { credential ->
-                if (credential?.password.isNullOrBlank()) {
+                if (credential == null) {
+                    Timber.d("Selected credential is missing or no longer matches $packageName")
+                    setResult(RESULT_CANCELED)
+                    finish()
+                    return@runBackendCall
+                }
+
+                if (credential.password.isNullOrBlank()) {
                     if (triedUnlock) {
                         setResult(RESULT_CANCELED)
                         finish()

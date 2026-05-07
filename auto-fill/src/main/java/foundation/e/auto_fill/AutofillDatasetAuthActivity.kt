@@ -110,9 +110,14 @@ abstract class AutofillDatasetAuthActivity : ComponentActivity() {
                 )
             },
             onSuccess = { credential ->
-                if (credential == null ||
-                    (passwordIds.isNotEmpty() && credential.password.isNullOrBlank())
-                ) {
+                if (credential == null) {
+                    Timber.d("Selected autofill credential is missing or no longer matches")
+                    setResult(RESULT_CANCELED)
+                    finish()
+                    return@runBackendCall
+                }
+
+                if (passwordIds.isNotEmpty() && credential.password.isNullOrBlank()) {
                     if (triedUnlock) {
                         setResult(RESULT_CANCELED)
                         finish()
