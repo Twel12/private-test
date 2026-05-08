@@ -143,8 +143,7 @@ abstract class CredentialGetActivity : ComponentActivity() {
                             id = credential.username,
                             password = credential.password
                         )
-                    ),
-                    getRequest
+                    )
                 )
                 passwordBackend().reportSafely(
                     PasswordEvent.CredentialSelected(
