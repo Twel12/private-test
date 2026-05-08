@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainActivity : FragmentActivity() {
 
@@ -53,6 +54,7 @@ class MainActivity : FragmentActivity() {
         } else {
             false
         }
+        Timber.d("autofillRequested=$autofillRequested")
 
         val autofillSearchQuery =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && autofillRequested) {

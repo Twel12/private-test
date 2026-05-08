@@ -13,3 +13,4 @@ dependencyResolutionManagement {
 rootProject.name = "Nextcloud Passwords"
 include ':app'
 include ':backup-app-api-lib'
+include ':auto-fill'

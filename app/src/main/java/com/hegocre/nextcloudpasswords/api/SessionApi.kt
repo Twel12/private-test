@@ -10,8 +10,20 @@ import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
+
+private data class OpenSessionResponse(
+    val code: Int,
+    val sessionCode: String?,
+    val body: String
+)
+
+private sealed interface OpenSessionAttempt {
+    data class Response(val response: OpenSessionResponse) : OpenSessionAttempt
+    data class Failed(val result: Result<Pair<String, String>>) : OpenSessionAttempt
+}
 
 /**
  * Class with methods used to interact with the
@@ -57,10 +69,10 @@ class SessionApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            if (code == 403 || code == 401)
+            if (code == HttpURLConnection.HTTP_FORBIDDEN || code == HttpURLConnection.HTTP_UNAUTHORIZED)
                 throw ClientDeauthorizedException()
 
-            if (code == 200) {
+            if (code == HttpURLConnection.HTTP_OK) {
                 Result.Success(PWDv1Challenge.fromJson(body))
             } else Result.Error(Error.API_BAD_RESPONSE)
 
@@ -89,51 +101,64 @@ class SessionApi private constructor(private var server: Server) {
             .put("challenge", solvedChallenge)
             .toString()
 
-        return try {
-            val apiResponse = withContext(Dispatchers.IO) {
-                OkHttpRequest.getInstance().post(
-                    sUrl = server.url + OPEN_URL,
-                    body = jsonChallenge,
-                    mediaType = OkHttpRequest.JSON,
-                    username = server.username,
-                    password = server.password
-                )
-            }
-
-            val body = withContext(Dispatchers.IO) { apiResponse.body.string() }
-            val code = apiResponse.code
-
-            val xSessionCode = apiResponse.header("x-api-session", null)
-
-            withContext(Dispatchers.IO) {
-                apiResponse.close()
-            }
-
-            if (code == 401)
-                throw PWDv1ChallengeMasterKeyInvalidException()
-
-            if (code == 403)
-                throw ClientDeauthorizedException()
-
-            if (xSessionCode == null || code != 200)
-                return Result.Error(Error.API_BAD_RESPONSE)
-
-            Result.Success(Pair(xSessionCode, body))
+        val attempt = try {
+            OpenSessionAttempt.Response(postOpenSession(jsonChallenge))
         } catch (e: SocketTimeoutException) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
-            Result.Error(Error.API_TIMEOUT)
+            OpenSessionAttempt.Failed(Result.Error(Error.API_TIMEOUT))
         } catch (e: SSLHandshakeException) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
-            Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+            OpenSessionAttempt.Failed(Result.Error(Error.SSL_HANDSHAKE_EXCEPTION))
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
             }
-            Result.Error(Error.UNKNOWN)
+            OpenSessionAttempt.Failed(Result.Error(Error.UNKNOWN))
+        }
+
+        return when (attempt) {
+            is OpenSessionAttempt.Response -> attempt.response.toOpenSessionResult()
+            is OpenSessionAttempt.Failed -> attempt.result
+        }
+    }
+
+    private suspend fun postOpenSession(jsonChallenge: String): OpenSessionResponse =
+        withContext(Dispatchers.IO) {
+            val apiResponse = OkHttpRequest.getInstance().post(
+                sUrl = server.url + OPEN_URL,
+                body = jsonChallenge,
+                mediaType = OkHttpRequest.JSON,
+                username = server.username,
+                password = server.password
+            )
+
+            val body = apiResponse.body.string()
+            val response = OpenSessionResponse(
+                code = apiResponse.code,
+                sessionCode = apiResponse.header("x-api-session", null),
+                body = body
+            )
+            apiResponse.close()
+            return@withContext response
+        }
+
+    private fun OpenSessionResponse.toOpenSessionResult(): Result<Pair<String, String>> {
+        if (code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            throw PWDv1ChallengeMasterKeyInvalidException()
+        }
+
+        if (code == HttpURLConnection.HTTP_FORBIDDEN) {
+            throw ClientDeauthorizedException()
+        }
+
+        return if (sessionCode == null || code != HttpURLConnection.HTTP_OK) {
+            Result.Error(Error.API_BAD_RESPONSE)
+        } else {
+            Result.Success(Pair(sessionCode, body))
         }
     }
 
@@ -160,7 +185,7 @@ class SessionApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            code == 200
+            code == HttpURLConnection.HTTP_OK
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -192,7 +217,7 @@ class SessionApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            code == 200
+            code == HttpURLConnection.HTTP_OK
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()

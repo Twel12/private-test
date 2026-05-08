@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unlock_vault_title">Unlock password vault</string>
+    <string name="unlock_vault_message">Unlock your vault to use this password.</string>
+    <string name="unlock_vault_button">Unlock</string>
+    <string name="credential_provider_settings_subtitle">Save and use passwords</string>
+    <string name="credential_provider_create_entry_title">Save to Passwords</string>
+    <string name="credential_provider_create_entry_description">Keep your passwords safe and sign in easily next time with auto fill</string>
+    <string name="autofill_unlock_vault">Unlock Passwords</string>
+    <string name="autofill_open_app_to_finish_saving">Open Passwords to finish saving</string>
+    <string name="autofill_save_description">Save this login securely in Passwords.</string>
+    <string name="autofill_delayed_username_save_description">Continue to save this login with Passwords</string>
+    <string name="autofill_choose_login_header">Choose a login</string>
+    <string name="autofill_open_app_selection">Select manually</string>
+
+</resources>

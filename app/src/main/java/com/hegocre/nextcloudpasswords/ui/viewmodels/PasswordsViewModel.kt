@@ -186,6 +186,13 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             preferencesManager.setMasterPassword(password)
     }
 
+    fun requestMasterPassword() {
+        viewModelScope.launch {
+            _masterPasswordInvalid.emit(false)
+            _needsMasterPassword.emit(true)
+        }
+    }
+
     fun sync() {
         if (sessionOpen.value) {
             viewModelScope.launch {
