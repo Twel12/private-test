@@ -20,11 +20,11 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.hegocre.nextcloudpasswords.NCPApplication
-import foundation.e.auto_fill.CredentialGetActivity
-import foundation.e.auto_fill.CredentialSaveConfirmationActivity
-import foundation.e.auto_fill.MurenaCredentialProviderService
-import foundation.e.auto_fill.MurenaPasswordBackend
-import foundation.e.auto_fill.R
+import foundation.e.autofill.CredentialGetActivity
+import foundation.e.autofill.CredentialSaveConfirmationActivity
+import foundation.e.autofill.MurenaCredentialProviderService
+import foundation.e.autofill.MurenaPasswordBackend
+import foundation.e.autofill.R
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class NCPCredentialProviderService : MurenaCredentialProviderService() {

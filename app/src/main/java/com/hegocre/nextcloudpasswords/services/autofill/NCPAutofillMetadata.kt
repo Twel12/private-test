@@ -22,10 +22,10 @@ import androidx.core.net.toUri
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
-import foundation.e.auto_fill.PasswordQuery
-import foundation.e.auto_fill.PasswordResolveRequest
-import foundation.e.auto_fill.PasswordRequestSource
-import foundation.e.auto_fill.PasswordSaveRequest
+import foundation.e.autofill.PasswordQuery
+import foundation.e.autofill.PasswordResolveRequest
+import foundation.e.autofill.PasswordRequestSource
+import foundation.e.autofill.PasswordSaveRequest
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import okhttp3.internal.publicsuffix.PublicSuffixDatabase

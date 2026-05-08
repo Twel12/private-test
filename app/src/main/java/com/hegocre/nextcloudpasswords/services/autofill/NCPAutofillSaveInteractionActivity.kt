@@ -29,9 +29,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.lifecycleScope
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.NCPApplication
-import foundation.e.auto_fill.PasswordRequestSource
-import foundation.e.auto_fill.PasswordSaveRequest
-import foundation.e.auto_fill.PasswordSaveResult
+import foundation.e.autofill.PasswordRequestSource
+import foundation.e.autofill.PasswordSaveRequest
+import foundation.e.autofill.PasswordSaveResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import timber.log.Timber

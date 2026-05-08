@@ -20,10 +20,10 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.hegocre.nextcloudpasswords.NCPApplication
-import foundation.e.auto_fill.AutofillDatasetAuthActivity
-import foundation.e.auto_fill.MurenaPasswordBackend
-import foundation.e.auto_fill.VaultUnlockRequest
-import foundation.e.auto_fill.VaultUnlockResult
+import foundation.e.autofill.AutofillDatasetAuthActivity
+import foundation.e.autofill.MurenaPasswordBackend
+import foundation.e.autofill.VaultUnlockRequest
+import foundation.e.autofill.VaultUnlockResult
 
 class NCPAutofillDatasetAuthActivity : AutofillDatasetAuthActivity() {
 

@@ -13,7 +13,7 @@ kotlin {
 }
 
 android {
-    namespace = "foundation.e.auto_fill"
+    namespace = "foundation.e.autofill"
     compileSdk {
         version = release(36)
     }

@@ -26,7 +26,7 @@ import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
-import foundation.e.auto_fill.PasswordSaveResult
+import foundation.e.autofill.PasswordSaveResult
 import timber.log.Timber
 
 class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {

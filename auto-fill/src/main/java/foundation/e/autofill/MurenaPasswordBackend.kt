@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package foundation.e.auto_fill
+package foundation.e.autofill
 
 interface MurenaPasswordBackend {
     suspend fun query(request: PasswordQuery): PasswordQueryResult

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package foundation.e.auto_fill
+package foundation.e.autofill
 
 import androidx.core.net.toUri
 import androidx.credentials.provider.CallingAppInfo

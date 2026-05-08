@@ -18,8 +18,8 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Intent
-import foundation.e.auto_fill.PasswordRequestSource
-import foundation.e.auto_fill.PasswordSaveRequest
+import foundation.e.autofill.PasswordRequestSource
+import foundation.e.autofill.PasswordSaveRequest
 import timber.log.Timber
 
 object NCPAutofillPendingSaveStore {

@@ -3,11 +3,11 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Intent
 import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
-import foundation.e.auto_fill.MurenaAutoFillService
-import foundation.e.auto_fill.MurenaPasswordBackend
-import foundation.e.auto_fill.AutofillDatasetAuthActivity
-import foundation.e.auto_fill.PasswordSaveRequest
-import foundation.e.auto_fill.R
+import foundation.e.autofill.MurenaAutoFillService
+import foundation.e.autofill.MurenaPasswordBackend
+import foundation.e.autofill.AutofillDatasetAuthActivity
+import foundation.e.autofill.PasswordSaveRequest
+import foundation.e.autofill.R
 
 class NCPAutofillService : MurenaAutoFillService() {
 

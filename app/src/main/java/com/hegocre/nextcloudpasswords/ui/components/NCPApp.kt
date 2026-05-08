@@ -68,7 +68,7 @@ import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillSaveInteracti
 import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
-import foundation.e.auto_fill.PasswordSaveResult
+import foundation.e.autofill.PasswordSaveResult
 import foundation.e.elib.compose.components.EFloatingActionButtonExtended
 import foundation.e.elib.compose.components.EModalBottomSheet
 import foundation.e.elib.compose.theme.ETheme

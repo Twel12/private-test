@@ -37,11 +37,11 @@ import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
-import foundation.e.auto_fill.CredentialGetActivity
-import foundation.e.auto_fill.PasswordEntry
-import foundation.e.auto_fill.PasswordQuery
-import foundation.e.auto_fill.PasswordRequestSource
-import foundation.e.auto_fill.toCredentialManagerRequestContext
+import foundation.e.autofill.CredentialGetActivity
+import foundation.e.autofill.PasswordEntry
+import foundation.e.autofill.PasswordQuery
+import foundation.e.autofill.PasswordRequestSource
+import foundation.e.autofill.toCredentialManagerRequestContext
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

@@ -23,11 +23,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.mutableStateOf
 import com.hegocre.nextcloudpasswords.NCPApplication
-import foundation.e.auto_fill.CredentialSaveConfirmationActivity
-import foundation.e.auto_fill.MurenaPasswordBackend
-import foundation.e.auto_fill.PasswordSaveRequest
-import foundation.e.auto_fill.VaultUnlockRequest
-import foundation.e.auto_fill.VaultUnlockResult
+import foundation.e.autofill.CredentialSaveConfirmationActivity
+import foundation.e.autofill.MurenaPasswordBackend
+import foundation.e.autofill.PasswordSaveRequest
+import foundation.e.autofill.VaultUnlockRequest
+import foundation.e.autofill.VaultUnlockResult
 
 class NCPCredentialSaveConfirmationActivity : CredentialSaveConfirmationActivity() {
     private val showSavingDialog = mutableStateOf(false)

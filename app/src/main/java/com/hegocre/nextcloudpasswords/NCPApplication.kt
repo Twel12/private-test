@@ -20,7 +20,7 @@ package com.hegocre.nextcloudpasswords
 import android.app.Application
 import android.content.Context
 import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
-import foundation.e.auto_fill.MurenaPasswordBackend
+import foundation.e.autofill.MurenaPasswordBackend
 
 class NCPApplication : Application() {
 
