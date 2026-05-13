@@ -8,10 +8,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.autofill.AutofillManager
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
 import coil.Coil
@@ -37,6 +40,10 @@ import timber.log.Timber
 
 class MainActivity : FragmentActivity() {
 
+    private val passwordsViewModel by viewModels<PasswordsViewModel>()
+
+    private var migrationFlowEnabled = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (BuildConfig.DEBUG) LogHelper.getInstance()
 
@@ -47,8 +54,6 @@ class MainActivity : FragmentActivity() {
             finish()
             return
         }
-
-        val passwordsViewModel by viewModels<PasswordsViewModel>()
 
         val autofillAssistStructure =
             IntentCompat.getParcelableExtra(
@@ -100,16 +105,42 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
 
+        migrationFlowEnabled = !autofillRequested
+
         setContent {
+            val showE2eeMigrationDialog by passwordsViewModel.showE2eeMigrationDialog.collectAsState()
             NCPAppLockWrapper {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
                     onLogOut = { logOut() },
+                    showE2eeMigrationDialog = migrationFlowEnabled && showE2eeMigrationDialog,
+                    onStartE2eeMigration = { startE2eeMigration() },
+                    onCancelE2eeMigration = { finish() },
                     replyAutofill = replyAutofill,
                     isAutofillRequest = autofillRequested,
                     defaultSearchQuery = autofillSearchQuery
                 )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (migrationFlowEnabled) {
+            passwordsViewModel.onAppResumedAfterMigration()
+        }
+    }
+
+    private fun startE2eeMigration() {
+        val migrationUri = passwordsViewModel.prepareE2eeMigrationUri() ?: return
+        passwordsViewModel.onE2eeMigrationLaunched()
+        runCatching {
+            CustomTabsIntent.Builder()
+                .build()
+                .launchUrl(this, migrationUri)
+        }.onFailure { exception ->
+            Timber.e(exception, "Failed to launch Murena Passwords web app")
+            passwordsViewModel.onE2eeMigrationLaunchFailed()
         }
     }
 

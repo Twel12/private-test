@@ -36,4 +36,9 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Other cloud</string>
     <string name="login_other_dialog_title">Enter the server URL of your Nextcloud-based solution:</string>
+
+    <!-- E2EE migration dialog -->
+    <string name="e2ee_migration_dialog_title">Encryption setup required</string>
+    <string name="e2ee_migration_dialog_text">End-to-end encryption is not enabled for this account yet. Start the migration in Murena Passwords on the web, then return here after the setup is complete.</string>
+    <string name="e2ee_migration_dialog_start">Start migration</string>
 </resources>

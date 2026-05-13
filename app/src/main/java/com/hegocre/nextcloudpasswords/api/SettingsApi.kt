@@ -82,7 +82,7 @@ class SettingsApi private constructor(private val server: Server) {
             synchronized(this) {
                 var tempInstance = instance
 
-                if (tempInstance == null) {
+                if (tempInstance == null || tempInstance.server != server) {
                     tempInstance = SettingsApi(server)
                     instance = tempInstance
                 }

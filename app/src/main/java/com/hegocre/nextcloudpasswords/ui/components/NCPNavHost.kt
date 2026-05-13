@@ -191,7 +191,8 @@ fun NCPNavHost(
                 closeSearch = closeSearch
             ) {
                 when {
-                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
+                    foldersDecryptionState.isLoading ||
+                            passwordsDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
@@ -285,7 +286,8 @@ fun NCPNavHost(
                 closeSearch = closeSearch
             ) {
                 when {
-                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
+                    foldersDecryptionState.isLoading ||
+                            passwordsDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
@@ -358,7 +360,8 @@ fun NCPNavHost(
                 closeSearch = closeSearch
             ) {
                 when {
-                    foldersDecryptionState.isLoading || passwordsDecryptionState.isLoading -> {
+                    foldersDecryptionState.isLoading ||
+                            passwordsDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
@@ -440,7 +443,8 @@ fun NCPNavHost(
                 closeSearch = closeSearch
             ) {
                 when {
-                    passwordsDecryptionState.isLoading || foldersDecryptionState.isLoading -> {
+                    passwordsDecryptionState.isLoading ||
+                            foldersDecryptionState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }

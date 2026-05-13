@@ -265,7 +265,7 @@ class SessionApi private constructor(private var server: Server) {
             synchronized(this) {
                 var tempInstance = instance
 
-                if (tempInstance == null) {
+                if (tempInstance == null || tempInstance.server != server) {
                     tempInstance = SessionApi(server)
                     instance = tempInstance
                 }
