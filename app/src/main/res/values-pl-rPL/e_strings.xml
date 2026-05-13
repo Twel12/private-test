@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Hasła</string>
     <string name="password_app_dashboard_summary">Przechowuj i synchronizuj swoje hasła bezpiecznie</string>
+    <string name="error_sso_unavailable_generic">Logowanie jednokrotne jest niedostępne. Zaloguj się ręcznie.</string>
+    <string name="error_sso_app_signature">Logowanie jednokrotne jest niedostępne dla tego podpisu aplikacji.</string>
+    <string name="error_sso_no_account_found">Nie znaleziono konta, zaloguj się</string>
+    <string name="error_sso_sync_disabled">Synchronizacja aplikacji Passwords jest wyłączona, włącz ją w (Ustawienia -&gt; Konta -&gt; Konto Murena -&gt; Synchronizacja konta -&gt; Passwords)</string>
+    <string name="error_sso_failed">Automatyczne logowanie nie powiodło się. Zaloguj się ręcznie.</string>
+    <string name="password_attr_security_rating">Ocena bezpieczeństwa</string>
+    <string name="password_strength_very_strong">Bardzo silne</string>
+    <string name="password_strength_weak">Słabe</string>
+    <string name="password_strength_leaked">Ujawnione</string>
+    <string name="password_security_rating_tooltip">To oznaczenie pokazuje ocenę bezpieczeństwa Twoich danych logowania i określa, jak silne jest Twoje hasło na podstawie kontroli wykonywanych przez aplikację, takich jak sprawdzanie słabych haseł, ponownego użycia lub tego, czy hasło wyciekło.</string>
+    <string name="password_security_description_safe">Hasło jest w pełni bezpieczne</string>
+    <string name="password_security_description_weak">To hasło jest używane więcej niż raz</string>
+    <string name="password_security_description_leaked">To hasło jest słabe i można je znaleźć w bazach danych hakerów w internecie. Musisz je zmienić i upewnić się, że konto, do którego go używasz, nie zostało przejęte.</string>
+    <string name="passwords_floating_action_button">Nowe</string>
+    <string name="backup_app_setup_title">Zapisz klucz szyfrowania kopii zapasowej</string>
+    <string name="backup_app_setup_cta">Zapisz klucz szyfrowania</string>
+    <string name="backup_app_setup_password_error">Nieprawidłowe hasło. Spróbuj ponownie.</string>
+    <string name="enter_password_hint">Wpisz hasło do Murena Workspace</string>
+    <string name="description">Wpisz hasło do Murena Workspace, aby zapisać klucz szyfrowania w Murena Passwords</string>
+    <string name="autofill_password_saved">Hasło zapisane</string>
+    <string name="autofill_saving_password">Zapisywanie hasła</string>
+    <string name="autofill_saving_password_message">Poczekaj, aż %1$s zapisze te dane logowania.</string>
+    <string name="autofill_save_choice_title">Dokończ zapis</string>
+    <string name="autofill_save_update_entry">Zaktualizuj %1$s</string>
+    <string name="autofill_save_create_new_entry">Utwórz nowy wpis</string>
+    <string name="autofill_save_select_password_to_update">Wybierz hasło do zaktualizowania</string>
+    <string name="login_welcome_icon">Ikona aplikacji Passwords</string>
+    <string name="login_welcome_title">Witamy w Passwords</string>
+    <string name="login_welcome_details">Wybierz, czy chcesz synchronizować swoje dane logowania z kontem Murena Workspace czy z innym rozwiązaniem opartym na Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Inna chmura</string>
+    <string name="login_other_dialog_title">Wpisz adres URL serwera swojego rozwiązania opartego na Nextcloud:</string>
 </resources>

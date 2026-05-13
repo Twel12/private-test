@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Mật khẩu</string>
     <string name="password_app_dashboard_summary">Lưu trữ và đồng bộ mật khẩu của bạn một cách an toàn</string>
+    <string name="error_sso_unavailable_generic">Đăng nhập một lần không khả dụng. Vui lòng đăng nhập thủ công.</string>
+    <string name="error_sso_app_signature">Đăng nhập một lần không khả dụng cho chữ ký ứng dụng này.</string>
+    <string name="error_sso_no_account_found">Không tìm thấy tài khoản, vui lòng đăng nhập</string>
+    <string name="error_sso_sync_disabled">Đồng bộ hóa đã bị tắt cho ứng dụng Passwords, vui lòng bật trong (Cài đặt -&gt; Tài khoản -&gt; tài khoản Murena -&gt; Đồng bộ hóa tài khoản -&gt; Mật khẩu)</string>
+    <string name="error_sso_failed">Đăng nhập tự động không thành công. Vui lòng đăng nhập thủ công.</string>
+    <string name="password_attr_security_rating">Đánh giá bảo mật</string>
+    <string name="password_strength_very_strong">Rất mạnh</string>
+    <string name="password_strength_weak">Yếu</string>
+    <string name="password_strength_leaked">Bị rò rỉ</string>
+    <string name="password_security_rating_tooltip">Chỉ báo này hiển thị mức độ bảo mật của thông tin đăng nhập của bạn và cho biết mật khẩu của bạn mạnh đến mức nào dựa trên các kiểm tra do ứng dụng thực hiện, chẳng hạn như kiểm tra mật khẩu yếu, sử dụng trùng lặp hoặc mật khẩu đã bị rò rỉ hay chưa.</string>
+    <string name="password_security_description_safe">Mật khẩu hoàn toàn an toàn</string>
+    <string name="password_security_description_weak">Mật khẩu này đang được sử dụng nhiều hơn một lần</string>
+    <string name="password_security_description_leaked">Mật khẩu này không an toàn và có thể được tìm thấy trong các cơ sở dữ liệu của tin tặc trên internet. Bạn cần thay đổi mật khẩu này và nên đảm bảo rằng tài khoản đang dùng nó chưa bị xâm phạm.</string>
+    <string name="passwords_floating_action_button">Mới</string>
+    <string name="backup_app_setup_title">Lưu khóa mã hóa bản sao lưu</string>
+    <string name="backup_app_setup_cta">Lưu khóa mã hóa</string>
+    <string name="backup_app_setup_password_error">Mật khẩu không chính xác. Vui lòng thử lại.</string>
+    <string name="enter_password_hint">Nhập mật khẩu tài khoản Murena Workspace của bạn</string>
+    <string name="description">Nhập mật khẩu tài khoản Murena Workspace của bạn để lưu khóa mã hóa trong Murena Passwords</string>
+    <string name="autofill_password_saved">Đã lưu mật khẩu</string>
+    <string name="autofill_saving_password">Đang lưu mật khẩu</string>
+    <string name="autofill_saving_password_message">Vui lòng đợi trong khi %1$s lưu thông tin đăng nhập này.</string>
+    <string name="autofill_save_choice_title">Hoàn tất lưu</string>
+    <string name="autofill_save_update_entry">Cập nhật %1$s</string>
+    <string name="autofill_save_create_new_entry">Tạo mục nhập mới</string>
+    <string name="autofill_save_select_password_to_update">Chọn mật khẩu cần cập nhật</string>
+    <string name="login_welcome_icon">Biểu tượng ứng dụng Passwords</string>
+    <string name="login_welcome_title">Chào mừng đến với Passwords</string>
+    <string name="login_welcome_details">Chọn đồng bộ hóa thông tin đăng nhập của bạn với tài khoản Murena Workspace hoặc một giải pháp khác dựa trên Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Đám mây khác</string>
+    <string name="login_other_dialog_title">Nhập URL máy chủ của giải pháp dựa trên Nextcloud của bạn:</string>
 </resources>

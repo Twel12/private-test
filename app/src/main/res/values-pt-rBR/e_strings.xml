@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Senhas</string>
     <string name="password_app_dashboard_summary">Armazene e sincronize suas senhas com segurança</string>
+    <string name="error_sso_unavailable_generic">Login único indisponível. Faça login manualmente.</string>
+    <string name="error_sso_app_signature">Login único indisponível para esta assinatura do aplicativo.</string>
+    <string name="error_sso_no_account_found">Nenhuma conta encontrada, faça login</string>
+    <string name="error_sso_sync_disabled">A sincronização do Passwords está desativada. Ative em (Configurações -&gt; Contas -&gt; Conta Murena -&gt; Sincronização da conta -&gt; Passwords)</string>
+    <string name="error_sso_failed">O login automático falhou. Faça login manualmente.</string>
+    <string name="password_attr_security_rating">Classificação de segurança</string>
+    <string name="password_strength_very_strong">Muito forte</string>
+    <string name="password_strength_weak">Fraca</string>
+    <string name="password_strength_leaked">Vazada</string>
+    <string name="password_security_rating_tooltip">Esta indicação mostra a classificação de segurança da sua credencial e representa o quanto sua senha é forte com base nas verificações feitas pelo aplicativo, como verificar senhas fracas, uso duplicado ou se a senha foi vazada.</string>
+    <string name="password_security_description_safe">A senha é perfeitamente segura</string>
+    <string name="password_security_description_weak">Esta senha está sendo usada mais de uma vez</string>
+    <string name="password_security_description_leaked">Esta senha é ruim e pode ser encontrada em bancos de dados de hackers na internet. Você precisa alterá-la e deve se certificar de que a conta em que a usa não foi comprometida.</string>
+    <string name="passwords_floating_action_button">Nova</string>
+    <string name="backup_app_setup_title">Salvar chave de criptografia do backup</string>
+    <string name="backup_app_setup_cta">Salvar chave de criptografia</string>
+    <string name="backup_app_setup_password_error">Senha incorreta. Tente novamente.</string>
+    <string name="enter_password_hint">Digite sua senha do Murena Workspace</string>
+    <string name="description">Digite sua senha do Murena Workspace para salvar a chave de criptografia no Murena Passwords</string>
+    <string name="autofill_password_saved">Senha salva</string>
+    <string name="autofill_saving_password">Salvando senha</string>
+    <string name="autofill_saving_password_message">Aguarde enquanto %1$s salva esta credencial.</string>
+    <string name="autofill_save_choice_title">Concluir salvamento</string>
+    <string name="autofill_save_update_entry">Atualizar %1$s</string>
+    <string name="autofill_save_create_new_entry">Criar nova entrada</string>
+    <string name="autofill_save_select_password_to_update">Selecione a senha para atualizar</string>
+    <string name="login_welcome_icon">Ícone do aplicativo Passwords</string>
+    <string name="login_welcome_title">Bem-vindo ao Passwords</string>
+    <string name="login_welcome_details">Escolha sincronizar suas credenciais com sua conta Murena Workspace ou com outra solução baseada em Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Outra nuvem</string>
+    <string name="login_other_dialog_title">Digite a URL do servidor da sua solução baseada em Nextcloud:</string>
 </resources>

@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Κωδικοί πρόσβασης</string>
     <string name="password_app_dashboard_summary">Αποθηκεύστε και συγχρονίστε τους κωδικούς σας με ασφάλεια</string>
+    <string name="error_sso_unavailable_generic">Η ενιαία σύνδεση δεν είναι διαθέσιμη. Συνδεθείτε μη αυτόματα.</string>
+    <string name="error_sso_app_signature">Η ενιαία σύνδεση δεν είναι διαθέσιμη για αυτή την υπογραφή εφαρμογής.</string>
+    <string name="error_sso_no_account_found">Δεν βρέθηκε λογαριασμός, συνδεθείτε</string>
+    <string name="error_sso_sync_disabled">Ο συγχρονισμός είναι απενεργοποιημένος για την εφαρμογή κωδικών πρόσβασης. Ενεργοποιήστε τον από (Ρυθμίσεις -&gt; Λογαριασμοί -&gt; λογαριασμός Murena -&gt; Συγχρονισμός λογαριασμού -&gt; Κωδικός πρόσβασης)</string>
+    <string name="error_sso_failed">Η αυτόματη σύνδεση απέτυχε. Συνδεθείτε μη αυτόματα.</string>
+    <string name="password_attr_security_rating">Βαθμολογία ασφάλειας</string>
+    <string name="password_strength_very_strong">Πολύ ισχυρός</string>
+    <string name="password_strength_weak">Αδύναμος</string>
+    <string name="password_strength_leaked">Διέρρευσε</string>
+    <string name="password_security_rating_tooltip">Αυτή η ένδειξη δείχνει τη βαθμολογία ασφάλειας των διαπιστευτηρίων σας και αντιπροσωπεύει πόσο ισχυρός είναι ο κωδικός πρόσβασής σας με βάση ελέγχους που εκτελεί η εφαρμογή, όπως έλεγχο για αδύναμους κωδικούς, διπλή χρήση ή αν ο κωδικός έχει διαρρεύσει.</string>
+    <string name="password_security_description_safe">Ο κωδικός πρόσβασης είναι απόλυτα ασφαλής</string>
+    <string name="password_security_description_weak">Αυτός ο κωδικός πρόσβασης χρησιμοποιείται περισσότερες από μία φορές</string>
+    <string name="password_security_description_leaked">Ο κωδικός πρόσβασης είναι επισφαλής και μπορεί να βρεθεί σε βάσεις δεδομένων χάκερ στο διαδίκτυο. Πρέπει να τον αλλάξετε και να βεβαιωθείτε ότι ο λογαριασμός στον οποίο τον χρησιμοποιείτε δεν έχει παραβιαστεί.</string>
+    <string name="passwords_floating_action_button">Νέο</string>
+    <string name="backup_app_setup_title">Αποθήκευση εφεδρικού κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_setup_cta">Αποθήκευση κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_setup_password_error">Λανθασμένος κωδικός πρόσβασης. Προσπαθήστε ξανά.</string>
+    <string name="enter_password_hint">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace</string>
+    <string name="description">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace για να αποθηκεύσετε το κλειδί κρυπτογράφησης στο Murena Passwords</string>
+    <string name="autofill_password_saved">Ο κωδικός πρόσβασης αποθηκεύτηκε</string>
+    <string name="autofill_saving_password">Αποθήκευση κωδικού πρόσβασης</string>
+    <string name="autofill_saving_password_message">Περιμένετε όσο το %1$s αποθηκεύει αυτά τα διαπιστευτήρια.</string>
+    <string name="autofill_save_choice_title">Ολοκλήρωση αποθήκευσης</string>
+    <string name="autofill_save_update_entry">Ενημέρωση %1$s</string>
+    <string name="autofill_save_create_new_entry">Δημιουργία νέας καταχώρισης</string>
+    <string name="autofill_save_select_password_to_update">Επιλέξτε τον κωδικό πρόσβασης για ενημέρωση</string>
+    <string name="login_welcome_icon">Εικονίδιο εφαρμογής Passwords</string>
+    <string name="login_welcome_title">Καλώς ορίσατε στο Passwords</string>
+    <string name="login_welcome_details">Επιλέξτε αν θέλετε να συγχρονίσετε τα διαπιστευτήριά σας με τον λογαριασμό Murena Workspace ή με άλλη λύση βασισμένη στο Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Άλλο cloud</string>
+    <string name="login_other_dialog_title">Εισαγάγετε τη διεύθυνση URL διακομιστή της λύσης σας που βασίζεται στο Nextcloud:</string>
 </resources>

@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">비밀번호</string>
     <string name="password_app_dashboard_summary">비밀번호를 안전하게 저장하고 동기화하세요</string>
+    <string name="error_sso_unavailable_generic">싱글 사인온을 사용할 수 없습니다. 수동으로 로그인해 주세요.</string>
+    <string name="error_sso_app_signature">이 앱 서명에서는 싱글 사인온을 사용할 수 없습니다.</string>
+    <string name="error_sso_no_account_found">계정을 찾을 수 없습니다. 로그인해 주세요.</string>
+    <string name="error_sso_sync_disabled">비밀번호 앱의 동기화가 비활성화되어 있습니다. (설정 -&gt; 계정 -&gt; Murena 계정 -&gt; 계정 동기화 -&gt; 비밀번호)에서 활성화해 주세요.</string>
+    <string name="error_sso_failed">자동 로그인이 실패했습니다. 수동으로 로그인해 주세요.</string>
+    <string name="password_attr_security_rating">보안 등급</string>
+    <string name="password_strength_very_strong">매우 강함</string>
+    <string name="password_strength_weak">약함</string>
+    <string name="password_strength_leaked">유출됨</string>
+    <string name="password_security_rating_tooltip">이 표시는 자격 증명의 보안 등급을 보여 주며, 약한 비밀번호, 중복 사용, 비밀번호 유출 여부 등 앱이 수행하는 검사를 바탕으로 비밀번호가 얼마나 강한지 나타냅니다.</string>
+    <string name="password_security_description_safe">이 비밀번호는 매우 안전합니다</string>
+    <string name="password_security_description_weak">이 비밀번호는 두 번 이상 사용되고 있습니다</string>
+    <string name="password_security_description_leaked">이 비밀번호는 안전하지 않으며 인터넷상의 해커 데이터베이스에서 발견될 수 있습니다. 비밀번호를 변경해야 하며, 이 비밀번호를 사용하는 계정이 침해되지 않았는지도 확인해야 합니다.</string>
+    <string name="passwords_floating_action_button">새로 만들기</string>
+    <string name="backup_app_setup_title">백업 암호화 키 저장</string>
+    <string name="backup_app_setup_cta">암호화 키 저장</string>
+    <string name="backup_app_setup_password_error">비밀번호가 올바르지 않습니다. 다시 시도해 주세요.</string>
+    <string name="enter_password_hint">Murena Workspace 비밀번호를 입력해 주세요</string>
+    <string name="description">암호화 키를 Murena Passwords에 저장하려면 Murena Workspace 비밀번호를 입력해 주세요</string>
+    <string name="autofill_password_saved">비밀번호가 저장되었습니다</string>
+    <string name="autofill_saving_password">비밀번호 저장 중</string>
+    <string name="autofill_saving_password_message">%1$s에서 이 자격 증명을 저장하는 동안 기다려 주세요.</string>
+    <string name="autofill_save_choice_title">저장 완료</string>
+    <string name="autofill_save_update_entry">%1$s 업데이트</string>
+    <string name="autofill_save_create_new_entry">새 항목 만들기</string>
+    <string name="autofill_save_select_password_to_update">업데이트할 비밀번호를 선택해 주세요</string>
+    <string name="login_welcome_icon">Passwords 앱 아이콘</string>
+    <string name="login_welcome_title">Passwords에 오신 것을 환영합니다</string>
+    <string name="login_welcome_details">자격 증명을 Murena Workspace 계정 또는 다른 Nextcloud 기반 솔루션과 동기화할지 선택하세요.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">다른 클라우드</string>
+    <string name="login_other_dialog_title">Nextcloud 기반 솔루션의 서버 URL을 입력해 주세요:</string>
 </resources>

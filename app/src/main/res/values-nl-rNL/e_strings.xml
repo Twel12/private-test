@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Wachtwoorden</string>
     <string name="password_app_dashboard_summary">Sla je wachtwoorden veilig op en synchroniseer ze</string>
+    <string name="error_sso_unavailable_generic">Single sign-on niet beschikbaar. Log handmatig in.</string>
+    <string name="error_sso_app_signature">Single sign-on niet beschikbaar voor deze apphandtekening.</string>
+    <string name="error_sso_no_account_found">Geen account gevonden, log in</string>
+    <string name="error_sso_sync_disabled">Synchronisatie voor Passwords is uitgeschakeld. Schakel dit in via (Instellingen -&gt; Accounts -&gt; Murena-account -&gt; Accountsynchronisatie -&gt; Passwords)</string>
+    <string name="error_sso_failed">Automatisch inloggen is mislukt. Log handmatig in.</string>
+    <string name="password_attr_security_rating">Beveiligingsscore</string>
+    <string name="password_strength_very_strong">Zeer sterk</string>
+    <string name="password_strength_weak">Zwak</string>
+    <string name="password_strength_leaked">Gelekt</string>
+    <string name="password_security_rating_tooltip">Deze aanduiding toont de beveiligingsscore van je inloggegevens en laat zien hoe sterk je wachtwoord is op basis van controles die door de app worden uitgevoerd, zoals het controleren op zwakke wachtwoorden, dubbel gebruik of of het wachtwoord is gelekt.</string>
+    <string name="password_security_description_safe">Het wachtwoord is volledig veilig</string>
+    <string name="password_security_description_weak">Dit wachtwoord wordt meer dan één keer gebruikt</string>
+    <string name="password_security_description_leaked">Dit wachtwoord is onveilig en is te vinden in hackerdatabases op internet. Je moet het wijzigen en je moet controleren of het account waarvoor je het gebruikt niet is gecompromitteerd.</string>
+    <string name="passwords_floating_action_button">Nieuw</string>
+    <string name="backup_app_setup_title">Reservekopie-versleutelingssleutel opslaan</string>
+    <string name="backup_app_setup_cta">Versleutelingssleutel opslaan</string>
+    <string name="backup_app_setup_password_error">Onjuist wachtwoord. Probeer het opnieuw.</string>
+    <string name="enter_password_hint">Voer je Murena Workspace-wachtwoord in</string>
+    <string name="description">Voer je Murena Workspace-wachtwoord in om de versleutelingssleutel op te slaan in Murena Passwords</string>
+    <string name="autofill_password_saved">Wachtwoord opgeslagen</string>
+    <string name="autofill_saving_password">Wachtwoord opslaan</string>
+    <string name="autofill_saving_password_message">Een ogenblik geduld terwijl %1$s deze inloggegevens opslaat.</string>
+    <string name="autofill_save_choice_title">Opslaan voltooien</string>
+    <string name="autofill_save_update_entry">%1$s bijwerken</string>
+    <string name="autofill_save_create_new_entry">Nieuwe invoer maken</string>
+    <string name="autofill_save_select_password_to_update">Selecteer het wachtwoord dat je wilt bijwerken</string>
+    <string name="login_welcome_icon">Pictogram van de Passwords-app</string>
+    <string name="login_welcome_title">Welkom bij Passwords</string>
+    <string name="login_welcome_details">Kies of je je inloggegevens wilt synchroniseren met je Murena Workspace-account of met een andere Nextcloud-gebaseerde oplossing.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Andere cloud</string>
+    <string name="login_other_dialog_title">Voer de server-URL in van je Nextcloud-gebaseerde oplossing:</string>
 </resources>

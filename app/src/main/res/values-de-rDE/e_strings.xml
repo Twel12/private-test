@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Passwörter</string>
     <string name="password_app_dashboard_summary">Speichere und synchronisiere deine Passwörter sicher</string>
+    <string name="error_sso_unavailable_generic">Single Sign-on ist nicht verfügbar. Bitte melden Sie sich manuell an.</string>
+    <string name="error_sso_app_signature">Single Sign-on ist für diese App-Signatur nicht verfügbar.</string>
+    <string name="error_sso_no_account_found">Kein Konto gefunden, bitte melden Sie sich an</string>
+    <string name="error_sso_sync_disabled">Die Synchronisierung ist für die App Passwords deaktiviert. Bitte aktivieren Sie sie unter (Einstellungen -&gt; Konten -&gt; Murena-Konto -&gt; Kontosynchronisierung -&gt; Passwords)</string>
+    <string name="error_sso_failed">Die automatische Anmeldung ist fehlgeschlagen. Bitte melden Sie sich manuell an.</string>
+    <string name="password_attr_security_rating">Sicherheitsbewertung</string>
+    <string name="password_strength_very_strong">Sehr stark</string>
+    <string name="password_strength_weak">Schwach</string>
+    <string name="password_strength_leaked">Geleakt</string>
+    <string name="password_security_rating_tooltip">Diese Anzeige zeigt die Sicherheitsbewertung Ihrer Anmeldedaten und gibt an, wie stark Ihr Passwort ist, basierend auf Prüfungen durch die App, etwa auf schwache Passwörter, Mehrfachverwendung oder darauf, ob das Passwort geleakt wurde.</string>
+    <string name="password_security_description_safe">Das Passwort ist vollkommen sicher</string>
+    <string name="password_security_description_weak">Dieses Passwort wird mehr als einmal verwendet</string>
+    <string name="password_security_description_leaked">Das Passwort ist schlecht und kann in Hacker-Datenbanken im Internet gefunden werden. Sie müssen es ändern und sollten sicherstellen, dass das Konto, für das Sie es verwenden, nicht kompromittiert wurde.</string>
+    <string name="passwords_floating_action_button">Neu</string>
+    <string name="backup_app_setup_title">Verschlüsselungsschlüssel der Sicherung speichern</string>
+    <string name="backup_app_setup_cta">Verschlüsselungsschlüssel speichern</string>
+    <string name="backup_app_setup_password_error">Falsches Passwort. Bitte versuchen Sie es erneut.</string>
+    <string name="enter_password_hint">Geben Sie Ihr Murena Workspace-Passwort ein</string>
+    <string name="description">Geben Sie Ihr Murena Workspace-Passwort ein, um den Verschlüsselungsschlüssel in Murena Passwords zu speichern</string>
+    <string name="autofill_password_saved">Passwort gespeichert</string>
+    <string name="autofill_saving_password">Passwort wird gespeichert</string>
+    <string name="autofill_saving_password_message">Bitte warten Sie, während %1$s diese Anmeldedaten speichert.</string>
+    <string name="autofill_save_choice_title">Speichern abschließen</string>
+    <string name="autofill_save_update_entry">%1$s aktualisieren</string>
+    <string name="autofill_save_create_new_entry">Neuen Eintrag erstellen</string>
+    <string name="autofill_save_select_password_to_update">Wählen Sie das Passwort zum Aktualisieren aus</string>
+    <string name="login_welcome_icon">App-Symbol von Passwords</string>
+    <string name="login_welcome_title">Willkommen bei Passwords</string>
+    <string name="login_welcome_details">Wählen Sie aus, ob Sie Ihre Anmeldedaten mit Ihrem Murena Workspace-Konto oder einer anderen Nextcloud-basierten Lösung synchronisieren möchten.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Andere Cloud</string>
+    <string name="login_other_dialog_title">Geben Sie die Server-URL Ihrer Nextcloud-basierten Lösung ein:</string>
 </resources>

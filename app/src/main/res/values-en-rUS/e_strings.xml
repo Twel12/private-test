@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Passwords</string>
     <string name="password_app_dashboard_summary">Store and sync your passwords securely</string>
+    <string name="error_sso_unavailable_generic">Single sign-on unavailable. Please log in manually.</string>
+    <string name="error_sso_app_signature">Single sign-on unavailable for this app signature.</string>
+    <string name="error_sso_no_account_found">No account found. Please log in.</string>
+    <string name="error_sso_sync_disabled">Sync is disabled for the Passwords app. Please enable it from (Settings -&gt; Accounts -&gt; Murena account -&gt; Account Sync -&gt; Passwords)</string>
+    <string name="error_sso_failed">Automatic login failed. Please log in manually.</string>
+    <string name="password_attr_security_rating">Security rating</string>
+    <string name="password_strength_very_strong">Very strong</string>
+    <string name="password_strength_weak">Weak</string>
+    <string name="password_strength_leaked">Leaked</string>
+    <string name="password_security_rating_tooltip">This indicator shows the security rating of your credentials and how strong your password is based on checks performed by the app, such as checking for weak passwords, duplicate use, or whether the password has been leaked.</string>
+    <string name="password_security_description_safe">The password is completely safe</string>
+    <string name="password_security_description_weak">This password is being used more than once</string>
+    <string name="password_security_description_leaked">The password is poor and can be found in hacker databases on the internet. You need to change it, and you should make sure that the account you use it for has not been compromised.</string>
+    <string name="passwords_floating_action_button">New</string>
+    <string name="backup_app_setup_title">Save backup encryption key</string>
+    <string name="backup_app_setup_cta">Save encryption key</string>
+    <string name="backup_app_setup_password_error">Incorrect password. Please try again.</string>
+    <string name="enter_password_hint">Enter your Murena Workspace password</string>
+    <string name="description">Enter your Murena Workspace password to save the encryption key in Murena Passwords</string>
+    <string name="autofill_password_saved">Password saved</string>
+    <string name="autofill_saving_password">Saving password</string>
+    <string name="autofill_saving_password_message">Please wait while %1$s saves this credential.</string>
+    <string name="autofill_save_choice_title">Complete save</string>
+    <string name="autofill_save_update_entry">Update %1$s</string>
+    <string name="autofill_save_create_new_entry">Create new entry</string>
+    <string name="autofill_save_select_password_to_update">Select the password to update</string>
+    <string name="login_welcome_icon">Passwords app icon</string>
+    <string name="login_welcome_title">Welcome to Passwords</string>
+    <string name="login_welcome_details">Choose to sync your credentials with your Murena Workspace account or another Nextcloud-based solution.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Other cloud</string>
+    <string name="login_other_dialog_title">Enter the server URL of your Nextcloud-based solution:</string>
 </resources>

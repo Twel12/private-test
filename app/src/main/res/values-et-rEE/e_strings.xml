@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Paroolid</string>
     <string name="password_app_dashboard_summary">Salvesta ja sünkrooni oma paroole turvaliselt</string>
+    <string name="error_sso_unavailable_generic">Ühekordne sisselogimine pole saadaval. Palun logi käsitsi sisse.</string>
+    <string name="error_sso_app_signature">Ühekordne sisselogimine pole selle rakenduse allkirja jaoks saadaval.</string>
+    <string name="error_sso_no_account_found">Kontot ei leitud, palun logi sisse</string>
+    <string name="error_sso_sync_disabled">Sünkroonimine on rakenduse Passwords jaoks keelatud. Palun luba see asukohast (Seaded -&gt; Kontod -&gt; Murena konto -&gt; Konto sünkroonimine -&gt; Passwords)</string>
+    <string name="error_sso_failed">Automaatne sisselogimine ebaõnnestus. Palun logi käsitsi sisse.</string>
+    <string name="password_attr_security_rating">Turvahinnang</string>
+    <string name="password_strength_very_strong">Väga tugev</string>
+    <string name="password_strength_weak">Nõrk</string>
+    <string name="password_strength_leaked">Lekkinud</string>
+    <string name="password_security_rating_tooltip">See näitaja kuvab sinu sisselogimisandmete turvahinnangut ja kirjeldab, kui tugev sinu parool on, tuginedes rakenduse tehtud kontrollidele, näiteks nõrkade paroolide, korduskasutuse või parooli lekkimise kontrollimisele.</string>
+    <string name="password_security_description_safe">Parool on täiesti turvaline</string>
+    <string name="password_security_description_weak">Seda parooli kasutatakse rohkem kui üks kord</string>
+    <string name="password_security_description_leaked">Parool on halb ja selle võib leida internetis olevatest häkkerite andmebaasidest. Sa pead selle muutma ja veenduma, et konto, mille jaoks sa seda kasutad, ei ole sattunud ohtu.</string>
+    <string name="passwords_floating_action_button">Uus</string>
+    <string name="backup_app_setup_title">Salvesta varukoopia krüpteerimisvõti</string>
+    <string name="backup_app_setup_cta">Salvesta krüpteerimisvõti</string>
+    <string name="backup_app_setup_password_error">Vale parool. Palun proovi uuesti.</string>
+    <string name="enter_password_hint">Sisesta oma Murena Workspace parool</string>
+    <string name="description">Sisesta oma Murena Workspace parool, et salvestada krüpteerimisvõti Murena Passwordsisse</string>
+    <string name="autofill_password_saved">Parool salvestatud</string>
+    <string name="autofill_saving_password">Parooli salvestamine</string>
+    <string name="autofill_saving_password_message">Palun oota, kuni %1$s selle sisselogimisandme salvestab.</string>
+    <string name="autofill_save_choice_title">Lõpeta salvestamine</string>
+    <string name="autofill_save_update_entry">Uuenda %1$s</string>
+    <string name="autofill_save_create_new_entry">Loo uus kirje</string>
+    <string name="autofill_save_select_password_to_update">Vali parool, mida uuendada</string>
+    <string name="login_welcome_icon">Rakenduse Passwords ikoon</string>
+    <string name="login_welcome_title">Tere tulemast rakendusse Passwords</string>
+    <string name="login_welcome_details">Vali, kas soovid sünkroonida oma sisselogimisandmed Murena Workspace kontoga või mõne muu Nextcloudil põhineva lahendusega.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Muu pilv</string>
+    <string name="login_other_dialog_title">Sisesta oma Nextcloudil põhineva lahenduse serveri URL:</string>
 </resources>

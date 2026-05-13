@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">كلمات المرور</string>
     <string name="password_app_dashboard_summary">خزّن كلمات المرور الخاصة بك وزامنها بأمان</string>
+    <string name="error_sso_unavailable_generic">تعذر استخدام تسجيل الدخول الأحادي. يُرجى تسجيل الدخول يدويًا.</string>
+    <string name="error_sso_app_signature">تعذر استخدام تسجيل الدخول الأحادي مع توقيع هذا التطبيق.</string>
+    <string name="error_sso_no_account_found">لم يتم العثور على حساب، يُرجى تسجيل الدخول</string>
+    <string name="error_sso_sync_disabled">تم تعطيل المزامنة لتطبيق كلمات المرور، يُرجى تفعيلها من (الإعدادات -&gt; الحسابات -&gt; حساب Murena -&gt; مزامنة الحساب -&gt; كلمات المرور)</string>
+    <string name="error_sso_failed">فشل تسجيل الدخول التلقائي. يُرجى تسجيل الدخول يدويًا.</string>
+    <string name="password_attr_security_rating">تقييم الأمان</string>
+    <string name="password_strength_very_strong">قوي جدًا</string>
+    <string name="password_strength_weak">ضعيف</string>
+    <string name="password_strength_leaked">مسرّبة</string>
+    <string name="password_security_rating_tooltip">يوضح هذا المؤشر تقييم الأمان لبيانات اعتمادك ويمثل مدى قوة كلمة المرور استنادًا إلى الفحوصات التي يجريها التطبيق، مثل التحقق من كلمات المرور الضعيفة أو الاستخدام المكرر أو ما إذا كانت كلمة المرور قد سُرّبت.</string>
+    <string name="password_security_description_safe">كلمة المرور آمنة تمامًا</string>
+    <string name="password_security_description_weak">تُستخدم كلمة المرور هذه أكثر من مرة</string>
+    <string name="password_security_description_leaked">كلمة المرور هذه غير آمنة ويمكن العثور عليها في قواعد بيانات المخترقين على الإنترنت. يجب عليك تغييرها، كما ينبغي التأكد من أن الحساب الذي تستخدمها له لم يتم اختراقه.</string>
+    <string name="passwords_floating_action_button">جديد</string>
+    <string name="backup_app_setup_title">احفظ مفتاح تشفير النسخة الاحتياطية</string>
+    <string name="backup_app_setup_cta">احفظ مفتاح التشفير</string>
+    <string name="backup_app_setup_password_error">كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.</string>
+    <string name="enter_password_hint">أدخل كلمة مرور Murena Workspace</string>
+    <string name="description">أدخل كلمة مرور Murena Workspace لحفظ مفتاح التشفير في Murena Passwords</string>
+    <string name="autofill_password_saved">تم حفظ كلمة المرور</string>
+    <string name="autofill_saving_password">جارٍ حفظ كلمة المرور</string>
+    <string name="autofill_saving_password_message">يُرجى الانتظار بينما يحفظ %1$s بيانات الاعتماد هذه.</string>
+    <string name="autofill_save_choice_title">إكمال الحفظ</string>
+    <string name="autofill_save_update_entry">تحديث %1$s</string>
+    <string name="autofill_save_create_new_entry">إنشاء إدخال جديد</string>
+    <string name="autofill_save_select_password_to_update">اختر كلمة المرور المطلوب تحديثها</string>
+    <string name="login_welcome_icon">أيقونة تطبيق Passwords</string>
+    <string name="login_welcome_title">مرحبًا بك في Passwords</string>
+    <string name="login_welcome_details">اختر مزامنة بيانات اعتمادك مع حساب Murena Workspace أو مع حل آخر قائم على Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">سحابة أخرى</string>
+    <string name="login_other_dialog_title">أدخل عنوان URL لخادم الحل القائم على Nextcloud:</string>
 </resources>
