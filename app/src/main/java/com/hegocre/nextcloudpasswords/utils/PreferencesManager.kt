@@ -54,6 +54,16 @@ class PreferencesManager private constructor(context: Context) {
         }
     }
 
+    init {
+        removeLegacyMasterPassword()
+    }
+
+    private fun removeLegacyMasterPassword() {
+        if (_encryptedSharedPrefs.contains(LEGACY_MASTER_PASSWORD_KEY)) {
+            _encryptedSharedPrefs.edit().remove(LEGACY_MASTER_PASSWORD_KEY).commit()
+        }
+    }
+
     suspend fun clear(): Boolean {
         sharedPreferences.edit {
             it.clear()
@@ -85,10 +95,6 @@ class PreferencesManager private constructor(context: Context) {
     fun getLoggedInPassword(): String? = _encryptedSharedPrefs.getString("LOGGED_IN_PASSWORD", null)
     fun setLoggedInPassword(value: String?): Boolean =
         _encryptedSharedPrefs.edit().putString("LOGGED_IN_PASSWORD", value).commit()
-
-    fun getMasterPassword(): String? = _encryptedSharedPrefs.getString("MASTER_KEY", null)
-    fun setMasterPassword(value: String?): Boolean =
-        _encryptedSharedPrefs.edit().putString("MASTER_KEY", value).commit()
 
     fun getCSEv1Keychain(): String? = _encryptedSharedPrefs.getString("CSE_V1_KEYCHAIN", null)
     fun setCSEv1Keychain(value: String?): Boolean =
@@ -203,6 +209,7 @@ class PreferencesManager private constructor(context: Context) {
         const val ORDER_BY_TITLE_DESCENDING = "ORDER_BY_TITLE_DESCENDING"
         const val ORDER_BY_DATE_ASCENDING = "ORDER_BY_DATE_ASCENDING"
         const val ORDER_BY_DATE_DESCENDING = "ORDER_BY_DATE_DESCENDING"
+        private const val LEGACY_MASTER_PASSWORD_KEY = "MASTER_KEY"
 
         private object PreferenceKeys {
             val SHOW_ICONS = booleanPreferencesKey("SHOW_ICONS")

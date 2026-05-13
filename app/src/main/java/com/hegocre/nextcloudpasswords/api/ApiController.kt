@@ -20,6 +20,7 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker
 import com.hegocre.nextcloudpasswords.utils.Error
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.Result
@@ -90,7 +91,7 @@ class ApiController private constructor(context: Context) {
 
         decryptCSEv1Keychain(
             preferencesManager.getCSEv1Keychain(),
-            preferencesManager.getMasterPassword()
+            MasterPasswordMemoryStore.get()
         )?.let {
             csEv1Keychain.postValue(it)
         }

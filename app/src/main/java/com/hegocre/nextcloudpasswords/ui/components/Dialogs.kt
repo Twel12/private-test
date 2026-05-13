@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -88,6 +89,9 @@ fun MasterPasswordDialog(
     setMasterPassword: (String) -> Unit,
     savePassword: Boolean,
     setSavePassword: (Boolean) -> Unit,
+    savePasswordEnabled: Boolean = true,
+    savePasswordErrorText: String = "",
+    isLoading: Boolean = false,
     onOkClick: () -> Unit,
     errorText: String = "",
     onDismissRequest: (() -> Unit)? = null
@@ -114,13 +118,18 @@ fun MasterPasswordDialog(
 
                 OutlinedTextFieldWithCaption(
                     text = masterPassword,
-                    onValueChange = setMasterPassword,
+                    onValueChange = {
+                        if (!isLoading) setMasterPassword(it)
+                    },
                     visualTransformation = if (showPassword)
                         VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardType = KeyboardType.Password,
                     label = stringResource(R.string.enter_password_hint),
                     trailingIcon = {
-                        IconButton(onClick = { showPassword = !showPassword }) {
+                        IconButton(
+                            enabled = !isLoading,
+                            onClick = { showPassword = !showPassword }
+                        ) {
                             Icon(
                                 imageVector = if (showPassword)
                                     Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
@@ -129,6 +138,7 @@ fun MasterPasswordDialog(
                         }
                     },
                     errorText = errorText,
+                    enabled = !isLoading,
                     modifier = Modifier
                         .focusRequester(requester)
                         .contentType(ContentType.Password)
@@ -140,7 +150,8 @@ fun MasterPasswordDialog(
                     Row {
                         Checkbox(
                             checked = savePassword,
-                            onCheckedChange = setSavePassword,
+                            onCheckedChange = { if (!isLoading) setSavePassword(it) },
+                            enabled = !isLoading,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                         Text(
@@ -149,19 +160,35 @@ fun MasterPasswordDialog(
                                 .align(Alignment.CenterVertically)
                                 .pointerInput(Unit) {
                                     detectTapGestures {
-                                        setSavePassword(!savePassword)
+                                        if (!isLoading) setSavePassword(!savePassword)
                                     }
                                 },
                             style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    if (savePassword && !savePasswordEnabled && savePasswordErrorText.isNotBlank()) {
+                        Text(
+                            text = savePasswordErrorText,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                         )
                     }
                 }
 
                 TextButton(
                     onClick = onOkClick,
+                    enabled = !isLoading,
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text(text = stringResource(android.R.string.ok))
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(text = stringResource(android.R.string.ok))
+                    }
                 }
             }
         }

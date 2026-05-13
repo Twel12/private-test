@@ -3,7 +3,9 @@ package com.hegocre.nextcloudpasswords.data.user
 import android.content.Context
 import com.hegocre.nextcloudpasswords.api.Server
 import com.hegocre.nextcloudpasswords.databases.AppDatabase
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.nextcloud.android.sso.AccountImporter
 import com.nextcloud.android.sso.helper.SingleAccountHelper
@@ -54,6 +56,8 @@ class UserController private constructor(val context: Context) {
         }
         SingleAccountHelper.commitCurrentAccount(context, "")
         AccountImporter.clearAllAuthTokens(context)
+        MasterPasswordMemoryStore.clear()
+        SecureMasterPasswordStore(context).clear()
         _preferencesManager.clear()
     }
 

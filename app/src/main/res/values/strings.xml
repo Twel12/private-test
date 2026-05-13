@@ -82,6 +82,9 @@
     <string name="biometric_unlock_preference_title">Biometric unlock</string>
     <string name="biometric_unlock_preference_subtitle">Allow unlocking the app with device biometrics</string>
     <string name="error_app_lock_incorrect_code">Incorrect code</string>
+    <string name="error_secure_master_password_unavailable">Set up a screen lock or biometric unlock on this device to save the master password.</string>
+    <string name="error_secure_master_password_authentication_failed">Master password was not saved because authentication was canceled or failed.</string>
+    <string name="error_secure_master_password_save_failed">Master password could not be saved. Please, try again.</string>
     <string name="passcode">Passcode</string>
     <string name="app_lock_input_passcode">Input passcode</string>
     <string name="app_lock_confirm_passcode">Confirm passcode</string>

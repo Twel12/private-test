@@ -12,7 +12,8 @@ import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
-import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import foundation.e.data.SetupResponse
 import kotlinx.coroutines.Job
@@ -26,8 +27,6 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
     private val apiController: ApiController
         get() = ApiController.getInstance(application)
-    private val preferencesManager: PreferencesManager
-        get() = PreferencesManager.getInstance(application)
 
     private val _uiState = MutableStateFlow(BackupAppSetupUiState())
     val uiState = _uiState.asStateFlow()
@@ -195,7 +194,7 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
                 }
             }
             if (sessionOpened) {
-                preferencesManager.setMasterPassword(passphrase)
+                MasterPasswordMemoryStore.set(passphrase)
             }
             sessionOpened
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
@@ -221,7 +220,7 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
     }
 
     private suspend fun restoreExistingE2eeState(): SetupResponse? {
-        val masterPassword = preferencesManager.getMasterPassword() ?: return null
+        val masterPassword = MasterPasswordMemoryStore.get() ?: return null
         return try {
             if (apiController.sessionOpen.value) {
                 restoreExistingSessionE2eeState(masterPassword)
@@ -229,13 +228,13 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
                 restoreTemporarySessionE2eeState(masterPassword)
             }
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-            clearStoredMasterPassword()
+            clearMasterPasswordState()
             null
         } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
-            clearStoredMasterPassword()
+            clearMasterPasswordState()
             null
         } catch (_: PWDv1ChallengePasswordException) {
-            clearStoredMasterPassword()
+            clearMasterPasswordState()
             null
         } catch (_: ClientDeauthorizedException) {
             SetupResponse.AccountUnavailable
@@ -282,8 +281,9 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
         }
     }
 
-    private fun clearStoredMasterPassword() {
-        preferencesManager.setMasterPassword(null)
+    private fun clearMasterPasswordState() {
+        MasterPasswordMemoryStore.clear()
+        SecureMasterPasswordStore(application).clear()
     }
 
     data class BackupAppSetupUiState(

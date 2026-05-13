@@ -356,8 +356,8 @@ class SecureMasterPasswordStore(context: Context) {
 
     companion object {
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
-        private const val CIPHER_TRANSFORMATION =
-            "${KeyProperties.KEY_ALGORITHM_AES}/${KeyProperties.BLOCK_MODE_GCM}/${KeyProperties.ENCRYPTION_PADDING_NONE}"
+        private const val CIPHER_TRANSFORMATION = "${KeyProperties.KEY_ALGORITHM_AES}/" +
+            "${KeyProperties.BLOCK_MODE_GCM}/${KeyProperties.ENCRYPTION_PADDING_NONE}"
         private const val GCM_TAG_LENGTH_BITS = 128
         private const val KEY_SIZE_BITS = 256
         private const val USER_AUTHENTICATION_VALIDITY_SECONDS = 0

@@ -14,8 +14,9 @@ import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeed
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.utils.Error
-import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.Result
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.decryptPasswords
 import foundation.e.backupappapi.BackupAppApi
@@ -77,11 +78,11 @@ class BackupAppService : Service() {
 
     private suspend fun openSessionOrGetError(): E2eeKeyWrapper? {
         return openSessionMutex.withLock {
-            val preferencesManager = PreferencesManager.getInstance(this)
             val apiController = ApiController.getInstance(this)
 
             if (!apiController.sessionOpen.value) {
-                val masterPassword = preferencesManager.getMasterPassword()
+                val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
+                    ?: return@withLock errorE2eeUnavailable()
                 return@withLock try {
                     val sessionOpened = apiController.openSession(masterPassword)
                     if (!sessionOpened) {
@@ -89,13 +90,12 @@ class BackupAppService : Service() {
                         E2eeKeyWrapper.ApiError(shouldRetry = true)
                     } else null
                 } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-                    preferencesManager.setMasterPassword(null)
                     errorE2eeUnavailable()
                 } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
-                    preferencesManager.setMasterPassword(null)
+                    clearMasterPasswordState()
                     errorE2eeUnavailable()
                 } catch (_: PWDv1ChallengePasswordException) {
-                    preferencesManager.setMasterPassword(null)
+                    clearMasterPasswordState()
                     errorE2eeUnavailable()
                 } catch (_: ClientDeauthorizedException) {
                     errorMurenaAccountUnavailable()
@@ -103,6 +103,11 @@ class BackupAppService : Service() {
             }
             null
         }
+    }
+
+    private fun clearMasterPasswordState() {
+        MasterPasswordMemoryStore.clear()
+        SecureMasterPasswordStore(this).clear()
     }
 
     private suspend fun getBackupKey(context: Context): E2eeKeyWrapper {
