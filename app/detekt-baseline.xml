@@ -5,14 +5,11 @@
     <ID>ComplexCondition:AssistStructureParser.kt$AssistStructureParser$node.hasAttribute("type", "email") || node.hasAttribute("type", "tel") || node.hasAttribute("type", "text") || node.hasAttribute("name", "email") || node.hasAttribute("name", "mail") || node.hasAttribute("name", "user") || node.hasAttribute("name", "username")</ID>
     <ID>CyclomaticComplexMethod:ApiController.kt$ApiController$@Throws( PWDv1ChallengeMasterKeyNeededException::class, PWDv1ChallengeMasterKeyInvalidException::class ) suspend fun openSession(masterPassword: String?): Boolean</ID>
     <ID>CyclomaticComplexMethod:AssistStructureParser.kt$AssistStructureParser$private fun getFieldType(node: AssistStructure.ViewNode): Int?</ID>
-    <ID>CyclomaticComplexMethod:NCPAutofillService.kt$NCPAutofillService$@SuppressLint("RestrictedApi") override fun onFillRequest( request: FillRequest, cancellationSignal: CancellationSignal, callback: FillCallback )</ID>
     <ID>CyclomaticComplexMethod:SsoOkHttpRequest.kt$SsoOkHttpRequest$private fun executeSso( method: String, sUrl: String, sessionCode: String?, body: String?, mediaType: MediaType? = null, successStatusCode: Int = 200 ): Response</ID>
     <ID>EmptyFunctionBlock:OkHttpRequest.kt$OkHttpRequest.&lt;no name provided&gt;${ }</ID>
     <ID>ImplicitDefaultLocale:EncryptionUtils.kt$String.format("%02x", b)</ID>
-    <ID>ImplicitDefaultLocale:LoginView.kt$String.format("https://%s", urlText)</ID>
     <ID>LongMethod:ApiController.kt$ApiController$@Throws( PWDv1ChallengeMasterKeyNeededException::class, PWDv1ChallengeMasterKeyInvalidException::class ) suspend fun openSession(masterPassword: String?): Boolean</ID>
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
-    <ID>LongMethod:NCPAutofillService.kt$NCPAutofillService$@SuppressLint("RestrictedApi") override fun onFillRequest( request: FillRequest, cancellationSignal: CancellationSignal, callback: FillCallback )</ID>
     <ID>LongMethod:SsoOkHttpRequest.kt$SsoOkHttpRequest$private fun executeSso( method: String, sUrl: String, sessionCode: String?, body: String?, mediaType: MediaType? = null, successStatusCode: Int = 200 ): Response</ID>
     <ID>LongParameterList:BiometricAuth.kt$( context: Context, title: String, description: String, onBiometricUnlock: () -&gt; Unit, onBiometricFailed: (() -&gt; Unit)? = null, onBiometricError: (() -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:OkHttpRequest.kt$OkHttpRequest$( sUrl: String, sessionCode: String? = null, body: String, mediaType: MediaType?, username: String? = null, password: String? = null )</ID>
@@ -42,7 +39,6 @@
     <ID>MagicNumber:NCPAppLock.kt$170</ID>
     <ID>MagicNumber:NCPAppLock.kt$8</ID>
     <ID>MagicNumber:NCPAppLock.kt$90</ID>
-    <ID>MagicNumber:NCPAutofillService.kt$NCPAutofillService$1001</ID>
     <ID>MagicNumber:NCPNavHost.kt$300</ID>
     <ID>MagicNumber:NCPTheme.kt$0.5</ID>
     <ID>MagicNumber:NCPTheme.kt$0xFF745BCA</ID>
@@ -55,15 +51,11 @@
     <ID>MagicNumber:PasswordsApi.kt$PasswordsApi$201</ID>
     <ID>MagicNumber:ServiceApi.kt$ServiceApi$200</ID>
     <ID>MagicNumber:ServiceApi.kt$ServiceApi$256</ID>
-    <ID>MagicNumber:SessionApi.kt$SessionApi$200</ID>
-    <ID>MagicNumber:SessionApi.kt$SessionApi$401</ID>
-    <ID>MagicNumber:SessionApi.kt$SessionApi$403</ID>
     <ID>MagicNumber:SettingsApi.kt$SettingsApi$200</ID>
     <ID>MagicNumber:WebLoginActivity.kt$WebLoginActivity$3</ID>
     <ID>MatchingDeclarationName:FolderEditView.kt$EditableFolderState</ID>
     <ID>MatchingDeclarationName:ItemList.kt$ListDecryptionState&lt;T&gt;</ID>
     <ID>MatchingDeclarationName:NCPAboutScreen.kt$LicenseNotice</ID>
-    <ID>MatchingDeclarationName:NCPTopBar.kt$AppBarDefaults</ID>
     <ID>MatchingDeclarationName:PasswordEditView.kt$EditablePasswordState</ID>
     <ID>MaxLineLength:CustomField.kt$CustomField$*</ID>
     <ID>MaxLineLength:Dialogs.kt$contentDescription = stringResource(R.string.content_description_folder_icon)</ID>
@@ -77,15 +69,11 @@
     <ID>MaxLineLength:NCPSettings.kt$PreferencesManager.ORDER_BY_TITLE_DESCENDING to stringResource(R.string.preference_order_by_title_desc)</ID>
     <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.biometric_unlock_preference_subtitle)) }</ID>
     <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.inline_autofill_preference_subtitle)) }</ID>
-    <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.use_dynamic_colors_preference_subtitle)) }</ID>
-    <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.use_nextcloud_color_preference_subtitle)) }</ID>
     <ID>MaxLineLength:NCPSettings.kt$var useInlineAutofill by remember { mutableStateOf(preferencesManager.getUseInlineAutofill()) }</ID>
     <ID>MaxLineLength:NCPTopBar.kt$LocalContentColor provides LocalContentColor.current.copy(alpha = ContentAlpha.medium)</ID>
     <ID>MaxLineLength:PWDv1Challenge.kt$PWDv1Challenge$if (password.length &lt; 12) throw PWDv1ChallengePasswordException("Password should have no less than 12 characters")</ID>
     <ID>MaxLineLength:PWDv1Challenge.kt$PWDv1Challenge$if (password.length &gt; 128) throw PWDv1ChallengePasswordException("Password should have no more than 128 characters")</ID>
-    <ID>MaxLineLength:PasswordEditView.kt$MaterialTheme.colorScheme.favoriteColor.copy(alpha = 0.3f)</ID>
     <ID>MaxLineLength:Settings.kt$subtitle = { Text(text = "Unlock the app with biometric credentials such as fingerprint or face") }</ID>
-    <ID>NestedBlockDepth:NCPAutofillService.kt$NCPAutofillService$@SuppressLint("RestrictedApi") override fun onFillRequest( request: FillRequest, cancellationSignal: CancellationSignal, callback: FillCallback )</ID>
     <ID>NewLineAtEndOfFile:AboutActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.AboutActivity.kt</ID>
     <ID>NewLineAtEndOfFile:AppDatabase.kt$com.hegocre.nextcloudpasswords.databases.AppDatabase.kt</ID>
     <ID>NewLineAtEndOfFile:AppLockHelper.kt$com.hegocre.nextcloudpasswords.utils.AppLockHelper.kt</ID>
@@ -96,49 +84,30 @@
     <ID>NewLineAtEndOfFile:ClipboardUtils.kt$com.hegocre.nextcloudpasswords.utils.ClipboardUtils.kt</ID>
     <ID>NewLineAtEndOfFile:Color.kt$com.hegocre.nextcloudpasswords.ui.theme.Color.kt</ID>
     <ID>NewLineAtEndOfFile:ContentAlpha.kt$com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha.kt</ID>
-    <ID>NewLineAtEndOfFile:Dialogs.kt$com.hegocre.nextcloudpasswords.ui.components.Dialogs.kt</ID>
     <ID>NewLineAtEndOfFile:EncryptionUtils.kt$com.hegocre.nextcloudpasswords.utils.EncryptionUtils.kt</ID>
     <ID>NewLineAtEndOfFile:Error.kt$com.hegocre.nextcloudpasswords.utils.Error.kt</ID>
     <ID>NewLineAtEndOfFile:FolderController.kt$com.hegocre.nextcloudpasswords.data.folder.FolderController.kt</ID>
     <ID>NewLineAtEndOfFile:FolderDatabaseDao.kt$com.hegocre.nextcloudpasswords.databases.folderdatabase.FolderDatabaseDao.kt</ID>
-    <ID>NewLineAtEndOfFile:FolderEditView.kt$com.hegocre.nextcloudpasswords.ui.components.FolderEditView.kt</ID>
     <ID>NewLineAtEndOfFile:FoldersApi.kt$com.hegocre.nextcloudpasswords.api.FoldersApi.kt</ID>
-    <ID>NewLineAtEndOfFile:ItemList.kt$com.hegocre.nextcloudpasswords.ui.components.ItemList.kt</ID>
     <ID>NewLineAtEndOfFile:KeepAliveWorker.kt$com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker.kt</ID>
     <ID>NewLineAtEndOfFile:LazySodiumUtils.kt$com.hegocre.nextcloudpasswords.utils.LazySodiumUtils.kt</ID>
     <ID>NewLineAtEndOfFile:LogHelper.kt$com.hegocre.nextcloudpasswords.utils.LogHelper.kt</ID>
-    <ID>NewLineAtEndOfFile:LoginActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.LoginActivity.kt</ID>
     <ID>NewLineAtEndOfFile:MarkdownTextView.kt$com.hegocre.nextcloudpasswords.ui.components.markdown.MarkdownTextView.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPAboutScreen.kt$com.hegocre.nextcloudpasswords.ui.components.NCPAboutScreen.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPApp.kt$com.hegocre.nextcloudpasswords.ui.components.NCPApp.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPAppLock.kt$com.hegocre.nextcloudpasswords.ui.components.NCPAppLock.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPAutofillService.kt$com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillService.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPBottomNavigation.kt$com.hegocre.nextcloudpasswords.ui.components.NCPBottomNavigation.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPNavHost.kt$com.hegocre.nextcloudpasswords.ui.components.NCPNavHost.kt</ID>
     <ID>NewLineAtEndOfFile:NCPScreen.kt$com.hegocre.nextcloudpasswords.ui.NCPScreen.kt</ID>
     <ID>NewLineAtEndOfFile:NCPSettings.kt$com.hegocre.nextcloudpasswords.ui.components.NCPSettings.kt</ID>
     <ID>NewLineAtEndOfFile:NCPTheme.kt$com.hegocre.nextcloudpasswords.ui.theme.NCPTheme.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPTopBar.kt$com.hegocre.nextcloudpasswords.ui.components.NCPTopBar.kt</ID>
     <ID>NewLineAtEndOfFile:NewFolder.kt$com.hegocre.nextcloudpasswords.data.folder.NewFolder.kt</ID>
     <ID>NewLineAtEndOfFile:NewPassword.kt$com.hegocre.nextcloudpasswords.data.password.NewPassword.kt</ID>
     <ID>NewLineAtEndOfFile:OkHttpRequest.kt$com.hegocre.nextcloudpasswords.utils.OkHttpRequest.kt</ID>
-    <ID>NewLineAtEndOfFile:PWDv1Challenge.kt$com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge.kt</ID>
     <ID>NewLineAtEndOfFile:PWDv1ChallengeMasterKeyInvalidException.kt$com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException.kt</ID>
     <ID>NewLineAtEndOfFile:PWDv1ChallengeMasterKeyNeededException.kt$com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException.kt</ID>
     <ID>NewLineAtEndOfFile:PWDv1ChallengePasswordException.kt$com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException.kt</ID>
     <ID>NewLineAtEndOfFile:PasswordController.kt$com.hegocre.nextcloudpasswords.data.password.PasswordController.kt</ID>
     <ID>NewLineAtEndOfFile:PasswordDatabaseDao.kt$com.hegocre.nextcloudpasswords.databases.passworddatabase.PasswordDatabaseDao.kt</ID>
-    <ID>NewLineAtEndOfFile:PasswordEditView.kt$com.hegocre.nextcloudpasswords.ui.components.PasswordEditView.kt</ID>
-    <ID>NewLineAtEndOfFile:PasswordItem.kt$com.hegocre.nextcloudpasswords.ui.components.PasswordItem.kt</ID>
     <ID>NewLineAtEndOfFile:PasswordsApi.kt$com.hegocre.nextcloudpasswords.api.PasswordsApi.kt</ID>
-    <ID>NewLineAtEndOfFile:PasswordsViewModel.kt$com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:PreferencesManager.kt$com.hegocre.nextcloudpasswords.utils.PreferencesManager.kt</ID>
     <ID>NewLineAtEndOfFile:PullToRefreshBody.kt$com.hegocre.nextcloudpasswords.ui.components.PullToRefreshBody.kt</ID>
     <ID>NewLineAtEndOfFile:Result.kt$com.hegocre.nextcloudpasswords.utils.Result.kt</ID>
     <ID>NewLineAtEndOfFile:ServerSettings.kt$com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings.kt</ID>
-    <ID>NewLineAtEndOfFile:ServiceApi.kt$com.hegocre.nextcloudpasswords.api.ServiceApi.kt</ID>
-    <ID>NewLineAtEndOfFile:SessionApi.kt$com.hegocre.nextcloudpasswords.api.SessionApi.kt</ID>
-    <ID>NewLineAtEndOfFile:Settings.kt$com.hegocre.nextcloudpasswords.ui.components.Settings.kt</ID>
     <ID>NewLineAtEndOfFile:SettingsActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.SettingsActivity.kt</ID>
     <ID>NewLineAtEndOfFile:SettingsApi.kt$com.hegocre.nextcloudpasswords.api.SettingsApi.kt</ID>
     <ID>NewLineAtEndOfFile:SodiumDecryptionException.kt$com.hegocre.nextcloudpasswords.api.exceptions.SodiumDecryptionException.kt</ID>
@@ -151,7 +120,6 @@
     <ID>NewLineAtEndOfFile:WebLoginActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.WebLoginActivity.kt</ID>
     <ID>PrintStackTrace:CSEv1Keychain.kt$CSEv1Keychain.Companion$e</ID>
     <ID>PrintStackTrace:FoldersApi.kt$FoldersApi$e</ID>
-    <ID>PrintStackTrace:PWDv1Challenge.kt$PWDv1Challenge.Companion$e</ID>
     <ID>PrintStackTrace:PasswordsApi.kt$PasswordsApi$e</ID>
     <ID>PrintStackTrace:ServiceApi.kt$ServiceApi$e</ID>
     <ID>PrintStackTrace:SessionApi.kt$SessionApi$e</ID>
@@ -160,8 +128,6 @@
     <ID>ReturnCount:KeepAliveWorker.kt$KeepAliveWorker$override suspend fun doWork(): Result</ID>
     <ID>ReturnCount:PasswordEditView.kt$EditablePasswordState$fun isValid(): Boolean</ID>
     <ID>ReturnCount:SessionApi.kt$SessionApi$suspend fun requestSession(): Result&lt;PWDv1Challenge&gt;</ID>
-    <ID>SwallowedException:AutoLoginActivity.kt$AutoLoginActivity$e: AccountImportCancelledException</ID>
-    <ID>SwallowedException:SsoOkHttpRequest.kt$SsoOkHttpRequest$e: Exception</ID>
     <ID>ThrowsCount:PWDv1Challenge.kt$PWDv1Challenge$fun solve(password: String?): Result&lt;String&gt;</ID>
     <ID>ThrowsCount:UserController.kt$UserController$@Throws(UserException::class) fun getServer(): Server</ID>
     <ID>TooGenericExceptionCaught:FoldersApi.kt$FoldersApi$e: Exception</ID>
