@@ -16,30 +16,28 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,30 +51,35 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import foundation.e.elib.compose.components.EAlertDialog
+import foundation.e.elib.compose.components.EOutlinedButton
 import foundation.e.elib.compose.theme.ETheme
 import foundation.e.elib.R as eR
 
 @Composable
 fun NCPLoginScreen(
     loginIntent: Intent,
+    onMurenaWorkspaceClick: () -> Unit,
     onLoginSuccess: () -> Unit,
     onLoginFailed: () -> Unit
 ) {
     ETheme {
+        var showOtherCloudDialog by rememberSaveable { mutableStateOf(false) }
+
         Scaffold(
             topBar = {
                 Spacer(
@@ -93,14 +96,70 @@ fun NCPLoginScreen(
                 )
             }
         ) { innerPadding ->
-            LoginView(
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxSize(),
-                loginIntent = loginIntent,
-                onLoginSuccess = onLoginSuccess,
-                onLoginFailed = onLoginFailed
-            )
+                    .padding(horizontal = 24.dp)
+                    .fillMaxSize()
+            ) {
+                Image(
+                    painterResource(R.drawable.ic_e_settings_password_app),
+                    contentDescription = stringResource(R.string.login_welcome_icon),
+                    modifier = Modifier.size(60.dp)
+                )
+                Text(
+                    text = stringResource(R.string.login_welcome_title),
+                    Modifier.padding(top = 32.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    text = stringResource(R.string.login_welcome_details),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 48.dp)
+                )
+                Button(
+                    onClick = onMurenaWorkspaceClick,
+                ) {
+                    Text(
+                        text = stringResource(R.string.login_murena_button),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(LOGIN_BUTTON_TEXT_WIDTH_FRACTION)
+                    )
+                }
+                EOutlinedButton(
+                    onClick = { showOtherCloudDialog = true }
+                ) {
+                    Text(
+                        text = stringResource(R.string.login_other_button),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(LOGIN_BUTTON_TEXT_WIDTH_FRACTION)
+                    )
+                }
+            }
+
+            if (showOtherCloudDialog) {
+                Dialog(
+                    onDismissRequest = {
+                        showOtherCloudDialog = false
+                    }
+                ) {
+                    LoginView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        loginIntent = loginIntent,
+                        onLoginSuccess = {
+                            showOtherCloudDialog = false
+                            onLoginSuccess()
+                        },
+                        onLoginFailed = onLoginFailed,
+                        onCancelClick = { showOtherCloudDialog = false }
+                    )
+                }
+            }
         }
     }
 }
@@ -110,7 +169,8 @@ fun LoginView(
     modifier: Modifier = Modifier,
     loginIntent: Intent,
     onLoginSuccess: () -> Unit,
-    onLoginFailed: () -> Unit
+    onLoginFailed: () -> Unit,
+    onCancelClick: () -> Unit
 ) {
     val launchLoginWebView =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
@@ -133,7 +193,7 @@ fun LoginView(
     )
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -144,6 +204,7 @@ fun LoginView(
                 text = urlText,
                 onTextChange = setUrlText,
                 errorText = errorText,
+                onCancelButtonClick = onCancelClick,
                 onLoginButtonClick = {
                     when {
                         urlText.isBlank() -> {
@@ -158,7 +219,7 @@ fun LoginView(
                             errorText = ""
 
                             if (!urlText.startsWith("https://"))
-                                setUrlText(String.format("https://%s", urlText))
+                                setUrlText("https://$urlText")
 
                             loginIntent.putExtra(
                                 "login_url",
@@ -168,13 +229,6 @@ fun LoginView(
                         }
                     }
                 }
-            )
-
-            Text(
-                text = "v${stringResource(id = R.string.version_name)} (${stringResource(id = R.string.version_code)})",
-                fontSize = 12.sp,
-                color = LocalContentColor.current.copy(alpha = 0.7f),
-                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
@@ -186,6 +240,7 @@ fun LoginCard(
     text: String,
     onTextChange: (String) -> Unit,
     errorText: String,
+    onCancelButtonClick: () -> Unit,
     onLoginButtonClick: () -> Unit
 ) {
     Card(
@@ -197,23 +252,10 @@ fun LoginCard(
             modifier = Modifier
                 .padding(all = 20.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Image(
-                    painter = painterResource(id = R.mipmap.ic_launcher_background),
-                    contentDescription = stringResource(id = R.string.e_os_app_name),
-                    modifier = Modifier.fillMaxSize()
-                )
-                Image(
-                    painter = painterResource(id = R.mipmap.ic_launcher_foreground),
-                    contentDescription = stringResource(id = R.string.e_os_app_name),
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+
+            Text(
+                text = stringResource(R.string.login_other_dialog_title),
+            )
 
             OutlinedTextFieldWithCaption(
                 text = text,
@@ -226,11 +268,16 @@ fun LoginCard(
                 onDone = onLoginButtonClick
             )
 
-            Button(
-                modifier = Modifier.align(Alignment.End),
-                onClick = onLoginButtonClick
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Text(text = stringResource(R.string.action_login))
+                TextButton(onClick = onCancelButtonClick) {
+                        Text(text = stringResource(id = android.R.string.cancel))
+                }
+                TextButton(onClick = onLoginButtonClick) {
+                    Text(text = stringResource(R.string.action_login))
+                }
             }
         }
     }
@@ -397,6 +444,8 @@ fun NCPWebLoginScreen(
 @Composable
 fun PreviewCard() {
     ETheme {
-        LoginCard("", {}, "") {}
+        LoginCard("", {}, "", {}) {}
     }
 }
+
+private const val LOGIN_BUTTON_TEXT_WIDTH_FRACTION = 0.9f
