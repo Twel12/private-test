@@ -3,6 +3,7 @@ package com.hegocre.nextcloudpasswords.api
 import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
+import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.utils.Error
@@ -60,6 +61,12 @@ class SessionApi private constructor(private var server: Server) {
             } catch (e: SsoReauthenticationRequiredException) {
                 Timber.e(e)
                 return Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+            } catch (e: HttpStatusException) {
+                return when (e.statusCode) {
+                    HttpURLConnection.HTTP_FORBIDDEN,
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> throw ClientDeauthorizedException()
+                    else -> Result.Error(Error.API_BAD_RESPONSE)
+                }
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) {
                     e.printStackTrace()
@@ -118,6 +125,12 @@ class SessionApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             OpenSessionAttempt.Failed(Result.Error(Error.SSL_HANDSHAKE_EXCEPTION))
+        } catch (e: HttpStatusException) {
+            when (e.statusCode) {
+                HttpURLConnection.HTTP_UNAUTHORIZED -> throw PWDv1ChallengeMasterKeyInvalidException()
+                HttpURLConnection.HTTP_FORBIDDEN -> throw ClientDeauthorizedException()
+                else -> OpenSessionAttempt.Failed(Result.Error(Error.API_BAD_RESPONSE))
+            }
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             OpenSessionAttempt.Failed(Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED))
