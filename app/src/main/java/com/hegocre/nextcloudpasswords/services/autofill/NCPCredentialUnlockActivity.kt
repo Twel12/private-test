@@ -36,6 +36,7 @@ import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
+import com.hegocre.nextcloudpasswords.ui.activities.observeSsoReauthenticationRequired
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import foundation.e.autofill.CredentialGetActivity
 import foundation.e.autofill.PasswordEntry
@@ -67,6 +68,12 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
             finish()
             return
         }
+
+        observeSsoReauthenticationRequired(
+            passwordsViewModel = passwordsViewModel,
+            replayIntent = null,
+            beforeReauthentication = { setResult(RESULT_CANCELED) }
+        )
 
         setContent {
             NCPAppLockWrapper {

@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
 import coil.Coil
 import coil.ImageLoader
@@ -42,18 +43,24 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         if (!UserController.getInstance(this).isLoggedIn) {
             //try auto login, it will start regular login if it fails
-            startActivity(Intent(this, AutoLoginActivity::class.java))
+            startActivity(AutoLoginActivity.intent(this, intent))
             finish()
             return
         }
 
         val passwordsViewModel by viewModels<PasswordsViewModel>()
 
-        val autofillRequested = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            intent.getBooleanExtra(NCPAutofillService.AUTOFILL_REQUEST, false)
-        } else {
-            false
-        }
+        val autofillAssistStructure =
+            IntentCompat.getParcelableExtra(
+                intent,
+                AutofillManager.EXTRA_ASSIST_STRUCTURE,
+                AssistStructure::class.java
+            )
+
+        val autofillRequested =
+            intent.getBooleanExtra(NCPAutofillService.AUTOFILL_REQUEST, false) &&
+                autofillAssistStructure != null &&
+                AutoLoginActivity.isTrustedAutofillSelectionIntent(this, intent)
         Timber.d("autofillRequested=$autofillRequested")
 
         val autofillSearchQuery =
@@ -68,20 +75,7 @@ class MainActivity : FragmentActivity() {
                 && autofillRequested
             ) {
                 { label, username, password ->
-                    val structure = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                        intent.getParcelableExtra(
-                            AutofillManager.EXTRA_ASSIST_STRUCTURE,
-                            AssistStructure::class.java
-                        )
-                    else
-                        @Suppress("DEPRECATION") intent.getParcelableExtra(AutofillManager.EXTRA_ASSIST_STRUCTURE)
-
-                    if (structure == null) {
-                        setResult(RESULT_CANCELED)
-                        finish()
-                    } else {
-                        autofillReply(Triple(label, username, password), structure)
-                    }
+                    autofillReply(Triple(label, username, password), autofillAssistStructure)
                 }
             } else null
 
@@ -92,6 +86,8 @@ class MainActivity : FragmentActivity() {
                 logOut()
             }
         }
+
+        observeSsoReauthenticationRequired(passwordsViewModel)
 
         Coil.setImageLoader {
             ImageLoader.Builder(this)
@@ -163,4 +159,3 @@ class MainActivity : FragmentActivity() {
         finish()
     }
 }
-

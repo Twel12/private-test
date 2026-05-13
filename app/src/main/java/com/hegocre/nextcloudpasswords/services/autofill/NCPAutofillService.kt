@@ -2,7 +2,7 @@ package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Intent
 import com.hegocre.nextcloudpasswords.NCPApplication
-import com.hegocre.nextcloudpasswords.ui.activities.MainActivity
+import com.hegocre.nextcloudpasswords.ui.activities.AutoLoginActivity
 import foundation.e.autofill.MurenaAutoFillService
 import foundation.e.autofill.MurenaPasswordBackend
 import foundation.e.autofill.AutofillDatasetAuthActivity
@@ -26,9 +26,7 @@ class NCPAutofillService : MurenaAutoFillService() {
     ): Intent {
         val searchHint = webDomain
             ?: packageName.substringAfterLast('.')
-        return Intent(this, MainActivity::class.java)
-            .putExtra(AUTOFILL_REQUEST, true)
-            .putExtra(AUTOFILL_SEARCH_HINT, searchHint)
+        return AutoLoginActivity.autofillSelectionIntent(this, searchHint)
     }
 
     override fun saveInteractionIntent(request: PasswordSaveRequest): Intent {

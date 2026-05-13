@@ -185,9 +185,6 @@ fun NextcloudPasswordsApp(
     )
     val (searchQuery, setSearchQuery) = rememberSaveable { mutableStateOf(defaultSearchQuery) }
 
-    val server = remember {
-        passwordsViewModel.server
-    }
     val showLogoutAction = passwordsViewModel.supportsLocalLogout
 
     ETheme {
@@ -201,9 +198,13 @@ fun NextcloudPasswordsApp(
                 .imePadding(),
             topBar = {
                 if (currentScreen != NCPScreen.PasswordEdit && currentScreen != NCPScreen.FolderEdit) {
+                    val username = remember { passwordsViewModel.server?.username ?: "" }
+                    val url = remember {
+                        passwordsViewModel.server?.url ?: ""
+                    }
                     NCPSearchTopBar(
-                        username = server.username,
-                        serverAddress = server.url,
+                        username = username,
+                        serverAddress = url,
                         title = when (currentScreen) {
                             NCPScreen.Passwords -> {
                                 passwordsViewModel.visibleFolder.value?.let {

@@ -1,6 +1,7 @@
 package com.hegocre.nextcloudpasswords.api
 
 import com.hegocre.nextcloudpasswords.BuildConfig
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.folder.DeletedFolder
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.folder.NewFolder
@@ -11,6 +12,7 @@ import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 
@@ -65,6 +67,9 @@ class FoldersApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -117,6 +122,9 @@ class FoldersApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -169,6 +177,9 @@ class FoldersApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -220,6 +231,9 @@ class FoldersApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()

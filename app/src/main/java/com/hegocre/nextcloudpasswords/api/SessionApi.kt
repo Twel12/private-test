@@ -4,12 +4,14 @@ import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
@@ -55,6 +57,9 @@ class SessionApi private constructor(private var server: Server) {
                     e.printStackTrace()
                 }
                 return Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+            } catch (e: SsoReauthenticationRequiredException) {
+                Timber.e(e)
+                return Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) {
                     e.printStackTrace()
@@ -113,6 +118,9 @@ class SessionApi private constructor(private var server: Server) {
                 e.printStackTrace()
             }
             OpenSessionAttempt.Failed(Result.Error(Error.SSL_HANDSHAKE_EXCEPTION))
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            OpenSessionAttempt.Failed(Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED))
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()

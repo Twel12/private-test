@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentActivity
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
+import com.hegocre.nextcloudpasswords.ui.activities.observeSsoReauthenticationRequired
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 
 class NCPAutofillUnlockActivity : FragmentActivity() {
@@ -38,6 +39,12 @@ class NCPAutofillUnlockActivity : FragmentActivity() {
             finish()
             return
         }
+
+        observeSsoReauthenticationRequired(
+            passwordsViewModel = passwordsViewModel,
+            replayIntent = null,
+            beforeReauthentication = { setResult(RESULT_CANCELED) }
+        )
 
         val searchHint = intent.getStringExtra(NCPAutofillService.AUTOFILL_SEARCH_HINT).orEmpty()
 
