@@ -4,7 +4,7 @@
     <string name="password_app_dashboard_summary">Store and sync your passwords securely</string>
     <string name="error_sso_unavailable_generic">Single sign-on unavailable. Please log in manually.</string>
     <string name="error_sso_app_signature">Single sign-on unavailable for this app signature.</string>
-    <string name="error_sso_no_account_found">No murena account found, please log in using traditional methods</string>
+    <string name="error_sso_no_account_found">No account found, please log in</string>
     <string name="error_sso_sync_disabled">Sync is disabled for password app, please enable from (Settings -> Accounts -> Murena account -> Account Sync -> Password)</string>
     <string name="error_sso_failed">Auto logging failed, Please log in manually.</string>
     <string name="password_attr_security_rating">Security rating</string>
@@ -30,5 +30,10 @@
     <string name="autofill_save_update_entry">Update %1$s</string>
     <string name="autofill_save_create_new_entry">Create new entry</string>
     <string name="autofill_save_select_password_to_update">Select the password to update</string>
-
+    <string name="login_welcome_icon">Passwords app icon</string>
+    <string name="login_welcome_title">Welcome to Passwords</string>
+    <string name="login_welcome_details">Choose to sync your credentials with your Murena Workspace account or another Nextcloud-based solution.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Other cloud</string>
+    <string name="login_other_dialog_title">Enter the server URL of your Nextcloud-based solution:</string>
 </resources>
