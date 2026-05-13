@@ -111,9 +111,18 @@ class BackupAppSetupActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsStateWithLifecycle()
+            val ssoReauthenticationRequested by
+                viewModel.ssoReauthenticationRequested.collectAsStateWithLifecycle()
 
             LaunchedEffect(response) {
                 response?.let(::response)
+            }
+
+            LaunchedEffect(ssoReauthenticationRequested) {
+                if (ssoReauthenticationRequested) {
+                    viewModel.clearSsoReauthenticationRequest()
+                    baseAutoLogin.start(forceSsoReauthentication = true)
+                }
             }
 
             if (uiState.isLoading || uiState.accountName == null) {

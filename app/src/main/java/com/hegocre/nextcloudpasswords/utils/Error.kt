@@ -8,5 +8,7 @@ object Error {
 
     const val SSL_HANDSHAKE_EXCEPTION = 20000
 
+    const val SSO_REAUTHENTICATION_REQUIRED = 30000
+
     const val UNKNOWN = -1
 }

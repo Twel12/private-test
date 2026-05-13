@@ -35,6 +35,9 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
     private val _response = MutableStateFlow<SetupResponse?>(null)
     val response = _response.asStateFlow()
 
+    private val _ssoReauthenticationRequested = MutableStateFlow(false)
+    val ssoReauthenticationRequested = _ssoReauthenticationRequested.asStateFlow()
+
     private var refreshAccountsJob: Job? = null
     private var submitPasswordJob: Job? = null
     private var passwordSubmissionVersion = 0L
@@ -54,7 +57,11 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
         refreshAccountsJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            when (restoreExistingE2eeState()) {
+            val existingE2eeState = restoreExistingE2eeState()
+            if (_ssoReauthenticationRequested.value) {
+                return@launch
+            }
+            when (existingE2eeState) {
                 SetupResponse.Success -> {
                     Log.d(TAG, "account and e2ee is already configured.")
                     finishWithResponse(SetupResponse.Success)
@@ -130,6 +137,10 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
                 return@launch
             }
 
+            if (_ssoReauthenticationRequested.value) {
+                return@launch
+            }
+
             _uiState.update {
                 it.copy(
                     isCheckingPassword = false,
@@ -150,6 +161,23 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
         _response.value = response
     }
 
+    fun clearSsoReauthenticationRequest() {
+        apiController.clearSsoReauthenticationRequired()
+        _ssoReauthenticationRequested.value = false
+    }
+
+    private fun requestSsoReauthentication() {
+        Log.d(TAG, "stale SSO token, requesting reauthentication")
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                isCheckingPassword = false,
+                isWrongPassword = false,
+            )
+        }
+        _ssoReauthenticationRequested.value = true
+    }
+
     private suspend fun verifySubmittedPassword(passphrase: String): PasswordCheckResult {
         var response: SetupResponse? = null
         val hadSession = apiController.sessionOpen.value
@@ -161,6 +189,9 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
             } else {
                 apiController.openSession(passphrase).also { sessionOpened ->
                     openedTemporarySession = sessionOpened
+                    if (!sessionOpened && apiController.isSsoReauthenticationRequired()) {
+                        requestSsoReauthentication()
+                    }
                 }
             }
             if (sessionOpened) {
@@ -191,38 +222,68 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
     private suspend fun restoreExistingE2eeState(): SetupResponse? {
         val masterPassword = preferencesManager.getMasterPassword() ?: return null
-        val hadSession = apiController.sessionOpen.value
-        var openedTemporarySession = false
         return try {
-            val isAvailable = if (hadSession) {
-                apiController.restoreStoredKeychain(masterPassword) &&
-                    apiController.isEndToEndEncryptionKeyAvailable()
+            if (apiController.sessionOpen.value) {
+                restoreExistingSessionE2eeState(masterPassword)
             } else {
-                apiController.openSession(masterPassword).also { sessionOpened ->
-                    openedTemporarySession = sessionOpened
-                } && apiController.isEndToEndEncryptionKeyAvailable()
-            }
-            if (isAvailable) {
-                SetupResponse.Success
-            } else {
-                null
+                restoreTemporarySessionE2eeState(masterPassword)
             }
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-            preferencesManager.setMasterPassword(null)
+            clearStoredMasterPassword()
             null
         } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
-            preferencesManager.setMasterPassword(null)
+            clearStoredMasterPassword()
             null
         } catch (_: PWDv1ChallengePasswordException) {
-            preferencesManager.setMasterPassword(null)
+            clearStoredMasterPassword()
             null
         } catch (_: ClientDeauthorizedException) {
             SetupResponse.AccountUnavailable
+        }
+    }
+
+    private fun restoreExistingSessionE2eeState(masterPassword: String): SetupResponse? {
+        val keychainRestored = apiController.restoreStoredKeychain(masterPassword)
+        return if (keychainRestored) {
+            getAvailableE2eeResponse()
+        } else {
+            null
+        }
+    }
+
+    private suspend fun restoreTemporarySessionE2eeState(masterPassword: String): SetupResponse? {
+        var openedTemporarySession = false
+        return try {
+            val sessionOpened = apiController.openSession(masterPassword).also { sessionOpened ->
+                openedTemporarySession = sessionOpened
+            }
+
+            when {
+                !sessionOpened && apiController.isSsoReauthenticationRequired() -> {
+                    requestSsoReauthentication()
+                    null
+                }
+
+                sessionOpened -> getAvailableE2eeResponse()
+                else -> null
+            }
         } finally {
             if (openedTemporarySession) {
                 apiController.clearSession()
             }
         }
+    }
+
+    private fun getAvailableE2eeResponse(): SetupResponse? {
+        return if (apiController.isEndToEndEncryptionKeyAvailable()) {
+            SetupResponse.Success
+        } else {
+            null
+        }
+    }
+
+    private fun clearStoredMasterPassword() {
+        preferencesManager.setMasterPassword(null)
     }
 
     data class BackupAppSetupUiState(

@@ -19,8 +19,10 @@ package com.hegocre.nextcloudpasswords.utils
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.nextcloud.android.sso.aidl.NextcloudRequest
 import com.nextcloud.android.sso.api.NextcloudAPI
+import com.nextcloud.android.sso.exceptions.TokenMismatchException
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 import okhttp3.Headers
 import okhttp3.MediaType
@@ -29,6 +31,7 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import timber.log.Timber
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -169,11 +172,14 @@ class SsoOkHttpRequest(
 
         val ssoResponse = try {
             ssoApi.performNetworkRequestV2(requestBuilder.build())
+        } catch (e: TokenMismatchException) {
+            Timber.e(e)
+            throw SsoReauthenticationRequiredException(e)
         } catch (e: Exception) {
             // this intentional `performNetworkRequestV2` can throw generic `Exception`
             // reset of app is not designed for handling generic exception
             Log.d(TAG, "error on performNetworkRequestV2", e)
-            throw IOException("unexpected error ${e.localizedMessage}")
+            throw IOException("unexpected error ${e.localizedMessage}", e)
         }
         val bodyBytes = ssoResponse.body.use { it.readBytes() }
 

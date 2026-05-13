@@ -26,8 +26,8 @@ abstract class BaseAutoLogin(val activity: Activity) {
 
     abstract fun ssoFailed()
 
-    fun start() {
-        if (getInstance(activity).isLoggedIn) {
+    fun start(forceSsoReauthentication: Boolean = false) {
+        if (!forceSsoReauthentication && getInstance(activity).isLoggedIn) {
             accountExist()
             return
         }

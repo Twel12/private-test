@@ -8,6 +8,7 @@ import com.hegocre.nextcloudpasswords.backupApp.BackupAppPassword
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.folder.DeletedFolder
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.folder.NewFolder
@@ -25,6 +26,8 @@ import com.hegocre.nextcloudpasswords.utils.Result
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.encryptValue
 import com.hegocre.nextcloudpasswords.utils.sha1Hash
+import com.nextcloud.android.sso.AccountImporter
+import com.nextcloud.android.sso.helper.SingleAccountHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,6 +36,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /**
  * Class with methods used to interact with [the API](https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Api)
@@ -41,6 +45,8 @@ import kotlinx.coroutines.withContext
  * @param context Context of the application.
  */
 class ApiController private constructor(context: Context) {
+    private val context = context.applicationContext
+
     private val server = UserController.getInstance(context).getServer()
 
     private val preferencesManager = PreferencesManager.getInstance(context)
@@ -59,6 +65,10 @@ class ApiController private constructor(context: Context) {
         preferencesManager.getServerSettings()
     )
 
+    private val _ssoReauthenticationRequired = MutableStateFlow(false)
+    val ssoReauthenticationRequired: StateFlow<Boolean>
+        get() = _ssoReauthenticationRequired.asStateFlow()
+
     private val _sessionOpen = MutableStateFlow(false)
     val sessionOpen: StateFlow<Boolean>
         get() = _sessionOpen.asStateFlow()
@@ -66,6 +76,14 @@ class ApiController private constructor(context: Context) {
     private val workManager = WorkManager.getInstance(context)
 
     init {
+        val currentAccount = SsoAccount.getCurrentSingleSignOnAccount(context)
+
+        if (currentAccount != null) {
+            OkHttpRequestInterface.useSso(context, currentAccount)
+        } else {
+            OkHttpRequestInterface.useBasic(preferencesManager.getSkipCertificateValidation())
+        }
+
         decryptCSEv1Keychain(
             preferencesManager.getCSEv1Keychain(),
             preferencesManager.getMasterPassword()
@@ -76,6 +94,11 @@ class ApiController private constructor(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             var result = settingsApi.get()
             while (result !is Result.Success) {
+                if (result is Result.Error && result.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+                    Timber.e("SSO re-authentication required")
+                    requireSsoReauthentication()
+                    return@launch
+                }
                 Log.e("ServerSettings", "Error getting server settings")
                 delay(5000L)
                 result = settingsApi.get()
@@ -87,14 +110,30 @@ class ApiController private constructor(context: Context) {
             preferencesManager.setInstanceColor(settings.themeColorPrimary)
         }
 
-        val currentAccount = SsoAccount.getCurrentSingleSignOnAccount(context)
+    }
 
-        if (currentAccount != null) {
-            OkHttpRequestInterface.useSso(context, currentAccount)
-        } else {
-            OkHttpRequestInterface.useBasic(preferencesManager.getSkipCertificateValidation())
+    fun requireSsoReauthentication() {
+        clearSessionState()
+        SingleAccountHelper.commitCurrentAccount(context, "")
+        AccountImporter.clearAllAuthTokens(context)
+        _ssoReauthenticationRequired.value = true
+    }
+
+    fun isSsoReauthenticationRequired(): Boolean {
+        return _ssoReauthenticationRequired.value
+    }
+
+    fun clearSsoReauthenticationRequired() {
+        _ssoReauthenticationRequired.value = false
+    }
+
+    private fun Result<*>.consumeSsoReauthError(): Boolean {
+        val isSsoReauthError =
+            this is Result.Error && code == Error.SSO_REAUTHENTICATION_REQUIRED
+        if (isSsoReauthError) {
+            requireSsoReauthentication()
         }
-
+        return isSsoReauthError
     }
 
     private fun decryptCSEv1Keychain(
@@ -152,6 +191,10 @@ class ApiController private constructor(context: Context) {
         } else {
             // Error opening session
             if (requestResult is Result.Error) {
+                if (requestResult.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+                    requireSsoReauthentication()
+                    return@withContext false
+                }
                 // Could not open session, try to use cached keychain
                 preferencesManager.getCSEv1Keychain()?.let { cachedKeychain ->
                     if (masterPassword == null) {
@@ -183,6 +226,7 @@ class ApiController private constructor(context: Context) {
         } else {
             return@withContext if (secretResult is Result.Error && secretResult.code == Error.API_NO_CSE) {
                 // No encryption, we need no session
+                clearSessionState()
                 // Clear old keychain, if CSE was disabled
                 preferencesManager.setCSEv1Keychain(null)
                 _sessionOpen.emit(true)
@@ -199,6 +243,10 @@ class ApiController private constructor(context: Context) {
             openedSessionRequest.data
         } else {
             if (openedSessionRequest is Result.Error) {
+                if (openedSessionRequest.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+                    requireSsoReauthentication()
+                    return@withContext false
+                }
                 when (openedSessionRequest.code) {
                     Error.API_TIMEOUT -> Log.e(
                         "API Controller",
@@ -240,7 +288,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun closeSession(): Boolean {
         return if (sessionCode == null || sessionCode?.let { code -> sessionApi.closeSession(code) } == true) {
-            _sessionOpen.emit(false)
+            clearSession()
             preferencesManager.setCSEv1Keychain(null)
             true
         } else {
@@ -249,9 +297,14 @@ class ApiController private constructor(context: Context) {
         }
     }
 
-    suspend fun clearSession() {
-        _sessionOpen.emit(false)
+    fun clearSession() {
+        clearSessionState()
+    }
+
+    private fun clearSessionState() {
         sessionCode = null
+        workManager.cancelAllWorkByTag(KeepAliveWorker.TAG)
+        _sessionOpen.value = false
     }
 
     /**
@@ -262,7 +315,9 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun listPasswords(): Result<List<Password>> {
         if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        return passwordsApi.list(sessionCode)
+        val result = passwordsApi.list(sessionCode)
+        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
+        return result
     }
 
     /**
@@ -273,7 +328,9 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun listFolders(): Result<List<Folder>> {
         if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        return foldersApi.list(sessionCode)
+        val result = foldersApi.list(sessionCode)
+        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
+        return result
     }
 
     /**
@@ -286,6 +343,7 @@ class ApiController private constructor(context: Context) {
     suspend fun createPassword(newPassword: NewPassword): Boolean {
         if (!sessionOpen.value) return false
         val result = passwordsApi.create(newPassword, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -345,7 +403,8 @@ class ApiController private constructor(context: Context) {
         )
 
         val result = passwordsApi.create(newPassword, sessionCode)
-        return result is Result.Success
+
+        return if (result.consumeSsoReauthError()) false else result is Result.Success
     }
 
     /**
@@ -358,6 +417,7 @@ class ApiController private constructor(context: Context) {
     suspend fun updatePassword(updatedPassword: UpdatedPassword): Boolean {
         if (!sessionOpen.value) return false
         val result = passwordsApi.update(updatedPassword, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -371,6 +431,7 @@ class ApiController private constructor(context: Context) {
     suspend fun deletePassword(deletedPassword: DeletedPassword): Boolean {
         if (!sessionOpen.value) return false
         val result = passwordsApi.delete(deletedPassword, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -387,6 +448,7 @@ class ApiController private constructor(context: Context) {
     ): String? {
         if (!sessionOpen.value) return null
         val result = serviceApi.password(strength, includeDigits, includeSymbols, sessionCode)
+        if (result.consumeSsoReauthError()) return null
         return if (result is Result.Success) result.data else null
     }
 
@@ -400,6 +462,7 @@ class ApiController private constructor(context: Context) {
     suspend fun createFolder(newFolder: NewFolder): Boolean {
         if (!sessionOpen.value) return false
         val result = foldersApi.create(newFolder, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -413,6 +476,7 @@ class ApiController private constructor(context: Context) {
     suspend fun updateFolder(updatedFolder: UpdatedFolder): Boolean {
         if (!sessionOpen.value) return false
         val result = foldersApi.update(updatedFolder, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -426,6 +490,7 @@ class ApiController private constructor(context: Context) {
     suspend fun deleteFolder(deletedFolder: DeletedFolder): Boolean {
         if (!sessionOpen.value) return false
         val result = foldersApi.delete(deletedFolder, sessionCode)
+        if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
 
@@ -437,12 +502,24 @@ class ApiController private constructor(context: Context) {
 
     suspend fun getFaviconBytes(domain: String): ByteArray? {
         if (!sessionOpen.value) return null
-        return serviceApi.getFaviconBytes(domain, sessionCode)
+        return try {
+            serviceApi.getFaviconBytes(domain, sessionCode)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            requireSsoReauthentication()
+            null
+        }
     }
 
     suspend fun getAvatarBytes(): ByteArray? {
         if (!sessionOpen.value) return null
-        return serviceApi.getAvatarBytes(sessionCode)
+        return try {
+            serviceApi.getAvatarBytes(sessionCode)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            requireSsoReauthentication()
+            null
+        }
     }
 
     companion object {

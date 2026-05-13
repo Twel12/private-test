@@ -2,6 +2,7 @@ package com.hegocre.nextcloudpasswords.api
 
 import android.util.Log
 import com.hegocre.nextcloudpasswords.BuildConfig
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.password.GeneratedPassword
 import com.hegocre.nextcloudpasswords.data.password.RequestedPassword
 import com.hegocre.nextcloudpasswords.utils.Error
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.Response
+import timber.log.Timber
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.SocketTimeoutException
@@ -79,6 +81,9 @@ class ServiceApi private constructor(private val server: Server) {
                 e.printStackTrace()
             }
             Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -134,6 +139,8 @@ class ServiceApi private constructor(private val server: Server) {
         } catch (e: IllegalArgumentException) {
             Log.d(TAG, "getRawBytes: ", e)
             null
+        } catch (e: SsoReauthenticationRequiredException) {
+            throw e
         } catch (e: IOException) {
             Log.d(TAG, "getRawBytes: ", e)
             null

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.os.Build
+import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +29,7 @@ import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.folder.DeletedFolder
 import com.hegocre.nextcloudpasswords.data.folder.Folder
 import com.hegocre.nextcloudpasswords.data.folder.FolderController
@@ -40,6 +42,7 @@ import com.hegocre.nextcloudpasswords.data.password.PasswordController
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
 import com.hegocre.nextcloudpasswords.data.user.UserController
+import com.hegocre.nextcloudpasswords.data.user.UserException
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
@@ -54,6 +57,7 @@ import java.net.MalformedURLException
 import java.net.URL
 
 class PasswordsViewModel(application: Application) : AndroidViewModel(application) {
+
     private val preferencesManager = PreferencesManager.getInstance(application)
 
     private var masterPassword: MutableLiveData<String?> = MutableLiveData<String?>(null).also {
@@ -83,6 +87,13 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val apiController = ApiController.getInstance(application)
 
+    val ssoReauthRequired: StateFlow<Boolean>
+        get() = apiController.ssoReauthenticationRequired
+
+    fun clearSsoReauthenticationRequired() {
+        apiController.clearSsoReauthenticationRequired()
+    }
+
     val sessionOpen
         get() = apiController.sessionOpen
 
@@ -97,7 +108,11 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         get() = apiController.serverSettings
 
     val server
-        get() = UserController.getInstance(getApplication()).getServer()
+        get() = try {
+            UserController.getInstance(getApplication()).getServer()
+        } catch (_: UserException) {
+            null
+        }
 
     val supportsLocalLogout: Boolean
         get() = OkHttpRequestInterface.getInstance() !is SsoOkHttpRequest
@@ -148,8 +163,8 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             _isRefreshing.emit(true)
             try {
                 if (apiController.openSession(password)) {
-                    sync()
-                    _showSessionOpenError.emit(true)
+                    _showSessionOpenError.emit(false)
+                    syncPasswordsAndFolders()
                     return@launch
                 }
                 _showSessionOpenError.emit(true)
@@ -157,6 +172,8 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                 _needsMasterPassword.emit(true)
             } catch (_: ClientDeauthorizedException) {
                 _clientDeauthorized.postValue(true)
+            } catch (_: SsoReauthenticationRequiredException) {
+                apiController.requireSsoReauthentication()
             } catch (ex: Exception) {
                 when (ex) {
                     is PWDv1ChallengeMasterKeyInvalidException, is PWDv1ChallengePasswordException -> {
@@ -194,15 +211,26 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun sync() {
+        if (_isRefreshing.value) return
+
         if (sessionOpen.value) {
             viewModelScope.launch {
-                _isRefreshing.emit(true)
-                PasswordController.getInstance(getApplication()).syncPasswords()
-                FolderController.getInstance(getApplication()).syncFolders()
-                _isRefreshing.emit(false)
+                syncPasswordsAndFolders()
             }
         } else {
             openSession(masterPassword.value)
+        }
+    }
+
+    private suspend fun syncPasswordsAndFolders() {
+        _isRefreshing.emit(true)
+        try {
+            PasswordController.getInstance(getApplication()).syncPasswords()
+            FolderController.getInstance(getApplication()).syncFolders()
+        } catch (_: SsoReauthenticationRequiredException) {
+            apiController.requireSsoReauthentication()
+        } finally {
+            _isRefreshing.emit(false)
         }
     }
 
@@ -368,8 +396,8 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             model = ImageRequest.Builder(context).apply {
                 data(avatarBytes)
                 if (avatarBytes != null) {
-                    memoryCacheKey("avatar:${server.username}")
-                    diskCacheKey("avatar:${server.username}")
+                    memoryCacheKey("avatar:${server?.username}")
+                    diskCacheKey("avatar:${server?.username}")
                 }
                 crossfade(false)
                 val accountDrawable = context.getDrawable(R.drawable.ic_account_circle)?.apply {
