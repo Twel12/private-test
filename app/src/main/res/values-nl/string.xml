@@ -2,7 +2,7 @@
 <resources>
     <string name="location_not_found">Kon huidige locatie niet bepalen, probeer het opnieuw</string>
     <string name="title_generate_password">Geheime code van jouw telefoon</string>
-    <string name="title_check_password">Geheime code controleren</string>
+    <string name="title_check_password">Wachtwoord controleren</string>
     <string name="channel_name">Vind mijn apparaat via SMS-kanaal</string>
     <string name="channel_description">Dit kanaal wordt gebruikt door de SMS-geolocatieapp</string>
     <string name="notification_service_caption">Vind mijn apparaat via SMS</string>
