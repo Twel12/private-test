@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Hesla</string>
     <string name="password_app_dashboard_summary">Ukládejte a synchronizujte svá hesla bezpečně</string>
+    <string name="error_sso_unavailable_generic">Jednotné přihlášení není k dispozici. Přihlaste se prosím ručně.</string>
+    <string name="error_sso_app_signature">Jednotné přihlášení není pro tento podpis aplikace k dispozici.</string>
+    <string name="error_sso_no_account_found">Nebyl nalezen žádný účet, přihlaste se prosím</string>
+    <string name="error_sso_sync_disabled">Synchronizace je pro aplikaci Passwords vypnuta, povolte ji prosím v (Nastavení -&gt; Účty -&gt; účet Murena -&gt; Synchronizace účtu -&gt; Passwords)</string>
+    <string name="error_sso_failed">Automatické přihlášení se nezdařilo. Přihlaste se prosím ručně.</string>
+    <string name="password_attr_security_rating">Hodnocení zabezpečení</string>
+    <string name="password_strength_very_strong">Velmi silné</string>
+    <string name="password_strength_weak">Slabé</string>
+    <string name="password_strength_leaked">Uniklé</string>
+    <string name="password_security_rating_tooltip">Tento ukazatel zobrazuje hodnocení zabezpečení vašich přihlašovacích údajů a ukazuje, jak silné je vaše heslo na základě kontrol prováděných aplikací, například kontroly slabých hesel, duplicitního používání nebo zda heslo uniklo.</string>
+    <string name="password_security_description_safe">Heslo je zcela bezpečné</string>
+    <string name="password_security_description_weak">Toto heslo se používá více než jednou</string>
+    <string name="password_security_description_leaked">Heslo je špatné a lze ho najít v hackerských databázích na internetu. Musíte ho změnit a měli byste se ujistit, že účet, pro který ho používáte, nebyl kompromitován.</string>
+    <string name="passwords_floating_action_button">Nové</string>
+    <string name="backup_app_setup_title">Uložit záložní šifrovací klíč</string>
+    <string name="backup_app_setup_cta">Uložit šifrovací klíč</string>
+    <string name="backup_app_setup_password_error">Nesprávné heslo. Zkuste to prosím znovu.</string>
+    <string name="enter_password_hint">Zadejte své heslo k Murena Workspace</string>
+    <string name="description">Zadejte své heslo k Murena Workspace, aby se šifrovací klíč uložil do Murena Passwords</string>
+    <string name="autofill_password_saved">Heslo uloženo</string>
+    <string name="autofill_saving_password">Ukládání hesla</string>
+    <string name="autofill_saving_password_message">Počkejte prosím, než %1$s uloží tyto přihlašovací údaje.</string>
+    <string name="autofill_save_choice_title">Dokončit uložení</string>
+    <string name="autofill_save_update_entry">Aktualizovat %1$s</string>
+    <string name="autofill_save_create_new_entry">Vytvořit novou položku</string>
+    <string name="autofill_save_select_password_to_update">Vyberte heslo, které chcete aktualizovat</string>
+    <string name="login_welcome_icon">Ikona aplikace Passwords</string>
+    <string name="login_welcome_title">Vítejte v Passwords</string>
+    <string name="login_welcome_details">Vyberte si, zda chcete synchronizovat své přihlašovací údaje s účtem Murena Workspace nebo s jiným řešením založeným na Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Jiný cloud</string>
+    <string name="login_other_dialog_title">Zadejte URL serveru vašeho řešení založeného na Nextcloud:</string>
 </resources>

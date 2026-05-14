@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Wagwoorde</string>
     <string name="password_app_dashboard_summary">Berg en sinkroniseer jou wagwoorde veilig</string>
+    <string name="error_sso_unavailable_generic">Enkelaanmelding is nie beskikbaar nie. Meld asseblief handmatig aan.</string>
+    <string name="error_sso_app_signature">Enkelaanmelding is nie vir hierdie app-handtekening beskikbaar nie.</string>
+    <string name="error_sso_no_account_found">Geen rekening gevind nie, meld asseblief aan</string>
+    <string name="error_sso_sync_disabled">Sinkronisering is vir die Passwords-app gedeaktiveer, aktiveer dit asseblief vanaf (Instellings -&gt; Rekeninge -&gt; Murena-rekening -&gt; Rekeningsinkronisering -&gt; Passwords)</string>
+    <string name="error_sso_failed">Outomatiese aanmelding het misluk. Meld asseblief handmatig aan.</string>
+    <string name="password_attr_security_rating">Sekuriteitsgradering</string>
+    <string name="password_strength_very_strong">Baie sterk</string>
+    <string name="password_strength_weak">Swak</string>
+    <string name="password_strength_leaked">Uitgelek</string>
+    <string name="password_security_rating_tooltip">Hierdie aanduiding wys die sekuriteitsgradering van jou aanmeldbesonderhede en dui aan hoe sterk jou wagwoord is op grond van kontroles wat deur die toepassing uitgevoer word, soos die opsporing van swak wagwoorde, dubbele gebruik of of die wagwoord uitgelek het.</string>
+    <string name="password_security_description_safe">Die wagwoord is heeltemal veilig</string>
+    <string name="password_security_description_weak">Hierdie wagwoord word meer as een keer gebruik</string>
+    <string name="password_security_description_leaked">Die wagwoord is swak en kan in hackerdatabasisse op die internet gevind word. Jy moet dit verander en seker maak dat die rekening waarvoor jy dit gebruik nie gekompromitteer is nie.</string>
+    <string name="passwords_floating_action_button">Nuut</string>
+    <string name="backup_app_setup_title">Stoor rugsteun-enkripsiesleutel</string>
+    <string name="backup_app_setup_cta">Stoor enkripsiesleutel</string>
+    <string name="backup_app_setup_password_error">Verkeerde wagwoord. Probeer asseblief weer.</string>
+    <string name="enter_password_hint">Voer jou Murena Workspace-wagwoord in</string>
+    <string name="description">Voer jou Murena Workspace-wagwoord in om die enkripsiesleutel in Murena Passwords te stoor</string>
+    <string name="autofill_password_saved">Wagwoord gestoor</string>
+    <string name="autofill_saving_password">Stoor wagwoord</string>
+    <string name="autofill_saving_password_message">Wag asseblief terwyl %1$s hierdie aanmeldbesonderhede stoor.</string>
+    <string name="autofill_save_choice_title">Voltooi stoor</string>
+    <string name="autofill_save_update_entry">Werk %1$s by</string>
+    <string name="autofill_save_create_new_entry">Skep nuwe inskrywing</string>
+    <string name="autofill_save_select_password_to_update">Kies die wagwoord om by te werk</string>
+    <string name="login_welcome_icon">Ikon van die Passwords-app</string>
+    <string name="login_welcome_title">Welkom by Passwords</string>
+    <string name="login_welcome_details">Kies om jou aanmeldbesonderhede met jou Murena Workspace-rekening of enige ander Nextcloud-gebaseerde oplossing te sinkroniseer.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Ander wolk</string>
+    <string name="login_other_dialog_title">Voer die bediener-URL van jou Nextcloud-gebaseerde oplossing in:</string>
 </resources>

@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Jelszavak</string>
     <string name="password_app_dashboard_summary">Tárold és szinkronizáld jelszavaidat biztonságosan</string>
+    <string name="error_sso_unavailable_generic">Az egyszeri bejelentkezés nem érhető el. Kérjük, jelentkezzen be kézzel.</string>
+    <string name="error_sso_app_signature">Az egyszeri bejelentkezés ehhez az alkalmazás-aláíráshoz nem érhető el.</string>
+    <string name="error_sso_no_account_found">Nem található fiók, kérjük, jelentkezzen be</string>
+    <string name="error_sso_sync_disabled">A Passwords alkalmazás szinkronizálása ki van kapcsolva, kérjük, engedélyezze itt: (Beállítások -&gt; Fiókok -&gt; Murena-fiók -&gt; Fiókszinkronizálás -&gt; Passwords)</string>
+    <string name="error_sso_failed">Az automatikus bejelentkezés nem sikerült. Kérjük, jelentkezzen be kézzel.</string>
+    <string name="password_attr_security_rating">Biztonsági értékelés</string>
+    <string name="password_strength_very_strong">Nagyon erős</string>
+    <string name="password_strength_weak">Gyenge</string>
+    <string name="password_strength_leaked">Kiszivárgott</string>
+    <string name="password_security_rating_tooltip">Ez a jelzés megmutatja a hitelesítő adat biztonsági értékelését, és azt jelzi, mennyire erős a jelszava az alkalmazás ellenőrzései alapján, például ha a jelszó gyenge, többször használják, vagy kiszivárgott.</string>
+    <string name="password_security_description_safe">A jelszó teljesen biztonságos</string>
+    <string name="password_security_description_weak">Ezt a jelszót egynél többször használják</string>
+    <string name="password_security_description_leaked">Ez a jelszó rossz, és megtalálható az interneten elérhető hackerek adatbázisaiban. Meg kell változtatnia, és ellenőriznie kell, hogy a vele használt fiók nem sérült-e.</string>
+    <string name="passwords_floating_action_button">Új</string>
+    <string name="backup_app_setup_title">Mentse a biztonsági mentés titkosítási kulcsát</string>
+    <string name="backup_app_setup_cta">Titkosítási kulcs mentése</string>
+    <string name="backup_app_setup_password_error">Hibás jelszó. Kérjük, próbálja újra.</string>
+    <string name="enter_password_hint">Adja meg a Murena Workspace jelszavát</string>
+    <string name="description">Adja meg a Murena Workspace jelszavát, hogy a titkosítási kulcsot elmentse a Murena Passwords alkalmazásba</string>
+    <string name="autofill_password_saved">Jelszó mentve</string>
+    <string name="autofill_saving_password">Jelszó mentése</string>
+    <string name="autofill_saving_password_message">Kérjük, várjon, amíg %1$s menti ezt a hitelesítő adatot.</string>
+    <string name="autofill_save_choice_title">Mentés befejezése</string>
+    <string name="autofill_save_update_entry">%1$s frissítése</string>
+    <string name="autofill_save_create_new_entry">Új bejegyzés létrehozása</string>
+    <string name="autofill_save_select_password_to_update">Válassza ki a frissítendő jelszót</string>
+    <string name="login_welcome_icon">A Passwords alkalmazás ikonja</string>
+    <string name="login_welcome_title">Üdvözöljük a Passwords alkalmazásban</string>
+    <string name="login_welcome_details">Válassza ki, hogy a hitelesítő adatait a Murena Workspace-fiókjával vagy egy másik Nextcloud-alapú megoldással szeretné szinkronizálni.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Másik felhő</string>
+    <string name="login_other_dialog_title">Adja meg a Nextcloud-alapú megoldás kiszolgálójának URL-jét:</string>
 </resources>

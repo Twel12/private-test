@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Parole</string>
     <string name="password_app_dashboard_summary">Stochează și sincronizează parolele tale în siguranță</string>
+    <string name="error_sso_unavailable_generic">Autentificarea unică nu este disponibilă. Te rugăm să te autentifici manual.</string>
+    <string name="error_sso_app_signature">Autentificarea unică nu este disponibilă pentru această semnătură a aplicației.</string>
+    <string name="error_sso_no_account_found">Nu a fost găsit niciun cont, te rugăm să te autentifici</string>
+    <string name="error_sso_sync_disabled">Sincronizarea este dezactivată pentru aplicația Passwords, te rugăm să o activezi din (Setări -&gt; Conturi -&gt; cont Murena -&gt; Sincronizare cont -&gt; Parolă)</string>
+    <string name="error_sso_failed">Autentificarea automată a eșuat. Te rugăm să te autentifici manual.</string>
+    <string name="password_attr_security_rating">Evaluare de securitate</string>
+    <string name="password_strength_very_strong">Foarte puternică</string>
+    <string name="password_strength_weak">Slabă</string>
+    <string name="password_strength_leaked">Expusă</string>
+    <string name="password_security_rating_tooltip">Acest indicator arată evaluarea de securitate a acreditării tale și indică cât de puternică este parola ta pe baza verificărilor efectuate de aplicație, cum ar fi verificarea parolelor slabe, utilizarea duplicată sau dacă parola a fost expusă.</string>
+    <string name="password_security_description_safe">Parola este complet sigură</string>
+    <string name="password_security_description_weak">Această parolă este folosită de mai multe ori</string>
+    <string name="password_security_description_leaked">Parola este nesigură și poate fi găsită în baze de date ale hackerilor de pe internet. Trebuie să o schimbi și ar trebui să te asiguri că acel cont pentru care o folosești nu a fost compromis.</string>
+    <string name="passwords_floating_action_button">Nou</string>
+    <string name="backup_app_setup_title">Salvează cheia de criptare a copiei de rezervă</string>
+    <string name="backup_app_setup_cta">Salvează cheia de criptare</string>
+    <string name="backup_app_setup_password_error">Parolă incorectă. Te rugăm să încerci din nou.</string>
+    <string name="enter_password_hint">Introdu parola contului tău Murena Workspace</string>
+    <string name="description">Introdu parola contului tău Murena Workspace pentru a salva cheia de criptare în Murena Passwords</string>
+    <string name="autofill_password_saved">Parolă salvată</string>
+    <string name="autofill_saving_password">Se salvează parola</string>
+    <string name="autofill_saving_password_message">Te rugăm să aștepți cât timp %1$s salvează această acreditare.</string>
+    <string name="autofill_save_choice_title">Finalizează salvarea</string>
+    <string name="autofill_save_update_entry">Actualizează %1$s</string>
+    <string name="autofill_save_create_new_entry">Creează o intrare nouă</string>
+    <string name="autofill_save_select_password_to_update">Selectează parola de actualizat</string>
+    <string name="login_welcome_icon">Pictograma aplicației Passwords</string>
+    <string name="login_welcome_title">Bine ai venit la Passwords</string>
+    <string name="login_welcome_details">Alege să îți sincronizezi acreditările cu contul tău Murena Workspace sau cu o altă soluție bazată pe Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Alt cloud</string>
+    <string name="login_other_dialog_title">Introdu URL-ul serverului soluției tale bazate pe Nextcloud:</string>
 </resources>

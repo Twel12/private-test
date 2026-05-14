@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">密码</string>
     <string name="password_app_dashboard_summary">安全地存储并同步你的密码</string>
+    <string name="error_sso_unavailable_generic">单点登录不可用。请手动登录。</string>
+    <string name="error_sso_app_signature">此应用签名不支持单点登录。</string>
+    <string name="error_sso_no_account_found">未找到账号，请登录</string>
+    <string name="error_sso_sync_disabled">密码应用的同步已禁用，请在（设置 -&gt; 账户 -&gt; Murena 账户 -&gt; 账户同步 -&gt; 密码）中启用</string>
+    <string name="error_sso_failed">自动登录失败。请手动登录。</string>
+    <string name="password_attr_security_rating">安全评级</string>
+    <string name="password_strength_very_strong">非常强</string>
+    <string name="password_strength_weak">弱</string>
+    <string name="password_strength_leaked">已泄露</string>
+    <string name="password_security_rating_tooltip">此指示会显示您的凭据安全评级，并根据应用执行的检查结果来反映密码强度，例如检查弱密码、重复使用或密码是否已泄露。</string>
+    <string name="password_security_description_safe">该密码非常安全</string>
+    <string name="password_security_description_weak">此密码被重复使用</string>
+    <string name="password_security_description_leaked">此密码不安全，并且可能出现在互联网上黑客数据库中。您需要更改它，并确保使用该密码的账号未被入侵。</string>
+    <string name="passwords_floating_action_button">新建</string>
+    <string name="backup_app_setup_title">保存备份加密密钥</string>
+    <string name="backup_app_setup_cta">保存加密密钥</string>
+    <string name="backup_app_setup_password_error">密码不正确。请重试。</string>
+    <string name="enter_password_hint">输入您的 Murena Workspace 密码</string>
+    <string name="description">输入您的 Murena Workspace 密码，以将加密密钥保存到 Murena Passwords</string>
+    <string name="autofill_password_saved">密码已保存</string>
+    <string name="autofill_saving_password">正在保存密码</string>
+    <string name="autofill_saving_password_message">请稍候，%1$s 正在保存此凭据。</string>
+    <string name="autofill_save_choice_title">完成保存</string>
+    <string name="autofill_save_update_entry">更新 %1$s</string>
+    <string name="autofill_save_create_new_entry">创建新条目</string>
+    <string name="autofill_save_select_password_to_update">选择要更新的密码</string>
+    <string name="login_welcome_icon">Passwords 应用图标</string>
+    <string name="login_welcome_title">欢迎使用 Passwords</string>
+    <string name="login_welcome_details">选择将您的凭据与 Murena Workspace 账号或其他基于 Nextcloud 的解决方案同步。</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">其他云服务</string>
+    <string name="login_other_dialog_title">输入您的 Nextcloud 解决方案的服务器 URL：</string>
 </resources>

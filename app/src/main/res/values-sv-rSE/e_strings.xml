@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Lösenord</string>
     <string name="password_app_dashboard_summary">Lagra och synkronisera dina lösenord säkert</string>
+    <string name="error_sso_unavailable_generic">Enkel inloggning är inte tillgänglig. Logga in manuellt.</string>
+    <string name="error_sso_app_signature">Enkel inloggning är inte tillgänglig för den här appsignaturen.</string>
+    <string name="error_sso_no_account_found">Inget konto hittades, logga in</string>
+    <string name="error_sso_sync_disabled">Synkronisering är inaktiverad för appen Passwords. Aktivera den under (Inställningar -&gt; Konton -&gt; Murena-konto -&gt; Kontosynkronisering -&gt; Lösenord)</string>
+    <string name="error_sso_failed">Automatisk inloggning misslyckades. Logga in manuellt.</string>
+    <string name="password_attr_security_rating">Säkerhetsbedömning</string>
+    <string name="password_strength_very_strong">Mycket starkt</string>
+    <string name="password_strength_weak">Svagt</string>
+    <string name="password_strength_leaked">Läckt</string>
+    <string name="password_security_rating_tooltip">Den här indikationen visar säkerhetsbedömningen för dina inloggningsuppgifter och anger hur starkt ditt lösenord är baserat på kontroller som utförs av appen, till exempel kontroll av svaga lösenord, återanvändning eller om lösenordet har läckt.</string>
+    <string name="password_security_description_safe">Lösenordet är helt säkert</string>
+    <string name="password_security_description_weak">Det här lösenordet används mer än en gång</string>
+    <string name="password_security_description_leaked">Lösenordet är osäkert och kan hittas i hackerdatabaser på internet. Du behöver ändra det och du bör säkerställa att kontot du använder det för inte har komprometterats.</string>
+    <string name="passwords_floating_action_button">Nytt</string>
+    <string name="backup_app_setup_title">Spara krypteringsnyckel för säkerhetskopia</string>
+    <string name="backup_app_setup_cta">Spara krypteringsnyckel</string>
+    <string name="backup_app_setup_password_error">Fel lösenord. Försök igen.</string>
+    <string name="enter_password_hint">Ange lösenordet till ditt Murena Workspace-konto</string>
+    <string name="description">Ange lösenordet till ditt Murena Workspace-konto för att spara krypteringsnyckeln i Murena Passwords</string>
+    <string name="autofill_password_saved">Lösenord sparat</string>
+    <string name="autofill_saving_password">Sparar lösenord</string>
+    <string name="autofill_saving_password_message">Vänta medan %1$s sparar den här inloggningsuppgiften.</string>
+    <string name="autofill_save_choice_title">Slutför sparandet</string>
+    <string name="autofill_save_update_entry">Uppdatera %1$s</string>
+    <string name="autofill_save_create_new_entry">Skapa ny post</string>
+    <string name="autofill_save_select_password_to_update">Välj lösenordet som ska uppdateras</string>
+    <string name="login_welcome_icon">Ikon för appen Passwords</string>
+    <string name="login_welcome_title">Välkommen till Passwords</string>
+    <string name="login_welcome_details">Välj att synkronisera dina inloggningsuppgifter med ditt Murena Workspace-konto eller en annan Nextcloud-baserad lösning.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Annat moln</string>
+    <string name="login_other_dialog_title">Ange server-URL:en för din Nextcloud-baserade lösning:</string>
 </resources>

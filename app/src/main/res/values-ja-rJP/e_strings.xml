@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">パスワード</string>
     <string name="password_app_dashboard_summary">パスワードを安全に保存して同期します</string>
+    <string name="error_sso_unavailable_generic">シングルサインオンは利用できません。手動でログインしてください。</string>
+    <string name="error_sso_app_signature">このアプリ署名ではシングルサインオンを利用できません。</string>
+    <string name="error_sso_no_account_found">アカウントが見つかりません。ログインしてください</string>
+    <string name="error_sso_sync_disabled">パスワードアプリの同期が無効になっています。（設定 -&gt; アカウント -&gt; Murena アカウント -&gt; アカウント同期 -&gt; パスワード）から有効にしてください</string>
+    <string name="error_sso_failed">自動ログインに失敗しました。手動でログインしてください。</string>
+    <string name="password_attr_security_rating">セキュリティ評価</string>
+    <string name="password_strength_very_strong">非常に強い</string>
+    <string name="password_strength_weak">弱い</string>
+    <string name="password_strength_leaked">漏えい</string>
+    <string name="password_security_rating_tooltip">この表示は認証情報のセキュリティ評価を示し、弱いパスワード、重複使用、パスワードの漏えいなど、アプリが実行するチェックに基づいてパスワードの強度を表します。</string>
+    <string name="password_security_description_safe">このパスワードは完全に安全です</string>
+    <string name="password_security_description_weak">このパスワードは複数回使用されています</string>
+    <string name="password_security_description_leaked">このパスワードは危険で、インターネット上のハッカーのデータベースで見つかる可能性があります。変更する必要があります。また、このパスワードを使用しているアカウントが侵害されていないことを確認してください。</string>
+    <string name="passwords_floating_action_button">新規</string>
+    <string name="backup_app_setup_title">バックアップ暗号化キーを保存</string>
+    <string name="backup_app_setup_cta">暗号化キーを保存</string>
+    <string name="backup_app_setup_password_error">パスワードが正しくありません。もう一度お試しください。</string>
+    <string name="enter_password_hint">Murena Workspace のパスワードを入力してください</string>
+    <string name="description">暗号化キーを Murena Passwords に保存するには、Murena Workspace のパスワードを入力してください</string>
+    <string name="autofill_password_saved">パスワードを保存しました</string>
+    <string name="autofill_saving_password">パスワードを保存中</string>
+    <string name="autofill_saving_password_message">%1$s がこの認証情報を保存するまでお待ちください。</string>
+    <string name="autofill_save_choice_title">保存を完了</string>
+    <string name="autofill_save_update_entry">%1$s を更新</string>
+    <string name="autofill_save_create_new_entry">新しいエントリーを作成</string>
+    <string name="autofill_save_select_password_to_update">更新するパスワードを選択してください</string>
+    <string name="login_welcome_icon">Passwords アプリアイコン</string>
+    <string name="login_welcome_title">Passwords へようこそ</string>
+    <string name="login_welcome_details">認証情報を Murena Workspace アカウントまたは他の Nextcloud ベースのソリューションと同期する方法を選択してください。</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">その他のクラウド</string>
+    <string name="login_other_dialog_title">Nextcloud ベースのソリューションのサーバー URL を入力してください:</string>
 </resources>

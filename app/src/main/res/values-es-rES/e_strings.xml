@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Contraseñas</string>
     <string name="password_app_dashboard_summary">Guarda y sincroniza tus contraseñas de forma segura</string>
+    <string name="error_sso_unavailable_generic">El inicio de sesión único no está disponible. Inicia sesión manualmente.</string>
+    <string name="error_sso_app_signature">El inicio de sesión único no está disponible para esta firma de la aplicación.</string>
+    <string name="error_sso_no_account_found">No se ha encontrado ninguna cuenta. Inicia sesión.</string>
+    <string name="error_sso_sync_disabled">La sincronización está desactivada para la aplicación Passwords. Actívala desde (Ajustes -&gt; Cuentas -&gt; cuenta de Murena -&gt; Sincronización de cuentas -&gt; Passwords)</string>
+    <string name="error_sso_failed">Ha fallado el inicio de sesión automático. Inicia sesión manualmente.</string>
+    <string name="password_attr_security_rating">Nivel de seguridad</string>
+    <string name="password_strength_very_strong">Muy segura</string>
+    <string name="password_strength_weak">Débil</string>
+    <string name="password_strength_leaked">Filtrada</string>
+    <string name="password_security_rating_tooltip">Este indicador muestra el nivel de seguridad de tus credenciales y refleja lo fuerte que es tu contraseña según las comprobaciones realizadas por la aplicación, como la detección de contraseñas débiles, el uso duplicado o si la contraseña se ha filtrado.</string>
+    <string name="password_security_description_safe">La contraseña es totalmente segura</string>
+    <string name="password_security_description_weak">Esta contraseña se está usando más de una vez</string>
+    <string name="password_security_description_leaked">La contraseña es mala y se puede encontrar en bases de datos de hackers en internet. Debes cambiarla y asegurarte de que la cuenta para la que la usas no se ha visto comprometida.</string>
+    <string name="passwords_floating_action_button">Nueva</string>
+    <string name="backup_app_setup_title">Guardar clave de cifrado de la copia de seguridad</string>
+    <string name="backup_app_setup_cta">Guardar clave de cifrado</string>
+    <string name="backup_app_setup_password_error">Contraseña incorrecta. Inténtalo de nuevo.</string>
+    <string name="enter_password_hint">Introduce tu contraseña de Murena Workspace</string>
+    <string name="description">Introduce tu contraseña de Murena Workspace para guardar la clave de cifrado en Murena Passwords</string>
+    <string name="autofill_password_saved">Contraseña guardada</string>
+    <string name="autofill_saving_password">Guardando contraseña</string>
+    <string name="autofill_saving_password_message">Espera mientras %1$s guarda esta credencial.</string>
+    <string name="autofill_save_choice_title">Completar el guardado</string>
+    <string name="autofill_save_update_entry">Actualizar %1$s</string>
+    <string name="autofill_save_create_new_entry">Crear entrada nueva</string>
+    <string name="autofill_save_select_password_to_update">Selecciona la contraseña que quieres actualizar</string>
+    <string name="login_welcome_icon">Icono de la aplicación Passwords</string>
+    <string name="login_welcome_title">Te damos la bienvenida a Passwords</string>
+    <string name="login_welcome_details">Elige sincronizar tus credenciales con tu cuenta de Murena Workspace o con otra solución basada en Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Otra nube</string>
+    <string name="login_other_dialog_title">Introduce la URL del servidor de tu solución basada en Nextcloud:</string>
 </resources>

@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Пароли</string>
     <string name="password_app_dashboard_summary">Безопасно храните и синхронизируйте свои пароли</string>
+    <string name="error_sso_unavailable_generic">Единый вход недоступен. Пожалуйста, войдите вручную.</string>
+    <string name="error_sso_app_signature">Единый вход недоступен для подписи этого приложения.</string>
+    <string name="error_sso_no_account_found">Учетная запись не найдена, пожалуйста, войдите</string>
+    <string name="error_sso_sync_disabled">Для приложения Passwords отключена синхронизация. Включите ее в разделе (Настройки -&gt; Учетные записи -&gt; учетная запись Murena -&gt; Синхронизация учетной записи -&gt; Пароль)</string>
+    <string name="error_sso_failed">Автоматический вход не удался. Пожалуйста, войдите вручную.</string>
+    <string name="password_attr_security_rating">Оценка безопасности</string>
+    <string name="password_strength_very_strong">Очень надежный</string>
+    <string name="password_strength_weak">Слабый</string>
+    <string name="password_strength_leaked">Скомпрометирован</string>
+    <string name="password_security_rating_tooltip">Этот индикатор показывает уровень безопасности ваших учетных данных и отражает надежность вашего пароля на основе проверок, выполняемых приложением, например проверки на слабые пароли, повторное использование или утечку пароля.</string>
+    <string name="password_security_description_safe">Пароль полностью безопасен</string>
+    <string name="password_security_description_weak">Этот пароль используется более одного раза</string>
+    <string name="password_security_description_leaked">Этот пароль небезопасен и может быть найден в хакерских базах данных в интернете. Вам нужно изменить его и убедиться, что учетная запись, для которой вы его используете, не была скомпрометирована.</string>
+    <string name="passwords_floating_action_button">Новый</string>
+    <string name="backup_app_setup_title">Сохранить ключ шифрования резервной копии</string>
+    <string name="backup_app_setup_cta">Сохранить ключ шифрования</string>
+    <string name="backup_app_setup_password_error">Неверный пароль. Повторите попытку.</string>
+    <string name="enter_password_hint">Введите пароль вашей учетной записи Murena Workspace</string>
+    <string name="description">Введите пароль вашей учетной записи Murena Workspace, чтобы сохранить ключ шифрования в Murena Passwords</string>
+    <string name="autofill_password_saved">Пароль сохранен</string>
+    <string name="autofill_saving_password">Сохранение пароля</string>
+    <string name="autofill_saving_password_message">Подождите, пока %1$s сохраняет эти учетные данные.</string>
+    <string name="autofill_save_choice_title">Завершить сохранение</string>
+    <string name="autofill_save_update_entry">Обновить %1$s</string>
+    <string name="autofill_save_create_new_entry">Создать новую запись</string>
+    <string name="autofill_save_select_password_to_update">Выберите пароль для обновления</string>
+    <string name="login_welcome_icon">Значок приложения Passwords</string>
+    <string name="login_welcome_title">Добро пожаловать в Passwords</string>
+    <string name="login_welcome_details">Выберите синхронизацию своих учетных данных с учетной записью Murena Workspace или другим решением на базе Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Другое облако</string>
+    <string name="login_other_dialog_title">Введите URL сервера вашего решения на базе Nextcloud:</string>
 </resources>

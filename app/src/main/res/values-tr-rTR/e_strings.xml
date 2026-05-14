@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Şifreler</string>
     <string name="password_app_dashboard_summary">Şifrelerinizi güvenle saklayın ve senkronize edin</string>
+    <string name="error_sso_unavailable_generic">Tek oturum açma kullanılamıyor. Lütfen manuel olarak oturum açın.</string>
+    <string name="error_sso_app_signature">Tek oturum açma bu uygulama imzası için kullanılamıyor.</string>
+    <string name="error_sso_no_account_found">Hesap bulunamadı, lütfen oturum açın</string>
+    <string name="error_sso_sync_disabled">Passwords uygulaması için eşitleme devre dışı. Lütfen (Ayarlar -&gt; Hesaplar -&gt; Murena hesabı -&gt; Hesap Eşitleme -&gt; Parola) bölümünden etkinleştirin</string>
+    <string name="error_sso_failed">Otomatik oturum açma başarısız oldu. Lütfen manuel olarak oturum açın.</string>
+    <string name="password_attr_security_rating">Güvenlik derecesi</string>
+    <string name="password_strength_very_strong">Çok güçlü</string>
+    <string name="password_strength_weak">Zayıf</string>
+    <string name="password_strength_leaked">Sızdırılmış</string>
+    <string name="password_security_rating_tooltip">Bu gösterge, kimlik bilginizin güvenlik derecesini gösterir ve zayıf parolalar, yinelenen kullanım veya parolanın sızdırılmış olup olmadığı gibi uygulama tarafından yapılan denetimlere göre parolanızın ne kadar güçlü olduğunu belirtir.</string>
+    <string name="password_security_description_safe">Parola tamamen güvenli</string>
+    <string name="password_security_description_weak">Bu parola birden fazla kez kullanılıyor</string>
+    <string name="password_security_description_leaked">Bu parola güvenli değildir ve internetteki korsan veritabanlarında bulunabilir. Bunu değiştirmeniz gerekir ve kullandığınız hesabın ele geçirilmediğinden emin olmalısınız.</string>
+    <string name="passwords_floating_action_button">Yeni</string>
+    <string name="backup_app_setup_title">Yedek Şifreleme Anahtarını Kaydet</string>
+    <string name="backup_app_setup_cta">Şifreleme anahtarını kaydet</string>
+    <string name="backup_app_setup_password_error">Yanlış parola. Lütfen tekrar deneyin.</string>
+    <string name="enter_password_hint">Murena Workspace hesap parolanızı girin</string>
+    <string name="description">Şifreleme anahtarını Murena Passwords\'a kaydetmek için Murena Workspace hesap parolanızı girin</string>
+    <string name="autofill_password_saved">Parola kaydedildi</string>
+    <string name="autofill_saving_password">Parola kaydediliyor</string>
+    <string name="autofill_saving_password_message">Lütfen %1$s bu kimlik bilgisini kaydederken bekleyin.</string>
+    <string name="autofill_save_choice_title">Kaydetmeyi tamamla</string>
+    <string name="autofill_save_update_entry">%1$s öğesini güncelle</string>
+    <string name="autofill_save_create_new_entry">Yeni giriş oluştur</string>
+    <string name="autofill_save_select_password_to_update">Güncellenecek parolayı seçin</string>
+    <string name="login_welcome_icon">Passwords uygulama simgesi</string>
+    <string name="login_welcome_title">Passwords\'a hoş geldiniz</string>
+    <string name="login_welcome_details">Kimlik bilgilerinizi Murena Workspace hesabınızla veya Nextcloud tabanlı başka bir çözümle eşitlemeyi seçin.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Başka bulut</string>
+    <string name="login_other_dialog_title">Nextcloud tabanlı çözümünüzün sunucu URL adresini girin:</string>
 </resources>

@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Лозинке</string>
     <string name="password_app_dashboard_summary">Безбедно чувајте и синхронизујте своје лозинке</string>
+    <string name="error_sso_unavailable_generic">Јединствено пријављивање није доступно. Пријавите се ручно.</string>
+    <string name="error_sso_app_signature">Јединствено пријављивање није доступно за овај потпис апликације.</string>
+    <string name="error_sso_no_account_found">Није пронађен налог, пријавите се</string>
+    <string name="error_sso_sync_disabled">Синхронизација је онемогућена за апликацију Passwords. Омогућите је у (Подешавања -&gt; Налози -&gt; Murena налог -&gt; Синхронизација налога -&gt; Лозинка)</string>
+    <string name="error_sso_failed">Аутоматска пријава није успела. Пријавите се ручно.</string>
+    <string name="password_attr_security_rating">Безбедносна оцена</string>
+    <string name="password_strength_very_strong">Веома јака</string>
+    <string name="password_strength_weak">Слаба</string>
+    <string name="password_strength_leaked">Процурела</string>
+    <string name="password_security_rating_tooltip">Ова ознака приказује безбедносну оцену ваших акредитива и показује колико је ваша лозинка јака на основу провера које врши апликација, као што су провера слабих лозинки, поновне употребе или да ли је лозинка процурела.</string>
+    <string name="password_security_description_safe">Лозинка је потпуно безбедна</string>
+    <string name="password_security_description_weak">Ова лозинка се користи више пута</string>
+    <string name="password_security_description_leaked">Ова лозинка је небезбедна и може се наћи у хакерским базама података на интернету. Морате је променити и требало би да се уверите да налог за који је користите није компромитован.</string>
+    <string name="passwords_floating_action_button">Ново</string>
+    <string name="backup_app_setup_title">Сачувај кључ за шифровање резервне копије</string>
+    <string name="backup_app_setup_cta">Сачувај кључ за шифровање</string>
+    <string name="backup_app_setup_password_error">Нетачна лозинка. Покушајте поново.</string>
+    <string name="enter_password_hint">Унесите лозинку свог Murena Workspace налога</string>
+    <string name="description">Унесите лозинку свог Murena Workspace налога да бисте сачували кључ за шифровање у Murena Passwords</string>
+    <string name="autofill_password_saved">Лозинка је сачувана</string>
+    <string name="autofill_saving_password">Чување лозинке</string>
+    <string name="autofill_saving_password_message">Сачекајте док %1$s чува ове акредитиве.</string>
+    <string name="autofill_save_choice_title">Доврши чување</string>
+    <string name="autofill_save_update_entry">Ажурирај %1$s</string>
+    <string name="autofill_save_create_new_entry">Направи нови унос</string>
+    <string name="autofill_save_select_password_to_update">Изаберите лозинку за ажурирање</string>
+    <string name="login_welcome_icon">Икона апликације Passwords</string>
+    <string name="login_welcome_title">Добро дошли у Passwords</string>
+    <string name="login_welcome_details">Изаберите да синхронизујете своје акредитиве са својим Murena Workspace налогом или неким другим решењем заснованим на Nextcloud-у.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Други облак</string>
+    <string name="login_other_dialog_title">Унесите URL сервера свог решења заснованог на Nextcloud-у:</string>
 </resources>

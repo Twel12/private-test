@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">סיסמאות</string>
     <string name="password_app_dashboard_summary">אחסן וסנכרן את הסיסמאות שלך בצורה מאובטחת</string>
+    <string name="error_sso_unavailable_generic">הכניסה האחודה אינה זמינה. נא להתחבר ידנית.</string>
+    <string name="error_sso_app_signature">הכניסה האחודה אינה זמינה עבור חתימת יישום זו.</string>
+    <string name="error_sso_no_account_found">לא נמצא חשבון, נא להתחבר</string>
+    <string name="error_sso_sync_disabled">הסנכרון מושבת עבור אפליקציית הסיסמאות, נא להפעיל אותו מתוך (הגדרות -&gt; חשבונות -&gt; חשבון Murena -&gt; סנכרון חשבון -&gt; סיסמה)</string>
+    <string name="error_sso_failed">ההתחברות האוטומטית נכשלה. נא להתחבר ידנית.</string>
+    <string name="password_attr_security_rating">דירוג אבטחה</string>
+    <string name="password_strength_very_strong">חזק מאוד</string>
+    <string name="password_strength_weak">חלש</string>
+    <string name="password_strength_leaked">דלף</string>
+    <string name="password_security_rating_tooltip">חיווי זה מציג את דירוג האבטחה של פרטי הגישה שלך ומייצג עד כמה הסיסמה שלך חזקה, על סמך בדיקות שהאפליקציה מבצעת, כגון בדיקת סיסמאות חלשות, שימוש כפול או אם הסיסמה דלפה.</string>
+    <string name="password_security_description_safe">הסיסמה בטוחה לחלוטין</string>
+    <string name="password_security_description_weak">הסיסמה הזאת נמצאת בשימוש יותר מפעם אחת</string>
+    <string name="password_security_description_leaked">הסיסמה אינה בטוחה וניתן למצוא אותה במאגרי נתונים של האקרים באינטרנט. עליך להחליף אותה ולוודא שהחשבון שבו אתה משתמש בה לא נפרץ.</string>
+    <string name="passwords_floating_action_button">חדש</string>
+    <string name="backup_app_setup_title">שמירת מפתח הצפנת הגיבוי</string>
+    <string name="backup_app_setup_cta">שמירת מפתח ההצפנה</string>
+    <string name="backup_app_setup_password_error">סיסמה שגויה. נא לנסות שוב.</string>
+    <string name="enter_password_hint">הזן את סיסמת Murena Workspace שלך</string>
+    <string name="description">הזן את סיסמת Murena Workspace שלך כדי לשמור את מפתח ההצפנה ב-Murena Passwords</string>
+    <string name="autofill_password_saved">הסיסמה נשמרה</string>
+    <string name="autofill_saving_password">שומר את הסיסמה</string>
+    <string name="autofill_saving_password_message">נא להמתין בזמן ש-%1$s שומר את פרטי הגישה האלה.</string>
+    <string name="autofill_save_choice_title">השלמת השמירה</string>
+    <string name="autofill_save_update_entry">עדכון %1$s</string>
+    <string name="autofill_save_create_new_entry">יצירת רשומה חדשה</string>
+    <string name="autofill_save_select_password_to_update">בחר את הסיסמה לעדכון</string>
+    <string name="login_welcome_icon">סמל היישום Passwords</string>
+    <string name="login_welcome_title">ברוכים הבאים ל-Passwords</string>
+    <string name="login_welcome_details">בחר אם לסנכרן את פרטי הגישה שלך עם חשבון Murena Workspace שלך או עם פתרון אחר מבוסס Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">ענן אחר</string>
+    <string name="login_other_dialog_title">הזן את כתובת ה-URL של השרת עבור הפתרון מבוסס ה-Nextcloud שלך:</string>
 </resources>

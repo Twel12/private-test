@@ -2,4 +2,36 @@
 <resources>
     <string name="e_os_app_name">Contrasenyes</string>
     <string name="password_app_dashboard_summary">Emmagatzema i sincronitza les contrasenyes de manera segura</string>
+    <string name="error_sso_unavailable_generic">L\'inici de sessió únic no està disponible. Inicia la sessió manualment.</string>
+    <string name="error_sso_app_signature">L\'inici de sessió únic no està disponible per a aquesta signatura de l\'aplicació.</string>
+    <string name="error_sso_no_account_found">No s\'ha trobat cap compte; inicia la sessió</string>
+    <string name="error_sso_sync_disabled">La sincronització està desactivada per a Passwords. Activa-la des de (Configuració -&gt; Comptes -&gt; compte de Murena -&gt; Sincronització del compte -&gt; Passwords)</string>
+    <string name="error_sso_failed">L\'inici de sessió automàtic ha fallat. Inicia la sessió manualment.</string>
+    <string name="password_attr_security_rating">Nivell de seguretat</string>
+    <string name="password_strength_very_strong">Molt forta</string>
+    <string name="password_strength_weak">Feble</string>
+    <string name="password_strength_leaked">Filtrada</string>
+    <string name="password_security_rating_tooltip">Aquesta indicació mostra el nivell de seguretat de les teves credencials i representa com de forta és la teva contrasenya segons les comprovacions que fa l\'aplicació, com ara la detecció de contrasenyes febles, l\'ús duplicat o si la contrasenya s\'ha filtrat.</string>
+    <string name="password_security_description_safe">La contrasenya és completament segura</string>
+    <string name="password_security_description_weak">Aquesta contrasenya es fa servir més d\'una vegada</string>
+    <string name="password_security_description_leaked">La contrasenya és dolenta i es pot trobar en bases de dades de pirates informàtics a internet. L\'has de canviar i has d\'assegurar-te que el compte on la fas servir no s\'hagi vist compromès.</string>
+    <string name="passwords_floating_action_button">Nova</string>
+    <string name="backup_app_setup_title">Desa la clau de xifrat de la còpia de seguretat</string>
+    <string name="backup_app_setup_cta">Desa la clau de xifrat</string>
+    <string name="backup_app_setup_password_error">Contrasenya incorrecta. Torna-ho a provar.</string>
+    <string name="enter_password_hint">Introdueix la contrasenya de Murena Workspace</string>
+    <string name="description">Introdueix la contrasenya de Murena Workspace per desar la clau de xifrat a Murena Passwords</string>
+    <string name="autofill_password_saved">Contrasenya desada</string>
+    <string name="autofill_saving_password">S\'està desant la contrasenya</string>
+    <string name="autofill_saving_password_message">Espera mentre %1$s desa aquesta credencial.</string>
+    <string name="autofill_save_choice_title">Completa el desament</string>
+    <string name="autofill_save_update_entry">Actualitza %1$s</string>
+    <string name="autofill_save_create_new_entry">Crea una entrada nova</string>
+    <string name="autofill_save_select_password_to_update">Selecciona la contrasenya que cal actualitzar</string>
+    <string name="login_welcome_icon">Icona de l\'aplicació Passwords</string>
+    <string name="login_welcome_title">Benvingut a Passwords</string>
+    <string name="login_welcome_details">Tria sincronitzar les teves credencials amb el teu compte de Murena Workspace o amb una altra solució basada en Nextcloud.</string>
+    <string name="login_murena_button">Murena Workspace</string>
+    <string name="login_other_button">Un altre núvol</string>
+    <string name="login_other_dialog_title">Introdueix la URL del servidor de la teva solució basada en Nextcloud:</string>
 </resources>
