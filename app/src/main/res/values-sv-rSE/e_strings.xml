@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Annat moln</string>
     <string name="login_other_dialog_title">Ange server-URL:en för din Nextcloud-baserade lösning:</string>
+    <string name="error_secure_master_password_unavailable">Konfigurera ett skärmlås eller biometrisk upplåsning på den här enheten för att spara huvudlösenordet.</string>
+    <string name="error_secure_master_password_authentication_failed">Huvudlösenordet sparades inte eftersom autentiseringen avbröts eller misslyckades.</string>
+    <string name="error_secure_master_password_save_failed">Huvudlösenordet kunde inte sparas. Försök igen.</string>
 </resources>

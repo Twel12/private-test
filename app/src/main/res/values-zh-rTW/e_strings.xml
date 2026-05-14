@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">其他雲端</string>
     <string name="login_other_dialog_title">輸入您的 Nextcloud 解決方案的伺服器 URL：</string>
+    <string name="error_secure_master_password_unavailable">請在此裝置上設定螢幕鎖定或生物辨識解鎖，以儲存主密碼。</string>
+    <string name="error_secure_master_password_authentication_failed">由於身分驗證已取消或失敗，主密碼未儲存。</string>
+    <string name="error_secure_master_password_save_failed">無法儲存主密碼。請再試一次。</string>
 </resources>

@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">سحابة أخرى</string>
     <string name="login_other_dialog_title">أدخل عنوان URL لخادم الحل القائم على Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">قم بإعداد قفل شاشة أو إلغاء قفل حيوي على هذا الجهاز لحفظ كلمة المرور الرئيسية.</string>
+    <string name="error_secure_master_password_authentication_failed">لم يتم حفظ كلمة المرور الرئيسية لأن المصادقة أُلغيت أو فشلت.</string>
+    <string name="error_secure_master_password_save_failed">تعذر حفظ كلمة المرور الرئيسية. يُرجى المحاولة مرة أخرى.</string>
 </resources>

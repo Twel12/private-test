@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Andere cloud</string>
     <string name="login_other_dialog_title">Voer de server-URL in van je Nextcloud-gebaseerde oplossing:</string>
+    <string name="error_secure_master_password_unavailable">Stel schermvergrendeling of biometrische ontgrendeling in op dit apparaat om het hoofdwachtwoord op te slaan.</string>
+    <string name="error_secure_master_password_authentication_failed">Het hoofdwachtwoord is niet opgeslagen omdat de verificatie is geannuleerd of mislukt.</string>
+    <string name="error_secure_master_password_save_failed">Het hoofdwachtwoord kon niet worden opgeslagen. Probeer het opnieuw.</string>
 </resources>

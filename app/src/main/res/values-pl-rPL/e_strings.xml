@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Inna chmura</string>
     <string name="login_other_dialog_title">Wpisz adres URL serwera swojego rozwiązania opartego na Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Skonfiguruj blokadę ekranu lub odblokowanie biometryczne na tym urządzeniu, aby zapisać hasło główne.</string>
+    <string name="error_secure_master_password_authentication_failed">Hasło główne nie zostało zapisane, ponieważ uwierzytelnianie zostało anulowane lub nie powiodło się.</string>
+    <string name="error_secure_master_password_save_failed">Nie można zapisać hasła głównego. Spróbuj ponownie.</string>
 </resources>

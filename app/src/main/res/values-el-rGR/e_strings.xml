@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Άλλο cloud</string>
     <string name="login_other_dialog_title">Εισαγάγετε τη διεύθυνση URL διακομιστή της λύσης σας που βασίζεται στο Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Ρυθμίστε κλείδωμα οθόνης ή βιομετρικό ξεκλείδωμα σε αυτήν τη συσκευή για να αποθηκεύσετε τον κύριο κωδικό πρόσβασης.</string>
+    <string name="error_secure_master_password_authentication_failed">Ο κύριος κωδικός πρόσβασης δεν αποθηκεύτηκε επειδή ο έλεγχος ταυτότητας ακυρώθηκε ή απέτυχε.</string>
+    <string name="error_secure_master_password_save_failed">Δεν ήταν δυνατή η αποθήκευση του κύριου κωδικού πρόσβασης. Δοκιμάστε ξανά.</string>
 </resources>

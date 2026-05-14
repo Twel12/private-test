@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Un altre núvol</string>
     <string name="login_other_dialog_title">Introdueix la URL del servidor de la teva solució basada en Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Configureu un bloqueig de pantalla o el desbloqueig biomètric en aquest dispositiu per desar la contrasenya mestra.</string>
+    <string name="error_secure_master_password_authentication_failed">La contrasenya mestra no s\'ha desat perquè l\'autenticació s\'ha cancel·lat o ha fallat.</string>
+    <string name="error_secure_master_password_save_failed">No s\'ha pogut desar la contrasenya mestra. Torneu-ho a provar.</string>
 </resources>

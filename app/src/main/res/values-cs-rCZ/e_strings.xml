@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Jiný cloud</string>
     <string name="login_other_dialog_title">Zadejte URL serveru vašeho řešení založeného na Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Nastavte na tomto zařízení zámek obrazovky nebo biometrické odemknutí, abyste mohli uložit hlavní heslo.</string>
+    <string name="error_secure_master_password_authentication_failed">Hlavní heslo nebylo uloženo, protože ověření bylo zrušeno nebo selhalo.</string>
+    <string name="error_secure_master_password_save_failed">Hlavní heslo se nepodařilo uložit. Zkuste to prosím znovu.</string>
 </resources>

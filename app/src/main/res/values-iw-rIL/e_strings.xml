@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">ענן אחר</string>
     <string name="login_other_dialog_title">הזן את כתובת ה-URL של השרת עבור הפתרון מבוסס ה-Nextcloud שלך:</string>
+    <string name="error_secure_master_password_unavailable">כדי לשמור את הסיסמה הראשית, הגדר נעילת מסך או ביטול נעילה ביומטרי במכשיר זה.</string>
+    <string name="error_secure_master_password_authentication_failed">הסיסמה הראשית לא נשמרה מכיוון שהאימות בוטל או נכשל.</string>
+    <string name="error_secure_master_password_save_failed">לא ניתן היה לשמור את הסיסמה הראשית. נסה שוב.</string>
 </resources>

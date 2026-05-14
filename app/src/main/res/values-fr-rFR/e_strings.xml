@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Autre cloud</string>
     <string name="login_other_dialog_title">Saisissez l\'URL du serveur de votre solution basée sur Nextcloud :</string>
+    <string name="error_secure_master_password_unavailable">Configurez un verrouillage de l\'écran ou le déverrouillage biométrique sur cet appareil pour enregistrer le mot de passe maître.</string>
+    <string name="error_secure_master_password_authentication_failed">Le mot de passe maître n\'a pas été enregistré, car l\'authentification a été annulée ou a échoué.</string>
+    <string name="error_secure_master_password_save_failed">Impossible d\'enregistrer le mot de passe maître. Veuillez réessayer.</string>
 </resources>

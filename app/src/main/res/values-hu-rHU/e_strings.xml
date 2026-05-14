@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Másik felhő</string>
     <string name="login_other_dialog_title">Adja meg a Nextcloud-alapú megoldás kiszolgálójának URL-jét:</string>
+    <string name="error_secure_master_password_unavailable">Állítson be képernyőzárat vagy biometrikus feloldást ezen az eszközön a mesterjelszó mentéséhez.</string>
+    <string name="error_secure_master_password_authentication_failed">A mesterjelszó nem lett mentve, mert a hitelesítést megszakították vagy sikertelen volt.</string>
+    <string name="error_secure_master_password_save_failed">A mesterjelszót nem sikerült menteni. Próbálja újra.</string>
 </resources>

@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Ander wolk</string>
     <string name="login_other_dialog_title">Voer die bediener-URL van jou Nextcloud-gebaseerde oplossing in:</string>
+    <string name="error_secure_master_password_unavailable">Stel \'n skermslot of biometriese ontsluiting op hierdie toestel in om die meesterwagwoord te stoor.</string>
+    <string name="error_secure_master_password_authentication_failed">Die meesterwagwoord is nie gestoor nie omdat verifikasie gekanselleer is of misluk het.</string>
+    <string name="error_secure_master_password_save_failed">Die meesterwagwoord kon nie gestoor word nie. Probeer asseblief weer.</string>
 </resources>
