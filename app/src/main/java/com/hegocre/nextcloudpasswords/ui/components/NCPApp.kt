@@ -79,6 +79,9 @@ import kotlinx.coroutines.launch
 fun NextcloudPasswordsApp(
     passwordsViewModel: PasswordsViewModel,
     onLogOut: () -> Unit,
+    showE2eeMigrationDialog: Boolean = false,
+    onStartE2eeMigration: () -> Unit = {},
+    onCancelE2eeMigration: () -> Unit = {},
     isAutofillRequest: Boolean = false,
     isAutofillUnlockRequest: Boolean = false,
     pendingAutofillSave: NCPAutofillPendingSaveStore.PendingSave? = null,
@@ -385,6 +388,13 @@ fun NextcloudPasswordsApp(
                 LogOutDialog(
                     onDismissRequest = { showLogOutDialog = false },
                     onConfirmButton = onLogOut
+                )
+            }
+
+            if (showE2eeMigrationDialog) {
+                E2eeMigrationDialog(
+                    onStartMigration = onStartE2eeMigration,
+                    onCancel = onCancelE2eeMigration
                 )
             }
 

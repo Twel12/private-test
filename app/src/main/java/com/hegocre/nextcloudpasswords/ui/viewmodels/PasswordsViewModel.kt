@@ -6,8 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.webkit.URLUtil
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,9 +52,13 @@ import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -107,6 +113,89 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     val serverSettings: LiveData<ServerSettings>
         get() = apiController.serverSettings
 
+    private val _awaitingMigration = MutableStateFlow(false)
+
+    /**
+     * Whether the migration dialog should currently be shown. Derived from:
+     *   - the account being Murena/SSO (local-credential accounts manage E2EE
+     *     setup through the regular Nextcloud Passwords flow),
+     *   - the server reporting E2EE as disabled, and
+     *   - the user not being mid-flight through the Custom Tab (which would
+     *     otherwise cause the dialog to flash back over the post-return
+     *     re-open).
+     */
+    val showE2eeMigrationDialog: StateFlow<Boolean> = combine(
+        apiController.endToEndEncryptionEnabled,
+        _awaitingMigration
+    ) { enabled, awaiting ->
+        !supportsLocalLogout && enabled == false && !awaiting
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun prepareE2eeMigrationUri(): Uri? {
+        if (supportsLocalLogout || _awaitingMigration.value) return null
+        val baseUrl = server?.url
+        val expectedHost = baseUrl?.let { runCatching { Uri.parse(it).host }.getOrNull() }
+        val candidate = baseUrl?.trimEnd('/')?.plus(PASSWORDS_WEB_PATH)
+        val uri = candidate?.let { runCatching { Uri.parse(it) }.getOrNull() }
+        return when {
+            baseUrl == null || expectedHost == null -> {
+                Timber.e("No server URL available; cannot start E2EE migration")
+                null
+            }
+            uri == null -> {
+                Timber.e("Could not parse migration URL: %s", candidate)
+                null
+            }
+            !URLUtil.isHttpsUrl(uri.toString()) -> {
+                Timber.e("Refusing to launch E2EE migration over insecure URL: %s", uri)
+                null
+            }
+            !uri.host.equals(expectedHost, ignoreCase = true) -> {
+                Timber.e(
+                    "Refusing to launch E2EE migration: host mismatch (expected=%s actual=%s)",
+                    expectedHost,
+                    uri.host
+                )
+                null
+            }
+            else -> uri
+        }
+    }
+
+    fun onE2eeMigrationLaunched() {
+        _awaitingMigration.value = true
+    }
+
+    fun onE2eeMigrationLaunchFailed() {
+        _awaitingMigration.value = false
+    }
+
+    /**
+     * Called when the user returns from the Custom Tab. If we were waiting on
+     * a migration, clear any stale master password and re-open the session.
+     * If E2EE is now enabled, [openSession] naturally throws
+     * [PWDv1ChallengeMasterKeyNeededException], which the existing catch
+     * block surfaces to the user as the master password prompt — no
+     * separate "migration completed" handler needed.
+     */
+    fun onAppResumedAfterMigration() {
+        if (!_awaitingMigration.value) return
+        Timber.i("Returned from Murena Passwords web; re-opening session")
+        masterPassword.value = null
+        preferencesManager.setMasterPassword(null)
+        apiController.clearSession()
+        viewModelScope.launch {
+            // Keep _awaitingMigration true until openSession finishes — otherwise
+            // the dialog would briefly flash back over the still-stale
+            // endToEndEncryptionEnabled=false before the recheck updates it.
+            try {
+                openSession(null)
+            } finally {
+                _awaitingMigration.value = false
+            }
+        }
+    }
+
     val server
         get() = try {
             UserController.getInstance(getApplication()).getServer()
@@ -154,46 +243,43 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             application.registerReceiver(screenOffReceiver, screenLockFilter)
         }
 
-        if (!sessionOpen.value)
-            openSession(masterPassword.value)
+        if (!sessionOpen.value) {
+            viewModelScope.launch { openSession(masterPassword.value) }
+        }
     }
 
-    private fun openSession(password: String?) {
-        viewModelScope.launch {
-            _isRefreshing.emit(true)
-            try {
-                if (apiController.openSession(password)) {
-                    _showSessionOpenError.emit(false)
-                    _needsMasterPassword.emit(false)
-                    _masterPasswordInvalid.emit(false)
-                    syncPasswordsAndFolders()
-                    return@launch
+    private suspend fun openSession(password: String?) {
+        _isRefreshing.emit(true)
+        try {
+            if (apiController.openSession(password)) {
+                _showSessionOpenError.emit(false)
+                _needsMasterPassword.emit(false)
+                _masterPasswordInvalid.emit(false)
+                syncPasswordsAndFolders()
+                return
+            }
+            _showSessionOpenError.emit(true)
+        } catch (_: PWDv1ChallengeMasterKeyNeededException) {
+            _needsMasterPassword.emit(true)
+        } catch (_: ClientDeauthorizedException) {
+            _clientDeauthorized.postValue(true)
+        } catch (_: SsoReauthenticationRequiredException) {
+            apiController.requireSsoReauthentication()
+        } catch (ex: Exception) {
+            when (ex) {
+                is PWDv1ChallengeMasterKeyInvalidException, is PWDv1ChallengePasswordException -> {
+                    _needsMasterPassword.emit(true)
+                    _masterPasswordInvalid.emit(true)
+                    masterPassword.postValue(null)
+                    preferencesManager.setMasterPassword(null)
                 }
-                _showSessionOpenError.emit(true)
-            } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-                _needsMasterPassword.emit(true)
-            } catch (_: ClientDeauthorizedException) {
-                _clientDeauthorized.postValue(true)
-            } catch (_: SsoReauthenticationRequiredException) {
-                apiController.requireSsoReauthentication()
-            } catch (ex: Exception) {
-                when (ex) {
-                    is PWDv1ChallengeMasterKeyInvalidException,
-                    is PWDv1ChallengePasswordException -> {
-                        _needsMasterPassword.emit(true)
-                        _masterPasswordInvalid.emit(true)
-                        masterPassword.postValue(null)
-                        preferencesManager.setMasterPassword(null)
-                    }
-
-                    else -> {
-                        _showSessionOpenError.emit(true)
-                        ex.printStackTrace()
-                    }
+                else -> {
+                    _showSessionOpenError.emit(true)
+                    Timber.e(ex, "Unexpected error opening session")
                 }
             }
-            _isRefreshing.emit(false)
         }
+        _isRefreshing.emit(false)
     }
 
     fun setMasterPassword(password: String, save: Boolean = false) {
@@ -201,7 +287,7 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         if (save) {
             preferencesManager.setMasterPassword(password)
         }
-        openSession(password)
+        viewModelScope.launch { openSession(password) }
     }
 
     fun clearMasterPasswordInvalid() {
@@ -220,12 +306,12 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     fun sync() {
         if (_isRefreshing.value) return
 
-        if (sessionOpen.value) {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            if (sessionOpen.value) {
                 syncPasswordsAndFolders()
+            } else {
+                openSession(masterPassword.value)
             }
-        } else {
-            openSession(masterPassword.value)
         }
     }
 
@@ -421,8 +507,7 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
-    override fun onCleared() {
-        apiController
-        super.onCleared()
+    companion object {
+        private const val PASSWORDS_WEB_PATH = "/index.php/apps/passwords/"
     }
 }

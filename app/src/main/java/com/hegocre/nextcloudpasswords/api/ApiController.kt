@@ -65,6 +65,10 @@ class ApiController private constructor(context: Context) {
         preferencesManager.getServerSettings()
     )
 
+    private val _endToEndEncryptionEnabled = MutableStateFlow<Boolean?>(null)
+    val endToEndEncryptionEnabled: StateFlow<Boolean?>
+        get() = _endToEndEncryptionEnabled.asStateFlow()
+
     private val _ssoReauthenticationRequired = MutableStateFlow(false)
     val ssoReauthenticationRequired: StateFlow<Boolean>
         get() = _ssoReauthenticationRequired.asStateFlow()
@@ -185,6 +189,12 @@ class ApiController private constructor(context: Context) {
         }
 
         val requestResult = sessionApi.requestSession()
+
+        if (requestResult is Result.Success) {
+            // E2EE state is derived from the session challenge: 3 salts → CSE enabled.
+            _endToEndEncryptionEnabled.value =
+                requestResult.data.salts.size == CSE_SALT_COUNT
+        }
 
         val secretResult = if (requestResult is Result.Success) {
             requestResult.data.solve(masterPassword)
@@ -525,6 +535,8 @@ class ApiController private constructor(context: Context) {
     companion object {
         private var instance: ApiController? = null
 
+        private const val CSE_SALT_COUNT = 3
+
         const val CSE_TYPE = "CSEv1r1"
 
         /**
@@ -536,8 +548,13 @@ class ApiController private constructor(context: Context) {
         fun getInstance(context: Context): ApiController {
             synchronized(this) {
                 var tempInstance = instance
+                val currentServer = runCatching {
+                    UserController.getInstance(context.applicationContext).getServer()
+                }.getOrNull()
 
-                if (tempInstance == null) {
+                if (tempInstance == null ||
+                    (currentServer != null && tempInstance.server != currentServer)
+                ) {
                     tempInstance = ApiController(context)
                     instance = tempInstance
                 }

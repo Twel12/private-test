@@ -196,6 +196,32 @@ fun LogOutDialog(
 }
 
 @Composable
+fun E2eeMigrationDialog(
+    onStartMigration: () -> Unit,
+    onCancel: () -> Unit
+) {
+    EAlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(text = stringResource(R.string.e2ee_migration_dialog_title)) },
+        text = {
+            Text(
+                text = stringResource(R.string.e2ee_migration_dialog_text)
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onStartMigration) {
+                Text(text = stringResource(R.string.e2ee_migration_dialog_start))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(text = stringResource(id = android.R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
 fun DeleteElementDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit

@@ -261,7 +261,7 @@ class FoldersApi private constructor(private var server: Server) {
             synchronized(this) {
                 var tempInstance = instance
 
-                if (tempInstance == null) {
+                if (tempInstance == null || tempInstance.server != server) {
                     tempInstance = FoldersApi(server)
                     instance = tempInstance
                 }
