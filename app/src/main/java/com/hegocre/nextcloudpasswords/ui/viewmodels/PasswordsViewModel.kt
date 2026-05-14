@@ -164,6 +164,8 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             try {
                 if (apiController.openSession(password)) {
                     _showSessionOpenError.emit(false)
+                    _needsMasterPassword.emit(false)
+                    _masterPasswordInvalid.emit(false)
                     syncPasswordsAndFolders()
                     return@launch
                 }
@@ -176,12 +178,14 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                 apiController.requireSsoReauthentication()
             } catch (ex: Exception) {
                 when (ex) {
-                    is PWDv1ChallengeMasterKeyInvalidException, is PWDv1ChallengePasswordException -> {
+                    is PWDv1ChallengeMasterKeyInvalidException,
+                    is PWDv1ChallengePasswordException -> {
                         _needsMasterPassword.emit(true)
                         _masterPasswordInvalid.emit(true)
                         masterPassword.postValue(null)
                         preferencesManager.setMasterPassword(null)
                     }
+
                     else -> {
                         _showSessionOpenError.emit(true)
                         ex.printStackTrace()
@@ -193,14 +197,17 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setMasterPassword(password: String, save: Boolean = false) {
-        openSession(password)
         masterPassword.postValue(password)
+        if (save) {
+            preferencesManager.setMasterPassword(password)
+        }
+        openSession(password)
+    }
+
+    fun clearMasterPasswordInvalid() {
         viewModelScope.launch {
-            _needsMasterPassword.emit(false)
             _masterPasswordInvalid.emit(false)
         }
-        if (save)
-            preferencesManager.setMasterPassword(password)
     }
 
     fun requestMasterPassword() {

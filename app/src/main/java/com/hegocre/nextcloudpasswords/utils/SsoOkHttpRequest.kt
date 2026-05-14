@@ -19,9 +19,11 @@ package com.hegocre.nextcloudpasswords.utils
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.nextcloud.android.sso.aidl.NextcloudRequest
 import com.nextcloud.android.sso.api.NextcloudAPI
+import com.nextcloud.android.sso.exceptions.NextcloudHttpRequestFailedException
 import com.nextcloud.android.sso.exceptions.TokenMismatchException
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 import okhttp3.Headers
@@ -170,17 +172,7 @@ class SsoOkHttpRequest(
             }
         }
 
-        val ssoResponse = try {
-            ssoApi.performNetworkRequestV2(requestBuilder.build())
-        } catch (e: TokenMismatchException) {
-            Timber.e(e)
-            throw SsoReauthenticationRequiredException(e)
-        } catch (e: Exception) {
-            // this intentional `performNetworkRequestV2` can throw generic `Exception`
-            // reset of app is not designed for handling generic exception
-            Log.d(TAG, "error on performNetworkRequestV2", e)
-            throw IOException("unexpected error ${e.localizedMessage}", e)
-        }
+        val ssoResponse = performSsoRequest(requestBuilder.build())
         val bodyBytes = ssoResponse.body.use { it.readBytes() }
 
         val headersBuilder = Headers.Builder()
@@ -211,5 +203,19 @@ class SsoOkHttpRequest(
             .headers(headersBuilder.build())
             .body(responseBody)
             .build()
+    }
+
+    private fun performSsoRequest(request: NextcloudRequest) = try {
+        ssoApi.performNetworkRequestV2(request)
+    } catch (e: TokenMismatchException) {
+        Timber.e(e)
+        throw SsoReauthenticationRequiredException(e)
+    } catch (e: NextcloudHttpRequestFailedException) {
+        throw HttpStatusException(statusCode = e.statusCode, cause = e)
+    } catch (e: Exception) {
+        // this intentional `performNetworkRequestV2` can throw generic `Exception`
+        // reset of app is not designed for handling generic exception
+        Log.d(TAG, "error on performNetworkRequestV2", e)
+        throw IOException("unexpected error ${e.localizedMessage}", e)
     }
 }

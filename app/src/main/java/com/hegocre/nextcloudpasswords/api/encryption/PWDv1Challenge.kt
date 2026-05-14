@@ -37,8 +37,16 @@ data class PWDv1Challenge(
         if (password == null) throw PWDv1ChallengeMasterKeyNeededException()
 
         // TODO: Warn the user
-        if (password.length < 12) throw PWDv1ChallengePasswordException("Password should have no less than 12 characters")
-        if (password.length > 128) throw PWDv1ChallengePasswordException("Password should have no more than 128 characters")
+        if (password.length < MIN_PASSWORD_LENGTH) {
+            throw PWDv1ChallengePasswordException(
+                "Password should have no less than $MIN_PASSWORD_LENGTH characters"
+            )
+        }
+        if (password.length > MAX_PASSWORD_LENGTH) {
+            throw PWDv1ChallengePasswordException(
+                "Password should have no more than $MAX_PASSWORD_LENGTH characters"
+            )
+        }
 
         val sodium = LazySodiumUtils.getSodium()
 
@@ -90,6 +98,9 @@ data class PWDv1Challenge(
     }
 
     companion object {
+        private const val MIN_PASSWORD_LENGTH = 8
+        private const val MAX_PASSWORD_LENGTH = 128
+
         /**
          * Creates a [PWDv1Challenge] from a JSON object.
          *

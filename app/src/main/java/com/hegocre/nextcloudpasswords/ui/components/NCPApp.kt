@@ -397,12 +397,16 @@ fun NextcloudPasswordsApp(
                 }
                 MasterPasswordDialog(
                     masterPassword = masterPassword,
-                    setMasterPassword = setMasterPassword,
+                    setMasterPassword = { newValue ->
+                        if (masterPasswordInvalid) {
+                            passwordsViewModel.clearMasterPasswordInvalid()
+                        }
+                        setMasterPassword(newValue)
+                    },
                     savePassword = savePassword,
                     setSavePassword = setSavePassword,
                     onOkClick = {
                         passwordsViewModel.setMasterPassword(masterPassword, savePassword)
-                        setMasterPassword("")
                     },
                     errorText = if (masterPasswordInvalid) stringResource(R.string.error_invalid_password) else "",
                     onDismissRequest = { }
