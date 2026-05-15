@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configura un bloqueo de pantalla o desbloqueo biométrico en este dispositivo para guardar la contraseña maestra.</string>
     <string name="error_secure_master_password_authentication_failed">La contraseña maestra no se guardó porque la autenticación se canceló o falló.</string>
     <string name="error_secure_master_password_save_failed">No se pudo guardar la contraseña maestra. Inténtalo de nuevo.</string>
+    <string name="e2ee_migration_dialog_title">Se requiere configurar el cifrado</string>
+    <string name="e2ee_migration_dialog_text">El cifrado todavía no está activado para esta cuenta. Para empezar a usar la aplicación, introduce tu contraseña en la versión web de Murena Passwords y vuelve aquí cuando la configuración haya finalizado.</string>
+    <string name="e2ee_migration_dialog_start">Configurar cifrado</string>
 </resources>

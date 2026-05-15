@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configure um bloqueio de ecrã ou desbloqueio biométrico neste dispositivo para guardar a palavra-passe mestra.</string>
     <string name="error_secure_master_password_authentication_failed">A palavra-passe mestra não foi guardada porque a autenticação foi cancelada ou falhou.</string>
     <string name="error_secure_master_password_save_failed">Não foi possível guardar a palavra-passe mestra. Tente novamente.</string>
+    <string name="e2ee_migration_dialog_title">Configuração da encriptação necessária</string>
+    <string name="e2ee_migration_dialog_text">A encriptação ainda não está ativada para esta conta. Para começar a usar a aplicação, introduza a sua palavra-passe na versão web do Murena Passwords e volte aqui quando a configuração estiver concluída.</string>
+    <string name="e2ee_migration_dialog_start">Configurar encriptação</string>
 </resources>

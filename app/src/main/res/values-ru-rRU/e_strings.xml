@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Настройте блокировку экрана или биометрическую разблокировку на этом устройстве, чтобы сохранить мастер-пароль.</string>
     <string name="error_secure_master_password_authentication_failed">Мастер-пароль не сохранен, так как аутентификация была отменена или не удалась.</string>
     <string name="error_secure_master_password_save_failed">Не удалось сохранить мастер-пароль. Повторите попытку.</string>
+    <string name="e2ee_migration_dialog_title">Требуется настройка шифрования</string>
+    <string name="e2ee_migration_dialog_text">Шифрование для этой учетной записи еще не включено. Чтобы начать пользоваться приложением, введите свой пароль в веб-версии Murena Passwords и вернитесь сюда после завершения настройки.</string>
+    <string name="e2ee_migration_dialog_start">Настроить шифрование</string>
 </resources>

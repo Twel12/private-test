@@ -42,6 +42,6 @@
 
     <!-- E2EE migration dialog -->
     <string name="e2ee_migration_dialog_title">Encryption setup required</string>
-    <string name="e2ee_migration_dialog_text">End-to-end encryption is not enabled for this account yet. Start the migration in Murena Passwords on the web, then return here after the setup is complete.</string>
-    <string name="e2ee_migration_dialog_start">Start migration</string>
+    <string name="e2ee_migration_dialog_text">Encryption is not yet enabled for this account. To start using the app, enter your password in the web version of Murena Passwords and return here once setup is complete.</string>
+    <string name="e2ee_migration_dialog_start">Set up encryption</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Ana şifreyi kaydetmek için bu cihazda ekran kilidi veya biyometrik kilit açma ayarlayın.</string>
     <string name="error_secure_master_password_authentication_failed">Kimlik doğrulama iptal edildiği veya başarısız olduğu için ana şifre kaydedilmedi.</string>
     <string name="error_secure_master_password_save_failed">Ana şifre kaydedilemedi. Lütfen tekrar deneyin.</string>
+    <string name="e2ee_migration_dialog_title">Şifreleme kurulumu gerekiyor</string>
+    <string name="e2ee_migration_dialog_text">Bu hesap için şifreleme henüz etkinleştirilmedi. Uygulamayı kullanmaya başlamak için Murena Passwords\'un web sürümünde parolanızı girin ve kurulum tamamlandığında buraya geri dönün.</string>
+    <string name="e2ee_migration_dialog_start">Şifrelemeyi kur</string>
 </resources>

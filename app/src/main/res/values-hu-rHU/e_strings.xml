@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Állítson be képernyőzárat vagy biometrikus feloldást ezen az eszközön a mesterjelszó mentéséhez.</string>
     <string name="error_secure_master_password_authentication_failed">A mesterjelszó nem lett mentve, mert a hitelesítést megszakították vagy sikertelen volt.</string>
     <string name="error_secure_master_password_save_failed">A mesterjelszót nem sikerült menteni. Próbálja újra.</string>
+    <string name="e2ee_migration_dialog_title">Titkosítás beállítása szükséges</string>
+    <string name="e2ee_migration_dialog_text">A titkosítás még nincs engedélyezve ehhez a fiókhoz. Az alkalmazás használatának megkezdéséhez adja meg jelszavát a Murena Passwords webes verziójában, majd a beállítás befejezése után térjen vissza ide.</string>
+    <string name="e2ee_migration_dialog_start">Titkosítás beállítása</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Richten Sie auf diesem Gerät eine Displaysperre oder biometrische Entsperrung ein, um das Master-Passwort zu speichern.</string>
     <string name="error_secure_master_password_authentication_failed">Das Master-Passwort wurde nicht gespeichert, weil die Authentifizierung abgebrochen wurde oder fehlgeschlagen ist.</string>
     <string name="error_secure_master_password_save_failed">Das Master-Passwort konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="e2ee_migration_dialog_title">Einrichtung der Verschlüsselung erforderlich</string>
+    <string name="e2ee_migration_dialog_text">Für dieses Konto ist die Verschlüsselung noch nicht aktiviert. Um die App zu verwenden, gib dein Passwort in der Webversion von Murena Passwords ein und kehre hierher zurück, sobald die Einrichtung abgeschlossen ist.</string>
+    <string name="e2ee_migration_dialog_start">Verschlüsselung einrichten</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Stel \'n skermslot of biometriese ontsluiting op hierdie toestel in om die meesterwagwoord te stoor.</string>
     <string name="error_secure_master_password_authentication_failed">Die meesterwagwoord is nie gestoor nie omdat verifikasie gekanselleer is of misluk het.</string>
     <string name="error_secure_master_password_save_failed">Die meesterwagwoord kon nie gestoor word nie. Probeer asseblief weer.</string>
+    <string name="e2ee_migration_dialog_title">Enkripsie-opstelling vereis</string>
+    <string name="e2ee_migration_dialog_text">Enkripsie is nog nie vir hierdie rekening geaktiveer nie. Om die toepassing te begin gebruik, voer jou wagwoord in die webweergawe van Murena Passwords in en keer hierheen terug sodra die opstelling voltooi is.</string>
+    <string name="e2ee_migration_dialog_start">Stel enkripsie op</string>
 </resources>

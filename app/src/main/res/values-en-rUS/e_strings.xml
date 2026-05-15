@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Set up a screen lock or biometric unlock on this device to save the master password.</string>
     <string name="error_secure_master_password_authentication_failed">Master password was not saved because authentication was canceled or failed.</string>
     <string name="error_secure_master_password_save_failed">Master password could not be saved. Please, try again.</string>
+    <string name="e2ee_migration_dialog_title">Encryption setup required</string>
+    <string name="e2ee_migration_dialog_text">Encryption is not yet enabled for this account. To start using the app, enter your password in the web version of Murena Passwords and return here once setup is complete.</string>
+    <string name="e2ee_migration_dialog_start">Set up encryption</string>
 </resources>

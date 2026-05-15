@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configure um bloqueio de tela ou desbloqueio biométrico neste dispositivo para salvar a senha mestra.</string>
     <string name="error_secure_master_password_authentication_failed">A senha mestra não foi salva porque a autenticação foi cancelada ou falhou.</string>
     <string name="error_secure_master_password_save_failed">Não foi possível salvar a senha mestra. Tente novamente.</string>
+    <string name="e2ee_migration_dialog_title">Configuração de criptografia necessária</string>
+    <string name="e2ee_migration_dialog_text">A criptografia ainda não está ativada para esta conta. Para começar a usar o aplicativo, digite sua senha na versão web do Murena Passwords e volte aqui quando a configuração estiver concluída.</string>
+    <string name="e2ee_migration_dialog_start">Configurar criptografia</string>
 </resources>

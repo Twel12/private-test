@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">请在此设备上设置屏幕锁定或生物识别解锁，以保存主密码。</string>
     <string name="error_secure_master_password_authentication_failed">由于身份验证已取消或失败，主密码未保存。</string>
     <string name="error_secure_master_password_save_failed">无法保存主密码。请重试。</string>
+    <string name="e2ee_migration_dialog_title">需要设置加密</string>
+    <string name="e2ee_migration_dialog_text">此账户尚未启用加密。要开始使用该应用，请在 Murena Passwords 网页版中输入您的密码，并在设置完成后返回此处。</string>
+    <string name="e2ee_migration_dialog_start">设置加密</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Konfigurera ett skärmlås eller biometrisk upplåsning på den här enheten för att spara huvudlösenordet.</string>
     <string name="error_secure_master_password_authentication_failed">Huvudlösenordet sparades inte eftersom autentiseringen avbröts eller misslyckades.</string>
     <string name="error_secure_master_password_save_failed">Huvudlösenordet kunde inte sparas. Försök igen.</string>
+    <string name="e2ee_migration_dialog_title">Konfiguration av kryptering krävs</string>
+    <string name="e2ee_migration_dialog_text">Kryptering är ännu inte aktiverad för det här kontot. För att börja använda appen, ange ditt lösenord i webbversionen av Murena Passwords och återvänd hit när konfigurationen är klar.</string>
+    <string name="e2ee_migration_dialog_start">Konfigurera kryptering</string>
 </resources>

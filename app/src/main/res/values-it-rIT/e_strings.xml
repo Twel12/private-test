@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configura un blocco schermo o lo sblocco biometrico su questo dispositivo per salvare la password principale.</string>
     <string name="error_secure_master_password_authentication_failed">La password principale non è stata salvata perché l\'autenticazione è stata annullata o non è riuscita.</string>
     <string name="error_secure_master_password_save_failed">Impossibile salvare la password principale. Riprova.</string>
+    <string name="e2ee_migration_dialog_title">Configurazione della crittografia richiesta</string>
+    <string name="e2ee_migration_dialog_text">La crittografia non è ancora abilitata per questo account. Per iniziare a usare l\'app, inserisci la tua password nella versione web di Murena Passwords e torna qui una volta completata la configurazione.</string>
+    <string name="e2ee_migration_dialog_start">Configura crittografia</string>
 </resources>

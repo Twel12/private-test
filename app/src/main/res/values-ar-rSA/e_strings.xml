@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">قم بإعداد قفل شاشة أو إلغاء قفل حيوي على هذا الجهاز لحفظ كلمة المرور الرئيسية.</string>
     <string name="error_secure_master_password_authentication_failed">لم يتم حفظ كلمة المرور الرئيسية لأن المصادقة أُلغيت أو فشلت.</string>
     <string name="error_secure_master_password_save_failed">تعذر حفظ كلمة المرور الرئيسية. يُرجى المحاولة مرة أخرى.</string>
+    <string name="e2ee_migration_dialog_title">إعداد التشفير مطلوب</string>
+    <string name="e2ee_migration_dialog_text">لم يتم تفعيل التشفير لهذا الحساب بعد. لبدء استخدام التطبيق، أدخل كلمة المرور في إصدار الويب من Murena Passwords ثم عد إلى هنا بعد اكتمال الإعداد.</string>
+    <string name="e2ee_migration_dialog_start">إعداد التشفير</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">כדי לשמור את הסיסמה הראשית, הגדר נעילת מסך או ביטול נעילה ביומטרי במכשיר זה.</string>
     <string name="error_secure_master_password_authentication_failed">הסיסמה הראשית לא נשמרה מכיוון שהאימות בוטל או נכשל.</string>
     <string name="error_secure_master_password_save_failed">לא ניתן היה לשמור את הסיסמה הראשית. נסה שוב.</string>
+    <string name="e2ee_migration_dialog_title">נדרשת הגדרת הצפנה</string>
+    <string name="e2ee_migration_dialog_text">ההצפנה עדיין לא מופעלת עבור חשבון זה. כדי להתחיל להשתמש באפליקציה, הזן את הסיסמה שלך בגרסת האינטרנט של Murena Passwords וחזור לכאן לאחר השלמת ההגדרה.</string>
+    <string name="e2ee_migration_dialog_start">הגדרת הצפנה</string>
 </resources>
