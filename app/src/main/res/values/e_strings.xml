@@ -17,7 +17,7 @@
     <string name="password_security_description_leaked">The password is bad and can be found in hacker databases on the internet. You need to change it and you should make sure that the account you\'re using it for has not been compromised.</string>
     <string name="passwords_floating_action_button">New</string>
 
-    <string name="backup_app_setup_title">Save Back-up Encryption Key</string>
+    <string name="backup_app_setup_title">Save Backup Encryption Key</string>
     <string name="backup_app_setup_cta">Save encryption key</string>
     <string name="backup_app_setup_password_error">Incorrect password. Please try again.</string>
     <string name="enter_password_hint">Enter your Murena Workspace password</string>
@@ -42,6 +42,6 @@
 
     <!-- E2EE migration dialog -->
     <string name="e2ee_migration_dialog_title">Encryption setup required</string>
-    <string name="e2ee_migration_dialog_text">End-to-end encryption is not enabled for this account yet. Start the migration in Murena Passwords on the web, then return here after the setup is complete.</string>
-    <string name="e2ee_migration_dialog_start">Start migration</string>
+    <string name="e2ee_migration_dialog_text">Encryption is not yet enabled for this account. To start using the app, enter your password in the web version of Murena Passwords and return here once setup is complete.</string>
+    <string name="e2ee_migration_dialog_start">Set up encryption</string>
 </resources>

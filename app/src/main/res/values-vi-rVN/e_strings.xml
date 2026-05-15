@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Thiết lập khóa màn hình hoặc mở khóa sinh trắc học trên thiết bị này để lưu mật khẩu chính.</string>
     <string name="error_secure_master_password_authentication_failed">Mật khẩu chính chưa được lưu vì xác thực đã bị hủy hoặc không thành công.</string>
     <string name="error_secure_master_password_save_failed">Không thể lưu mật khẩu chính. Vui lòng thử lại.</string>
+    <string name="e2ee_migration_dialog_title">Cần thiết lập mã hóa</string>
+    <string name="e2ee_migration_dialog_text">Tính năng mã hóa chưa được bật cho tài khoản này. Để bắt đầu sử dụng ứng dụng, hãy nhập mật khẩu của bạn trên phiên bản web của Murena Passwords và quay lại đây sau khi thiết lập hoàn tất.</string>
+    <string name="e2ee_migration_dialog_start">Thiết lập mã hóa</string>
 </resources>

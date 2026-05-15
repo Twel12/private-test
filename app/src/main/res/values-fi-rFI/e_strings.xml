@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Määritä laitteelle näyttölukko tai biometrinen lukituksen avaus, jotta pääsalasana voidaan tallentaa.</string>
     <string name="error_secure_master_password_authentication_failed">Pääsalasanaa ei tallennettu, koska tunnistautuminen peruttiin tai epäonnistui.</string>
     <string name="error_secure_master_password_save_failed">Pääsalasanaa ei voitu tallentaa. Yritä uudelleen.</string>
+    <string name="e2ee_migration_dialog_title">Salauksen määritys vaaditaan</string>
+    <string name="e2ee_migration_dialog_text">Salausta ei ole vielä otettu käyttöön tälle tilille. Aloita sovelluksen käyttö syöttämällä salasanasi Murena Passwordsin verkkoversiossa ja palaa tänne, kun määritys on valmis.</string>
+    <string name="e2ee_migration_dialog_start">Määritä salaus</string>
 </resources>

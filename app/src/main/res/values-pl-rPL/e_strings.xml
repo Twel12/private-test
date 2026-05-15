@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Skonfiguruj blokadę ekranu lub odblokowanie biometryczne na tym urządzeniu, aby zapisać hasło główne.</string>
     <string name="error_secure_master_password_authentication_failed">Hasło główne nie zostało zapisane, ponieważ uwierzytelnianie zostało anulowane lub nie powiodło się.</string>
     <string name="error_secure_master_password_save_failed">Nie można zapisać hasła głównego. Spróbuj ponownie.</string>
+    <string name="e2ee_migration_dialog_title">Wymagana konfiguracja szyfrowania</string>
+    <string name="e2ee_migration_dialog_text">Szyfrowanie nie jest jeszcze włączone dla tego konta. Aby rozpocząć korzystanie z aplikacji, wprowadź swoje hasło w internetowej wersji Murena Passwords i wróć tutaj po zakończeniu konfiguracji.</string>
+    <string name="e2ee_migration_dialog_start">Skonfiguruj szyfrowanie</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Seadistage selles seadmes ekraanilukk või biomeetriline avamine, et salvestada peaparool.</string>
     <string name="error_secure_master_password_authentication_failed">Peaparooli ei salvestatud, sest autentimine tühistati või ebaõnnestus.</string>
     <string name="error_secure_master_password_save_failed">Peaparooli ei saanud salvestada. Proovige uuesti.</string>
+    <string name="e2ee_migration_dialog_title">Krüptimise seadistamine on vajalik</string>
+    <string name="e2ee_migration_dialog_text">Krüptimine ei ole selle konto jaoks veel lubatud. Rakenduse kasutamise alustamiseks sisesta oma parool Murena Passwordsi veebiversioonis ja tule siia tagasi, kui seadistamine on lõpetatud.</string>
+    <string name="e2ee_migration_dialog_start">Seadista krüptimine</string>
 </resources>

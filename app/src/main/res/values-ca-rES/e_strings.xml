@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configureu un bloqueig de pantalla o el desbloqueig biomètric en aquest dispositiu per desar la contrasenya mestra.</string>
     <string name="error_secure_master_password_authentication_failed">La contrasenya mestra no s\'ha desat perquè l\'autenticació s\'ha cancel·lat o ha fallat.</string>
     <string name="error_secure_master_password_save_failed">No s\'ha pogut desar la contrasenya mestra. Torneu-ho a provar.</string>
+    <string name="e2ee_migration_dialog_title">Configuració del xifratge necessària</string>
+    <string name="e2ee_migration_dialog_text">El xifratge encara no està activat per a aquest compte. Per començar a utilitzar l\'aplicació, introdueix la teva contrasenya a la versió web de Murena Passwords i torna aquí quan la configuració s\'hagi completat.</string>
+    <string name="e2ee_migration_dialog_start">Configura el xifratge</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">このデバイスでマスターパスワードを保存するには、画面ロックまたは生体認証によるロック解除を設定してください。</string>
     <string name="error_secure_master_password_authentication_failed">認証がキャンセルされたか失敗したため、マスターパスワードは保存されませんでした。</string>
     <string name="error_secure_master_password_save_failed">マスターパスワードを保存できませんでした。もう一度お試しください。</string>
+    <string name="e2ee_migration_dialog_title">暗号化の設定が必要です</string>
+    <string name="e2ee_migration_dialog_text">このアカウントではまだ暗号化が有効になっていません。アプリの利用を開始するには、Murena Passwords のウェブ版でパスワードを入力し、設定が完了したらここに戻ってきてください。</string>
+    <string name="e2ee_migration_dialog_start">暗号化を設定</string>
 </resources>

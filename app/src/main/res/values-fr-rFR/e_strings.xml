@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Configurez un verrouillage de l\'écran ou le déverrouillage biométrique sur cet appareil pour enregistrer le mot de passe maître.</string>
     <string name="error_secure_master_password_authentication_failed">Le mot de passe maître n\'a pas été enregistré, car l\'authentification a été annulée ou a échoué.</string>
     <string name="error_secure_master_password_save_failed">Impossible d\'enregistrer le mot de passe maître. Veuillez réessayer.</string>
+    <string name="e2ee_migration_dialog_title">Configuration du chiffrement requise</string>
+    <string name="e2ee_migration_dialog_text">Le chiffrement n\'est pas encore activé pour ce compte. Pour commencer à utiliser l\'application, saisissez votre mot de passe dans la version web de Murena Passwords et revenez ici une fois la configuration terminée.</string>
+    <string name="e2ee_migration_dialog_start">Configurer le chiffrement</string>
 </resources>

@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Konfigurer en skærmlås eller biometrisk oplåsning på denne enhed for at gemme hovedadgangskoden.</string>
     <string name="error_secure_master_password_authentication_failed">Hovedadgangskoden blev ikke gemt, fordi godkendelsen blev annulleret eller mislykkedes.</string>
     <string name="error_secure_master_password_save_failed">Hovedadgangskoden kunne ikke gemmes. Prøv igen.</string>
+    <string name="e2ee_migration_dialog_title">Krypteringsopsætning påkrævet</string>
+    <string name="e2ee_migration_dialog_text">Kryptering er endnu ikke aktiveret for denne konto. For at begynde at bruge appen skal du indtaste din adgangskode i webversionen af Murena Passwords og vende tilbage hertil, når opsætningen er fuldført.</string>
+    <string name="e2ee_migration_dialog_start">Opsæt kryptering</string>
 </resources>

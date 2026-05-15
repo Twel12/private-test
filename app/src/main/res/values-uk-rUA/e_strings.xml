@@ -37,4 +37,7 @@
     <string name="error_secure_master_password_unavailable">Налаштуйте блокування екрана або біометричне розблокування на цьому пристрої, щоб зберегти головний пароль.</string>
     <string name="error_secure_master_password_authentication_failed">Головний пароль не збережено, оскільки автентифікацію скасовано або вона не вдалася.</string>
     <string name="error_secure_master_password_save_failed">Не вдалося зберегти головний пароль. Спробуйте ще раз.</string>
+    <string name="e2ee_migration_dialog_title">Потрібно налаштувати шифрування</string>
+    <string name="e2ee_migration_dialog_text">Шифрування ще не ввімкнено для цього облікового запису. Щоб почати користуватися застосунком, введіть свій пароль у вебверсії Murena Passwords і поверніться сюди після завершення налаштування.</string>
+    <string name="e2ee_migration_dialog_start">Налаштувати шифрування</string>
 </resources>
