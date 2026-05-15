@@ -16,7 +16,7 @@
     <string name="password_security_description_weak">This password is being used more than once</string>
     <string name="password_security_description_leaked">The password is poor and can be found in hacker databases on the internet. You need to change it, and you should make sure that the account you use it for has not been compromised.</string>
     <string name="passwords_floating_action_button">New</string>
-    <string name="backup_app_setup_title">Save backup encryption key</string>
+    <string name="backup_app_setup_title">Save Backup Encryption Key</string>
     <string name="backup_app_setup_cta">Save encryption key</string>
     <string name="backup_app_setup_password_error">Incorrect password. Please try again.</string>
     <string name="enter_password_hint">Enter your Murena Workspace password</string>
