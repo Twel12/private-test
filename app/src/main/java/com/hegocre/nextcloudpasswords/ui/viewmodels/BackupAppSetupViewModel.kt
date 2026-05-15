@@ -3,8 +3,8 @@ package com.hegocre.nextcloudpasswords.ui.viewmodels
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewModelScope
 import com.hegocre.nextcloudpasswords.api.ApiController
@@ -12,18 +12,23 @@ import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.data.user.UserController
+import com.hegocre.nextcloudpasswords.ui.migration.E2eeMigrationFlowHandler
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import foundation.e.data.SetupResponse
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-class BackupAppSetupViewModel(private val application: Application) : AndroidViewModel(application) {
+class BackupAppSetupViewModel(private val application: Application) :
+    AndroidViewModel(application), E2eeMigrationFlowHandler {
 
     private val apiController: ApiController
         get() = ApiController.getInstance(application)
@@ -37,51 +42,79 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
     private val _ssoReauthenticationRequested = MutableStateFlow(false)
     val ssoReauthenticationRequested = _ssoReauthenticationRequested.asStateFlow()
 
+    private val migrationEligible = MutableStateFlow(false)
+
+    private val e2eeMigrationCoordinator = E2eeMigrationCoordinator(
+        viewModelScope = viewModelScope,
+        endToEndEncryptionEnabled = apiController.endToEndEncryptionEnabled,
+        serverUrlProvider = { runCatching { UserController.getInstance(application).getServer().url }.getOrNull() },
+        migrationEligible = migrationEligible
+    )
+
+    val showE2eeMigrationDialog = e2eeMigrationCoordinator.showMigrationDialog
+
     private var refreshAccountsJob: Job? = null
     private var submitPasswordJob: Job? = null
     private var passwordSubmissionVersion = 0L
+    private val refreshAccountsMutex = Mutex()
 
     fun refreshAccounts() {
         if (refreshAccountsJob?.isActive == true) {
             return
         }
 
-        val account = SsoAccount.getCurrentSingleSignOnAccount(application)
-
-        if (account == null) {
-            Log.d(TAG, "murena account is not available, leaving e2ee setup")
-            finishWithResponse(SetupResponse.AccountUnavailable)
-            return
-        }
-
         refreshAccountsJob = viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val existingE2eeState = restoreExistingE2eeState()
-            if (_ssoReauthenticationRequested.value) {
-                return@launch
-            }
-            when (existingE2eeState) {
-                SetupResponse.Success -> {
-                    Log.d(TAG, "account and e2ee is already configured.")
-                    finishWithResponse(SetupResponse.Success)
-                }
+            refreshAccountsInternal()
+        }
+    }
 
-                SetupResponse.AccountUnavailable -> {
-                    Log.d(TAG, "murena account is not available, leaving e2ee setup")
-                    finishWithResponse(SetupResponse.AccountUnavailable)
-                }
+    private suspend fun refreshAccountsInternal() {
+        refreshAccountsMutex.withLock {
+            migrationEligible.value = false
 
-                null -> {
-                    Log.d(TAG, "e2ee key is not available asking user for the key")
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            accountName = account.name,
-                        )
+            val account = SsoAccount.getCurrentSingleSignOnAccount(application)
+
+            if (account == null) {
+                Log.d(TAG, "murena account is not available, leaving e2ee setup")
+                finishWithResponse(SetupResponse.AccountUnavailable)
+            } else {
+                _uiState.update { it.copy(isLoading = true) }
+                val existingE2eeState = restoreExistingE2eeState()
+                if (!_ssoReauthenticationRequested.value) {
+                    when (existingE2eeState) {
+                        SetupResponse.Success -> {
+                            Log.d(TAG, "account and e2ee is already configured.")
+                            finishWithResponse(SetupResponse.Success)
+                        }
+
+                        SetupResponse.AccountUnavailable -> {
+                            Log.d(TAG, "murena account is not available, leaving e2ee setup")
+                            finishWithResponse(SetupResponse.AccountUnavailable)
+                        }
+
+                        null -> {
+                            val requiresMigration = shouldRunE2eeMigration()
+
+                            if (!_ssoReauthenticationRequested.value) {
+                                if (requiresMigration) {
+                                    Log.d(TAG, "e2ee is disabled, starting migration flow")
+                                    migrationEligible.value = true
+                                } else {
+                                    Log.d(TAG, "e2ee key is not available asking user for the key")
+                                }
+
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        accountName = account.name,
+                                    )
+                                }
+                            }
+                        }
+
+                        else -> finishWithResponse(SetupResponse.Failed)
                     }
                 }
-
-                else -> finishWithResponse(SetupResponse.Failed)
             }
         }
     }
@@ -158,6 +191,24 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
 
     fun finishWithResponse(response: SetupResponse) {
         _response.value = response
+    }
+
+    override fun prepareE2eeMigrationUri() = e2eeMigrationCoordinator.prepareMigrationUri()
+
+    override fun onE2eeMigrationLaunched() {
+        e2eeMigrationCoordinator.onMigrationLaunched()
+    }
+
+    override fun onE2eeMigrationLaunchFailed() {
+        e2eeMigrationCoordinator.onMigrationLaunchFailed()
+    }
+
+    override fun onAppResumedAfterMigration() {
+        refreshAccountsJob = viewModelScope.launch {
+            e2eeMigrationCoordinator.onAppResumedAfterMigration {
+                refreshAccountsInternal()
+            }
+        }
     }
 
     fun clearSsoReauthenticationRequest() {
@@ -238,6 +289,38 @@ class BackupAppSetupViewModel(private val application: Application) : AndroidVie
             null
         } catch (_: ClientDeauthorizedException) {
             SetupResponse.AccountUnavailable
+        }
+    }
+
+    private suspend fun shouldRunE2eeMigration(): Boolean {
+        var openedTemporarySession = false
+        return try {
+            val sessionOpened = apiController.openSession(null).also { sessionOpened ->
+                openedTemporarySession = sessionOpened
+            }
+
+            when {
+                !sessionOpened && apiController.isSsoReauthenticationRequired() -> {
+                    requestSsoReauthentication()
+                    false
+                }
+
+                sessionOpened -> apiController.endToEndEncryptionEnabled.value == false
+                else -> false
+            }
+        } catch (_: PWDv1ChallengeMasterKeyNeededException) {
+            Log.d(TAG, "migration probe hit master-key-needed challenge")
+            false
+        } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
+            Log.d(TAG, "migration probe hit invalid-master-key challenge")
+            false
+        } catch (_: PWDv1ChallengePasswordException) {
+            Log.d(TAG, "migration probe hit password challenge")
+            false
+        } finally {
+            if (openedTemporarySession) {
+                apiController.clearSession()
+            }
         }
     }
 

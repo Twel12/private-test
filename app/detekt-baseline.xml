@@ -44,8 +44,6 @@
     <ID>MagicNumber:NCPTheme.kt$0xFF745BCA</ID>
     <ID>MagicNumber:OkHttpRequest.kt$OkHttpRequest$15</ID>
     <ID>MagicNumber:OkHttpRequest.kt$OkHttpRequest$20</ID>
-    <ID>MagicNumber:PWDv1Challenge.kt$PWDv1Challenge$12</ID>
-    <ID>MagicNumber:PWDv1Challenge.kt$PWDv1Challenge$128</ID>
     <ID>MagicNumber:PWDv1Challenge.kt$PWDv1Challenge$3</ID>
     <ID>MagicNumber:PasswordsApi.kt$PasswordsApi$200</ID>
     <ID>MagicNumber:PasswordsApi.kt$PasswordsApi$201</ID>
@@ -71,8 +69,6 @@
     <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.inline_autofill_preference_subtitle)) }</ID>
     <ID>MaxLineLength:NCPSettings.kt$var useInlineAutofill by remember { mutableStateOf(preferencesManager.getUseInlineAutofill()) }</ID>
     <ID>MaxLineLength:NCPTopBar.kt$LocalContentColor provides LocalContentColor.current.copy(alpha = ContentAlpha.medium)</ID>
-    <ID>MaxLineLength:PWDv1Challenge.kt$PWDv1Challenge$if (password.length &lt; 12) throw PWDv1ChallengePasswordException("Password should have no less than 12 characters")</ID>
-    <ID>MaxLineLength:PWDv1Challenge.kt$PWDv1Challenge$if (password.length &gt; 128) throw PWDv1ChallengePasswordException("Password should have no more than 128 characters")</ID>
     <ID>MaxLineLength:Settings.kt$subtitle = { Text(text = "Unlock the app with biometric credentials such as fingerprint or face") }</ID>
     <ID>NewLineAtEndOfFile:AboutActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.AboutActivity.kt</ID>
     <ID>NewLineAtEndOfFile:AppDatabase.kt$com.hegocre.nextcloudpasswords.databases.AppDatabase.kt</ID>
@@ -88,7 +84,6 @@
     <ID>NewLineAtEndOfFile:Error.kt$com.hegocre.nextcloudpasswords.utils.Error.kt</ID>
     <ID>NewLineAtEndOfFile:FolderController.kt$com.hegocre.nextcloudpasswords.data.folder.FolderController.kt</ID>
     <ID>NewLineAtEndOfFile:FolderDatabaseDao.kt$com.hegocre.nextcloudpasswords.databases.folderdatabase.FolderDatabaseDao.kt</ID>
-    <ID>NewLineAtEndOfFile:FoldersApi.kt$com.hegocre.nextcloudpasswords.api.FoldersApi.kt</ID>
     <ID>NewLineAtEndOfFile:KeepAliveWorker.kt$com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker.kt</ID>
     <ID>NewLineAtEndOfFile:LazySodiumUtils.kt$com.hegocre.nextcloudpasswords.utils.LazySodiumUtils.kt</ID>
     <ID>NewLineAtEndOfFile:LogHelper.kt$com.hegocre.nextcloudpasswords.utils.LogHelper.kt</ID>
@@ -104,12 +99,10 @@
     <ID>NewLineAtEndOfFile:PWDv1ChallengePasswordException.kt$com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException.kt</ID>
     <ID>NewLineAtEndOfFile:PasswordController.kt$com.hegocre.nextcloudpasswords.data.password.PasswordController.kt</ID>
     <ID>NewLineAtEndOfFile:PasswordDatabaseDao.kt$com.hegocre.nextcloudpasswords.databases.passworddatabase.PasswordDatabaseDao.kt</ID>
-    <ID>NewLineAtEndOfFile:PasswordsApi.kt$com.hegocre.nextcloudpasswords.api.PasswordsApi.kt</ID>
     <ID>NewLineAtEndOfFile:PullToRefreshBody.kt$com.hegocre.nextcloudpasswords.ui.components.PullToRefreshBody.kt</ID>
     <ID>NewLineAtEndOfFile:Result.kt$com.hegocre.nextcloudpasswords.utils.Result.kt</ID>
     <ID>NewLineAtEndOfFile:ServerSettings.kt$com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings.kt</ID>
     <ID>NewLineAtEndOfFile:SettingsActivity.kt$com.hegocre.nextcloudpasswords.ui.activities.SettingsActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:SettingsApi.kt$com.hegocre.nextcloudpasswords.api.SettingsApi.kt</ID>
     <ID>NewLineAtEndOfFile:SodiumDecryptionException.kt$com.hegocre.nextcloudpasswords.api.exceptions.SodiumDecryptionException.kt</ID>
     <ID>NewLineAtEndOfFile:TextUtils.kt$com.hegocre.nextcloudpasswords.utils.TextUtils.kt</ID>
     <ID>NewLineAtEndOfFile:Type.kt$com.hegocre.nextcloudpasswords.ui.theme.Type.kt</ID>
@@ -142,7 +135,7 @@
     <ID>TooManyFunctions:Dialogs.kt$com.hegocre.nextcloudpasswords.ui.components.Dialogs.kt</ID>
     <ID>TooManyFunctions:MarkdownTextView.kt$com.hegocre.nextcloudpasswords.ui.components.markdown.MarkdownTextView.kt</ID>
     <ID>TooManyFunctions:NCPAppLock.kt$com.hegocre.nextcloudpasswords.ui.components.NCPAppLock.kt</ID>
-    <ID>TooManyFunctions:PasswordsViewModel.kt$PasswordsViewModel : AndroidViewModel</ID>
+    <ID>TooManyFunctions:PasswordsViewModel.kt$PasswordsViewModel : AndroidViewModelE2eeMigrationFlowHandler</ID>
     <ID>TooManyFunctions:PreferencesManager.kt$PreferencesManager</ID>
     <ID>TopLevelPropertyNaming:NCPAboutScreen.kt$const val changelogUrl = "https://github.com/hegocre/NextcloudPasswords/releases/latest"</ID>
     <ID>TopLevelPropertyNaming:NCPAboutScreen.kt$const val contributeUrl = "https://github.com/hegocre/NextcloudPasswords#contribute"</ID>
