@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
@@ -54,8 +53,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hegocre.nextcloudpasswords.R
+import com.hegocre.nextcloudpasswords.ui.components.E2eeMigrationDialog
 import com.hegocre.nextcloudpasswords.ui.components.OutlinedTextFieldWithCaption
+import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
 import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel
 import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
@@ -111,6 +113,7 @@ class BackupAppSetupActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsStateWithLifecycle()
+            val showE2eeMigrationDialog by viewModel.showE2eeMigrationDialog.collectAsStateWithLifecycle()
             val ssoReauthenticationRequested by
                 viewModel.ssoReauthenticationRequested.collectAsStateWithLifecycle()
 
@@ -146,7 +149,21 @@ class BackupAppSetupActivity : ComponentActivity() {
                     onBack = ::finishCanceled
                 )
             }
+
+            if (showE2eeMigrationDialog) {
+                ETheme {
+                    E2eeMigrationDialog(
+                        onStartMigration = { launchE2eeMigration(viewModel) },
+                        onCancel = ::finishCanceled
+                    )
+                }
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onAppResumedAfterMigration()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

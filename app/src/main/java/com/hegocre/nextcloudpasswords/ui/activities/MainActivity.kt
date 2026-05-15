@@ -12,7 +12,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.IntentCompat
@@ -28,6 +27,7 @@ import com.hegocre.nextcloudpasswords.services.autofill.AutofillHelper
 import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillService
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
+import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import com.hegocre.nextcloudpasswords.utils.LogHelper
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
@@ -114,7 +114,7 @@ class MainActivity : FragmentActivity() {
                     passwordsViewModel = passwordsViewModel,
                     onLogOut = { logOut() },
                     showE2eeMigrationDialog = migrationFlowEnabled && showE2eeMigrationDialog,
-                    onStartE2eeMigration = { startE2eeMigration() },
+                    onStartE2eeMigration = { launchE2eeMigration(passwordsViewModel) },
                     onCancelE2eeMigration = { finish() },
                     replyAutofill = replyAutofill,
                     isAutofillRequest = autofillRequested,
@@ -128,19 +128,6 @@ class MainActivity : FragmentActivity() {
         super.onResume()
         if (migrationFlowEnabled) {
             passwordsViewModel.onAppResumedAfterMigration()
-        }
-    }
-
-    private fun startE2eeMigration() {
-        val migrationUri = passwordsViewModel.prepareE2eeMigrationUri() ?: return
-        passwordsViewModel.onE2eeMigrationLaunched()
-        runCatching {
-            CustomTabsIntent.Builder()
-                .build()
-                .launchUrl(this, migrationUri)
-        }.onFailure { exception ->
-            Timber.e(exception, "Failed to launch Murena Passwords web app")
-            passwordsViewModel.onE2eeMigrationLaunchFailed()
         }
     }
 

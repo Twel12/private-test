@@ -6,10 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.webkit.URLUtil
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +43,7 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.data.user.UserException
+import com.hegocre.nextcloudpasswords.ui.migration.E2eeMigrationFlowHandler
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
@@ -53,17 +52,14 @@ import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
 
-class PasswordsViewModel(application: Application) : AndroidViewModel(application) {
+class PasswordsViewModel(application: Application) : AndroidViewModel(application), E2eeMigrationFlowHandler {
     private val secureMasterPasswordStore = SecureMasterPasswordStore(application)
 
     private var masterPassword: MutableLiveData<String?> = MutableLiveData<String?>(null)
@@ -115,85 +111,36 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     val serverSettings: LiveData<ServerSettings>
         get() = apiController.serverSettings
 
-    private val _awaitingMigration = MutableStateFlow(false)
+    private val migrationSupported = MutableStateFlow(!supportsLocalLogout).asStateFlow()
 
-    /**
-     * Whether the migration dialog should currently be shown. Derived from:
-     *   - the account being Murena/SSO (local-credential accounts manage E2EE
-     *     setup through the regular Nextcloud Passwords flow),
-     *   - the server reporting E2EE as disabled, and
-     *   - the user not being mid-flight through the Custom Tab (which would
-     *     otherwise cause the dialog to flash back over the post-return
-     *     re-open).
-     */
-    val showE2eeMigrationDialog: StateFlow<Boolean> = combine(
-        apiController.endToEndEncryptionEnabled,
-        _awaitingMigration
-    ) { enabled, awaiting ->
-        !supportsLocalLogout && enabled == false && !awaiting
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    private val e2eeMigrationCoordinator = E2eeMigrationCoordinator(
+        viewModelScope = viewModelScope,
+        endToEndEncryptionEnabled = apiController.endToEndEncryptionEnabled,
+        serverUrlProvider = { server?.url },
+        migrationSupported = migrationSupported
+    )
 
-    fun prepareE2eeMigrationUri(): Uri? {
-        if (supportsLocalLogout || _awaitingMigration.value) return null
-        val baseUrl = server?.url
-        val expectedHost = baseUrl?.let { runCatching { Uri.parse(it).host }.getOrNull() }
-        val candidate = baseUrl?.trimEnd('/')?.plus(PASSWORDS_WEB_PATH)
-        val uri = candidate?.let { runCatching { Uri.parse(it) }.getOrNull() }
-        return when {
-            baseUrl == null || expectedHost == null -> {
-                Timber.e("No server URL available; cannot start E2EE migration")
-                null
-            }
-            uri == null -> {
-                Timber.e("Could not parse migration URL: %s", candidate)
-                null
-            }
-            !URLUtil.isHttpsUrl(uri.toString()) -> {
-                Timber.e("Refusing to launch E2EE migration over insecure URL: %s", uri)
-                null
-            }
-            !uri.host.equals(expectedHost, ignoreCase = true) -> {
-                Timber.e(
-                    "Refusing to launch E2EE migration: host mismatch (expected=%s actual=%s)",
-                    expectedHost,
-                    uri.host
-                )
-                null
-            }
-            else -> uri
-        }
+    val showE2eeMigrationDialog: StateFlow<Boolean>
+        get() = e2eeMigrationCoordinator.showMigrationDialog
+
+    override fun prepareE2eeMigrationUri() = e2eeMigrationCoordinator.prepareMigrationUri()
+
+    override fun onE2eeMigrationLaunched() {
+        e2eeMigrationCoordinator.onMigrationLaunched()
     }
 
-    fun onE2eeMigrationLaunched() {
-        _awaitingMigration.value = true
+    override fun onE2eeMigrationLaunchFailed() {
+        e2eeMigrationCoordinator.onMigrationLaunchFailed()
     }
 
-    fun onE2eeMigrationLaunchFailed() {
-        _awaitingMigration.value = false
-    }
-
-    /**
-     * Called when the user returns from the Custom Tab. If we were waiting on
-     * a migration, clear any stale master password and re-open the session.
-     * If E2EE is now enabled, [openSession] naturally throws
-     * [PWDv1ChallengeMasterKeyNeededException], which the existing catch
-     * block surfaces to the user as the master password prompt — no
-     * separate "migration completed" handler needed.
-     */
-    fun onAppResumedAfterMigration() {
-        if (!_awaitingMigration.value) return
-        Timber.i("Returned from Murena Passwords web; re-opening session")
-        masterPassword.value = null
-        clearMasterPasswordState()
-        apiController.clearSession()
+    override fun onAppResumedAfterMigration() {
         viewModelScope.launch {
-            // Keep _awaitingMigration true until openSession finishes — otherwise
-            // the dialog would briefly flash back over the still-stale
-            // endToEndEncryptionEnabled=false before the recheck updates it.
-            try {
+            e2eeMigrationCoordinator.onAppResumedAfterMigration {
+                Timber.i("Returned from Murena Passwords web; re-opening session")
+                masterPassword.value = null
+                clearMasterPasswordState()
+                apiController.clearSession()
                 openSession(null)
-            } finally {
-                _awaitingMigration.value = false
             }
         }
     }
@@ -530,9 +477,5 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                 error(accountDrawable)
             }.build()
         )
-    }
-
-    companion object {
-        private const val PASSWORDS_WEB_PATH = "/index.php/apps/passwords/"
     }
 }
