@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Muu pilv</string>
     <string name="login_other_dialog_title">Sisesta oma Nextcloudil põhineva lahenduse serveri URL:</string>
+    <string name="error_secure_master_password_unavailable">Seadistage selles seadmes ekraanilukk või biomeetriline avamine, et salvestada peaparool.</string>
+    <string name="error_secure_master_password_authentication_failed">Peaparooli ei salvestatud, sest autentimine tühistati või ebaõnnestus.</string>
+    <string name="error_secure_master_password_save_failed">Peaparooli ei saanud salvestada. Proovige uuesti.</string>
 </resources>

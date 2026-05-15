@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Başka bulut</string>
     <string name="login_other_dialog_title">Nextcloud tabanlı çözümünüzün sunucu URL adresini girin:</string>
+    <string name="error_secure_master_password_unavailable">Ana şifreyi kaydetmek için bu cihazda ekran kilidi veya biyometrik kilit açma ayarlayın.</string>
+    <string name="error_secure_master_password_authentication_failed">Kimlik doğrulama iptal edildiği veya başarısız olduğu için ana şifre kaydedilmedi.</string>
+    <string name="error_secure_master_password_save_failed">Ana şifre kaydedilemedi. Lütfen tekrar deneyin.</string>
 </resources>

@@ -46,8 +46,9 @@ import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.data.user.UserException
 import com.hegocre.nextcloudpasswords.utils.AppLockHelper
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
-import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -63,12 +64,9 @@ import java.net.MalformedURLException
 import java.net.URL
 
 class PasswordsViewModel(application: Application) : AndroidViewModel(application) {
+    private val secureMasterPasswordStore = SecureMasterPasswordStore(application)
 
-    private val preferencesManager = PreferencesManager.getInstance(application)
-
-    private var masterPassword: MutableLiveData<String?> = MutableLiveData<String?>(null).also {
-        it.value = preferencesManager.getMasterPassword()
-    }
+    private var masterPassword: MutableLiveData<String?> = MutableLiveData<String?>(null)
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean>
@@ -106,6 +104,10 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     private val _showSessionOpenError = MutableStateFlow(false)
     val showSessionOpenError: StateFlow<Boolean>
         get() = _showSessionOpenError.asStateFlow()
+
+    private val _pendingSecureMasterPasswordSave = MutableStateFlow(false)
+    val pendingSecureMasterPasswordSave: StateFlow<Boolean>
+        get() = _pendingSecureMasterPasswordSave.asStateFlow()
 
     val csEv1Keychain: LiveData<CSEv1Keychain?>
         get() = apiController.csEv1Keychain
@@ -182,7 +184,7 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         if (!_awaitingMigration.value) return
         Timber.i("Returned from Murena Passwords web; re-opening session")
         masterPassword.value = null
-        preferencesManager.setMasterPassword(null)
+        clearMasterPasswordState()
         apiController.clearSession()
         viewModelScope.launch {
             // Keep _awaitingMigration true until openSession finishes — otherwise
@@ -244,17 +246,26 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         if (!sessionOpen.value) {
-            viewModelScope.launch { openSession(masterPassword.value) }
+            viewModelScope.launch { openSession(password = MasterPasswordMemoryStore.get()) }
         }
     }
 
-    private suspend fun openSession(password: String?) {
+    private suspend fun openSession(
+        password: String?,
+        saveSecurelyAfterUnlock: Boolean = false
+    ) {
         _isRefreshing.emit(true)
+        _showSessionOpenError.emit(false)
         try {
             if (apiController.openSession(password)) {
-                _showSessionOpenError.emit(false)
+                MasterPasswordMemoryStore.set(password)
+                masterPassword.postValue(password)
                 _needsMasterPassword.emit(false)
                 _masterPasswordInvalid.emit(false)
+                _showSessionOpenError.emit(false)
+                if (saveSecurelyAfterUnlock) {
+                    _pendingSecureMasterPasswordSave.emit(true)
+                }
                 syncPasswordsAndFolders()
                 return
             }
@@ -271,23 +282,30 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                     _needsMasterPassword.emit(true)
                     _masterPasswordInvalid.emit(true)
                     masterPassword.postValue(null)
-                    preferencesManager.setMasterPassword(null)
+                    clearMasterPasswordState()
                 }
                 else -> {
                     _showSessionOpenError.emit(true)
                     Timber.e(ex, "Unexpected error opening session")
                 }
             }
+        } finally {
+            _isRefreshing.emit(false)
         }
-        _isRefreshing.emit(false)
     }
 
     fun setMasterPassword(password: String, save: Boolean = false) {
-        masterPassword.postValue(password)
-        if (save) {
-            preferencesManager.setMasterPassword(password)
+        viewModelScope.launch {
+            openSession(password, saveSecurelyAfterUnlock = save)
         }
-        viewModelScope.launch { openSession(password) }
+    }
+
+    fun currentMasterPassword(): String? = MasterPasswordMemoryStore.get()
+
+    fun onSecureMasterPasswordSaveHandled() {
+        viewModelScope.launch {
+            _pendingSecureMasterPasswordSave.emit(false)
+        }
     }
 
     fun clearMasterPasswordInvalid() {
@@ -306,10 +324,12 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     fun sync() {
         if (_isRefreshing.value) return
 
-        viewModelScope.launch {
-            if (sessionOpen.value) {
+        if (sessionOpen.value) {
+            viewModelScope.launch {
                 syncPasswordsAndFolders()
-            } else {
+            }
+        } else {
+            viewModelScope.launch {
                 openSession(masterPassword.value)
             }
         }
@@ -325,6 +345,11 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         } finally {
             _isRefreshing.emit(false)
         }
+    }
+
+    private fun clearMasterPasswordState() {
+        MasterPasswordMemoryStore.clear()
+        secureMasterPasswordStore.clear()
     }
 
     fun setVisiblePassword(password: Password, folderPath: List<String>) {

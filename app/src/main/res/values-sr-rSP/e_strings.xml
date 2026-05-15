@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Други облак</string>
     <string name="login_other_dialog_title">Унесите URL сервера свог решења заснованог на Nextcloud-у:</string>
+    <string name="error_secure_master_password_unavailable">Podesite zaključavanje ekrana ili biometrijsko otključavanje na ovom uređaju da biste sačuvali glavnu lozinku.</string>
+    <string name="error_secure_master_password_authentication_failed">Glavna lozinka nije sačuvana jer je potvrda identiteta otkazana ili nije uspela.</string>
+    <string name="error_secure_master_password_save_failed">Glavna lozinka nije mogla biti sačuvana. Pokušajte ponovo.</string>
 </resources>

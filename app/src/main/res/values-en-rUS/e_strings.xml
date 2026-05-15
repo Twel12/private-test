@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Other cloud</string>
     <string name="login_other_dialog_title">Enter the server URL of your Nextcloud-based solution:</string>
+    <string name="error_secure_master_password_unavailable">Set up a screen lock or biometric unlock on this device to save the master password.</string>
+    <string name="error_secure_master_password_authentication_failed">Master password was not saved because authentication was canceled or failed.</string>
+    <string name="error_secure_master_password_save_failed">Master password could not be saved. Please, try again.</string>
 </resources>

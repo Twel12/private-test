@@ -20,13 +20,17 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Context
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
+import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
+import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
+import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.databases.AppDatabase
-import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.decryptPasswords
 import com.hegocre.nextcloudpasswords.utils.encryptValue
 import com.hegocre.nextcloudpasswords.utils.sha1Hash
@@ -68,7 +72,6 @@ private sealed interface ExistingSaveSelection {
 
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
-    private val preferencesManager = PreferencesManager.getInstance(appContext)
     private val userController = UserController.getInstance(appContext)
     private val passwordDatabase = AppDatabase.getInstance(appContext)
     private val matcher = NCPAutofillMatcher(appContext)
@@ -221,7 +224,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 return@withContext VaultUnlockResult.Failed("Could not unlock vault")
             }
 
-            preferencesManager.setMasterPassword(secret)
+            MasterPasswordMemoryStore.set(secret)
             PasswordController.getInstance(appContext).syncPasswords()
             VaultUnlockResult.Unlocked
         }
@@ -298,21 +301,30 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private fun isUnlocked(): Boolean {
-        return !preferencesManager.getMasterPassword().isNullOrBlank() ||
+        return !MasterPasswordMemoryStore.get().isNullOrBlank() ||
             apiControllerOrNull()?.sessionOpen?.value == true
     }
 
     private suspend fun ensureSessionOpen(apiController: ApiController): Boolean {
         if (apiController.sessionOpen.value) return true
-        val masterPassword = preferencesManager.getMasterPassword()?.takeIf { it.isNotBlank() }
+        val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
             ?: return false
         return runCatching {
             apiController.openSession(masterPassword)
         }.getOrElse { error ->
             Timber.d("stored master password failed to open session: ${error.javaClass.simpleName}")
-            preferencesManager.setMasterPassword(null)
+            if (error.invalidatesStoredMasterPassword()) {
+                MasterPasswordMemoryStore.clear()
+                SecureMasterPasswordStore(appContext).clear()
+            }
             false
         }
+    }
+
+    private fun Throwable.invalidatesStoredMasterPassword(): Boolean {
+        return this is PWDv1ChallengeMasterKeyInvalidException ||
+            this is PWDv1ChallengePasswordException ||
+            this is ClientDeauthorizedException
     }
 
     private suspend fun matchingPasswords(
@@ -345,12 +357,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private fun Password.toLockedPasswordEntry(): PasswordEntry {
-        val display = label.takeIf { it.isNotBlank() } ?: LOCKED_DISPLAY_NAME
         return PasswordEntry(
             id = id,
             username = LOCKED_USERNAME,
             password = null,
-            displayName = display,
+            displayName = LOCKED_DISPLAY_NAME,
             locked = true
         )
     }

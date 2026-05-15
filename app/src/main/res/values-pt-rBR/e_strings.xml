@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Outra nuvem</string>
     <string name="login_other_dialog_title">Digite a URL do servidor da sua solução baseada em Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Configure um bloqueio de tela ou desbloqueio biométrico neste dispositivo para salvar a senha mestra.</string>
+    <string name="error_secure_master_password_authentication_failed">A senha mestra não foi salva porque a autenticação foi cancelada ou falhou.</string>
+    <string name="error_secure_master_password_save_failed">Não foi possível salvar a senha mestra. Tente novamente.</string>
 </resources>

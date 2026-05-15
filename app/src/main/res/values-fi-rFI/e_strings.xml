@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Muu pilvi</string>
     <string name="login_other_dialog_title">Anna Nextcloud-pohjaisen ratkaisusi palvelimen URL-osoite:</string>
+    <string name="error_secure_master_password_unavailable">Määritä laitteelle näyttölukko tai biometrinen lukituksen avaus, jotta pääsalasana voidaan tallentaa.</string>
+    <string name="error_secure_master_password_authentication_failed">Pääsalasanaa ei tallennettu, koska tunnistautuminen peruttiin tai epäonnistui.</string>
+    <string name="error_secure_master_password_save_failed">Pääsalasanaa ei voitu tallentaa. Yritä uudelleen.</string>
 </resources>

@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">その他のクラウド</string>
     <string name="login_other_dialog_title">Nextcloud ベースのソリューションのサーバー URL を入力してください:</string>
+    <string name="error_secure_master_password_unavailable">このデバイスでマスターパスワードを保存するには、画面ロックまたは生体認証によるロック解除を設定してください。</string>
+    <string name="error_secure_master_password_authentication_failed">認証がキャンセルされたか失敗したため、マスターパスワードは保存されませんでした。</string>
+    <string name="error_secure_master_password_save_failed">マスターパスワードを保存できませんでした。もう一度お試しください。</string>
 </resources>

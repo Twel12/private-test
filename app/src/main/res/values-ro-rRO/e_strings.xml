@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Alt cloud</string>
     <string name="login_other_dialog_title">Introdu URL-ul serverului soluției tale bazate pe Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Configurați o blocare a ecranului sau deblocare biometrică pe acest dispozitiv pentru a salva parola principală.</string>
+    <string name="error_secure_master_password_authentication_failed">Parola principală nu a fost salvată deoarece autentificarea a fost anulată sau a eșuat.</string>
+    <string name="error_secure_master_password_save_failed">Parola principală nu a putut fi salvată. Încercați din nou.</string>
 </resources>

@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Другое облако</string>
     <string name="login_other_dialog_title">Введите URL сервера вашего решения на базе Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Настройте блокировку экрана или биометрическую разблокировку на этом устройстве, чтобы сохранить мастер-пароль.</string>
+    <string name="error_secure_master_password_authentication_failed">Мастер-пароль не сохранен, так как аутентификация была отменена или не удалась.</string>
+    <string name="error_secure_master_password_save_failed">Не удалось сохранить мастер-пароль. Повторите попытку.</string>
 </resources>

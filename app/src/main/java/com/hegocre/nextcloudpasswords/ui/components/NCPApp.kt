@@ -2,6 +2,7 @@ package com.hegocre.nextcloudpasswords.ui.components
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedVisibility
@@ -68,6 +69,7 @@ import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillSaveInteracti
 import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import foundation.e.autofill.PasswordSaveResult
 import foundation.e.elib.compose.components.EFloatingActionButtonExtended
 import foundation.e.elib.compose.components.EModalBottomSheet
@@ -92,6 +94,10 @@ fun NextcloudPasswordsApp(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val activity = context as? FragmentActivity
+    val secureMasterPasswordStore = remember(context) {
+        SecureMasterPasswordStore(context)
+    }
 
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
@@ -104,6 +110,8 @@ fun NextcloudPasswordsApp(
 
     val needsMasterPassword by passwordsViewModel.needsMasterPassword.collectAsState()
     val masterPasswordInvalid by passwordsViewModel.masterPasswordInvalid.collectAsState()
+    val pendingSecureMasterPasswordSave by
+        passwordsViewModel.pendingSecureMasterPasswordSave.collectAsState()
 
     val sessionOpen by passwordsViewModel.sessionOpen.collectAsState()
     val showSessionOpenError by passwordsViewModel.showSessionOpenError.collectAsState()
@@ -113,6 +121,8 @@ fun NextcloudPasswordsApp(
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var pendingSaveToComplete by remember { mutableStateOf(pendingAutofillSave) }
     var unlockCompleteDelivered by remember { mutableStateOf(false) }
+    var attemptedSecureMasterPasswordUnlock by rememberSaveable { mutableStateOf(false) }
+    var showManualMasterPasswordDialog by rememberSaveable { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -123,6 +133,82 @@ fun NextcloudPasswordsApp(
         if (isAutofillUnlockRequest) {
             passwordsViewModel.requestMasterPassword()
         }
+    }
+    LaunchedEffect(needsMasterPassword, masterPasswordInvalid) {
+        if (!needsMasterPassword) {
+            attemptedSecureMasterPasswordUnlock = false
+            showManualMasterPasswordDialog = false
+            return@LaunchedEffect
+        }
+
+        if (
+            !attemptedSecureMasterPasswordUnlock &&
+            secureMasterPasswordStore.hasSavedMasterPassword &&
+            activity != null
+        ) {
+            attemptedSecureMasterPasswordUnlock = true
+            when (val result = secureMasterPasswordStore.getPassword(activity)) {
+                is SecureMasterPasswordStore.GetPasswordResult.Success -> {
+                    showManualMasterPasswordDialog = false
+                    passwordsViewModel.setMasterPassword(result.password)
+                }
+                else -> {
+                    showManualMasterPasswordDialog = true
+                }
+            }
+        } else {
+            showManualMasterPasswordDialog = true
+        }
+    }
+    LaunchedEffect(
+        needsMasterPassword,
+        attemptedSecureMasterPasswordUnlock,
+        sessionOpen,
+        showSessionOpenError,
+        isRefreshing
+    ) {
+        val secureUnlockFailed = needsMasterPassword &&
+            attemptedSecureMasterPasswordUnlock &&
+            !sessionOpen &&
+            showSessionOpenError &&
+            !isRefreshing
+        if (secureUnlockFailed) {
+            showManualMasterPasswordDialog = true
+        }
+    }
+    LaunchedEffect(pendingSecureMasterPasswordSave) {
+        if (!pendingSecureMasterPasswordSave) return@LaunchedEffect
+        val currentMasterPassword = passwordsViewModel.currentMasterPassword()
+        val saveResult = if (activity != null && currentMasterPassword != null) {
+            secureMasterPasswordStore.storePassword(activity, currentMasterPassword)
+        } else {
+            SecureMasterPasswordStore.StorePasswordResult.EncryptionFailed
+        }
+        when (saveResult) {
+            SecureMasterPasswordStore.StorePasswordResult.Success -> Unit
+            SecureMasterPasswordStore.StorePasswordResult.BiometricUnavailable -> {
+                Toast.makeText(
+                    context,
+                    R.string.error_secure_master_password_unavailable,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            SecureMasterPasswordStore.StorePasswordResult.AuthenticationFailed -> {
+                Toast.makeText(
+                    context,
+                    R.string.error_secure_master_password_authentication_failed,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            SecureMasterPasswordStore.StorePasswordResult.EncryptionFailed -> {
+                Toast.makeText(
+                    context,
+                    R.string.error_secure_master_password_save_failed,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        passwordsViewModel.onSecureMasterPasswordSaveHandled()
     }
     LaunchedEffect(sessionOpen, pendingSaveToComplete) {
         if (!sessionOpen || !isAutofillUnlockRequest) return@LaunchedEffect
@@ -263,7 +349,12 @@ fun NextcloudPasswordsApp(
             },
             bottomBar = {
                 Column {
-                    AnimatedVisibility(visible = !sessionOpen && showSessionOpenError && !isRefreshing) {
+                    AnimatedVisibility(
+                        visible = !sessionOpen &&
+                            showSessionOpenError &&
+                            !needsMasterPassword &&
+                            !isRefreshing
+                    ) {
                         Surface(
                             color = MaterialTheme.colorScheme.errorContainer,
                             modifier = Modifier.clickable { (passwordsViewModel.sync()) }
@@ -398,7 +489,7 @@ fun NextcloudPasswordsApp(
                 )
             }
 
-            if (needsMasterPassword) {
+            if (needsMasterPassword && showManualMasterPasswordDialog) {
                 val (masterPassword, setMasterPassword) = rememberSaveable {
                     mutableStateOf("")
                 }
@@ -415,10 +506,23 @@ fun NextcloudPasswordsApp(
                     },
                     savePassword = savePassword,
                     setSavePassword = setSavePassword,
+                    savePasswordEnabled = secureMasterPasswordStore.canUseSecureAuthentication,
+                    savePasswordErrorText = stringResource(
+                        R.string.error_secure_master_password_unavailable
+                    ),
+                    isLoading = isRefreshing,
                     onOkClick = {
-                        passwordsViewModel.setMasterPassword(masterPassword, savePassword)
+                        passwordsViewModel.setMasterPassword(
+                            masterPassword,
+                            savePassword && secureMasterPasswordStore.canUseSecureAuthentication
+                        )
+                        setMasterPassword("")
                     },
-                    errorText = if (masterPasswordInvalid) stringResource(R.string.error_invalid_password) else "",
+                    errorText = when {
+                        masterPasswordInvalid -> stringResource(R.string.error_invalid_password)
+                        showSessionOpenError -> stringResource(R.string.error_cannot_connect_to_server)
+                        else -> ""
+                    },
                     onDismissRequest = { }
                 )
             }

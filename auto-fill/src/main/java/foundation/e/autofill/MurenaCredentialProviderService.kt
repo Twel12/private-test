@@ -69,7 +69,7 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
         callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>
     ) {
         if (request !is BeginCreatePasswordCredentialRequest) {
-            callback.onError(CreateCredentialUnknownException("Only password creation is supported"))
+            callback.onResult(BeginCreateCredentialResponse())
             return
         }
 
@@ -93,7 +93,7 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
             },
             onSuccess = { queryResult ->
                 if (!queryResult.allowSavePrompt) {
-                    callback.onError(CreateCredentialUnknownException("Password save is unavailable"))
+                    callback.onResult(BeginCreateCredentialResponse())
                     return@runBackendCall
                 }
 
@@ -131,7 +131,7 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
             .filterIsInstance<BeginGetPasswordOption>()
 
         if (passwordOptions.isEmpty()) {
-            callback.onError(GetCredentialUnknownException("No password option requested"))
+            callback.onResult(BeginGetCredentialResponse())
             return
         }
 
@@ -188,7 +188,7 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
                 }
 
                 if (credentialEntries.isEmpty() && authenticationActions.isEmpty()) {
-                    callback.onError(GetCredentialUnknownException("No matching passwords"))
+                    callback.onResult(BeginGetCredentialResponse())
                     return@runBackendCall
                 }
 

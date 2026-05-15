@@ -34,4 +34,7 @@
     <string name="login_murena_button">Murena Workspace</string>
     <string name="login_other_button">Інша хмара</string>
     <string name="login_other_dialog_title">Введіть URL сервера вашого рішення на базі Nextcloud:</string>
+    <string name="error_secure_master_password_unavailable">Налаштуйте блокування екрана або біометричне розблокування на цьому пристрої, щоб зберегти головний пароль.</string>
+    <string name="error_secure_master_password_authentication_failed">Головний пароль не збережено, оскільки автентифікацію скасовано або вона не вдалася.</string>
+    <string name="error_secure_master_password_save_failed">Не вдалося зберегти головний пароль. Спробуйте ще раз.</string>
 </resources>
