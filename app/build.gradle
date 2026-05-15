@@ -22,8 +22,8 @@ android {
         applicationId "foundation.e.passwords"
         minSdk 30
         targetSdk 36
-        versionCode 39
-        versionName "1.0.12-1"
+        versionCode 40
+        versionName "1.0.12-2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
