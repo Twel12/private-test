@@ -142,7 +142,6 @@ class AutoLoginActivity : ComponentActivity() {
                     searchHint.take(MAX_AUTOFILL_SEARCH_HINT_LENGTH)
                 )
                 putExtra(EXTRA_AUTOFILL_CONTINUATION_TOKEN, token)
-                addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
             }
         }
 
