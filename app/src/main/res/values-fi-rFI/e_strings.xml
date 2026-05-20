@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Kertakirjautuminen ei ole käytettävissä. Kirjaudu sisään manuaalisesti.</string>
     <string name="error_sso_app_signature">Kertakirjautuminen ei ole käytettävissä tämän sovelluksen allekirjoitukselle.</string>
     <string name="error_sso_no_account_found">Tiliä ei löytynyt, kirjaudu sisään</string>
-    <string name="error_sso_sync_disabled">Passwords-sovelluksen synkronointi on poistettu käytöstä. Ota se käyttöön kohdassa (Asetukset -&gt; Tilit -&gt; Murena-tili -&gt; Tilin synkronointi -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Passwords-sovelluksen synkronointi on poistettu käytöstä. Ota se käyttöön täällä.</string>
     <string name="error_sso_failed">Automaattinen kirjautuminen epäonnistui. Kirjaudu sisään manuaalisesti.</string>
     <string name="password_attr_security_rating">Turvallisuusarvio</string>
     <string name="password_strength_very_strong">Erittäin vahva</string>

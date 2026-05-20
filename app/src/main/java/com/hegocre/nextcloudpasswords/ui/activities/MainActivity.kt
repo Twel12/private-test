@@ -31,6 +31,7 @@ import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import com.hegocre.nextcloudpasswords.utils.LogHelper
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,17 @@ import timber.log.Timber
 class MainActivity : FragmentActivity() {
 
     private val passwordsViewModel by viewModels<PasswordsViewModel>()
+
+    private val syncDisabled: MurenaSyncDisabledFlow by lazy {
+        MurenaSyncDisabledFlow(
+            launchSettings = { account -> MurenaAccountSyncSettings.open(this, account) },
+            onSyncEnabled = { passwordsViewModel.sync() },
+            onStillDisabledOrLaunchFailed = {
+                passwordsViewModel.onMurenaSyncDisabledShown()
+                finish()
+            },
+        )
+    }
 
     private var migrationFlowEnabled = false
 
@@ -94,6 +106,19 @@ class MainActivity : FragmentActivity() {
 
         observeSsoReauthenticationRequired(passwordsViewModel)
 
+        passwordsViewModel.murenaSyncDisabled.observe(this) { disabled ->
+            if (disabled) {
+                Toast.makeText(this, R.string.error_sso_sync_disabled, Toast.LENGTH_LONG).show()
+                val account = SsoAccount.getCurrentMurenaAccount(this)
+                if (account != null && syncDisabled.launch(account)) {
+                    passwordsViewModel.onMurenaSyncDisabledShown()
+                } else {
+                    passwordsViewModel.onMurenaSyncDisabledShown()
+                    finish()
+                }
+            }
+        }
+
         Coil.setImageLoader {
             ImageLoader.Builder(this)
                 .diskCache {
@@ -126,9 +151,15 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (syncDisabled.onResume()) return
         if (migrationFlowEnabled) {
             passwordsViewModel.onAppResumedAfterMigration()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncDisabled.onPause()
     }
 
     private fun logOut() {
@@ -176,4 +207,5 @@ class MainActivity : FragmentActivity() {
 
         finish()
     }
+
 }

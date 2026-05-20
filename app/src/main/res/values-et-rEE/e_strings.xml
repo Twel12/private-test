@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Ühekordne sisselogimine pole saadaval. Palun logi käsitsi sisse.</string>
     <string name="error_sso_app_signature">Ühekordne sisselogimine pole selle rakenduse allkirja jaoks saadaval.</string>
     <string name="error_sso_no_account_found">Kontot ei leitud, palun logi sisse</string>
-    <string name="error_sso_sync_disabled">Sünkroonimine on rakenduse Passwords jaoks keelatud. Palun luba see asukohast (Seaded -&gt; Kontod -&gt; Murena konto -&gt; Konto sünkroonimine -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Rakenduse Passwords sünkroonimine on keelatud. Palun luba see siin.</string>
     <string name="error_sso_failed">Automaatne sisselogimine ebaõnnestus. Palun logi käsitsi sisse.</string>
     <string name="password_attr_security_rating">Turvahinnang</string>
     <string name="password_strength_very_strong">Väga tugev</string>

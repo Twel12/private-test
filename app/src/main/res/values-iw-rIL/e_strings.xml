@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">הכניסה האחודה אינה זמינה. נא להתחבר ידנית.</string>
     <string name="error_sso_app_signature">הכניסה האחודה אינה זמינה עבור חתימת יישום זו.</string>
     <string name="error_sso_no_account_found">לא נמצא חשבון, נא להתחבר</string>
-    <string name="error_sso_sync_disabled">הסנכרון מושבת עבור אפליקציית הסיסמאות, נא להפעיל אותו מתוך (הגדרות -&gt; חשבונות -&gt; חשבון Murena -&gt; סנכרון חשבון -&gt; סיסמה)</string>
+    <string name="error_sso_sync_disabled">הסנכרון עבור Passwords מושבת. נא להפעיל אותו כאן.</string>
     <string name="error_sso_failed">ההתחברות האוטומטית נכשלה. נא להתחבר ידנית.</string>
     <string name="password_attr_security_rating">דירוג אבטחה</string>
     <string name="password_strength_very_strong">חזק מאוד</string>

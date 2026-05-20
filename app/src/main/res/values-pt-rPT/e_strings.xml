@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Início de sessão único indisponível. Inicie sessão manualmente.</string>
     <string name="error_sso_app_signature">Início de sessão único indisponível para esta assinatura da aplicação.</string>
     <string name="error_sso_no_account_found">Nenhuma conta encontrada. Inicie sessão</string>
-    <string name="error_sso_sync_disabled">A sincronização está desativada para a aplicação Passwords. Ative-a em (Definições -&gt; Contas -&gt; conta Murena -&gt; Sincronização da conta -&gt; Palavra-passe)</string>
+    <string name="error_sso_sync_disabled">A sincronização da aplicação Passwords está desativada. Ative-a aqui.</string>
     <string name="error_sso_failed">A autenticação automática falhou. Inicie sessão manualmente.</string>
     <string name="password_attr_security_rating">Classificação de segurança</string>
     <string name="password_strength_very_strong">Muito forte</string>

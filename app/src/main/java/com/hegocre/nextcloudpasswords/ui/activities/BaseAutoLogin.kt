@@ -2,11 +2,11 @@ package com.hegocre.nextcloudpasswords.ui.activities
 
 import android.accounts.Account
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import com.hegocre.nextcloudpasswords.data.user.UserController.Companion.getInstance
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.nextcloud.android.sso.AccountImporter
 import com.nextcloud.android.sso.exceptions.AccountImportCancelledException
 import com.nextcloud.android.sso.helper.SingleAccountHelper
@@ -22,7 +22,7 @@ abstract class BaseAutoLogin(val activity: Activity) {
 
     abstract fun accountUnavailable()
 
-    abstract fun syncDisabled()
+    abstract fun syncDisabled(account: Account)
 
     abstract fun ssoFailed()
 
@@ -37,26 +37,20 @@ abstract class BaseAutoLogin(val activity: Activity) {
             return
         }
 
-        val murenaAccount = AccountImporter.findAccounts(activity)
-            .firstOrNull { it != null && it.type == MURENA_ACCOUNT_TYPE }
+        val murenaAccount = SsoAccount.getFirstMurenaAccount(activity)
 
         if (murenaAccount == null) {
             accountUnavailable()
             return
         }
 
-        if (!murenaAccount.isSyncEnabled()) {
-            syncDisabled()
+        if (!SsoAccount.isMurenaSyncEnabled(murenaAccount)) {
+            syncDisabled(murenaAccount)
             return
         }
 
         AccountImporter.pickAccount(activity, murenaAccount)
     }
-
-
-    private fun Account.isSyncEnabled() =
-        ContentResolver.getMasterSyncAutomatically()
-            && ContentResolver.getSyncAutomatically(this, CONTENT_AUTHORITY)
 
     private fun isSignatureMismatchWithAccountManager() = activity.packageManager.checkSignatures(
         ACCOUNT_MANAGER_PACKAGE,
@@ -79,12 +73,7 @@ abstract class BaseAutoLogin(val activity: Activity) {
 
 
     companion object {
-        private const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
-
         private const val ACCOUNT_MANAGER_PACKAGE = "foundation.e.accountmanager"
-
-        private const val CONTENT_AUTHORITY =
-            "foundation.e.passwords.providers.PasswordSyncProvider"
     }
 
 }

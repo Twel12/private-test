@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Tek oturum açma kullanılamıyor. Lütfen manuel olarak oturum açın.</string>
     <string name="error_sso_app_signature">Tek oturum açma bu uygulama imzası için kullanılamıyor.</string>
     <string name="error_sso_no_account_found">Hesap bulunamadı, lütfen oturum açın</string>
-    <string name="error_sso_sync_disabled">Passwords uygulaması için eşitleme devre dışı. Lütfen (Ayarlar -&gt; Hesaplar -&gt; Murena hesabı -&gt; Hesap Eşitleme -&gt; Parola) bölümünden etkinleştirin</string>
+    <string name="error_sso_sync_disabled">Passwords için eşitleme devre dışı. Lütfen burada etkinleştirin.</string>
     <string name="error_sso_failed">Otomatik oturum açma başarısız oldu. Lütfen manuel olarak oturum açın.</string>
     <string name="password_attr_security_rating">Güvenlik derecesi</string>
     <string name="password_strength_very_strong">Çok güçlü</string>

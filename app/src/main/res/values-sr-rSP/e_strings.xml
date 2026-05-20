@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Јединствено пријављивање није доступно. Пријавите се ручно.</string>
     <string name="error_sso_app_signature">Јединствено пријављивање није доступно за овај потпис апликације.</string>
     <string name="error_sso_no_account_found">Није пронађен налог, пријавите се</string>
-    <string name="error_sso_sync_disabled">Синхронизација је онемогућена за апликацију Passwords. Омогућите је у (Подешавања -&gt; Налози -&gt; Murena налог -&gt; Синхронизација налога -&gt; Лозинка)</string>
+    <string name="error_sso_sync_disabled">Синхронизација је онемогућена за Passwords. Омогућите је овде.</string>
     <string name="error_sso_failed">Аутоматска пријава није успела. Пријавите се ручно.</string>
     <string name="password_attr_security_rating">Безбедносна оцена</string>
     <string name="password_strength_very_strong">Веома јака</string>

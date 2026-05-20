@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Logowanie jednokrotne jest niedostępne. Zaloguj się ręcznie.</string>
     <string name="error_sso_app_signature">Logowanie jednokrotne jest niedostępne dla tego podpisu aplikacji.</string>
     <string name="error_sso_no_account_found">Nie znaleziono konta, zaloguj się</string>
-    <string name="error_sso_sync_disabled">Synchronizacja aplikacji Passwords jest wyłączona, włącz ją w (Ustawienia -&gt; Konta -&gt; Konto Murena -&gt; Synchronizacja konta -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synchronizacja aplikacji Passwords jest wyłączona. Włącz ją tutaj.</string>
     <string name="error_sso_failed">Automatyczne logowanie nie powiodło się. Zaloguj się ręcznie.</string>
     <string name="password_attr_security_rating">Ocena bezpieczeństwa</string>
     <string name="password_strength_very_strong">Bardzo silne</string>

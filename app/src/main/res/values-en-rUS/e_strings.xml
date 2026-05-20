@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Single sign-on unavailable. Please log in manually.</string>
     <string name="error_sso_app_signature">Single sign-on unavailable for this app signature.</string>
     <string name="error_sso_no_account_found">No account found. Please log in.</string>
-    <string name="error_sso_sync_disabled">Sync is disabled for the Passwords app. Please enable it from (Settings -&gt; Accounts -&gt; Murena account -&gt; Account Sync -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Sync is disabled for Passwords. Please enable it here.</string>
     <string name="error_sso_failed">Automatic login failed. Please log in manually.</string>
     <string name="password_attr_security_rating">Security rating</string>
     <string name="password_strength_very_strong">Very strong</string>

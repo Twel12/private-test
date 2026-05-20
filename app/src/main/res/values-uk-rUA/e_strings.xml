@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Єдиний вхід недоступний. Будь ласка, увійдіть вручну.</string>
     <string name="error_sso_app_signature">Єдиний вхід недоступний для цього підпису програми.</string>
     <string name="error_sso_no_account_found">Обліковий запис не знайдено, будь ласка, увійдіть</string>
-    <string name="error_sso_sync_disabled">Для програми Passwords вимкнено синхронізацію. Увімкніть її в (Налаштування -&gt; Облікові записи -&gt; обліковий запис Murena -&gt; Синхронізація облікового запису -&gt; Пароль)</string>
+    <string name="error_sso_sync_disabled">Для Passwords вимкнено синхронізацію. Увімкніть її тут.</string>
     <string name="error_sso_failed">Автоматичний вхід не вдався. Будь ласка, увійдіть вручну.</string>
     <string name="password_attr_security_rating">Оцінка безпеки</string>
     <string name="password_strength_very_strong">Дуже надійний</string>

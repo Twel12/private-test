@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Login único indisponível. Faça login manualmente.</string>
     <string name="error_sso_app_signature">Login único indisponível para esta assinatura do aplicativo.</string>
     <string name="error_sso_no_account_found">Nenhuma conta encontrada, faça login</string>
-    <string name="error_sso_sync_disabled">A sincronização do Passwords está desativada. Ative em (Configurações -&gt; Contas -&gt; Conta Murena -&gt; Sincronização da conta -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">A sincronização do Passwords está desativada. Ative-a aqui.</string>
     <string name="error_sso_failed">O login automático falhou. Faça login manualmente.</string>
     <string name="password_attr_security_rating">Classificação de segurança</string>
     <string name="password_strength_very_strong">Muito forte</string>

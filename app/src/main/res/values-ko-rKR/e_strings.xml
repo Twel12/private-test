@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">싱글 사인온을 사용할 수 없습니다. 수동으로 로그인해 주세요.</string>
     <string name="error_sso_app_signature">이 앱 서명에서는 싱글 사인온을 사용할 수 없습니다.</string>
     <string name="error_sso_no_account_found">계정을 찾을 수 없습니다. 로그인해 주세요.</string>
-    <string name="error_sso_sync_disabled">비밀번호 앱의 동기화가 비활성화되어 있습니다. (설정 -&gt; 계정 -&gt; Murena 계정 -&gt; 계정 동기화 -&gt; 비밀번호)에서 활성화해 주세요.</string>
+    <string name="error_sso_sync_disabled">Passwords의 동기화가 비활성화되어 있습니다. 여기에서 활성화해 주세요.</string>
     <string name="error_sso_failed">자동 로그인이 실패했습니다. 수동으로 로그인해 주세요.</string>
     <string name="password_attr_security_rating">보안 등급</string>
     <string name="password_strength_very_strong">매우 강함</string>

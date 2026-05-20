@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Authentification unique indisponible. Veuillez vous connecter manuellement.</string>
     <string name="error_sso_app_signature">Authentification unique indisponible pour cette signature d\'application.</string>
     <string name="error_sso_no_account_found">Aucun compte trouvé, veuillez vous connecter</string>
-    <string name="error_sso_sync_disabled">La synchronisation de Passwords est désactivée, veuillez l\'activer dans (Paramètres -&gt; Comptes -&gt; Compte Murena -&gt; Synchronisation du compte -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La synchronisation de Passwords est désactivée. Veuillez l\'activer ici.</string>
     <string name="error_sso_failed">La connexion automatique a échoué. Veuillez vous connecter manuellement.</string>
     <string name="password_attr_security_rating">Niveau de sécurité</string>
     <string name="password_strength_very_strong">Très fort</string>

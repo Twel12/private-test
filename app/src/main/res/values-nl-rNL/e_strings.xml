@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Single sign-on niet beschikbaar. Log handmatig in.</string>
     <string name="error_sso_app_signature">Single sign-on niet beschikbaar voor deze apphandtekening.</string>
     <string name="error_sso_no_account_found">Geen account gevonden, log in</string>
-    <string name="error_sso_sync_disabled">Synchronisatie voor Passwords is uitgeschakeld. Schakel dit in via (Instellingen -&gt; Accounts -&gt; Murena-account -&gt; Accountsynchronisatie -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synchronisatie voor Passwords is uitgeschakeld. Schakel dit hier in.</string>
     <string name="error_sso_failed">Automatisch inloggen is mislukt. Log handmatig in.</string>
     <string name="password_attr_security_rating">Beveiligingsscore</string>
     <string name="password_strength_very_strong">Zeer sterk</string>

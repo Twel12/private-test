@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Enkel pålogging er ikke tilgjengelig. Logg inn manuelt.</string>
     <string name="error_sso_app_signature">Enkel pålogging er ikke tilgjengelig for denne appsignaturen.</string>
     <string name="error_sso_no_account_found">Ingen konto funnet, logg inn</string>
-    <string name="error_sso_sync_disabled">Synkronisering for Passwords er deaktivert. Aktiver den fra (Innstillinger -&gt; Kontoer -&gt; Murena-konto -&gt; Kontosynkronisering -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synkronisering for Passwords er deaktivert. Aktiver den her.</string>
     <string name="error_sso_failed">Automatisk innlogging mislyktes. Logg inn manuelt.</string>
     <string name="password_attr_security_rating">Sikkerhetsvurdering</string>
     <string name="password_strength_very_strong">Svært sterk</string>

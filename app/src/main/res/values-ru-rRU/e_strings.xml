@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Единый вход недоступен. Пожалуйста, войдите вручную.</string>
     <string name="error_sso_app_signature">Единый вход недоступен для подписи этого приложения.</string>
     <string name="error_sso_no_account_found">Учетная запись не найдена, пожалуйста, войдите</string>
-    <string name="error_sso_sync_disabled">Для приложения Passwords отключена синхронизация. Включите ее в разделе (Настройки -&gt; Учетные записи -&gt; учетная запись Murena -&gt; Синхронизация учетной записи -&gt; Пароль)</string>
+    <string name="error_sso_sync_disabled">Для Passwords отключена синхронизация. Включите ее здесь.</string>
     <string name="error_sso_failed">Автоматический вход не удался. Пожалуйста, войдите вручную.</string>
     <string name="password_attr_security_rating">Оценка безопасности</string>
     <string name="password_strength_very_strong">Очень надежный</string>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">L\'inici de sessió únic no està disponible. Inicia la sessió manualment.</string>
     <string name="error_sso_app_signature">L\'inici de sessió únic no està disponible per a aquesta signatura de l\'aplicació.</string>
     <string name="error_sso_no_account_found">No s\'ha trobat cap compte; inicia la sessió</string>
-    <string name="error_sso_sync_disabled">La sincronització està desactivada per a Passwords. Activa-la des de (Configuració -&gt; Comptes -&gt; compte de Murena -&gt; Sincronització del compte -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La sincronització de Passwords està desactivada. Activa-la aquí.</string>
     <string name="error_sso_failed">L\'inici de sessió automàtic ha fallat. Inicia la sessió manualment.</string>
     <string name="password_attr_security_rating">Nivell de seguretat</string>
     <string name="password_strength_very_strong">Molt forta</string>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">シングルサインオンは利用できません。手動でログインしてください。</string>
     <string name="error_sso_app_signature">このアプリ署名ではシングルサインオンを利用できません。</string>
     <string name="error_sso_no_account_found">アカウントが見つかりません。ログインしてください</string>
-    <string name="error_sso_sync_disabled">パスワードアプリの同期が無効になっています。（設定 -&gt; アカウント -&gt; Murena アカウント -&gt; アカウント同期 -&gt; パスワード）から有効にしてください</string>
+    <string name="error_sso_sync_disabled">Passwords の同期が無効になっています。ここで有効にしてください。</string>
     <string name="error_sso_failed">自動ログインに失敗しました。手動でログインしてください。</string>
     <string name="password_attr_security_rating">セキュリティ評価</string>
     <string name="password_strength_very_strong">非常に強い</string>

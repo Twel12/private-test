@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Az egyszeri bejelentkezés nem érhető el. Kérjük, jelentkezzen be kézzel.</string>
     <string name="error_sso_app_signature">Az egyszeri bejelentkezés ehhez az alkalmazás-aláíráshoz nem érhető el.</string>
     <string name="error_sso_no_account_found">Nem található fiók, kérjük, jelentkezzen be</string>
-    <string name="error_sso_sync_disabled">A Passwords alkalmazás szinkronizálása ki van kapcsolva, kérjük, engedélyezze itt: (Beállítások -&gt; Fiókok -&gt; Murena-fiók -&gt; Fiókszinkronizálás -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">A Passwords szinkronizálása ki van kapcsolva. Kérjük, engedélyezze itt.</string>
     <string name="error_sso_failed">Az automatikus bejelentkezés nem sikerült. Kérjük, jelentkezzen be kézzel.</string>
     <string name="password_attr_security_rating">Biztonsági értékelés</string>
     <string name="password_strength_very_strong">Nagyon erős</string>

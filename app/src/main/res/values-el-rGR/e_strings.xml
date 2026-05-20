@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Η ενιαία σύνδεση δεν είναι διαθέσιμη. Συνδεθείτε μη αυτόματα.</string>
     <string name="error_sso_app_signature">Η ενιαία σύνδεση δεν είναι διαθέσιμη για αυτή την υπογραφή εφαρμογής.</string>
     <string name="error_sso_no_account_found">Δεν βρέθηκε λογαριασμός, συνδεθείτε</string>
-    <string name="error_sso_sync_disabled">Ο συγχρονισμός είναι απενεργοποιημένος για την εφαρμογή κωδικών πρόσβασης. Ενεργοποιήστε τον από (Ρυθμίσεις -&gt; Λογαριασμοί -&gt; λογαριασμός Murena -&gt; Συγχρονισμός λογαριασμού -&gt; Κωδικός πρόσβασης)</string>
+    <string name="error_sso_sync_disabled">Ο συγχρονισμός είναι απενεργοποιημένος για το Passwords. Ενεργοποιήστε τον εδώ.</string>
     <string name="error_sso_failed">Η αυτόματη σύνδεση απέτυχε. Συνδεθείτε μη αυτόματα.</string>
     <string name="password_attr_security_rating">Βαθμολογία ασφάλειας</string>
     <string name="password_strength_very_strong">Πολύ ισχυρός</string>

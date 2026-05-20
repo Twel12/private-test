@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Jednotné přihlášení není k dispozici. Přihlaste se prosím ručně.</string>
     <string name="error_sso_app_signature">Jednotné přihlášení není pro tento podpis aplikace k dispozici.</string>
     <string name="error_sso_no_account_found">Nebyl nalezen žádný účet, přihlaste se prosím</string>
-    <string name="error_sso_sync_disabled">Synchronizace je pro aplikaci Passwords vypnuta, povolte ji prosím v (Nastavení -&gt; Účty -&gt; účet Murena -&gt; Synchronizace účtu -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synchronizace je pro Passwords vypnuta. Povolte ji zde.</string>
     <string name="error_sso_failed">Automatické přihlášení se nezdařilo. Přihlaste se prosím ručně.</string>
     <string name="password_attr_security_rating">Hodnocení zabezpečení</string>
     <string name="password_strength_very_strong">Velmi silné</string>

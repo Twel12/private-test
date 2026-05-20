@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Đăng nhập một lần không khả dụng. Vui lòng đăng nhập thủ công.</string>
     <string name="error_sso_app_signature">Đăng nhập một lần không khả dụng cho chữ ký ứng dụng này.</string>
     <string name="error_sso_no_account_found">Không tìm thấy tài khoản, vui lòng đăng nhập</string>
-    <string name="error_sso_sync_disabled">Đồng bộ hóa đã bị tắt cho ứng dụng Passwords, vui lòng bật trong (Cài đặt -&gt; Tài khoản -&gt; tài khoản Murena -&gt; Đồng bộ hóa tài khoản -&gt; Mật khẩu)</string>
+    <string name="error_sso_sync_disabled">Đồng bộ hóa của Passwords đã bị tắt. Vui lòng bật tại đây.</string>
     <string name="error_sso_failed">Đăng nhập tự động không thành công. Vui lòng đăng nhập thủ công.</string>
     <string name="password_attr_security_rating">Đánh giá bảo mật</string>
     <string name="password_strength_very_strong">Rất mạnh</string>

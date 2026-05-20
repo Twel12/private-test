@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">El inicio de sesión único no está disponible. Inicia sesión manualmente.</string>
     <string name="error_sso_app_signature">El inicio de sesión único no está disponible para esta firma de la aplicación.</string>
     <string name="error_sso_no_account_found">No se ha encontrado ninguna cuenta. Inicia sesión.</string>
-    <string name="error_sso_sync_disabled">La sincronización está desactivada para la aplicación Passwords. Actívala desde (Ajustes -&gt; Cuentas -&gt; cuenta de Murena -&gt; Sincronización de cuentas -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La sincronización de Passwords está desactivada. Actívala aquí.</string>
     <string name="error_sso_failed">Ha fallado el inicio de sesión automático. Inicia sesión manualmente.</string>
     <string name="password_attr_security_rating">Nivel de seguridad</string>
     <string name="password_strength_very_strong">Muy segura</string>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Single sign-on non disponibile. Accedi manualmente.</string>
     <string name="error_sso_app_signature">Single sign-on non disponibile per questa firma dell\'applicazione.</string>
     <string name="error_sso_no_account_found">Nessun account trovato, accedi</string>
-    <string name="error_sso_sync_disabled">La sincronizzazione di Passwords è disattivata, attivala da (Impostazioni -&gt; Account -&gt; Account Murena -&gt; Sincronizzazione account -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La sincronizzazione di Passwords è disattivata. Attivala qui.</string>
     <string name="error_sso_failed">Accesso automatico non riuscito. Accedi manualmente.</string>
     <string name="password_attr_security_rating">Valutazione di sicurezza</string>
     <string name="password_strength_very_strong">Molto forte</string>

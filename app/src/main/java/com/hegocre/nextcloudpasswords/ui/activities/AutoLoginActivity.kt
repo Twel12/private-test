@@ -16,6 +16,7 @@
  */
 package com.hegocre.nextcloudpasswords.ui.activities
 
+import android.accounts.Account
 import android.app.assist.AssistStructure
 import android.content.Context
 import android.content.Intent
@@ -57,7 +58,22 @@ class AutoLoginActivity : ComponentActivity() {
         }
     }
 
-    private val baseAutoLogin by lazy {
+    private val syncDisabled: MurenaSyncDisabledFlow by lazy {
+        MurenaSyncDisabledFlow(
+            launchSettings = { account -> MurenaAccountSyncSettings.open(this, account) },
+            onSyncEnabled = {
+                baseAutoLogin.start(
+                    forceSsoReauthentication = intent.getBooleanExtra(
+                        EXTRA_FORCE_SSO_REAUTHENTICATION,
+                        false
+                    )
+                )
+            },
+            onStillDisabledOrLaunchFailed = ::finish,
+        )
+    }
+
+    private val baseAutoLogin: BaseAutoLogin by lazy {
         object : BaseAutoLogin(this@AutoLoginActivity) {
             override fun accountExist() {
                 startMain()
@@ -75,8 +91,11 @@ class AutoLoginActivity : ComponentActivity() {
                 openClassicLogin(R.string.error_sso_no_account_found)
             }
 
-            override fun syncDisabled() {
-                openClassicLogin(R.string.error_sso_sync_disabled)
+            override fun syncDisabled(account: Account) {
+                Toast.makeText(this@AutoLoginActivity, R.string.error_sso_sync_disabled, Toast.LENGTH_LONG).show()
+                if (syncDisabled.launch(account)) {
+                    finish()
+                }
             }
 
             override fun ssoFailed() {
@@ -84,6 +103,16 @@ class AutoLoginActivity : ComponentActivity() {
             }
 
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        syncDisabled.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncDisabled.onPause()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

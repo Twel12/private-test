@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">تعذر استخدام تسجيل الدخول الأحادي. يُرجى تسجيل الدخول يدويًا.</string>
     <string name="error_sso_app_signature">تعذر استخدام تسجيل الدخول الأحادي مع توقيع هذا التطبيق.</string>
     <string name="error_sso_no_account_found">لم يتم العثور على حساب، يُرجى تسجيل الدخول</string>
-    <string name="error_sso_sync_disabled">تم تعطيل المزامنة لتطبيق كلمات المرور، يُرجى تفعيلها من (الإعدادات -&gt; الحسابات -&gt; حساب Murena -&gt; مزامنة الحساب -&gt; كلمات المرور)</string>
+    <string name="error_sso_sync_disabled">تم تعطيل المزامنة لتطبيق Passwords. يُرجى تفعيلها هنا.</string>
     <string name="error_sso_failed">فشل تسجيل الدخول التلقائي. يُرجى تسجيل الدخول يدويًا.</string>
     <string name="password_attr_security_rating">تقييم الأمان</string>
     <string name="password_strength_very_strong">قوي جدًا</string>
