@@ -42,7 +42,6 @@ class NCPAutofillMatcher(private val context: Context) {
                 add(domain)
                 add("https://$domain")
                 add(domain.substringBefore('/'))
-                add(domain.substringBefore('.'))
             }
             request.origin?.takeIf { it.isNotBlank() }?.let(::add)
             if (canUsePackageContext) {
