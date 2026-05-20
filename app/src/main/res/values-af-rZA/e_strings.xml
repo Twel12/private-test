@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nuut</string>
     <string name="backup_app_setup_title">Stoor rugsteun-enkripsiesleutel</string>
     <string name="backup_app_setup_cta">Stoor enkripsiesleutel</string>
+    <string name="backup_app_restore_title">Herwin rugsteun-enkripsiesleutel</string>
+    <string name="backup_app_restore_cta">Herwin enkripsiesleutel</string>
     <string name="backup_app_setup_password_error">Verkeerde wagwoord. Probeer asseblief weer.</string>
     <string name="enter_password_hint">Voer jou Murena Workspace-wagwoord in</string>
     <string name="description">Voer jou Murena Workspace-wagwoord in om die enkripsiesleutel in Murena Passwords te stoor</string>
+    <string name="backup_app_restore_description">Voer jou Murena Workspace-wagwoord in om die enkripsiesleutel uit Murena Passwords te herwin</string>
     <string name="autofill_password_saved">Wagwoord gestoor</string>
     <string name="autofill_saving_password">Stoor wagwoord</string>
     <string name="autofill_saving_password_message">Wag asseblief terwyl %1$s hierdie aanmeldbesonderhede stoor.</string>

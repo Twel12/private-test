@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Новий</string>
     <string name="backup_app_setup_title">Зберегти ключ шифрування резервної копії</string>
     <string name="backup_app_setup_cta">Зберегти ключ шифрування</string>
+    <string name="backup_app_restore_title">Отримати ключ шифрування резервної копії</string>
+    <string name="backup_app_restore_cta">Отримати ключ шифрування</string>
     <string name="backup_app_setup_password_error">Неправильний пароль. Спробуйте ще раз.</string>
     <string name="enter_password_hint">Введіть пароль свого облікового запису Murena Workspace</string>
     <string name="description">Введіть пароль свого облікового запису Murena Workspace, щоб зберегти ключ шифрування в Murena Passwords</string>
+    <string name="backup_app_restore_description">Введіть пароль свого облікового запису Murena Workspace, щоб отримати ключ шифрування з Murena Passwords</string>
     <string name="autofill_password_saved">Пароль збережено</string>
     <string name="autofill_saving_password">Збереження пароля</string>
     <string name="autofill_saving_password_message">Зачекайте, поки %1$s зберігає ці облікові дані.</string>

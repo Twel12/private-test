@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nieuw</string>
     <string name="backup_app_setup_title">Reservekopie-versleutelingssleutel opslaan</string>
     <string name="backup_app_setup_cta">Versleutelingssleutel opslaan</string>
+    <string name="backup_app_restore_title">Reservekopie-versleutelingssleutel ophalen</string>
+    <string name="backup_app_restore_cta">Versleutelingssleutel ophalen</string>
     <string name="backup_app_setup_password_error">Onjuist wachtwoord. Probeer het opnieuw.</string>
     <string name="enter_password_hint">Voer je Murena Workspace-wachtwoord in</string>
     <string name="description">Voer je Murena Workspace-wachtwoord in om de versleutelingssleutel op te slaan in Murena Passwords</string>
+    <string name="backup_app_restore_description">Voer je Murena Workspace-wachtwoord in om de versleutelingssleutel op te halen uit Murena Passwords</string>
     <string name="autofill_password_saved">Wachtwoord opgeslagen</string>
     <string name="autofill_saving_password">Wachtwoord opslaan</string>
     <string name="autofill_saving_password_message">Een ogenblik geduld terwijl %1$s deze inloggegevens opslaat.</string>

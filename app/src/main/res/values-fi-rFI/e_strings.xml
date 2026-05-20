@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Uusi</string>
     <string name="backup_app_setup_title">Tallenna varmuuskopion salausavain</string>
     <string name="backup_app_setup_cta">Tallenna salausavain</string>
+    <string name="backup_app_restore_title">Nouda varmuuskopion salausavain</string>
+    <string name="backup_app_restore_cta">Nouda salausavain</string>
     <string name="backup_app_setup_password_error">Virheellinen salasana. Yritä uudelleen.</string>
     <string name="enter_password_hint">Anna Murena Workspace -salasanasi</string>
     <string name="description">Anna Murena Workspace -salasanasi tallentaaksesi salausavaimen Murena Passwords -sovellukseen</string>
+    <string name="backup_app_restore_description">Anna Murena Workspace -salasanasi noutaaksesi salausavaimen Murena Passwords -sovelluksesta</string>
     <string name="autofill_password_saved">Salasana tallennettu</string>
     <string name="autofill_saving_password">Tallennetaan salasanaa</string>
     <string name="autofill_saving_password_message">Odota, kun %1$s tallentaa tämän kirjautumistiedon.</string>

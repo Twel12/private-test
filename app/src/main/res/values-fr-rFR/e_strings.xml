@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nouveau</string>
     <string name="backup_app_setup_title">Enregistrer la clé de chiffrement de sauvegarde</string>
     <string name="backup_app_setup_cta">Enregistrer la clé de chiffrement</string>
+    <string name="backup_app_restore_title">Récupérer la clé de chiffrement de sauvegarde</string>
+    <string name="backup_app_restore_cta">Récupérer la clé de chiffrement</string>
     <string name="backup_app_setup_password_error">Mot de passe incorrect. Veuillez réessayer.</string>
     <string name="enter_password_hint">Saisissez votre mot de passe Murena Workspace</string>
     <string name="description">Saisissez votre mot de passe Murena Workspace pour enregistrer la clé de chiffrement dans Murena Passwords</string>
+    <string name="backup_app_restore_description">Saisissez votre mot de passe Murena Workspace pour récupérer la clé de chiffrement depuis Murena Passwords</string>
     <string name="autofill_password_saved">Mot de passe enregistré</string>
     <string name="autofill_saving_password">Enregistrement du mot de passe</string>
     <string name="autofill_saving_password_message">Veuillez patienter pendant que %1$s enregistre cet identifiant.</string>

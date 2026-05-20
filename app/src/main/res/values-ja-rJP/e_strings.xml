@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">新規</string>
     <string name="backup_app_setup_title">バックアップ暗号化キーを保存</string>
     <string name="backup_app_setup_cta">暗号化キーを保存</string>
+    <string name="backup_app_restore_title">バックアップ暗号化キーを取得</string>
+    <string name="backup_app_restore_cta">暗号化キーを取得</string>
     <string name="backup_app_setup_password_error">パスワードが正しくありません。もう一度お試しください。</string>
     <string name="enter_password_hint">Murena Workspace のパスワードを入力してください</string>
     <string name="description">暗号化キーを Murena Passwords に保存するには、Murena Workspace のパスワードを入力してください</string>
+    <string name="backup_app_restore_description">Murena Passwords から暗号化キーを取得するには、Murena Workspace のパスワードを入力してください</string>
     <string name="autofill_password_saved">パスワードを保存しました</string>
     <string name="autofill_saving_password">パスワードを保存中</string>
     <string name="autofill_saving_password_message">%1$s がこの認証情報を保存するまでお待ちください。</string>

@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">新增</string>
     <string name="backup_app_setup_title">儲存備份加密金鑰</string>
     <string name="backup_app_setup_cta">儲存加密金鑰</string>
+    <string name="backup_app_restore_title">取得備份加密金鑰</string>
+    <string name="backup_app_restore_cta">取得加密金鑰</string>
     <string name="backup_app_setup_password_error">密碼不正確。請再試一次。</string>
     <string name="enter_password_hint">輸入您的 Murena Workspace 密碼</string>
     <string name="description">輸入您的 Murena Workspace 密碼，以將加密金鑰儲存到 Murena Passwords</string>
+    <string name="backup_app_restore_description">輸入您的 Murena Workspace 密碼，以從 Murena Passwords 取得加密金鑰</string>
     <string name="autofill_password_saved">密碼已儲存</string>
     <string name="autofill_saving_password">正在儲存密碼</string>
     <string name="autofill_saving_password_message">請稍候，%1$s 正在儲存此憑證。</string>

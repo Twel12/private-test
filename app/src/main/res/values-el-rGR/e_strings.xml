@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Νέο</string>
     <string name="backup_app_setup_title">Αποθήκευση εφεδρικού κλειδιού κρυπτογράφησης</string>
     <string name="backup_app_setup_cta">Αποθήκευση κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_restore_title">Ανάκτηση εφεδρικού κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_restore_cta">Ανάκτηση κλειδιού κρυπτογράφησης</string>
     <string name="backup_app_setup_password_error">Λανθασμένος κωδικός πρόσβασης. Προσπαθήστε ξανά.</string>
     <string name="enter_password_hint">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace</string>
     <string name="description">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace για να αποθηκεύσετε το κλειδί κρυπτογράφησης στο Murena Passwords</string>
+    <string name="backup_app_restore_description">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace για να ανακτήσετε το κλειδί κρυπτογράφησης από το Murena Passwords</string>
     <string name="autofill_password_saved">Ο κωδικός πρόσβασης αποθηκεύτηκε</string>
     <string name="autofill_saving_password">Αποθήκευση κωδικού πρόσβασης</string>
     <string name="autofill_saving_password_message">Περιμένετε όσο το %1$s αποθηκεύει αυτά τα διαπιστευτήρια.</string>

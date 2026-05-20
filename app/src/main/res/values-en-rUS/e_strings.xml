@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">New</string>
     <string name="backup_app_setup_title">Save Backup Encryption Key</string>
     <string name="backup_app_setup_cta">Save encryption key</string>
+    <string name="backup_app_restore_title">Retrieve backup encryption key</string>
+    <string name="backup_app_restore_cta">Retrieve encryption key</string>
     <string name="backup_app_setup_password_error">Incorrect password. Please try again.</string>
     <string name="enter_password_hint">Enter your Murena Workspace password</string>
     <string name="description">Enter your Murena Workspace password to save the encryption key in Murena Passwords</string>
+    <string name="backup_app_restore_description">Enter your Murena Workspace password to retrieve the encryption key from Murena Passwords</string>
     <string name="autofill_password_saved">Password saved</string>
     <string name="autofill_saving_password">Saving password</string>
     <string name="autofill_saving_password_message">Please wait while %1$s saves this credential.</string>

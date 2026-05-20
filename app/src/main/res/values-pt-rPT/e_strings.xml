@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Novo</string>
     <string name="backup_app_setup_title">Guardar chave de cifragem da cópia de segurança</string>
     <string name="backup_app_setup_cta">Guardar chave de cifragem</string>
+    <string name="backup_app_restore_title">Recuperar chave de cifragem da cópia de segurança</string>
+    <string name="backup_app_restore_cta">Recuperar chave de cifragem</string>
     <string name="backup_app_setup_password_error">Palavra-passe incorreta. Tente novamente.</string>
     <string name="enter_password_hint">Introduza a palavra-passe da sua conta Murena Workspace</string>
     <string name="description">Introduza a palavra-passe da sua conta Murena Workspace para guardar a chave de cifragem no Murena Passwords</string>
+    <string name="backup_app_restore_description">Introduza a palavra-passe da sua conta Murena Workspace para recuperar a chave de cifragem do Murena Passwords</string>
     <string name="autofill_password_saved">Palavra-passe guardada</string>
     <string name="autofill_saving_password">A guardar palavra-passe</string>
     <string name="autofill_saving_password_message">Aguarde enquanto %1$s guarda esta credencial.</string>

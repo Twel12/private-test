@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Új</string>
     <string name="backup_app_setup_title">Mentse a biztonsági mentés titkosítási kulcsát</string>
     <string name="backup_app_setup_cta">Titkosítási kulcs mentése</string>
+    <string name="backup_app_restore_title">Biztonsági mentés titkosítási kulcsának lekérése</string>
+    <string name="backup_app_restore_cta">Titkosítási kulcs lekérése</string>
     <string name="backup_app_setup_password_error">Hibás jelszó. Kérjük, próbálja újra.</string>
     <string name="enter_password_hint">Adja meg a Murena Workspace jelszavát</string>
     <string name="description">Adja meg a Murena Workspace jelszavát, hogy a titkosítási kulcsot elmentse a Murena Passwords alkalmazásba</string>
+    <string name="backup_app_restore_description">Adja meg a Murena Workspace jelszavát, hogy lekérje a titkosítási kulcsot a Murena Passwords alkalmazásból</string>
     <string name="autofill_password_saved">Jelszó mentve</string>
     <string name="autofill_saving_password">Jelszó mentése</string>
     <string name="autofill_saving_password_message">Kérjük, várjon, amíg %1$s menti ezt a hitelesítő adatot.</string>

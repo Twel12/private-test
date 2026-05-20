@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nou</string>
     <string name="backup_app_setup_title">Salvează cheia de criptare a copiei de rezervă</string>
     <string name="backup_app_setup_cta">Salvează cheia de criptare</string>
+    <string name="backup_app_restore_title">Recuperează cheia de criptare a copiei de rezervă</string>
+    <string name="backup_app_restore_cta">Recuperează cheia de criptare</string>
     <string name="backup_app_setup_password_error">Parolă incorectă. Te rugăm să încerci din nou.</string>
     <string name="enter_password_hint">Introdu parola contului tău Murena Workspace</string>
     <string name="description">Introdu parola contului tău Murena Workspace pentru a salva cheia de criptare în Murena Passwords</string>
+    <string name="backup_app_restore_description">Introdu parola contului tău Murena Workspace pentru a recupera cheia de criptare din Murena Passwords</string>
     <string name="autofill_password_saved">Parolă salvată</string>
     <string name="autofill_saving_password">Se salvează parola</string>
     <string name="autofill_saving_password_message">Te rugăm să aștepți cât timp %1$s salvează această acreditare.</string>

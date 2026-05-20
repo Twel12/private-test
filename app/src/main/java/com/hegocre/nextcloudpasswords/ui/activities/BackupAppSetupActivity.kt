@@ -71,6 +71,7 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "BackupAppSetupActivity"
+        private const val EXTRA_IS_RESTORE = "is_restore"
     }
 
     private val viewModel: BackupAppSetupViewModel by viewModels {
@@ -132,6 +133,7 @@ class BackupAppSetupActivity : ComponentActivity() {
     private fun showSetupContent() {
         if (setupContentShown) return
         setupContentShown = true
+        val isRestore = intent.getBooleanExtra(EXTRA_IS_RESTORE, false)
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsStateWithLifecycle()
@@ -162,6 +164,7 @@ class BackupAppSetupActivity : ComponentActivity() {
                 }
             } else {
                 MasterKeyScreen(
+                    isRestore = isRestore,
                     isCheckingPassword = uiState.isCheckingPassword,
                     isWrongPassword = uiState.isWrongPassword,
                     password = uiState.password,
@@ -205,6 +208,7 @@ class BackupAppSetupActivity : ComponentActivity() {
     @Composable
     private fun Demo() {
         MasterKeyScreen(
+            isRestore = false,
             isCheckingPassword = false,
             isWrongPassword = false,
             password = "",
@@ -216,6 +220,7 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     @Composable
     private fun MasterKeyScreen(
+        isRestore: Boolean,
         isCheckingPassword: Boolean,
         isWrongPassword: Boolean,
         password: String,
@@ -267,7 +272,15 @@ class BackupAppSetupActivity : ComponentActivity() {
                                 },
                                 enabled = canSubmit,
                             ) {
-                                Text(stringResource(R.string.backup_app_setup_cta))
+                                Text(
+                                    stringResource(
+                                        if (isRestore) {
+                                            R.string.backup_app_restore_cta
+                                        } else {
+                                            R.string.backup_app_setup_cta
+                                        }
+                                    )
+                                )
                             }
                         }
                     }
@@ -281,7 +294,13 @@ class BackupAppSetupActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = stringResource(R.string.backup_app_setup_title),
+                        text = stringResource(
+                            if (isRestore) {
+                                R.string.backup_app_restore_title
+                            } else {
+                                R.string.backup_app_setup_title
+                            }
+                        ),
                         style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -289,7 +308,13 @@ class BackupAppSetupActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = stringResource(R.string.description),
+                        text = stringResource(
+                            if (isRestore) {
+                                R.string.backup_app_restore_description
+                            } else {
+                                R.string.description
+                            }
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
