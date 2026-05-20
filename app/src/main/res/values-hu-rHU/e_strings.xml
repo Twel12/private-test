@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Az egyszeri bejelentkezés nem érhető el. Kérjük, jelentkezzen be kézzel.</string>
     <string name="error_sso_app_signature">Az egyszeri bejelentkezés ehhez az alkalmazás-aláíráshoz nem érhető el.</string>
     <string name="error_sso_no_account_found">Nem található fiók, kérjük, jelentkezzen be</string>
-    <string name="error_sso_sync_disabled">A Passwords alkalmazás szinkronizálása ki van kapcsolva, kérjük, engedélyezze itt: (Beállítások -&gt; Fiókok -&gt; Murena-fiók -&gt; Fiókszinkronizálás -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">A Passwords szinkronizálása ki van kapcsolva. Kérjük, engedélyezze itt.</string>
     <string name="error_sso_failed">Az automatikus bejelentkezés nem sikerült. Kérjük, jelentkezzen be kézzel.</string>
     <string name="password_attr_security_rating">Biztonsági értékelés</string>
     <string name="password_strength_very_strong">Nagyon erős</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Új</string>
     <string name="backup_app_setup_title">Mentse a biztonsági mentés titkosítási kulcsát</string>
     <string name="backup_app_setup_cta">Titkosítási kulcs mentése</string>
+    <string name="backup_app_restore_title">Biztonsági mentés titkosítási kulcsának lekérése</string>
+    <string name="backup_app_restore_cta">Titkosítási kulcs lekérése</string>
     <string name="backup_app_setup_password_error">Hibás jelszó. Kérjük, próbálja újra.</string>
     <string name="enter_password_hint">Adja meg a Murena Workspace jelszavát</string>
     <string name="description">Adja meg a Murena Workspace jelszavát, hogy a titkosítási kulcsot elmentse a Murena Passwords alkalmazásba</string>
+    <string name="backup_app_restore_description">Adja meg a Murena Workspace jelszavát, hogy lekérje a titkosítási kulcsot a Murena Passwords alkalmazásból</string>
     <string name="autofill_password_saved">Jelszó mentve</string>
     <string name="autofill_saving_password">Jelszó mentése</string>
     <string name="autofill_saving_password_message">Kérjük, várjon, amíg %1$s menti ezt a hitelesítő adatot.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Titkosítás beállítása szükséges</string>
     <string name="e2ee_migration_dialog_text">A titkosítás még nincs engedélyezve ehhez a fiókhoz. Az alkalmazás használatának megkezdéséhez adja meg jelszavát a Murena Passwords webes verziójában, majd a beállítás befejezése után térjen vissza ide.</string>
     <string name="e2ee_migration_dialog_start">Titkosítás beállítása</string>
+    <string name="locked_account_dialog_title">Passwords alkalmazás zárolva</string>
+    <string name="locked_account_dialog_message">Túl sok helytelen mesterjelszó-próbálkozás. Oldja fel fiókja zárolását a Murena Passwords webes verziójában, majd jelentkezzen be itt újra.</string>
+    <string name="locked_account_dialog_unlock">Fiók feloldása</string>
 </resources>

@@ -16,13 +16,20 @@
  */
 package com.hegocre.nextcloudpasswords.utils
 
+import android.accounts.Account
+import android.content.ContentResolver
 import android.content.Context
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException
 import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException
+import com.nextcloud.android.sso.AccountImporter
 import com.nextcloud.android.sso.helper.SingleAccountHelper
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 
 object SsoAccount {
+
+    fun getFirstMurenaAccount(context: Context): Account? {
+        return findMurenaAccounts(context).firstOrNull()
+    }
 
     fun getCurrentSingleSignOnAccount(context: Context): SingleSignOnAccount? {
         return try {
@@ -33,5 +40,37 @@ object SsoAccount {
             null
         }
     }
+
+    fun getCurrentMurenaAccount(context: Context): Account? {
+        val currentAccount = getCurrentSingleSignOnAccount(context) ?: return null
+        return findMurenaAccounts(context)
+            .firstOrNull {
+                it.name == currentAccount.name
+            }
+    }
+
+    fun isMurenaSyncEnabled(account: Account): Boolean {
+        return ContentResolver.getMasterSyncAutomatically() &&
+            ContentResolver.getSyncAutomatically(account, CONTENT_AUTHORITY)
+    }
+
+    fun isCurrentMurenaSyncEnabled(context: Context): Boolean {
+        val murenaAccount = getCurrentMurenaAccount(context) ?: return true
+        return isMurenaSyncEnabled(murenaAccount)
+    }
+
+    private fun findMurenaAccounts(context: Context): List<Account> {
+        return try {
+            AccountImporter.findAccounts(context)
+                .filterNotNull()
+                .filter { it.type == MURENA_ACCOUNT_TYPE }
+        } catch (_: SecurityException) {
+            emptyList()
+        }
+    }
+
+    private const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
+    private const val CONTENT_AUTHORITY =
+        "foundation.e.passwords.providers.PasswordSyncProvider"
 
 }

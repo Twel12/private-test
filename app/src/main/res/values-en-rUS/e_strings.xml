@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Single sign-on unavailable. Please log in manually.</string>
     <string name="error_sso_app_signature">Single sign-on unavailable for this app signature.</string>
     <string name="error_sso_no_account_found">No account found. Please log in.</string>
-    <string name="error_sso_sync_disabled">Sync is disabled for the Passwords app. Please enable it from (Settings -&gt; Accounts -&gt; Murena account -&gt; Account Sync -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Sync is disabled for Passwords. Please enable it here.</string>
     <string name="error_sso_failed">Automatic login failed. Please log in manually.</string>
     <string name="password_attr_security_rating">Security rating</string>
     <string name="password_strength_very_strong">Very strong</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">New</string>
     <string name="backup_app_setup_title">Save Backup Encryption Key</string>
     <string name="backup_app_setup_cta">Save encryption key</string>
+    <string name="backup_app_restore_title">Retrieve backup encryption key</string>
+    <string name="backup_app_restore_cta">Retrieve encryption key</string>
     <string name="backup_app_setup_password_error">Incorrect password. Please try again.</string>
     <string name="enter_password_hint">Enter your Murena Workspace password</string>
     <string name="description">Enter your Murena Workspace password to save the encryption key in Murena Passwords</string>
+    <string name="backup_app_restore_description">Enter your Murena Workspace password to retrieve the encryption key from Murena Passwords</string>
     <string name="autofill_password_saved">Password saved</string>
     <string name="autofill_saving_password">Saving password</string>
     <string name="autofill_saving_password_message">Please wait while %1$s saves this credential.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Encryption setup required</string>
     <string name="e2ee_migration_dialog_text">Encryption is not yet enabled for this account. To start using the app, enter your password in the web version of Murena Passwords and return here once setup is complete.</string>
     <string name="e2ee_migration_dialog_start">Set up encryption</string>
+    <string name="locked_account_dialog_title">Passwords App Locked</string>
+    <string name="locked_account_dialog_message">Too many incorrect master password attempts. Unlock your account in the web version of Murena Passwords, then sign in here again.</string>
+    <string name="locked_account_dialog_unlock">Unlock account</string>
 </resources>

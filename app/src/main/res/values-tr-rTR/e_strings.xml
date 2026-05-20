@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Tek oturum açma kullanılamıyor. Lütfen manuel olarak oturum açın.</string>
     <string name="error_sso_app_signature">Tek oturum açma bu uygulama imzası için kullanılamıyor.</string>
     <string name="error_sso_no_account_found">Hesap bulunamadı, lütfen oturum açın</string>
-    <string name="error_sso_sync_disabled">Passwords uygulaması için eşitleme devre dışı. Lütfen (Ayarlar -&gt; Hesaplar -&gt; Murena hesabı -&gt; Hesap Eşitleme -&gt; Parola) bölümünden etkinleştirin</string>
+    <string name="error_sso_sync_disabled">Passwords için eşitleme devre dışı. Lütfen burada etkinleştirin.</string>
     <string name="error_sso_failed">Otomatik oturum açma başarısız oldu. Lütfen manuel olarak oturum açın.</string>
     <string name="password_attr_security_rating">Güvenlik derecesi</string>
     <string name="password_strength_very_strong">Çok güçlü</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Yeni</string>
     <string name="backup_app_setup_title">Yedek Şifreleme Anahtarını Kaydet</string>
     <string name="backup_app_setup_cta">Şifreleme anahtarını kaydet</string>
+    <string name="backup_app_restore_title">Yedek şifreleme anahtarını al</string>
+    <string name="backup_app_restore_cta">Şifreleme anahtarını al</string>
     <string name="backup_app_setup_password_error">Yanlış parola. Lütfen tekrar deneyin.</string>
     <string name="enter_password_hint">Murena Workspace hesap parolanızı girin</string>
     <string name="description">Şifreleme anahtarını Murena Passwords\'a kaydetmek için Murena Workspace hesap parolanızı girin</string>
+    <string name="backup_app_restore_description">Şifreleme anahtarını Murena Passwords\'tan almak için Murena Workspace hesap parolanızı girin</string>
     <string name="autofill_password_saved">Parola kaydedildi</string>
     <string name="autofill_saving_password">Parola kaydediliyor</string>
     <string name="autofill_saving_password_message">Lütfen %1$s bu kimlik bilgisini kaydederken bekleyin.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Şifreleme kurulumu gerekiyor</string>
     <string name="e2ee_migration_dialog_text">Bu hesap için şifreleme henüz etkinleştirilmedi. Uygulamayı kullanmaya başlamak için Murena Passwords\'un web sürümünde parolanızı girin ve kurulum tamamlandığında buraya geri dönün.</string>
     <string name="e2ee_migration_dialog_start">Şifrelemeyi kur</string>
+    <string name="locked_account_dialog_title">Passwords uygulaması kilitlendi</string>
+    <string name="locked_account_dialog_message">Çok fazla yanlış ana parola denemesi yapıldı. Hesabınızın kilidini Murena Passwords web sürümünde açın, ardından burada yeniden oturum açın.</string>
+    <string name="locked_account_dialog_unlock">Hesabın kilidini aç</string>
 </resources>

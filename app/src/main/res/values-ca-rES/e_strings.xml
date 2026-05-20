@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">L\'inici de sessió únic no està disponible. Inicia la sessió manualment.</string>
     <string name="error_sso_app_signature">L\'inici de sessió únic no està disponible per a aquesta signatura de l\'aplicació.</string>
     <string name="error_sso_no_account_found">No s\'ha trobat cap compte; inicia la sessió</string>
-    <string name="error_sso_sync_disabled">La sincronització està desactivada per a Passwords. Activa-la des de (Configuració -&gt; Comptes -&gt; compte de Murena -&gt; Sincronització del compte -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La sincronització de Passwords està desactivada. Activa-la aquí.</string>
     <string name="error_sso_failed">L\'inici de sessió automàtic ha fallat. Inicia la sessió manualment.</string>
     <string name="password_attr_security_rating">Nivell de seguretat</string>
     <string name="password_strength_very_strong">Molt forta</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nova</string>
     <string name="backup_app_setup_title">Desa la clau de xifrat de la còpia de seguretat</string>
     <string name="backup_app_setup_cta">Desa la clau de xifrat</string>
+    <string name="backup_app_restore_title">Recupera la clau de xifrat de la còpia de seguretat</string>
+    <string name="backup_app_restore_cta">Recupera la clau de xifrat</string>
     <string name="backup_app_setup_password_error">Contrasenya incorrecta. Torna-ho a provar.</string>
     <string name="enter_password_hint">Introdueix la contrasenya de Murena Workspace</string>
     <string name="description">Introdueix la contrasenya de Murena Workspace per desar la clau de xifrat a Murena Passwords</string>
+    <string name="backup_app_restore_description">Introdueix la contrasenya de Murena Workspace per recuperar la clau de xifrat de Murena Passwords</string>
     <string name="autofill_password_saved">Contrasenya desada</string>
     <string name="autofill_saving_password">S\'està desant la contrasenya</string>
     <string name="autofill_saving_password_message">Espera mentre %1$s desa aquesta credencial.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuració del xifratge necessària</string>
     <string name="e2ee_migration_dialog_text">El xifratge encara no està activat per a aquest compte. Per començar a utilitzar l\'aplicació, introdueix la teva contrasenya a la versió web de Murena Passwords i torna aquí quan la configuració s\'hagi completat.</string>
     <string name="e2ee_migration_dialog_start">Configura el xifratge</string>
+    <string name="locked_account_dialog_title">Aplicació Passwords bloquejada</string>
+    <string name="locked_account_dialog_message">Massa intents incorrectes de contrasenya mestra. Desbloqueja el teu compte a la versió web de Murena Passwords i després torna a iniciar-hi sessió aquí.</string>
+    <string name="locked_account_dialog_unlock">Desbloqueja el compte</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Единый вход недоступен. Пожалуйста, войдите вручную.</string>
     <string name="error_sso_app_signature">Единый вход недоступен для подписи этого приложения.</string>
     <string name="error_sso_no_account_found">Учетная запись не найдена, пожалуйста, войдите</string>
-    <string name="error_sso_sync_disabled">Для приложения Passwords отключена синхронизация. Включите ее в разделе (Настройки -&gt; Учетные записи -&gt; учетная запись Murena -&gt; Синхронизация учетной записи -&gt; Пароль)</string>
+    <string name="error_sso_sync_disabled">Для Passwords отключена синхронизация. Включите ее здесь.</string>
     <string name="error_sso_failed">Автоматический вход не удался. Пожалуйста, войдите вручную.</string>
     <string name="password_attr_security_rating">Оценка безопасности</string>
     <string name="password_strength_very_strong">Очень надежный</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Новый</string>
     <string name="backup_app_setup_title">Сохранить ключ шифрования резервной копии</string>
     <string name="backup_app_setup_cta">Сохранить ключ шифрования</string>
+    <string name="backup_app_restore_title">Получить ключ шифрования резервной копии</string>
+    <string name="backup_app_restore_cta">Получить ключ шифрования</string>
     <string name="backup_app_setup_password_error">Неверный пароль. Повторите попытку.</string>
     <string name="enter_password_hint">Введите пароль вашей учетной записи Murena Workspace</string>
     <string name="description">Введите пароль вашей учетной записи Murena Workspace, чтобы сохранить ключ шифрования в Murena Passwords</string>
+    <string name="backup_app_restore_description">Введите пароль вашей учетной записи Murena Workspace, чтобы получить ключ шифрования из Murena Passwords</string>
     <string name="autofill_password_saved">Пароль сохранен</string>
     <string name="autofill_saving_password">Сохранение пароля</string>
     <string name="autofill_saving_password_message">Подождите, пока %1$s сохраняет эти учетные данные.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Требуется настройка шифрования</string>
     <string name="e2ee_migration_dialog_text">Шифрование для этой учетной записи еще не включено. Чтобы начать пользоваться приложением, введите свой пароль в веб-версии Murena Passwords и вернитесь сюда после завершения настройки.</string>
     <string name="e2ee_migration_dialog_start">Настроить шифрование</string>
+    <string name="locked_account_dialog_title">Приложение Passwords заблокировано</string>
+    <string name="locked_account_dialog_message">Слишком много неверных попыток ввода мастер-пароля. Разблокируйте свою учетную запись в веб-версии Murena Passwords, затем снова войдите здесь.</string>
+    <string name="locked_account_dialog_unlock">Разблокировать учетную запись</string>
 </resources>

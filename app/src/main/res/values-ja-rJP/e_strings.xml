@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">シングルサインオンは利用できません。手動でログインしてください。</string>
     <string name="error_sso_app_signature">このアプリ署名ではシングルサインオンを利用できません。</string>
     <string name="error_sso_no_account_found">アカウントが見つかりません。ログインしてください</string>
-    <string name="error_sso_sync_disabled">パスワードアプリの同期が無効になっています。（設定 -&gt; アカウント -&gt; Murena アカウント -&gt; アカウント同期 -&gt; パスワード）から有効にしてください</string>
+    <string name="error_sso_sync_disabled">Passwords の同期が無効になっています。ここで有効にしてください。</string>
     <string name="error_sso_failed">自動ログインに失敗しました。手動でログインしてください。</string>
     <string name="password_attr_security_rating">セキュリティ評価</string>
     <string name="password_strength_very_strong">非常に強い</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">新規</string>
     <string name="backup_app_setup_title">バックアップ暗号化キーを保存</string>
     <string name="backup_app_setup_cta">暗号化キーを保存</string>
+    <string name="backup_app_restore_title">バックアップ暗号化キーを取得</string>
+    <string name="backup_app_restore_cta">暗号化キーを取得</string>
     <string name="backup_app_setup_password_error">パスワードが正しくありません。もう一度お試しください。</string>
     <string name="enter_password_hint">Murena Workspace のパスワードを入力してください</string>
     <string name="description">暗号化キーを Murena Passwords に保存するには、Murena Workspace のパスワードを入力してください</string>
+    <string name="backup_app_restore_description">Murena Passwords から暗号化キーを取得するには、Murena Workspace のパスワードを入力してください</string>
     <string name="autofill_password_saved">パスワードを保存しました</string>
     <string name="autofill_saving_password">パスワードを保存中</string>
     <string name="autofill_saving_password_message">%1$s がこの認証情報を保存するまでお待ちください。</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">暗号化の設定が必要です</string>
     <string name="e2ee_migration_dialog_text">このアカウントではまだ暗号化が有効になっていません。アプリの利用を開始するには、Murena Passwords のウェブ版でパスワードを入力し、設定が完了したらここに戻ってきてください。</string>
     <string name="e2ee_migration_dialog_start">暗号化を設定</string>
+    <string name="locked_account_dialog_title">Passwords アプリがロックされています</string>
+    <string name="locked_account_dialog_message">マスターパスワードの入力を間違えた回数が多すぎます。Murena Passwords のウェブ版でアカウントのロックを解除してから、ここで再度サインインしてください。</string>
+    <string name="locked_account_dialog_unlock">アカウントをロック解除</string>
 </resources>

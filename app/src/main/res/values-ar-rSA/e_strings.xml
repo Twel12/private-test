@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">تعذر استخدام تسجيل الدخول الأحادي. يُرجى تسجيل الدخول يدويًا.</string>
     <string name="error_sso_app_signature">تعذر استخدام تسجيل الدخول الأحادي مع توقيع هذا التطبيق.</string>
     <string name="error_sso_no_account_found">لم يتم العثور على حساب، يُرجى تسجيل الدخول</string>
-    <string name="error_sso_sync_disabled">تم تعطيل المزامنة لتطبيق كلمات المرور، يُرجى تفعيلها من (الإعدادات -&gt; الحسابات -&gt; حساب Murena -&gt; مزامنة الحساب -&gt; كلمات المرور)</string>
+    <string name="error_sso_sync_disabled">تم تعطيل المزامنة لتطبيق Passwords. يُرجى تفعيلها هنا.</string>
     <string name="error_sso_failed">فشل تسجيل الدخول التلقائي. يُرجى تسجيل الدخول يدويًا.</string>
     <string name="password_attr_security_rating">تقييم الأمان</string>
     <string name="password_strength_very_strong">قوي جدًا</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">جديد</string>
     <string name="backup_app_setup_title">احفظ مفتاح تشفير النسخة الاحتياطية</string>
     <string name="backup_app_setup_cta">احفظ مفتاح التشفير</string>
+    <string name="backup_app_restore_title">استرجاع مفتاح تشفير النسخة الاحتياطية</string>
+    <string name="backup_app_restore_cta">استرجاع مفتاح التشفير</string>
     <string name="backup_app_setup_password_error">كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.</string>
     <string name="enter_password_hint">أدخل كلمة مرور Murena Workspace</string>
     <string name="description">أدخل كلمة مرور Murena Workspace لحفظ مفتاح التشفير في Murena Passwords</string>
+    <string name="backup_app_restore_description">أدخل كلمة مرور Murena Workspace لاسترجاع مفتاح التشفير من Murena Passwords</string>
     <string name="autofill_password_saved">تم حفظ كلمة المرور</string>
     <string name="autofill_saving_password">جارٍ حفظ كلمة المرور</string>
     <string name="autofill_saving_password_message">يُرجى الانتظار بينما يحفظ %1$s بيانات الاعتماد هذه.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">إعداد التشفير مطلوب</string>
     <string name="e2ee_migration_dialog_text">لم يتم تفعيل التشفير لهذا الحساب بعد. لبدء استخدام التطبيق، أدخل كلمة المرور في إصدار الويب من Murena Passwords ثم عد إلى هنا بعد اكتمال الإعداد.</string>
     <string name="e2ee_migration_dialog_start">إعداد التشفير</string>
+    <string name="locked_account_dialog_title">تطبيق كلمات المرور مقفل</string>
+    <string name="locked_account_dialog_message">عدد كبير جدًا من محاولات كلمة المرور الرئيسية غير الصحيحة. افتح قفل حسابك في إصدار الويب من Murena Passwords، ثم سجّل الدخول هنا مرة أخرى.</string>
+    <string name="locked_account_dialog_unlock">إلغاء قفل الحساب</string>
 </resources>

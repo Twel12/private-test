@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Logowanie jednokrotne jest niedostępne. Zaloguj się ręcznie.</string>
     <string name="error_sso_app_signature">Logowanie jednokrotne jest niedostępne dla tego podpisu aplikacji.</string>
     <string name="error_sso_no_account_found">Nie znaleziono konta, zaloguj się</string>
-    <string name="error_sso_sync_disabled">Synchronizacja aplikacji Passwords jest wyłączona, włącz ją w (Ustawienia -&gt; Konta -&gt; Konto Murena -&gt; Synchronizacja konta -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synchronizacja aplikacji Passwords jest wyłączona. Włącz ją tutaj.</string>
     <string name="error_sso_failed">Automatyczne logowanie nie powiodło się. Zaloguj się ręcznie.</string>
     <string name="password_attr_security_rating">Ocena bezpieczeństwa</string>
     <string name="password_strength_very_strong">Bardzo silne</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nowe</string>
     <string name="backup_app_setup_title">Zapisz klucz szyfrowania kopii zapasowej</string>
     <string name="backup_app_setup_cta">Zapisz klucz szyfrowania</string>
+    <string name="backup_app_restore_title">Pobierz klucz szyfrowania kopii zapasowej</string>
+    <string name="backup_app_restore_cta">Pobierz klucz szyfrowania</string>
     <string name="backup_app_setup_password_error">Nieprawidłowe hasło. Spróbuj ponownie.</string>
     <string name="enter_password_hint">Wpisz hasło do Murena Workspace</string>
     <string name="description">Wpisz hasło do Murena Workspace, aby zapisać klucz szyfrowania w Murena Passwords</string>
+    <string name="backup_app_restore_description">Wpisz hasło do Murena Workspace, aby pobrać klucz szyfrowania z Murena Passwords</string>
     <string name="autofill_password_saved">Hasło zapisane</string>
     <string name="autofill_saving_password">Zapisywanie hasła</string>
     <string name="autofill_saving_password_message">Poczekaj, aż %1$s zapisze te dane logowania.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Wymagana konfiguracja szyfrowania</string>
     <string name="e2ee_migration_dialog_text">Szyfrowanie nie jest jeszcze włączone dla tego konta. Aby rozpocząć korzystanie z aplikacji, wprowadź swoje hasło w internetowej wersji Murena Passwords i wróć tutaj po zakończeniu konfiguracji.</string>
     <string name="e2ee_migration_dialog_start">Skonfiguruj szyfrowanie</string>
+    <string name="locked_account_dialog_title">Aplikacja Passwords jest zablokowana</string>
+    <string name="locked_account_dialog_message">Zbyt wiele nieprawidłowych prób wprowadzenia hasła głównego. Odblokuj swoje konto w internetowej wersji Murena Passwords, a następnie zaloguj się tutaj ponownie.</string>
+    <string name="locked_account_dialog_unlock">Odblokuj konto</string>
 </resources>

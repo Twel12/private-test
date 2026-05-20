@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">El inicio de sesión único no está disponible. Inicia sesión manualmente.</string>
     <string name="error_sso_app_signature">El inicio de sesión único no está disponible para esta firma de la aplicación.</string>
     <string name="error_sso_no_account_found">No se ha encontrado ninguna cuenta. Inicia sesión.</string>
-    <string name="error_sso_sync_disabled">La sincronización está desactivada para la aplicación Passwords. Actívala desde (Ajustes -&gt; Cuentas -&gt; cuenta de Murena -&gt; Sincronización de cuentas -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La sincronización de Passwords está desactivada. Actívala aquí.</string>
     <string name="error_sso_failed">Ha fallado el inicio de sesión automático. Inicia sesión manualmente.</string>
     <string name="password_attr_security_rating">Nivel de seguridad</string>
     <string name="password_strength_very_strong">Muy segura</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nueva</string>
     <string name="backup_app_setup_title">Guardar clave de cifrado de la copia de seguridad</string>
     <string name="backup_app_setup_cta">Guardar clave de cifrado</string>
+    <string name="backup_app_restore_title">Recuperar clave de cifrado de la copia de seguridad</string>
+    <string name="backup_app_restore_cta">Recuperar clave de cifrado</string>
     <string name="backup_app_setup_password_error">Contraseña incorrecta. Inténtalo de nuevo.</string>
     <string name="enter_password_hint">Introduce tu contraseña de Murena Workspace</string>
     <string name="description">Introduce tu contraseña de Murena Workspace para guardar la clave de cifrado en Murena Passwords</string>
+    <string name="backup_app_restore_description">Introduce tu contraseña de Murena Workspace para recuperar la clave de cifrado de Murena Passwords</string>
     <string name="autofill_password_saved">Contraseña guardada</string>
     <string name="autofill_saving_password">Guardando contraseña</string>
     <string name="autofill_saving_password_message">Espera mientras %1$s guarda esta credencial.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Se requiere configurar el cifrado</string>
     <string name="e2ee_migration_dialog_text">El cifrado todavía no está activado para esta cuenta. Para empezar a usar la aplicación, introduce tu contraseña en la versión web de Murena Passwords y vuelve aquí cuando la configuración haya finalizado.</string>
     <string name="e2ee_migration_dialog_start">Configurar cifrado</string>
+    <string name="locked_account_dialog_title">Aplicación Passwords bloqueada</string>
+    <string name="locked_account_dialog_message">Demasiados intentos incorrectos de contraseña maestra. Desbloquea tu cuenta en la versión web de Murena Passwords y luego vuelve a iniciar sesión aquí.</string>
+    <string name="locked_account_dialog_unlock">Desbloquear cuenta</string>
 </resources>

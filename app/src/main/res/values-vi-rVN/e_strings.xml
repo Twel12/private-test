@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Đăng nhập một lần không khả dụng. Vui lòng đăng nhập thủ công.</string>
     <string name="error_sso_app_signature">Đăng nhập một lần không khả dụng cho chữ ký ứng dụng này.</string>
     <string name="error_sso_no_account_found">Không tìm thấy tài khoản, vui lòng đăng nhập</string>
-    <string name="error_sso_sync_disabled">Đồng bộ hóa đã bị tắt cho ứng dụng Passwords, vui lòng bật trong (Cài đặt -&gt; Tài khoản -&gt; tài khoản Murena -&gt; Đồng bộ hóa tài khoản -&gt; Mật khẩu)</string>
+    <string name="error_sso_sync_disabled">Đồng bộ hóa của Passwords đã bị tắt. Vui lòng bật tại đây.</string>
     <string name="error_sso_failed">Đăng nhập tự động không thành công. Vui lòng đăng nhập thủ công.</string>
     <string name="password_attr_security_rating">Đánh giá bảo mật</string>
     <string name="password_strength_very_strong">Rất mạnh</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Mới</string>
     <string name="backup_app_setup_title">Lưu khóa mã hóa bản sao lưu</string>
     <string name="backup_app_setup_cta">Lưu khóa mã hóa</string>
+    <string name="backup_app_restore_title">Lấy khóa mã hóa bản sao lưu</string>
+    <string name="backup_app_restore_cta">Lấy khóa mã hóa</string>
     <string name="backup_app_setup_password_error">Mật khẩu không chính xác. Vui lòng thử lại.</string>
     <string name="enter_password_hint">Nhập mật khẩu tài khoản Murena Workspace của bạn</string>
     <string name="description">Nhập mật khẩu tài khoản Murena Workspace của bạn để lưu khóa mã hóa trong Murena Passwords</string>
+    <string name="backup_app_restore_description">Nhập mật khẩu tài khoản Murena Workspace của bạn để lấy khóa mã hóa từ Murena Passwords</string>
     <string name="autofill_password_saved">Đã lưu mật khẩu</string>
     <string name="autofill_saving_password">Đang lưu mật khẩu</string>
     <string name="autofill_saving_password_message">Vui lòng đợi trong khi %1$s lưu thông tin đăng nhập này.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Cần thiết lập mã hóa</string>
     <string name="e2ee_migration_dialog_text">Tính năng mã hóa chưa được bật cho tài khoản này. Để bắt đầu sử dụng ứng dụng, hãy nhập mật khẩu của bạn trên phiên bản web của Murena Passwords và quay lại đây sau khi thiết lập hoàn tất.</string>
     <string name="e2ee_migration_dialog_start">Thiết lập mã hóa</string>
+    <string name="locked_account_dialog_title">Ứng dụng Passwords đã bị khóa</string>
+    <string name="locked_account_dialog_message">Đã có quá nhiều lần nhập sai mật khẩu chính. Hãy mở khóa tài khoản của bạn trong phiên bản web của Murena Passwords, rồi đăng nhập lại tại đây.</string>
+    <string name="locked_account_dialog_unlock">Mở khóa tài khoản</string>
 </resources>

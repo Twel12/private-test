@@ -81,6 +81,9 @@ import kotlinx.coroutines.launch
 fun NextcloudPasswordsApp(
     passwordsViewModel: PasswordsViewModel,
     onLogOut: () -> Unit,
+    showLockedAccountDialog: Boolean = false,
+    onUnlockLockedAccount: () -> Unit = {},
+    onCancelLockedAccount: () -> Unit = {},
     showE2eeMigrationDialog: Boolean = false,
     onStartE2eeMigration: () -> Unit = {},
     onCancelE2eeMigration: () -> Unit = {},
@@ -479,6 +482,13 @@ fun NextcloudPasswordsApp(
                 LogOutDialog(
                     onDismissRequest = { showLogOutDialog = false },
                     onConfirmButton = onLogOut
+                )
+            }
+
+            if (showLockedAccountDialog) {
+                LockedAccountDialog(
+                    onUnlockAccount = onUnlockLockedAccount,
+                    onCancel = onCancelLockedAccount,
                 )
             }
 

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Η ενιαία σύνδεση δεν είναι διαθέσιμη. Συνδεθείτε μη αυτόματα.</string>
     <string name="error_sso_app_signature">Η ενιαία σύνδεση δεν είναι διαθέσιμη για αυτή την υπογραφή εφαρμογής.</string>
     <string name="error_sso_no_account_found">Δεν βρέθηκε λογαριασμός, συνδεθείτε</string>
-    <string name="error_sso_sync_disabled">Ο συγχρονισμός είναι απενεργοποιημένος για την εφαρμογή κωδικών πρόσβασης. Ενεργοποιήστε τον από (Ρυθμίσεις -&gt; Λογαριασμοί -&gt; λογαριασμός Murena -&gt; Συγχρονισμός λογαριασμού -&gt; Κωδικός πρόσβασης)</string>
+    <string name="error_sso_sync_disabled">Ο συγχρονισμός είναι απενεργοποιημένος για το Passwords. Ενεργοποιήστε τον εδώ.</string>
     <string name="error_sso_failed">Η αυτόματη σύνδεση απέτυχε. Συνδεθείτε μη αυτόματα.</string>
     <string name="password_attr_security_rating">Βαθμολογία ασφάλειας</string>
     <string name="password_strength_very_strong">Πολύ ισχυρός</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Νέο</string>
     <string name="backup_app_setup_title">Αποθήκευση εφεδρικού κλειδιού κρυπτογράφησης</string>
     <string name="backup_app_setup_cta">Αποθήκευση κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_restore_title">Ανάκτηση εφεδρικού κλειδιού κρυπτογράφησης</string>
+    <string name="backup_app_restore_cta">Ανάκτηση κλειδιού κρυπτογράφησης</string>
     <string name="backup_app_setup_password_error">Λανθασμένος κωδικός πρόσβασης. Προσπαθήστε ξανά.</string>
     <string name="enter_password_hint">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace</string>
     <string name="description">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace για να αποθηκεύσετε το κλειδί κρυπτογράφησης στο Murena Passwords</string>
+    <string name="backup_app_restore_description">Εισαγάγετε τον κωδικό πρόσβασης του Murena Workspace για να ανακτήσετε το κλειδί κρυπτογράφησης από το Murena Passwords</string>
     <string name="autofill_password_saved">Ο κωδικός πρόσβασης αποθηκεύτηκε</string>
     <string name="autofill_saving_password">Αποθήκευση κωδικού πρόσβασης</string>
     <string name="autofill_saving_password_message">Περιμένετε όσο το %1$s αποθηκεύει αυτά τα διαπιστευτήρια.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Απαιτείται ρύθμιση κρυπτογράφησης</string>
     <string name="e2ee_migration_dialog_text">Η κρυπτογράφηση δεν έχει ακόμη ενεργοποιηθεί για αυτόν τον λογαριασμό. Για να αρχίσετε να χρησιμοποιείτε την εφαρμογή, εισαγάγετε τον κωδικό πρόσβασής σας στην έκδοση ιστού του Murena Passwords και επιστρέψτε εδώ μόλις ολοκληρωθεί η ρύθμιση.</string>
     <string name="e2ee_migration_dialog_start">Ρύθμιση κρυπτογράφησης</string>
+    <string name="locked_account_dialog_title">Η εφαρμογή Passwords είναι κλειδωμένη</string>
+    <string name="locked_account_dialog_message">Έγιναν πάρα πολλές λανθασμένες προσπάθειες για τον κύριο κωδικό πρόσβασης. Ξεκλειδώστε τον λογαριασμό σας στην έκδοση ιστού του Murena Passwords και έπειτα συνδεθείτε ξανά εδώ.</string>
+    <string name="locked_account_dialog_unlock">Ξεκλείδωμα λογαριασμού</string>
 </resources>

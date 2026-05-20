@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Enkel inloggning är inte tillgänglig. Logga in manuellt.</string>
     <string name="error_sso_app_signature">Enkel inloggning är inte tillgänglig för den här appsignaturen.</string>
     <string name="error_sso_no_account_found">Inget konto hittades, logga in</string>
-    <string name="error_sso_sync_disabled">Synkronisering är inaktiverad för appen Passwords. Aktivera den under (Inställningar -&gt; Konton -&gt; Murena-konto -&gt; Kontosynkronisering -&gt; Lösenord)</string>
+    <string name="error_sso_sync_disabled">Synkronisering är inaktiverad för Passwords. Aktivera den här.</string>
     <string name="error_sso_failed">Automatisk inloggning misslyckades. Logga in manuellt.</string>
     <string name="password_attr_security_rating">Säkerhetsbedömning</string>
     <string name="password_strength_very_strong">Mycket starkt</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nytt</string>
     <string name="backup_app_setup_title">Spara krypteringsnyckel för säkerhetskopia</string>
     <string name="backup_app_setup_cta">Spara krypteringsnyckel</string>
+    <string name="backup_app_restore_title">Hämta krypteringsnyckel för säkerhetskopia</string>
+    <string name="backup_app_restore_cta">Hämta krypteringsnyckel</string>
     <string name="backup_app_setup_password_error">Fel lösenord. Försök igen.</string>
     <string name="enter_password_hint">Ange lösenordet till ditt Murena Workspace-konto</string>
     <string name="description">Ange lösenordet till ditt Murena Workspace-konto för att spara krypteringsnyckeln i Murena Passwords</string>
+    <string name="backup_app_restore_description">Ange lösenordet till ditt Murena Workspace-konto för att hämta krypteringsnyckeln från Murena Passwords</string>
     <string name="autofill_password_saved">Lösenord sparat</string>
     <string name="autofill_saving_password">Sparar lösenord</string>
     <string name="autofill_saving_password_message">Vänta medan %1$s sparar den här inloggningsuppgiften.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Konfiguration av kryptering krävs</string>
     <string name="e2ee_migration_dialog_text">Kryptering är ännu inte aktiverad för det här kontot. För att börja använda appen, ange ditt lösenord i webbversionen av Murena Passwords och återvänd hit när konfigurationen är klar.</string>
     <string name="e2ee_migration_dialog_start">Konfigurera kryptering</string>
+    <string name="locked_account_dialog_title">Passwords-appen är låst</string>
+    <string name="locked_account_dialog_message">För många felaktiga försök med huvudlösenordet. Lås upp ditt konto i webbversionen av Murena Passwords och logga sedan in här igen.</string>
+    <string name="locked_account_dialog_unlock">Lås upp konto</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Authentification unique indisponible. Veuillez vous connecter manuellement.</string>
     <string name="error_sso_app_signature">Authentification unique indisponible pour cette signature d\'application.</string>
     <string name="error_sso_no_account_found">Aucun compte trouvé, veuillez vous connecter</string>
-    <string name="error_sso_sync_disabled">La synchronisation de Passwords est désactivée, veuillez l\'activer dans (Paramètres -&gt; Comptes -&gt; Compte Murena -&gt; Synchronisation du compte -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">La synchronisation de Passwords est désactivée. Veuillez l\'activer ici.</string>
     <string name="error_sso_failed">La connexion automatique a échoué. Veuillez vous connecter manuellement.</string>
     <string name="password_attr_security_rating">Niveau de sécurité</string>
     <string name="password_strength_very_strong">Très fort</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nouveau</string>
     <string name="backup_app_setup_title">Enregistrer la clé de chiffrement de sauvegarde</string>
     <string name="backup_app_setup_cta">Enregistrer la clé de chiffrement</string>
+    <string name="backup_app_restore_title">Récupérer la clé de chiffrement de sauvegarde</string>
+    <string name="backup_app_restore_cta">Récupérer la clé de chiffrement</string>
     <string name="backup_app_setup_password_error">Mot de passe incorrect. Veuillez réessayer.</string>
     <string name="enter_password_hint">Saisissez votre mot de passe Murena Workspace</string>
     <string name="description">Saisissez votre mot de passe Murena Workspace pour enregistrer la clé de chiffrement dans Murena Passwords</string>
+    <string name="backup_app_restore_description">Saisissez votre mot de passe Murena Workspace pour récupérer la clé de chiffrement depuis Murena Passwords</string>
     <string name="autofill_password_saved">Mot de passe enregistré</string>
     <string name="autofill_saving_password">Enregistrement du mot de passe</string>
     <string name="autofill_saving_password_message">Veuillez patienter pendant que %1$s enregistre cet identifiant.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuration du chiffrement requise</string>
     <string name="e2ee_migration_dialog_text">Le chiffrement n\'est pas encore activé pour ce compte. Pour commencer à utiliser l\'application, saisissez votre mot de passe dans la version web de Murena Passwords et revenez ici une fois la configuration terminée.</string>
     <string name="e2ee_migration_dialog_start">Configurer le chiffrement</string>
+    <string name="locked_account_dialog_title">Application Passwords verrouillée</string>
+    <string name="locked_account_dialog_message">Trop de tentatives incorrectes de mot de passe maître. Déverrouillez votre compte dans la version web de Murena Passwords, puis reconnectez-vous ici.</string>
+    <string name="locked_account_dialog_unlock">Déverrouiller le compte</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Enkelaanmelding is nie beskikbaar nie. Meld asseblief handmatig aan.</string>
     <string name="error_sso_app_signature">Enkelaanmelding is nie vir hierdie app-handtekening beskikbaar nie.</string>
     <string name="error_sso_no_account_found">Geen rekening gevind nie, meld asseblief aan</string>
-    <string name="error_sso_sync_disabled">Sinkronisering is vir die Passwords-app gedeaktiveer, aktiveer dit asseblief vanaf (Instellings -&gt; Rekeninge -&gt; Murena-rekening -&gt; Rekeningsinkronisering -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Sinkronisering is vir Passwords gedeaktiveer. Aktiveer dit asseblief hier.</string>
     <string name="error_sso_failed">Outomatiese aanmelding het misluk. Meld asseblief handmatig aan.</string>
     <string name="password_attr_security_rating">Sekuriteitsgradering</string>
     <string name="password_strength_very_strong">Baie sterk</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nuut</string>
     <string name="backup_app_setup_title">Stoor rugsteun-enkripsiesleutel</string>
     <string name="backup_app_setup_cta">Stoor enkripsiesleutel</string>
+    <string name="backup_app_restore_title">Herwin rugsteun-enkripsiesleutel</string>
+    <string name="backup_app_restore_cta">Herwin enkripsiesleutel</string>
     <string name="backup_app_setup_password_error">Verkeerde wagwoord. Probeer asseblief weer.</string>
     <string name="enter_password_hint">Voer jou Murena Workspace-wagwoord in</string>
     <string name="description">Voer jou Murena Workspace-wagwoord in om die enkripsiesleutel in Murena Passwords te stoor</string>
+    <string name="backup_app_restore_description">Voer jou Murena Workspace-wagwoord in om die enkripsiesleutel uit Murena Passwords te herwin</string>
     <string name="autofill_password_saved">Wagwoord gestoor</string>
     <string name="autofill_saving_password">Stoor wagwoord</string>
     <string name="autofill_saving_password_message">Wag asseblief terwyl %1$s hierdie aanmeldbesonderhede stoor.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Enkripsie-opstelling vereis</string>
     <string name="e2ee_migration_dialog_text">Enkripsie is nog nie vir hierdie rekening geaktiveer nie. Om die toepassing te begin gebruik, voer jou wagwoord in die webweergawe van Murena Passwords in en keer hierheen terug sodra die opstelling voltooi is.</string>
     <string name="e2ee_migration_dialog_start">Stel enkripsie op</string>
+    <string name="locked_account_dialog_title">Passwords-toepassing gesluit</string>
+    <string name="locked_account_dialog_message">Te veel verkeerde meesterwagwoord-pogings. Ontsluit jou rekening in die webweergawe van Murena Passwords en meld dan weer hier aan.</string>
+    <string name="locked_account_dialog_unlock">Ontsluit rekening</string>
 </resources>

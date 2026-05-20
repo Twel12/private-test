@@ -1,8 +1,10 @@
 package com.hegocre.nextcloudpasswords.ui.activities
 
+import android.accounts.Account
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -69,47 +71,69 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "BackupAppSetupActivity"
+        private const val EXTRA_IS_RESTORE = "is_restore"
     }
 
     private val viewModel: BackupAppSetupViewModel by viewModels {
         BackupAppSetupViewModel.factory(application)
     }
 
-    private val baseAutoLogin by lazy {
+    private var setupContentShown = false
+
+    private val syncDisabled: MurenaSyncDisabledFlow by lazy {
+        MurenaSyncDisabledFlow(
+            launchSettings = { account -> MurenaAccountSyncSettings.open(this, account) },
+            onSyncEnabled = { baseAutoLogin.start() },
+            onStillDisabledOrLaunchFailed = { finishCanceled() },
+        )
+    }
+
+    private val baseAutoLogin: BaseAutoLogin by lazy {
         object : BaseAutoLogin(this@BackupAppSetupActivity) {
             override fun accountExist() {
+                showSetupContent()
                 viewModel.refreshAccounts()
             }
 
             override fun onLoginSuccess() {
+                showSetupContent()
                 viewModel.refreshAccounts()
             }
 
             override fun signatureError() {
-                viewModel.finishWithResponse(SetupResponse.Failed)
+                response(SetupResponse.Failed)
             }
 
             override fun accountUnavailable() {
                 Log.d(TAG, "murena account is not available, leaving e2ee setup")
-                viewModel.finishWithResponse(SetupResponse.AccountUnavailable)
+                response(SetupResponse.AccountUnavailable)
             }
 
-            override fun syncDisabled() {
-                viewModel.finishWithResponse(SetupResponse.Failed)
+            override fun syncDisabled(account: Account) {
+                Toast.makeText(
+                    this@BackupAppSetupActivity,
+                    R.string.error_sso_sync_disabled,
+                    Toast.LENGTH_LONG
+                ).show()
+                syncDisabled.launch(account)
             }
 
             override fun ssoFailed() {
-                viewModel.finishWithResponse(SetupResponse.Failed)
+                response(SetupResponse.Failed)
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        baseAutoLogin.start()
-
         enableEdgeToEdge()
+        baseAutoLogin.start()
+    }
 
+    private fun showSetupContent() {
+        if (setupContentShown) return
+        setupContentShown = true
+        val isRestore = intent.getBooleanExtra(EXTRA_IS_RESTORE, false)
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsStateWithLifecycle()
@@ -140,6 +164,7 @@ class BackupAppSetupActivity : ComponentActivity() {
                 }
             } else {
                 MasterKeyScreen(
+                    isRestore = isRestore,
                     isCheckingPassword = uiState.isCheckingPassword,
                     isWrongPassword = uiState.isWrongPassword,
                     password = uiState.password,
@@ -163,7 +188,15 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (syncDisabled.onResume()) return
+        if (!setupContentShown) return
+
         viewModel.onAppResumedAfterMigration()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        syncDisabled.onPause()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -175,6 +208,7 @@ class BackupAppSetupActivity : ComponentActivity() {
     @Composable
     private fun Demo() {
         MasterKeyScreen(
+            isRestore = false,
             isCheckingPassword = false,
             isWrongPassword = false,
             password = "",
@@ -186,6 +220,7 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     @Composable
     private fun MasterKeyScreen(
+        isRestore: Boolean,
         isCheckingPassword: Boolean,
         isWrongPassword: Boolean,
         password: String,
@@ -237,7 +272,15 @@ class BackupAppSetupActivity : ComponentActivity() {
                                 },
                                 enabled = canSubmit,
                             ) {
-                                Text(stringResource(R.string.backup_app_setup_cta))
+                                Text(
+                                    stringResource(
+                                        if (isRestore) {
+                                            R.string.backup_app_restore_cta
+                                        } else {
+                                            R.string.backup_app_setup_cta
+                                        }
+                                    )
+                                )
                             }
                         }
                     }
@@ -251,7 +294,13 @@ class BackupAppSetupActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = stringResource(R.string.backup_app_setup_title),
+                        text = stringResource(
+                            if (isRestore) {
+                                R.string.backup_app_restore_title
+                            } else {
+                                R.string.backup_app_setup_title
+                            }
+                        ),
                         style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -259,7 +308,13 @@ class BackupAppSetupActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = stringResource(R.string.description),
+                        text = stringResource(
+                            if (isRestore) {
+                                R.string.backup_app_restore_description
+                            } else {
+                                R.string.description
+                            }
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
@@ -325,14 +380,18 @@ class BackupAppSetupActivity : ComponentActivity() {
     }
 
     private fun response(response: SetupResponse) {
-        viewModel.clearPasswordInput()
+        if (setupContentShown) {
+            viewModel.clearPasswordInput()
+        }
         val code = if (response == SetupResponse.Success) RESULT_OK else RESULT_CANCELED
         setResult(code, response.toExtra())
         finish()
     }
 
     private fun finishCanceled() {
-        viewModel.clearPasswordInput()
+        if (setupContentShown) {
+            viewModel.clearPasswordInput()
+        }
         setResult(RESULT_CANCELED)
         finish()
     }
@@ -340,4 +399,5 @@ class BackupAppSetupActivity : ComponentActivity() {
     private fun SetupResponse.toExtra() = Intent().apply {
         putExtra(SetupConsent.EXTRA_SETUP_RESPONSE, ordinal)
     }
+
 }

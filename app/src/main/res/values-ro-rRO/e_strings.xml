@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Autentificarea unică nu este disponibilă. Te rugăm să te autentifici manual.</string>
     <string name="error_sso_app_signature">Autentificarea unică nu este disponibilă pentru această semnătură a aplicației.</string>
     <string name="error_sso_no_account_found">Nu a fost găsit niciun cont, te rugăm să te autentifici</string>
-    <string name="error_sso_sync_disabled">Sincronizarea este dezactivată pentru aplicația Passwords, te rugăm să o activezi din (Setări -&gt; Conturi -&gt; cont Murena -&gt; Sincronizare cont -&gt; Parolă)</string>
+    <string name="error_sso_sync_disabled">Sincronizarea pentru Passwords este dezactivată. Te rugăm să o activezi aici.</string>
     <string name="error_sso_failed">Autentificarea automată a eșuat. Te rugăm să te autentifici manual.</string>
     <string name="password_attr_security_rating">Evaluare de securitate</string>
     <string name="password_strength_very_strong">Foarte puternică</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nou</string>
     <string name="backup_app_setup_title">Salvează cheia de criptare a copiei de rezervă</string>
     <string name="backup_app_setup_cta">Salvează cheia de criptare</string>
+    <string name="backup_app_restore_title">Recuperează cheia de criptare a copiei de rezervă</string>
+    <string name="backup_app_restore_cta">Recuperează cheia de criptare</string>
     <string name="backup_app_setup_password_error">Parolă incorectă. Te rugăm să încerci din nou.</string>
     <string name="enter_password_hint">Introdu parola contului tău Murena Workspace</string>
     <string name="description">Introdu parola contului tău Murena Workspace pentru a salva cheia de criptare în Murena Passwords</string>
+    <string name="backup_app_restore_description">Introdu parola contului tău Murena Workspace pentru a recupera cheia de criptare din Murena Passwords</string>
     <string name="autofill_password_saved">Parolă salvată</string>
     <string name="autofill_saving_password">Se salvează parola</string>
     <string name="autofill_saving_password_message">Te rugăm să aștepți cât timp %1$s salvează această acreditare.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Este necesară configurarea criptării</string>
     <string name="e2ee_migration_dialog_text">Criptarea nu este încă activată pentru acest cont. Pentru a începe să utilizați aplicația, introduceți parola în versiunea web a Murena Passwords și reveniți aici după finalizarea configurării.</string>
     <string name="e2ee_migration_dialog_start">Configurați criptarea</string>
+    <string name="locked_account_dialog_title">Aplicația Passwords este blocată</string>
+    <string name="locked_account_dialog_message">Prea multe încercări incorecte ale parolei principale. Deblochează-ți contul în versiunea web a Murena Passwords, apoi autentifică-te din nou aici.</string>
+    <string name="locked_account_dialog_unlock">Deblochează contul</string>
 </resources>

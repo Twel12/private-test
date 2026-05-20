@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Ühekordne sisselogimine pole saadaval. Palun logi käsitsi sisse.</string>
     <string name="error_sso_app_signature">Ühekordne sisselogimine pole selle rakenduse allkirja jaoks saadaval.</string>
     <string name="error_sso_no_account_found">Kontot ei leitud, palun logi sisse</string>
-    <string name="error_sso_sync_disabled">Sünkroonimine on rakenduse Passwords jaoks keelatud. Palun luba see asukohast (Seaded -&gt; Kontod -&gt; Murena konto -&gt; Konto sünkroonimine -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Rakenduse Passwords sünkroonimine on keelatud. Palun luba see siin.</string>
     <string name="error_sso_failed">Automaatne sisselogimine ebaõnnestus. Palun logi käsitsi sisse.</string>
     <string name="password_attr_security_rating">Turvahinnang</string>
     <string name="password_strength_very_strong">Väga tugev</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Uus</string>
     <string name="backup_app_setup_title">Salvesta varukoopia krüpteerimisvõti</string>
     <string name="backup_app_setup_cta">Salvesta krüpteerimisvõti</string>
+    <string name="backup_app_restore_title">Hangi varukoopia krüpteerimisvõti</string>
+    <string name="backup_app_restore_cta">Hangi krüpteerimisvõti</string>
     <string name="backup_app_setup_password_error">Vale parool. Palun proovi uuesti.</string>
     <string name="enter_password_hint">Sisesta oma Murena Workspace parool</string>
     <string name="description">Sisesta oma Murena Workspace parool, et salvestada krüpteerimisvõti Murena Passwordsisse</string>
+    <string name="backup_app_restore_description">Sisesta oma Murena Workspace parool, et hankida krüpteerimisvõti Murena Passwordsist</string>
     <string name="autofill_password_saved">Parool salvestatud</string>
     <string name="autofill_saving_password">Parooli salvestamine</string>
     <string name="autofill_saving_password_message">Palun oota, kuni %1$s selle sisselogimisandme salvestab.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Krüptimise seadistamine on vajalik</string>
     <string name="e2ee_migration_dialog_text">Krüptimine ei ole selle konto jaoks veel lubatud. Rakenduse kasutamise alustamiseks sisesta oma parool Murena Passwordsi veebiversioonis ja tule siia tagasi, kui seadistamine on lõpetatud.</string>
     <string name="e2ee_migration_dialog_start">Seadista krüptimine</string>
+    <string name="locked_account_dialog_title">Passwordsi rakendus on lukustatud</string>
+    <string name="locked_account_dialog_message">Põhiparooli jaoks on tehtud liiga palju valesid katseid. Ava oma konto lukustus Murena Passwordsi veebiversioonis ja logi seejärel siin uuesti sisse.</string>
+    <string name="locked_account_dialog_unlock">Ava konto lukustus</string>
 </resources>

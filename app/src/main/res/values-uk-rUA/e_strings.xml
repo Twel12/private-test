@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Єдиний вхід недоступний. Будь ласка, увійдіть вручну.</string>
     <string name="error_sso_app_signature">Єдиний вхід недоступний для цього підпису програми.</string>
     <string name="error_sso_no_account_found">Обліковий запис не знайдено, будь ласка, увійдіть</string>
-    <string name="error_sso_sync_disabled">Для програми Passwords вимкнено синхронізацію. Увімкніть її в (Налаштування -&gt; Облікові записи -&gt; обліковий запис Murena -&gt; Синхронізація облікового запису -&gt; Пароль)</string>
+    <string name="error_sso_sync_disabled">Для Passwords вимкнено синхронізацію. Увімкніть її тут.</string>
     <string name="error_sso_failed">Автоматичний вхід не вдався. Будь ласка, увійдіть вручну.</string>
     <string name="password_attr_security_rating">Оцінка безпеки</string>
     <string name="password_strength_very_strong">Дуже надійний</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Новий</string>
     <string name="backup_app_setup_title">Зберегти ключ шифрування резервної копії</string>
     <string name="backup_app_setup_cta">Зберегти ключ шифрування</string>
+    <string name="backup_app_restore_title">Отримати ключ шифрування резервної копії</string>
+    <string name="backup_app_restore_cta">Отримати ключ шифрування</string>
     <string name="backup_app_setup_password_error">Неправильний пароль. Спробуйте ще раз.</string>
     <string name="enter_password_hint">Введіть пароль свого облікового запису Murena Workspace</string>
     <string name="description">Введіть пароль свого облікового запису Murena Workspace, щоб зберегти ключ шифрування в Murena Passwords</string>
+    <string name="backup_app_restore_description">Введіть пароль свого облікового запису Murena Workspace, щоб отримати ключ шифрування з Murena Passwords</string>
     <string name="autofill_password_saved">Пароль збережено</string>
     <string name="autofill_saving_password">Збереження пароля</string>
     <string name="autofill_saving_password_message">Зачекайте, поки %1$s зберігає ці облікові дані.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Потрібно налаштувати шифрування</string>
     <string name="e2ee_migration_dialog_text">Шифрування ще не ввімкнено для цього облікового запису. Щоб почати користуватися застосунком, введіть свій пароль у вебверсії Murena Passwords і поверніться сюди після завершення налаштування.</string>
     <string name="e2ee_migration_dialog_start">Налаштувати шифрування</string>
+    <string name="locked_account_dialog_title">Програму Passwords заблоковано</string>
+    <string name="locked_account_dialog_message">Забагато неправильних спроб введення майстер-пароля. Розблокуйте свій обліковий запис у вебверсії Murena Passwords, а потім знову увійдіть тут.</string>
+    <string name="locked_account_dialog_unlock">Розблокувати обліковий запис</string>
 </resources>

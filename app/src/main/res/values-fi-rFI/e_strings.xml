@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Kertakirjautuminen ei ole käytettävissä. Kirjaudu sisään manuaalisesti.</string>
     <string name="error_sso_app_signature">Kertakirjautuminen ei ole käytettävissä tämän sovelluksen allekirjoitukselle.</string>
     <string name="error_sso_no_account_found">Tiliä ei löytynyt, kirjaudu sisään</string>
-    <string name="error_sso_sync_disabled">Passwords-sovelluksen synkronointi on poistettu käytöstä. Ota se käyttöön kohdassa (Asetukset -&gt; Tilit -&gt; Murena-tili -&gt; Tilin synkronointi -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Passwords-sovelluksen synkronointi on poistettu käytöstä. Ota se käyttöön täällä.</string>
     <string name="error_sso_failed">Automaattinen kirjautuminen epäonnistui. Kirjaudu sisään manuaalisesti.</string>
     <string name="password_attr_security_rating">Turvallisuusarvio</string>
     <string name="password_strength_very_strong">Erittäin vahva</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Uusi</string>
     <string name="backup_app_setup_title">Tallenna varmuuskopion salausavain</string>
     <string name="backup_app_setup_cta">Tallenna salausavain</string>
+    <string name="backup_app_restore_title">Nouda varmuuskopion salausavain</string>
+    <string name="backup_app_restore_cta">Nouda salausavain</string>
     <string name="backup_app_setup_password_error">Virheellinen salasana. Yritä uudelleen.</string>
     <string name="enter_password_hint">Anna Murena Workspace -salasanasi</string>
     <string name="description">Anna Murena Workspace -salasanasi tallentaaksesi salausavaimen Murena Passwords -sovellukseen</string>
+    <string name="backup_app_restore_description">Anna Murena Workspace -salasanasi noutaaksesi salausavaimen Murena Passwords -sovelluksesta</string>
     <string name="autofill_password_saved">Salasana tallennettu</string>
     <string name="autofill_saving_password">Tallennetaan salasanaa</string>
     <string name="autofill_saving_password_message">Odota, kun %1$s tallentaa tämän kirjautumistiedon.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Salauksen määritys vaaditaan</string>
     <string name="e2ee_migration_dialog_text">Salausta ei ole vielä otettu käyttöön tälle tilille. Aloita sovelluksen käyttö syöttämällä salasanasi Murena Passwordsin verkkoversiossa ja palaa tänne, kun määritys on valmis.</string>
     <string name="e2ee_migration_dialog_start">Määritä salaus</string>
+    <string name="locked_account_dialog_title">Passwords-sovellus on lukittu</string>
+    <string name="locked_account_dialog_message">Liian monta virheellistä yritystä pääsalasanalla. Avaa tilisi lukitus Murena Passwordsin verkkoversiossa ja kirjaudu sitten täällä uudelleen sisään.</string>
+    <string name="locked_account_dialog_unlock">Poista tilin lukitus</string>
 </resources>

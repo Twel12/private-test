@@ -48,6 +48,7 @@ import com.hegocre.nextcloudpasswords.utils.AppLockHelper
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -84,6 +85,14 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     private val _clientDeauthorized = MutableLiveData(false)
     val clientDeauthorized: LiveData<Boolean>
         get() = _clientDeauthorized
+
+    fun clearClientDeauthorized() {
+        _clientDeauthorized.postValue(false)
+    }
+
+    private val _murenaSyncDisabled = MutableLiveData(false)
+    val murenaSyncDisabled: LiveData<Boolean>
+        get() = _murenaSyncDisabled
 
     private val apiController = ApiController.getInstance(application)
 
@@ -204,6 +213,9 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         _isRefreshing.emit(true)
         _showSessionOpenError.emit(false)
         try {
+            if (shouldStopForMurenaSyncDisabled()) {
+                return
+            }
             if (apiController.openSession(password)) {
                 MasterPasswordMemoryStore.set(password)
                 masterPassword.postValue(password)
@@ -271,6 +283,10 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     fun sync() {
         if (_isRefreshing.value) return
 
+        if (shouldStopForMurenaSyncDisabled()) {
+            return
+        }
+
         if (sessionOpen.value) {
             viewModelScope.launch {
                 syncPasswordsAndFolders()
@@ -297,6 +313,21 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     private fun clearMasterPasswordState() {
         MasterPasswordMemoryStore.clear()
         secureMasterPasswordStore.clear()
+    }
+
+    fun onMurenaSyncDisabledShown() {
+        _murenaSyncDisabled.postValue(false)
+    }
+
+    private fun shouldStopForMurenaSyncDisabled(): Boolean {
+        if (OkHttpRequestInterface.getInstance() !is SsoOkHttpRequest) {
+            return false
+        }
+        if (SsoAccount.isCurrentMurenaSyncEnabled(getApplication())) {
+            return false
+        }
+        _murenaSyncDisabled.postValue(true)
+        return true
     }
 
     fun setVisiblePassword(password: Password, folderPath: List<String>) {

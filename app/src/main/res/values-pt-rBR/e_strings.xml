@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Login único indisponível. Faça login manualmente.</string>
     <string name="error_sso_app_signature">Login único indisponível para esta assinatura do aplicativo.</string>
     <string name="error_sso_no_account_found">Nenhuma conta encontrada, faça login</string>
-    <string name="error_sso_sync_disabled">A sincronização do Passwords está desativada. Ative em (Configurações -&gt; Contas -&gt; Conta Murena -&gt; Sincronização da conta -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">A sincronização do Passwords está desativada. Ative-a aqui.</string>
     <string name="error_sso_failed">O login automático falhou. Faça login manualmente.</string>
     <string name="password_attr_security_rating">Classificação de segurança</string>
     <string name="password_strength_very_strong">Muito forte</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nova</string>
     <string name="backup_app_setup_title">Salvar chave de criptografia do backup</string>
     <string name="backup_app_setup_cta">Salvar chave de criptografia</string>
+    <string name="backup_app_restore_title">Recuperar chave de criptografia do backup</string>
+    <string name="backup_app_restore_cta">Recuperar chave de criptografia</string>
     <string name="backup_app_setup_password_error">Senha incorreta. Tente novamente.</string>
     <string name="enter_password_hint">Digite sua senha do Murena Workspace</string>
     <string name="description">Digite sua senha do Murena Workspace para salvar a chave de criptografia no Murena Passwords</string>
+    <string name="backup_app_restore_description">Digite sua senha do Murena Workspace para recuperar a chave de criptografia do Murena Passwords</string>
     <string name="autofill_password_saved">Senha salva</string>
     <string name="autofill_saving_password">Salvando senha</string>
     <string name="autofill_saving_password_message">Aguarde enquanto %1$s salva esta credencial.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuração de criptografia necessária</string>
     <string name="e2ee_migration_dialog_text">A criptografia ainda não está ativada para esta conta. Para começar a usar o aplicativo, digite sua senha na versão web do Murena Passwords e volte aqui quando a configuração estiver concluída.</string>
     <string name="e2ee_migration_dialog_start">Configurar criptografia</string>
+    <string name="locked_account_dialog_title">Aplicativo Passwords bloqueado</string>
+    <string name="locked_account_dialog_message">Muitas tentativas incorretas de senha mestra. Desbloqueie sua conta na versão web do Murena Passwords e depois faça login aqui novamente.</string>
+    <string name="locked_account_dialog_unlock">Desbloquear conta</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">單一登入無法使用。請手動登入。</string>
     <string name="error_sso_app_signature">此應用程式簽章無法使用單一登入。</string>
     <string name="error_sso_no_account_found">找不到帳號，請登入</string>
-    <string name="error_sso_sync_disabled">密碼應用程式的同步已停用，請在（設定 -&gt; 帳號 -&gt; Murena 帳號 -&gt; 帳號同步 -&gt; 密碼）中啟用</string>
+    <string name="error_sso_sync_disabled">Passwords 的同步已停用，請在此啟用。</string>
     <string name="error_sso_failed">自動登入失敗。請手動登入。</string>
     <string name="password_attr_security_rating">安全評級</string>
     <string name="password_strength_very_strong">非常強</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">新增</string>
     <string name="backup_app_setup_title">儲存備份加密金鑰</string>
     <string name="backup_app_setup_cta">儲存加密金鑰</string>
+    <string name="backup_app_restore_title">取得備份加密金鑰</string>
+    <string name="backup_app_restore_cta">取得加密金鑰</string>
     <string name="backup_app_setup_password_error">密碼不正確。請再試一次。</string>
     <string name="enter_password_hint">輸入您的 Murena Workspace 密碼</string>
     <string name="description">輸入您的 Murena Workspace 密碼，以將加密金鑰儲存到 Murena Passwords</string>
+    <string name="backup_app_restore_description">輸入您的 Murena Workspace 密碼，以從 Murena Passwords 取得加密金鑰</string>
     <string name="autofill_password_saved">密碼已儲存</string>
     <string name="autofill_saving_password">正在儲存密碼</string>
     <string name="autofill_saving_password_message">請稍候，%1$s 正在儲存此憑證。</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">需要設定加密</string>
     <string name="e2ee_migration_dialog_text">此帳戶尚未啟用加密。若要開始使用此應用程式，請在 Murena Passwords 網頁版中輸入您的密碼，並在設定完成後返回此處。</string>
     <string name="e2ee_migration_dialog_start">設定加密</string>
+    <string name="locked_account_dialog_title">Passwords 應用程式已鎖定</string>
+    <string name="locked_account_dialog_message">主密碼輸入錯誤次數過多。請先在 Murena Passwords 網頁版中解除帳號鎖定，然後再回到這裡重新登入。</string>
+    <string name="locked_account_dialog_unlock">解除帳號鎖定</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">Single sign-on niet beschikbaar. Log handmatig in.</string>
     <string name="error_sso_app_signature">Single sign-on niet beschikbaar voor deze apphandtekening.</string>
     <string name="error_sso_no_account_found">Geen account gevonden, log in</string>
-    <string name="error_sso_sync_disabled">Synchronisatie voor Passwords is uitgeschakeld. Schakel dit in via (Instellingen -&gt; Accounts -&gt; Murena-account -&gt; Accountsynchronisatie -&gt; Passwords)</string>
+    <string name="error_sso_sync_disabled">Synchronisatie voor Passwords is uitgeschakeld. Schakel dit hier in.</string>
     <string name="error_sso_failed">Automatisch inloggen is mislukt. Log handmatig in.</string>
     <string name="password_attr_security_rating">Beveiligingsscore</string>
     <string name="password_strength_very_strong">Zeer sterk</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">Nieuw</string>
     <string name="backup_app_setup_title">Reservekopie-versleutelingssleutel opslaan</string>
     <string name="backup_app_setup_cta">Versleutelingssleutel opslaan</string>
+    <string name="backup_app_restore_title">Reservekopie-versleutelingssleutel ophalen</string>
+    <string name="backup_app_restore_cta">Versleutelingssleutel ophalen</string>
     <string name="backup_app_setup_password_error">Onjuist wachtwoord. Probeer het opnieuw.</string>
     <string name="enter_password_hint">Voer je Murena Workspace-wachtwoord in</string>
     <string name="description">Voer je Murena Workspace-wachtwoord in om de versleutelingssleutel op te slaan in Murena Passwords</string>
+    <string name="backup_app_restore_description">Voer je Murena Workspace-wachtwoord in om de versleutelingssleutel op te halen uit Murena Passwords</string>
     <string name="autofill_password_saved">Wachtwoord opgeslagen</string>
     <string name="autofill_saving_password">Wachtwoord opslaan</string>
     <string name="autofill_saving_password_message">Een ogenblik geduld terwijl %1$s deze inloggegevens opslaat.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Versleutelingsinstelling vereist</string>
     <string name="e2ee_migration_dialog_text">Versleuteling is nog niet ingeschakeld voor dit account. Voer je wachtwoord in in de webversie van Murena Passwords om de app te kunnen gebruiken en keer hier terug zodra de instelling is voltooid.</string>
     <string name="e2ee_migration_dialog_start">Versleuteling instellen</string>
+    <string name="locked_account_dialog_title">Passwords-app vergrendeld</string>
+    <string name="locked_account_dialog_message">Te veel onjuiste pogingen met het hoofdwachtwoord. Ontgrendel je account in de webversie van Murena Passwords en meld je daarna hier opnieuw aan.</string>
+    <string name="locked_account_dialog_unlock">Account ontgrendelen</string>
 </resources>

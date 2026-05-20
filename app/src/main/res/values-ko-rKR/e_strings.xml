@@ -5,7 +5,7 @@
     <string name="error_sso_unavailable_generic">싱글 사인온을 사용할 수 없습니다. 수동으로 로그인해 주세요.</string>
     <string name="error_sso_app_signature">이 앱 서명에서는 싱글 사인온을 사용할 수 없습니다.</string>
     <string name="error_sso_no_account_found">계정을 찾을 수 없습니다. 로그인해 주세요.</string>
-    <string name="error_sso_sync_disabled">비밀번호 앱의 동기화가 비활성화되어 있습니다. (설정 -&gt; 계정 -&gt; Murena 계정 -&gt; 계정 동기화 -&gt; 비밀번호)에서 활성화해 주세요.</string>
+    <string name="error_sso_sync_disabled">Passwords의 동기화가 비활성화되어 있습니다. 여기에서 활성화해 주세요.</string>
     <string name="error_sso_failed">자동 로그인이 실패했습니다. 수동으로 로그인해 주세요.</string>
     <string name="password_attr_security_rating">보안 등급</string>
     <string name="password_strength_very_strong">매우 강함</string>
@@ -18,9 +18,12 @@
     <string name="passwords_floating_action_button">새로 만들기</string>
     <string name="backup_app_setup_title">백업 암호화 키 저장</string>
     <string name="backup_app_setup_cta">암호화 키 저장</string>
+    <string name="backup_app_restore_title">백업 암호화 키 가져오기</string>
+    <string name="backup_app_restore_cta">암호화 키 가져오기</string>
     <string name="backup_app_setup_password_error">비밀번호가 올바르지 않습니다. 다시 시도해 주세요.</string>
     <string name="enter_password_hint">Murena Workspace 비밀번호를 입력해 주세요</string>
     <string name="description">암호화 키를 Murena Passwords에 저장하려면 Murena Workspace 비밀번호를 입력해 주세요</string>
+    <string name="backup_app_restore_description">Murena Passwords에서 암호화 키를 가져오려면 Murena Workspace 비밀번호를 입력해 주세요</string>
     <string name="autofill_password_saved">비밀번호가 저장되었습니다</string>
     <string name="autofill_saving_password">비밀번호 저장 중</string>
     <string name="autofill_saving_password_message">%1$s에서 이 자격 증명을 저장하는 동안 기다려 주세요.</string>
@@ -40,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">암호화 설정 필요</string>
     <string name="e2ee_migration_dialog_text">이 계정에서는 아직 암호화가 활성화되어 있지 않습니다. 앱 사용을 시작하려면 Murena Passwords 웹 버전에서 비밀번호를 입력한 뒤 설정이 완료되면 여기로 돌아오세요.</string>
     <string name="e2ee_migration_dialog_start">암호화 설정</string>
+    <string name="locked_account_dialog_title">Passwords 앱이 잠겼습니다</string>
+    <string name="locked_account_dialog_message">마스터 비밀번호를 너무 많이 잘못 입력했습니다. Murena Passwords 웹 버전에서 계정 잠금을 해제한 후 여기에서 다시 로그인해 주세요.</string>
+    <string name="locked_account_dialog_unlock">계정 잠금 해제</string>
 </resources>
