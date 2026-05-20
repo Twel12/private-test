@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Je vyžadováno nastavení šifrování</string>
     <string name="e2ee_migration_dialog_text">Pro tento účet ještě není šifrování povoleno. Chcete-li začít aplikaci používat, zadejte své heslo ve webové verzi Murena Passwords a po dokončení nastavení se sem vraťte.</string>
     <string name="e2ee_migration_dialog_start">Nastavit šifrování</string>
+    <string name="locked_account_dialog_title">Aplikace Passwords je uzamčena</string>
+    <string name="locked_account_dialog_message">Příliš mnoho nesprávných pokusů o zadání hlavního hesla. Odemkněte svůj účet ve webové verzi Murena Passwords a poté se zde znovu přihlaste.</string>
+    <string name="locked_account_dialog_unlock">Odemknout účet</string>
 </resources>

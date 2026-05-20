@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Krypteringsopsætning påkrævet</string>
     <string name="e2ee_migration_dialog_text">Kryptering er endnu ikke aktiveret for denne konto. For at begynde at bruge appen skal du indtaste din adgangskode i webversionen af Murena Passwords og vende tilbage hertil, når opsætningen er fuldført.</string>
     <string name="e2ee_migration_dialog_start">Opsæt kryptering</string>
+    <string name="locked_account_dialog_title">Passwords-appen er låst</string>
+    <string name="locked_account_dialog_message">For mange forkerte forsøg på hovedadgangskoden. Lås din konto op i webversionen af Murena Passwords, og log derefter ind her igen.</string>
+    <string name="locked_account_dialog_unlock">Lås konto op</string>
 </resources>

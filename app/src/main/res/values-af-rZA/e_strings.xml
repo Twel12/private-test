@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Enkripsie-opstelling vereis</string>
     <string name="e2ee_migration_dialog_text">Enkripsie is nog nie vir hierdie rekening geaktiveer nie. Om die toepassing te begin gebruik, voer jou wagwoord in die webweergawe van Murena Passwords in en keer hierheen terug sodra die opstelling voltooi is.</string>
     <string name="e2ee_migration_dialog_start">Stel enkripsie op</string>
+    <string name="locked_account_dialog_title">Passwords-toepassing gesluit</string>
+    <string name="locked_account_dialog_message">Te veel verkeerde meesterwagwoord-pogings. Ontsluit jou rekening in die webweergawe van Murena Passwords en meld dan weer hier aan.</string>
+    <string name="locked_account_dialog_unlock">Ontsluit rekening</string>
 </resources>

@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Şifreleme kurulumu gerekiyor</string>
     <string name="e2ee_migration_dialog_text">Bu hesap için şifreleme henüz etkinleştirilmedi. Uygulamayı kullanmaya başlamak için Murena Passwords\'un web sürümünde parolanızı girin ve kurulum tamamlandığında buraya geri dönün.</string>
     <string name="e2ee_migration_dialog_start">Şifrelemeyi kur</string>
+    <string name="locked_account_dialog_title">Passwords uygulaması kilitlendi</string>
+    <string name="locked_account_dialog_message">Çok fazla yanlış ana parola denemesi yapıldı. Hesabınızın kilidini Murena Passwords web sürümünde açın, ardından burada yeniden oturum açın.</string>
+    <string name="locked_account_dialog_unlock">Hesabın kilidini aç</string>
 </resources>

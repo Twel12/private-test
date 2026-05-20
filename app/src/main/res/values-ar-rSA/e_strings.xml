@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">إعداد التشفير مطلوب</string>
     <string name="e2ee_migration_dialog_text">لم يتم تفعيل التشفير لهذا الحساب بعد. لبدء استخدام التطبيق، أدخل كلمة المرور في إصدار الويب من Murena Passwords ثم عد إلى هنا بعد اكتمال الإعداد.</string>
     <string name="e2ee_migration_dialog_start">إعداد التشفير</string>
+    <string name="locked_account_dialog_title">تطبيق كلمات المرور مقفل</string>
+    <string name="locked_account_dialog_message">عدد كبير جدًا من محاولات كلمة المرور الرئيسية غير الصحيحة. افتح قفل حسابك في إصدار الويب من Murena Passwords، ثم سجّل الدخول هنا مرة أخرى.</string>
+    <string name="locked_account_dialog_unlock">إلغاء قفل الحساب</string>
 </resources>

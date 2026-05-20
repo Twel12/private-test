@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">暗号化の設定が必要です</string>
     <string name="e2ee_migration_dialog_text">このアカウントではまだ暗号化が有効になっていません。アプリの利用を開始するには、Murena Passwords のウェブ版でパスワードを入力し、設定が完了したらここに戻ってきてください。</string>
     <string name="e2ee_migration_dialog_start">暗号化を設定</string>
+    <string name="locked_account_dialog_title">Passwords アプリがロックされています</string>
+    <string name="locked_account_dialog_message">マスターパスワードの入力を間違えた回数が多すぎます。Murena Passwords のウェブ版でアカウントのロックを解除してから、ここで再度サインインしてください。</string>
+    <string name="locked_account_dialog_unlock">アカウントをロック解除</string>
 </resources>

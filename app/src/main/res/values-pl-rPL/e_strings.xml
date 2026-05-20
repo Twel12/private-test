@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Wymagana konfiguracja szyfrowania</string>
     <string name="e2ee_migration_dialog_text">Szyfrowanie nie jest jeszcze włączone dla tego konta. Aby rozpocząć korzystanie z aplikacji, wprowadź swoje hasło w internetowej wersji Murena Passwords i wróć tutaj po zakończeniu konfiguracji.</string>
     <string name="e2ee_migration_dialog_start">Skonfiguruj szyfrowanie</string>
+    <string name="locked_account_dialog_title">Aplikacja Passwords jest zablokowana</string>
+    <string name="locked_account_dialog_message">Zbyt wiele nieprawidłowych prób wprowadzenia hasła głównego. Odblokuj swoje konto w internetowej wersji Murena Passwords, a następnie zaloguj się tutaj ponownie.</string>
+    <string name="locked_account_dialog_unlock">Odblokuj konto</string>
 </resources>

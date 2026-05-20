@@ -249,6 +249,32 @@ fun E2eeMigrationDialog(
 }
 
 @Composable
+fun LockedAccountDialog(
+    onUnlockAccount: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    EAlertDialog(
+        onDismissRequest = {},
+        title = { Text(text = stringResource(R.string.locked_account_dialog_title)) },
+        text = {
+            Text(
+                text = stringResource(R.string.locked_account_dialog_message)
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onUnlockAccount) {
+                Text(text = stringResource(R.string.locked_account_dialog_unlock))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(text = stringResource(id = android.R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
 fun DeleteElementDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit

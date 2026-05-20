@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Требуется настройка шифрования</string>
     <string name="e2ee_migration_dialog_text">Шифрование для этой учетной записи еще не включено. Чтобы начать пользоваться приложением, введите свой пароль в веб-версии Murena Passwords и вернитесь сюда после завершения настройки.</string>
     <string name="e2ee_migration_dialog_start">Настроить шифрование</string>
+    <string name="locked_account_dialog_title">Приложение Passwords заблокировано</string>
+    <string name="locked_account_dialog_message">Слишком много неверных попыток ввода мастер-пароля. Разблокируйте свою учетную запись в веб-версии Murena Passwords, затем снова войдите здесь.</string>
+    <string name="locked_account_dialog_unlock">Разблокировать учетную запись</string>
 </resources>

@@ -14,6 +14,8 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
 import coil.Coil
@@ -53,6 +55,8 @@ class MainActivity : FragmentActivity() {
             },
         )
     }
+
+    private var waitingForUnlockInWeb = false
 
     private var migrationFlowEnabled = false
 
@@ -95,15 +99,6 @@ class MainActivity : FragmentActivity() {
                     autofillReply(Triple(label, username, password), autofillAssistStructure)
                 }
             } else null
-
-
-        passwordsViewModel.clientDeauthorized.observe(this) { deauthorized ->
-            if (deauthorized) {
-                Toast.makeText(this, R.string.client_deauthorized_toast, Toast.LENGTH_LONG).show()
-                logOut()
-            }
-        }
-
         observeSsoReauthenticationRequired(passwordsViewModel)
 
         passwordsViewModel.murenaSyncDisabled.observe(this) { disabled ->
@@ -133,11 +128,15 @@ class MainActivity : FragmentActivity() {
         migrationFlowEnabled = !autofillRequested
 
         setContent {
+            val showLockedAccountDialog by passwordsViewModel.clientDeauthorized.observeAsState(false)
             val showE2eeMigrationDialog by passwordsViewModel.showE2eeMigrationDialog.collectAsState()
             NCPAppLockWrapper {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
                     onLogOut = { logOut() },
+                    showLockedAccountDialog = showLockedAccountDialog,
+                    onUnlockLockedAccount = { unlockAccountInWeb() },
+                    onCancelLockedAccount = ::finish,
                     showE2eeMigrationDialog = migrationFlowEnabled && showE2eeMigrationDialog,
                     onStartE2eeMigration = { launchE2eeMigration(passwordsViewModel) },
                     onCancelE2eeMigration = { finish() },
@@ -152,6 +151,11 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         if (syncDisabled.onResume()) return
+        if (waitingForUnlockInWeb) {
+            waitingForUnlockInWeb = false
+            passwordsViewModel.sync()
+            return
+        }
         if (migrationFlowEnabled) {
             passwordsViewModel.onAppResumedAfterMigration()
         }
@@ -174,6 +178,22 @@ class MainActivity : FragmentActivity() {
             ApiController.getInstance(this@MainActivity).closeSession()
             UserController.getInstance(this@MainActivity).logOut()
             triggerRebirth()
+        }
+    }
+
+    private fun unlockAccountInWeb() {
+        val passwordsWebUri = passwordsViewModel.prepareE2eeMigrationUri()
+
+        if (passwordsWebUri != null) {
+            runCatching {
+                CustomTabsIntent.Builder()
+                    .build()
+                    .launchUrl(this, passwordsWebUri)
+                waitingForUnlockInWeb = true
+                passwordsViewModel.clearClientDeauthorized()
+            }.onFailure { exception ->
+                Timber.e(exception, "Failed to launch Murena Passwords web app for unlock flow")
+            }
         }
     }
 

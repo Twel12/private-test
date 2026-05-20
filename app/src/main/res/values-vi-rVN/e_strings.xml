@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Cần thiết lập mã hóa</string>
     <string name="e2ee_migration_dialog_text">Tính năng mã hóa chưa được bật cho tài khoản này. Để bắt đầu sử dụng ứng dụng, hãy nhập mật khẩu của bạn trên phiên bản web của Murena Passwords và quay lại đây sau khi thiết lập hoàn tất.</string>
     <string name="e2ee_migration_dialog_start">Thiết lập mã hóa</string>
+    <string name="locked_account_dialog_title">Ứng dụng Passwords đã bị khóa</string>
+    <string name="locked_account_dialog_message">Đã có quá nhiều lần nhập sai mật khẩu chính. Hãy mở khóa tài khoản của bạn trong phiên bản web của Murena Passwords, rồi đăng nhập lại tại đây.</string>
+    <string name="locked_account_dialog_unlock">Mở khóa tài khoản</string>
 </resources>

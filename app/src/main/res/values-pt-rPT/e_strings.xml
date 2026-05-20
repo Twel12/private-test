@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuração da encriptação necessária</string>
     <string name="e2ee_migration_dialog_text">A encriptação ainda não está ativada para esta conta. Para começar a usar a aplicação, introduza a sua palavra-passe na versão web do Murena Passwords e volte aqui quando a configuração estiver concluída.</string>
     <string name="e2ee_migration_dialog_start">Configurar encriptação</string>
+    <string name="locked_account_dialog_title">Aplicação Passwords bloqueada</string>
+    <string name="locked_account_dialog_message">Demasiadas tentativas incorretas da palavra-passe mestra. Desbloqueie a sua conta na versão web do Murena Passwords e depois inicie sessão aqui novamente.</string>
+    <string name="locked_account_dialog_unlock">Desbloquear conta</string>
 </resources>

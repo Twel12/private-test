@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuració del xifratge necessària</string>
     <string name="e2ee_migration_dialog_text">El xifratge encara no està activat per a aquest compte. Per començar a utilitzar l\'aplicació, introdueix la teva contrasenya a la versió web de Murena Passwords i torna aquí quan la configuració s\'hagi completat.</string>
     <string name="e2ee_migration_dialog_start">Configura el xifratge</string>
+    <string name="locked_account_dialog_title">Aplicació Passwords bloquejada</string>
+    <string name="locked_account_dialog_message">Massa intents incorrectes de contrasenya mestra. Desbloqueja el teu compte a la versió web de Murena Passwords i després torna a iniciar-hi sessió aquí.</string>
+    <string name="locked_account_dialog_unlock">Desbloqueja el compte</string>
 </resources>

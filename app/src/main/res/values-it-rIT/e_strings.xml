@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configurazione della crittografia richiesta</string>
     <string name="e2ee_migration_dialog_text">La crittografia non è ancora abilitata per questo account. Per iniziare a usare l\'app, inserisci la tua password nella versione web di Murena Passwords e torna qui una volta completata la configurazione.</string>
     <string name="e2ee_migration_dialog_start">Configura crittografia</string>
+    <string name="locked_account_dialog_title">App Passwords bloccata</string>
+    <string name="locked_account_dialog_message">Troppi tentativi errati con la password principale. Sblocca il tuo account nella versione web di Murena Passwords, quindi accedi di nuovo qui.</string>
+    <string name="locked_account_dialog_unlock">Sblocca account</string>
 </resources>

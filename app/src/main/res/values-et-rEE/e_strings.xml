@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Krüptimise seadistamine on vajalik</string>
     <string name="e2ee_migration_dialog_text">Krüptimine ei ole selle konto jaoks veel lubatud. Rakenduse kasutamise alustamiseks sisesta oma parool Murena Passwordsi veebiversioonis ja tule siia tagasi, kui seadistamine on lõpetatud.</string>
     <string name="e2ee_migration_dialog_start">Seadista krüptimine</string>
+    <string name="locked_account_dialog_title">Passwordsi rakendus on lukustatud</string>
+    <string name="locked_account_dialog_message">Põhiparooli jaoks on tehtud liiga palju valesid katseid. Ava oma konto lukustus Murena Passwordsi veebiversioonis ja logi seejärel siin uuesti sisse.</string>
+    <string name="locked_account_dialog_unlock">Ava konto lukustus</string>
 </resources>

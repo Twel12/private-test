@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Потрібно налаштувати шифрування</string>
     <string name="e2ee_migration_dialog_text">Шифрування ще не ввімкнено для цього облікового запису. Щоб почати користуватися застосунком, введіть свій пароль у вебверсії Murena Passwords і поверніться сюди після завершення налаштування.</string>
     <string name="e2ee_migration_dialog_start">Налаштувати шифрування</string>
+    <string name="locked_account_dialog_title">Програму Passwords заблоковано</string>
+    <string name="locked_account_dialog_message">Забагато неправильних спроб введення майстер-пароля. Розблокуйте свій обліковий запис у вебверсії Murena Passwords, а потім знову увійдіть тут.</string>
+    <string name="locked_account_dialog_unlock">Розблокувати обліковий запис</string>
 </resources>

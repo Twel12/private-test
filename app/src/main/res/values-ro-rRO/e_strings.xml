@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Este necesară configurarea criptării</string>
     <string name="e2ee_migration_dialog_text">Criptarea nu este încă activată pentru acest cont. Pentru a începe să utilizați aplicația, introduceți parola în versiunea web a Murena Passwords și reveniți aici după finalizarea configurării.</string>
     <string name="e2ee_migration_dialog_start">Configurați criptarea</string>
+    <string name="locked_account_dialog_title">Aplicația Passwords este blocată</string>
+    <string name="locked_account_dialog_message">Prea multe încercări incorecte ale parolei principale. Deblochează-ți contul în versiunea web a Murena Passwords, apoi autentifică-te din nou aici.</string>
+    <string name="locked_account_dialog_unlock">Deblochează contul</string>
 </resources>

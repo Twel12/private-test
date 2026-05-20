@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Configuration du chiffrement requise</string>
     <string name="e2ee_migration_dialog_text">Le chiffrement n\'est pas encore activé pour ce compte. Pour commencer à utiliser l\'application, saisissez votre mot de passe dans la version web de Murena Passwords et revenez ici une fois la configuration terminée.</string>
     <string name="e2ee_migration_dialog_start">Configurer le chiffrement</string>
+    <string name="locked_account_dialog_title">Application Passwords verrouillée</string>
+    <string name="locked_account_dialog_message">Trop de tentatives incorrectes de mot de passe maître. Déverrouillez votre compte dans la version web de Murena Passwords, puis reconnectez-vous ici.</string>
+    <string name="locked_account_dialog_unlock">Déverrouiller le compte</string>
 </resources>

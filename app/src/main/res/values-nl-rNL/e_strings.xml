@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Versleutelingsinstelling vereist</string>
     <string name="e2ee_migration_dialog_text">Versleuteling is nog niet ingeschakeld voor dit account. Voer je wachtwoord in in de webversie van Murena Passwords om de app te kunnen gebruiken en keer hier terug zodra de instelling is voltooid.</string>
     <string name="e2ee_migration_dialog_start">Versleuteling instellen</string>
+    <string name="locked_account_dialog_title">Passwords-app vergrendeld</string>
+    <string name="locked_account_dialog_message">Te veel onjuiste pogingen met het hoofdwachtwoord. Ontgrendel je account in de webversie van Murena Passwords en meld je daarna hier opnieuw aan.</string>
+    <string name="locked_account_dialog_unlock">Account ontgrendelen</string>
 </resources>

@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Подешавање шифровања је потребно</string>
     <string name="e2ee_migration_dialog_text">Шифровање још није омогућено за овај налог. Да бисте почели да користите апликацију, унесите своју лозинку у веб верзији Murena Passwords и вратите се овде када подешавање буде завршено.</string>
     <string name="e2ee_migration_dialog_start">Подеси шифровање</string>
+    <string name="locked_account_dialog_title">Апликација Passwords је закључана</string>
+    <string name="locked_account_dialog_message">Превише нетачних покушаја уноса главне лозинке. Откључајте свој налог у веб верзији Murena Passwords, а затим се овде поново пријавите.</string>
+    <string name="locked_account_dialog_unlock">Откључај налог</string>
 </resources>

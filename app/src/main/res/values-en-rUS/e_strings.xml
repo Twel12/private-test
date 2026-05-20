@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Encryption setup required</string>
     <string name="e2ee_migration_dialog_text">Encryption is not yet enabled for this account. To start using the app, enter your password in the web version of Murena Passwords and return here once setup is complete.</string>
     <string name="e2ee_migration_dialog_start">Set up encryption</string>
+    <string name="locked_account_dialog_title">Passwords App Locked</string>
+    <string name="locked_account_dialog_message">Too many incorrect master password attempts. Unlock your account in the web version of Murena Passwords, then sign in here again.</string>
+    <string name="locked_account_dialog_unlock">Unlock account</string>
 </resources>

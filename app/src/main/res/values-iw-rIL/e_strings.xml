@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">נדרשת הגדרת הצפנה</string>
     <string name="e2ee_migration_dialog_text">ההצפנה עדיין לא מופעלת עבור חשבון זה. כדי להתחיל להשתמש באפליקציה, הזן את הסיסמה שלך בגרסת האינטרנט של Murena Passwords וחזור לכאן לאחר השלמת ההגדרה.</string>
     <string name="e2ee_migration_dialog_start">הגדרת הצפנה</string>
+    <string name="locked_account_dialog_title">יישום Passwords נעול</string>
+    <string name="locked_account_dialog_message">יותר מדי ניסיונות שגויים של סיסמת המאסטר. יש לשחרר את נעילת החשבון בגרסת האינטרנט של Murena Passwords ואז להתחבר כאן שוב.</string>
+    <string name="locked_account_dialog_unlock">ביטול נעילת החשבון</string>
 </resources>

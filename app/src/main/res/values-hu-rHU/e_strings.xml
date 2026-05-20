@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Titkosítás beállítása szükséges</string>
     <string name="e2ee_migration_dialog_text">A titkosítás még nincs engedélyezve ehhez a fiókhoz. Az alkalmazás használatának megkezdéséhez adja meg jelszavát a Murena Passwords webes verziójában, majd a beállítás befejezése után térjen vissza ide.</string>
     <string name="e2ee_migration_dialog_start">Titkosítás beállítása</string>
+    <string name="locked_account_dialog_title">Passwords alkalmazás zárolva</string>
+    <string name="locked_account_dialog_message">Túl sok helytelen mesterjelszó-próbálkozás. Oldja fel fiókja zárolását a Murena Passwords webes verziójában, majd jelentkezzen be itt újra.</string>
+    <string name="locked_account_dialog_unlock">Fiók feloldása</string>
 </resources>

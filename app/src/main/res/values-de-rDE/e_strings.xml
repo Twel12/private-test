@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Einrichtung der Verschlüsselung erforderlich</string>
     <string name="e2ee_migration_dialog_text">Für dieses Konto ist die Verschlüsselung noch nicht aktiviert. Um die App zu verwenden, gib dein Passwort in der Webversion von Murena Passwords ein und kehre hierher zurück, sobald die Einrichtung abgeschlossen ist.</string>
     <string name="e2ee_migration_dialog_start">Verschlüsselung einrichten</string>
+    <string name="locked_account_dialog_title">Passwords-App gesperrt</string>
+    <string name="locked_account_dialog_message">Zu viele falsche Versuche mit dem Master-Passwort. Entsperren Sie Ihr Konto in der Webversion von Murena Passwords und melden Sie sich dann hier erneut an.</string>
+    <string name="locked_account_dialog_unlock">Konto entsperren</string>
 </resources>

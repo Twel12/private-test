@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">需要設定加密</string>
     <string name="e2ee_migration_dialog_text">此帳戶尚未啟用加密。若要開始使用此應用程式，請在 Murena Passwords 網頁版中輸入您的密碼，並在設定完成後返回此處。</string>
     <string name="e2ee_migration_dialog_start">設定加密</string>
+    <string name="locked_account_dialog_title">Passwords 應用程式已鎖定</string>
+    <string name="locked_account_dialog_message">主密碼輸入錯誤次數過多。請先在 Murena Passwords 網頁版中解除帳號鎖定，然後再回到這裡重新登入。</string>
+    <string name="locked_account_dialog_unlock">解除帳號鎖定</string>
 </resources>

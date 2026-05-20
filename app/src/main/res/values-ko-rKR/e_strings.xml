@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">암호화 설정 필요</string>
     <string name="e2ee_migration_dialog_text">이 계정에서는 아직 암호화가 활성화되어 있지 않습니다. 앱 사용을 시작하려면 Murena Passwords 웹 버전에서 비밀번호를 입력한 뒤 설정이 완료되면 여기로 돌아오세요.</string>
     <string name="e2ee_migration_dialog_start">암호화 설정</string>
+    <string name="locked_account_dialog_title">Passwords 앱이 잠겼습니다</string>
+    <string name="locked_account_dialog_message">마스터 비밀번호를 너무 많이 잘못 입력했습니다. Murena Passwords 웹 버전에서 계정 잠금을 해제한 후 여기에서 다시 로그인해 주세요.</string>
+    <string name="locked_account_dialog_unlock">계정 잠금 해제</string>
 </resources>

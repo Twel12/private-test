@@ -86,6 +86,10 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     val clientDeauthorized: LiveData<Boolean>
         get() = _clientDeauthorized
 
+    fun clearClientDeauthorized() {
+        _clientDeauthorized.postValue(false)
+    }
+
     private val _murenaSyncDisabled = MutableLiveData(false)
     val murenaSyncDisabled: LiveData<Boolean>
         get() = _murenaSyncDisabled

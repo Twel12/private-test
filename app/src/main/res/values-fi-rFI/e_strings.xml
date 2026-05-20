@@ -43,4 +43,7 @@
     <string name="e2ee_migration_dialog_title">Salauksen määritys vaaditaan</string>
     <string name="e2ee_migration_dialog_text">Salausta ei ole vielä otettu käyttöön tälle tilille. Aloita sovelluksen käyttö syöttämällä salasanasi Murena Passwordsin verkkoversiossa ja palaa tänne, kun määritys on valmis.</string>
     <string name="e2ee_migration_dialog_start">Määritä salaus</string>
+    <string name="locked_account_dialog_title">Passwords-sovellus on lukittu</string>
+    <string name="locked_account_dialog_message">Liian monta virheellistä yritystä pääsalasanalla. Avaa tilisi lukitus Murena Passwordsin verkkoversiossa ja kirjaudu sitten täällä uudelleen sisään.</string>
+    <string name="locked_account_dialog_unlock">Poista tilin lukitus</string>
 </resources>
