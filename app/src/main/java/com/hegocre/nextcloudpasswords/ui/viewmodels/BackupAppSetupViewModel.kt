@@ -13,6 +13,7 @@ import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInva
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
 import com.hegocre.nextcloudpasswords.data.user.UserController
+import com.hegocre.nextcloudpasswords.data.user.UserException
 import com.hegocre.nextcloudpasswords.ui.migration.E2eeMigrationFlowHandler
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
@@ -30,9 +31,6 @@ import kotlinx.coroutines.launch
 class BackupAppSetupViewModel(private val application: Application) :
     AndroidViewModel(application), E2eeMigrationFlowHandler {
 
-    private val apiController: ApiController
-        get() = ApiController.getInstance(application)
-
     private val _uiState = MutableStateFlow(BackupAppSetupUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -43,10 +41,11 @@ class BackupAppSetupViewModel(private val application: Application) :
     val ssoReauthenticationRequested = _ssoReauthenticationRequested.asStateFlow()
 
     private val migrationEligible = MutableStateFlow(false)
+    private val endToEndEncryptionEnabled = MutableStateFlow<Boolean?>(null)
 
     private val e2eeMigrationCoordinator = E2eeMigrationCoordinator(
         viewModelScope = viewModelScope,
-        endToEndEncryptionEnabled = apiController.endToEndEncryptionEnabled,
+        endToEndEncryptionEnabled = endToEndEncryptionEnabled,
         serverUrlProvider = { runCatching { UserController.getInstance(application).getServer().url }.getOrNull() },
         migrationEligible = migrationEligible
     )
@@ -55,6 +54,7 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private var refreshAccountsJob: Job? = null
     private var submitPasswordJob: Job? = null
+    private var apiStateJob: Job? = null
     private var passwordSubmissionVersion = 0L
     private val refreshAccountsMutex = Mutex()
 
@@ -79,6 +79,8 @@ class BackupAppSetupViewModel(private val application: Application) :
                 finishWithResponse(SetupResponse.AccountUnavailable)
             } else {
                 _uiState.update { it.copy(isLoading = true) }
+                val apiController = getApiControllerOrFinish() ?: return
+                observeApiState(apiController)
                 val existingE2eeState = restoreExistingE2eeState()
                 if (!_ssoReauthenticationRequested.value) {
                     when (existingE2eeState) {
@@ -212,7 +214,7 @@ class BackupAppSetupViewModel(private val application: Application) :
     }
 
     fun clearSsoReauthenticationRequest() {
-        apiController.clearSsoReauthenticationRequired()
+        getApiControllerOrFinish()?.clearSsoReauthenticationRequired()
         _ssoReauthenticationRequested.value = false
     }
 
@@ -230,6 +232,10 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private suspend fun verifySubmittedPassword(passphrase: String): PasswordCheckResult {
         var response: SetupResponse? = null
+        val apiController = getApiControllerOrFinish() ?: return PasswordCheckResult(
+            isCorrect = false,
+            response = SetupResponse.AccountUnavailable,
+        )
         val hadSession = apiController.sessionOpen.value
         var openedTemporarySession = false
 
@@ -272,6 +278,7 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private suspend fun restoreExistingE2eeState(): SetupResponse? {
         val masterPassword = MasterPasswordMemoryStore.get() ?: return null
+        val apiController = getApiControllerOrFinish() ?: return SetupResponse.AccountUnavailable
         return try {
             if (apiController.sessionOpen.value) {
                 restoreExistingSessionE2eeState(masterPassword)
@@ -294,6 +301,7 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private suspend fun shouldRunE2eeMigration(): Boolean {
         var openedTemporarySession = false
+        val apiController = getApiControllerOrFinish() ?: return false
         return try {
             val sessionOpened = apiController.openSession(null).also { sessionOpened ->
                 openedTemporarySession = sessionOpened
@@ -325,6 +333,7 @@ class BackupAppSetupViewModel(private val application: Application) :
     }
 
     private fun restoreExistingSessionE2eeState(masterPassword: String): SetupResponse? {
+        val apiController = getApiControllerOrFinish() ?: return SetupResponse.AccountUnavailable
         val keychainRestored = apiController.restoreStoredKeychain(masterPassword)
         return if (keychainRestored) {
             getAvailableE2eeResponse()
@@ -335,6 +344,7 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private suspend fun restoreTemporarySessionE2eeState(masterPassword: String): SetupResponse? {
         var openedTemporarySession = false
+        val apiController = getApiControllerOrFinish() ?: return SetupResponse.AccountUnavailable
         return try {
             val sessionOpened = apiController.openSession(masterPassword).also { sessionOpened ->
                 openedTemporarySession = sessionOpened
@@ -357,6 +367,7 @@ class BackupAppSetupViewModel(private val application: Application) :
     }
 
     private fun getAvailableE2eeResponse(): SetupResponse? {
+        val apiController = getApiControllerOrFinish() ?: return SetupResponse.AccountUnavailable
         return if (apiController.isEndToEndEncryptionKeyAvailable()) {
             SetupResponse.Success
         } else {
@@ -367,6 +378,26 @@ class BackupAppSetupViewModel(private val application: Application) :
     private fun clearMasterPasswordState() {
         MasterPasswordMemoryStore.clear()
         SecureMasterPasswordStore(application).clear()
+    }
+
+    private fun observeApiState(apiController: ApiController) {
+        if (apiStateJob?.isActive == true) return
+
+        apiStateJob = viewModelScope.launch {
+            apiController.endToEndEncryptionEnabled.collect { enabled ->
+                endToEndEncryptionEnabled.value = enabled
+            }
+        }
+    }
+
+    private fun getApiControllerOrFinish(): ApiController? {
+        return try {
+            ApiController.getInstance(application)
+        } catch (exception: UserException) {
+            Log.d(TAG, "api controller is unavailable during e2ee setup", exception)
+            finishWithResponse(SetupResponse.AccountUnavailable)
+            null
+        }
     }
 
     data class BackupAppSetupUiState(
