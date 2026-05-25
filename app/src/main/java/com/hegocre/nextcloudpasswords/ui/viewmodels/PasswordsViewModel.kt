@@ -131,7 +131,7 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     val showE2eeMigrationDialog: StateFlow<Boolean>
         get() = e2eeMigrationCoordinator.showMigrationDialog
 
-    override fun prepareE2eeMigrationUri() = e2eeMigrationCoordinator.prepareMigrationUri()
+    override fun preparePasswordsWebUri() = e2eeMigrationCoordinator.preparePasswordsWebUri()
 
     override fun onE2eeMigrationLaunched() {
         e2eeMigrationCoordinator.onMigrationLaunched()

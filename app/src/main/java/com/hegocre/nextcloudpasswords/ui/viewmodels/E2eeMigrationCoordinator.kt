@@ -45,11 +45,7 @@ class E2eeMigrationCoordinator(
         supported && eligible && enabled == false && !awaiting
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    fun prepareMigrationUri(): Uri? {
-        if (!migrationSupported.value || !migrationEligible.value || awaitingMigration.value) {
-            return null
-        }
-
+    fun preparePasswordsWebUri(): Uri? {
         val baseUrl = serverUrlProvider()
         val expectedHost = baseUrl?.let { runCatching { Uri.parse(it).host }.getOrNull() }
         val candidate = baseUrl?.trimEnd('/')?.plus(PASSWORDS_WEB_PATH)
@@ -57,23 +53,23 @@ class E2eeMigrationCoordinator(
 
         return when {
             baseUrl == null || expectedHost == null -> {
-                Timber.e("No server URL available; cannot start E2EE migration")
+                Timber.e("No server URL available; cannot open Murena Passwords web app")
                 null
             }
 
             uri == null -> {
-                Timber.e("Could not parse migration URL: %s", candidate)
+                Timber.e("Could not parse Murena Passwords web URL: %s", candidate)
                 null
             }
 
             !URLUtil.isHttpsUrl(uri.toString()) -> {
-                Timber.e("Refusing to launch E2EE migration over insecure URL: %s", uri)
+                Timber.e("Refusing to launch Murena Passwords web app over insecure URL: %s", uri)
                 null
             }
 
             !uri.host.equals(expectedHost, ignoreCase = true) -> {
                 Timber.e(
-                    "Refusing to launch E2EE migration: host mismatch (expected=%s actual=%s)",
+                    "Refusing to launch Murena Passwords web app: host mismatch (expected=%s actual=%s)",
                     expectedHost,
                     uri.host
                 )

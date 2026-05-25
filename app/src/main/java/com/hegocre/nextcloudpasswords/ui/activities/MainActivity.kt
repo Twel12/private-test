@@ -182,7 +182,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun unlockAccountInWeb() {
-        val passwordsWebUri = passwordsViewModel.prepareE2eeMigrationUri()
+        val passwordsWebUri = passwordsViewModel.preparePasswordsWebUri()
 
         if (passwordsWebUri != null) {
             runCatching {

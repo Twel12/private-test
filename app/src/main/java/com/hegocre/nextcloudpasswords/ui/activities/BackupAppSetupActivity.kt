@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.components.E2eeMigrationDialog
+import com.hegocre.nextcloudpasswords.ui.components.LockedAccountDialog
 import com.hegocre.nextcloudpasswords.ui.components.OutlinedTextFieldWithCaption
 import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
 import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel
@@ -65,6 +67,7 @@ import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
 import foundation.e.elib.compose.components.ELargeTopAppBar
 import foundation.e.elib.compose.theme.ETheme
+import timber.log.Timber
 
 @ExperimentalMaterial3Api
 class BackupAppSetupActivity : ComponentActivity() {
@@ -79,6 +82,7 @@ class BackupAppSetupActivity : ComponentActivity() {
     }
 
     private var setupContentShown = false
+    private var waitingForUnlockInWeb = false
 
     private val syncDisabled: MurenaSyncDisabledFlow by lazy {
         MurenaSyncDisabledFlow(
@@ -138,42 +142,13 @@ class BackupAppSetupActivity : ComponentActivity() {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsStateWithLifecycle()
             val showE2eeMigrationDialog by viewModel.showE2eeMigrationDialog.collectAsStateWithLifecycle()
+            val showLockedAccountDialog by viewModel.clientDeauthorized.collectAsStateWithLifecycle()
             val ssoReauthenticationRequested by
                 viewModel.ssoReauthenticationRequested.collectAsStateWithLifecycle()
 
-            LaunchedEffect(response) {
-                response?.let(::response)
-            }
-
-            LaunchedEffect(ssoReauthenticationRequested) {
-                if (ssoReauthenticationRequested) {
-                    viewModel.clearSsoReauthenticationRequest()
-                    baseAutoLogin.start(forceSsoReauthentication = true)
-                }
-            }
-
-            if (uiState.isLoading || uiState.accountName == null) {
-                ETheme {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.width(64.dp)
-                        )
-                    }
-                }
-            } else {
-                MasterKeyScreen(
-                    isRestore = isRestore,
-                    isCheckingPassword = uiState.isCheckingPassword,
-                    isWrongPassword = uiState.isWrongPassword,
-                    password = uiState.password,
-                    canSubmit = uiState.canSubmitPassword,
-                    onPasswordChange = viewModel::onPasswordChanged,
-                    onSubmit = viewModel::submitPassword,
-                    onBack = ::finishCanceled
-                )
-            }
+            HandleSetupResponse(response)
+            HandleSsoReauthentication(ssoReauthenticationRequested)
+            BackupAppSetupContent(isRestore = isRestore, uiState = uiState)
 
             if (showE2eeMigrationDialog) {
                 ETheme {
@@ -183,13 +158,74 @@ class BackupAppSetupActivity : ComponentActivity() {
                     )
                 }
             }
+
+            if (showLockedAccountDialog) {
+                ETheme {
+                    LockedAccountDialog(
+                        onUnlockAccount = ::unlockAccountInWeb,
+                        onCancel = ::finishCanceled,
+                    )
+                }
+            }
         }
+    }
+
+    @Composable
+    private fun HandleSetupResponse(response: SetupResponse?) {
+        LaunchedEffect(response) {
+            response?.let(::response)
+        }
+    }
+
+    @Composable
+    private fun HandleSsoReauthentication(ssoReauthenticationRequested: Boolean) {
+        LaunchedEffect(ssoReauthenticationRequested) {
+            if (ssoReauthenticationRequested) {
+                viewModel.clearSsoReauthenticationRequest()
+                baseAutoLogin.start(forceSsoReauthentication = true)
+            }
+        }
+    }
+
+    @Composable
+    private fun BackupAppSetupContent(
+        isRestore: Boolean,
+        uiState: BackupAppSetupViewModel.BackupAppSetupUiState,
+    ) {
+        if (uiState.isLoading || uiState.accountName == null) {
+            ETheme {
+                Box(
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(64.dp)
+                    )
+                }
+            }
+            return
+        }
+
+        MasterKeyScreen(
+            isRestore = isRestore,
+            isCheckingPassword = uiState.isCheckingPassword,
+            isWrongPassword = uiState.isWrongPassword,
+            password = uiState.password,
+            canSubmit = uiState.canSubmitPassword,
+            onPasswordChange = viewModel::onPasswordChanged,
+            onSubmit = viewModel::submitPassword,
+            onBack = ::finishCanceled
+        )
     }
 
     override fun onResume() {
         super.onResume()
         if (syncDisabled.onResume()) return
         if (!setupContentShown) return
+        if (waitingForUnlockInWeb) {
+            waitingForUnlockInWeb = false
+            viewModel.refreshAccounts()
+            return
+        }
 
         viewModel.onAppResumedAfterMigration()
     }
@@ -202,6 +238,22 @@ class BackupAppSetupActivity : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         baseAutoLogin.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun unlockAccountInWeb() {
+        val passwordsWebUri = viewModel.preparePasswordsWebUri()
+
+        if (passwordsWebUri != null) {
+            runCatching {
+                CustomTabsIntent.Builder()
+                    .build()
+                    .launchUrl(this, passwordsWebUri)
+                waitingForUnlockInWeb = true
+                viewModel.clearClientDeauthorized()
+            }.onFailure { exception ->
+                Timber.e(exception, "Failed to launch Murena Passwords web app for unlock flow")
+            }
+        }
     }
 
     @Preview
