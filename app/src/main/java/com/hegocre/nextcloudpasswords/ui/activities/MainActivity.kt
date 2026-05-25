@@ -134,6 +134,7 @@ class MainActivity : FragmentActivity() {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
                     onLogOut = { logOut() },
+                    onCancelMasterPasswordDialog = ::finish,
                     showLockedAccountDialog = showLockedAccountDialog,
                     onUnlockLockedAccount = { unlockAccountInWeb() },
                     onCancelLockedAccount = ::finish,

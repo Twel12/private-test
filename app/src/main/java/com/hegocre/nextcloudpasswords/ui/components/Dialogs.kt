@@ -3,6 +3,7 @@ package com.hegocre.nextcloudpasswords.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -66,6 +67,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.data.folder.Folder
@@ -92,6 +94,7 @@ fun MasterPasswordDialog(
     savePasswordEnabled: Boolean = true,
     savePasswordErrorText: String = "",
     isLoading: Boolean = false,
+    onCancelClick: (() -> Unit)? = null,
     onOkClick: () -> Unit,
     errorText: String = "",
     onDismissRequest: (() -> Unit)? = null
@@ -101,6 +104,7 @@ fun MasterPasswordDialog(
     var showPassword by rememberSaveable { mutableStateOf(false) }
     Dialog(
         onDismissRequest = { onDismissRequest?.invoke() },
+        properties = DialogProperties(dismissOnClickOutside = false)
     ) {
         Surface(
             color = colorResource(eR.color.e_floating_background),
@@ -176,18 +180,31 @@ fun MasterPasswordDialog(
                     }
                 }
 
-                TextButton(
-                    onClick = onOkClick,
-                    enabled = !isLoading,
-                    modifier = Modifier.align(Alignment.End)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text(text = stringResource(android.R.string.ok))
+                    if (onCancelClick != null) {
+                        TextButton(
+                            onClick = onCancelClick,
+                            enabled = !isLoading,
+                        ) {
+                            Text(text = stringResource(id = android.R.string.cancel))
+                        }
+                    }
+
+                    TextButton(
+                        onClick = onOkClick,
+                        enabled = !isLoading,
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(text = stringResource(android.R.string.ok))
+                        }
                     }
                 }
             }

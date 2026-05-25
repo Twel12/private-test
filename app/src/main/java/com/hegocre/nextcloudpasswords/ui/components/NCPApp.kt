@@ -81,6 +81,7 @@ import kotlinx.coroutines.launch
 fun NextcloudPasswordsApp(
     passwordsViewModel: PasswordsViewModel,
     onLogOut: () -> Unit,
+    onCancelMasterPasswordDialog: (() -> Unit)? = null,
     showLockedAccountDialog: Boolean = false,
     onUnlockLockedAccount: () -> Unit = {},
     onCancelLockedAccount: () -> Unit = {},
@@ -500,6 +501,10 @@ fun NextcloudPasswordsApp(
             }
 
             if (needsMasterPassword && showManualMasterPasswordDialog) {
+                if (onCancelMasterPasswordDialog != null) {
+                    BackHandler(onBack = onCancelMasterPasswordDialog)
+                }
+
                 val (masterPassword, setMasterPassword) = rememberSaveable {
                     mutableStateOf("")
                 }
@@ -521,6 +526,7 @@ fun NextcloudPasswordsApp(
                         R.string.error_secure_master_password_unavailable
                     ),
                     isLoading = isRefreshing,
+                    onCancelClick = onCancelMasterPasswordDialog,
                     onOkClick = {
                         passwordsViewModel.setMasterPassword(
                             masterPassword,
@@ -533,7 +539,7 @@ fun NextcloudPasswordsApp(
                         showSessionOpenError -> stringResource(R.string.error_cannot_connect_to_server)
                         else -> ""
                     },
-                    onDismissRequest = { }
+                    onDismissRequest = onCancelMasterPasswordDialog
                 )
             }
 
