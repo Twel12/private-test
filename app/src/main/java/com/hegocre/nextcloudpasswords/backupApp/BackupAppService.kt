@@ -76,32 +76,47 @@ class BackupAppService : Service() {
         return E2eeKeyWrapper.E2eeUnavailable()
     }
 
-    private suspend fun openSessionOrGetError(): E2eeKeyWrapper? {
+    private data class BackupSessionState(
+        val error: E2eeKeyWrapper? = null,
+        val sessionLease: ApiController.SessionLease? = null,
+    )
+
+    private suspend fun openSessionOrGetError(): BackupSessionState {
         return openSessionMutex.withLock {
             val apiController = ApiController.getInstance(this)
 
             if (!apiController.sessionOpen.value) {
                 val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
-                    ?: return@withLock errorE2eeUnavailable()
+                    ?: return@withLock BackupSessionState(error = errorE2eeUnavailable())
                 return@withLock try {
-                    val sessionOpened = apiController.openSession(masterPassword)
-                    if (!sessionOpened) {
-                        Log.d(TAG, "unable to open a session for backup api")
-                        E2eeKeyWrapper.ApiError(shouldRetry = true)
-                    } else null
+                    when (val temporarySession = apiController.openTemporarySession(
+                        masterPassword = masterPassword,
+                        clearStoredKeychainOnClose = false,
+                    )) {
+                        is ApiController.TemporarySessionResult.Opened ->
+                            BackupSessionState(sessionLease = temporarySession.lease)
+
+                        ApiController.TemporarySessionResult.AlreadyOpen ->
+                            BackupSessionState()
+
+                        ApiController.TemporarySessionResult.Failed -> {
+                            Log.d(TAG, "unable to open a session for backup api")
+                            BackupSessionState(error = E2eeKeyWrapper.ApiError(shouldRetry = true))
+                        }
+                    }
                 } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-                    errorE2eeUnavailable()
+                    BackupSessionState(error = errorE2eeUnavailable())
                 } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
                     clearMasterPasswordState()
-                    errorE2eeUnavailable()
+                    BackupSessionState(error = errorE2eeUnavailable())
                 } catch (_: PWDv1ChallengePasswordException) {
                     clearMasterPasswordState()
-                    errorE2eeUnavailable()
+                    BackupSessionState(error = errorE2eeUnavailable())
                 } catch (_: ClientDeauthorizedException) {
-                    errorMurenaAccountUnavailable()
+                    BackupSessionState(error = errorMurenaAccountUnavailable())
                 }
             }
-            null
+            BackupSessionState()
         }
     }
 
@@ -114,29 +129,48 @@ class BackupAppService : Service() {
         SsoAccount.getCurrentSingleSignOnAccount(context) ?: return errorMurenaAccountUnavailable()
         return backupKeyMutex.withLock {
             val apiController = ApiController.getInstance(context)
-            val sessionError = openSessionOrGetError()
-            val keychain = apiController.csEv1Keychain.value
+            val backupSessionState = openSessionOrGetError()
+            val getBackupKeyBlock: suspend () -> E2eeKeyWrapper = {
+                getBackupKeyWithOpenSession(
+                    apiController = apiController,
+                    sessionError = backupSessionState.error,
+                )
+            }
 
-            when {
-                sessionError != null -> sessionError
+            backupSessionState.sessionLease?.use(
+                onCloseFailed = {
+                    Log.w(TAG, "failed to close session opened for backup api")
+                },
+                block = getBackupKeyBlock,
+            ) ?: getBackupKeyBlock()
+        }
+    }
 
-                keychain?.current.isNullOrBlank() -> {
-                    Log.d(TAG, "unable to open a session for backup api")
-                    E2eeKeyWrapper.ApiError(shouldRetry = true)
+    private suspend fun getBackupKeyWithOpenSession(
+        apiController: ApiController,
+        sessionError: E2eeKeyWrapper?,
+    ): E2eeKeyWrapper {
+        val keychain = apiController.csEv1Keychain.value
+
+        return when {
+            sessionError != null -> sessionError
+
+            keychain?.current.isNullOrBlank() -> {
+                Log.d(TAG, "unable to open a session for backup api")
+                E2eeKeyWrapper.ApiError(shouldRetry = true)
+            }
+
+            else -> when (val existingKey = apiController.getBackupKey(chain = keychain)) {
+                is Result.Error -> {
+                    Log.d(TAG, "api response failed! ${existingKey.code}")
+                    E2eeKeyWrapper.ApiError(shouldRetry = existingKey.code != Error.UNKNOWN)
                 }
 
-                else -> when (val existingKey = apiController.getBackupKey(chain = keychain)) {
-                    is Result.Error -> {
-                        Log.d(TAG, "api response failed! ${existingKey.code}")
-                        E2eeKeyWrapper.ApiError(shouldRetry = existingKey.code != Error.UNKNOWN)
-                    }
-
-                    is Result.Success -> if (existingKey.data != null) {
-                        Log.d(TAG, "using previously generated e2ee")
-                        existingKey.data.asE2eeKey()
-                    } else {
-                        createBackupKey(apiController = apiController, keychain = keychain)
-                    }
+                is Result.Success -> if (existingKey.data != null) {
+                    Log.d(TAG, "using previously generated e2ee")
+                    existingKey.data.asE2eeKey()
+                } else {
+                    createBackupKey(apiController = apiController, keychain = keychain)
                 }
             }
         }

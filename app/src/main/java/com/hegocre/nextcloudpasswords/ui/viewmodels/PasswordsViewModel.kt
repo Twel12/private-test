@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.os.Build
-import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -201,8 +200,12 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             application.registerReceiver(screenOffReceiver, screenLockFilter)
         }
 
-        if (!sessionOpen.value) {
-            viewModelScope.launch { openSession(password = MasterPasswordMemoryStore.get()) }
+        viewModelScope.launch {
+            if (sessionOpen.value) {
+                syncPasswordsAndFolders()
+            } else {
+                openSession(password = MasterPasswordMemoryStore.get())
+            }
         }
     }
 
