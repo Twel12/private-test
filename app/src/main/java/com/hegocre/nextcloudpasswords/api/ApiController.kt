@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkManager
 import com.hegocre.nextcloudpasswords.backupApp.BackupAppPassword
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
+import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
@@ -59,6 +60,7 @@ class ApiController private constructor(context: Context) {
     private val settingsApi = SettingsApi.getInstance(server)
 
     private var sessionCode: String? = null
+    private var sessionVersion = 0L
 
     val csEv1Keychain = MutableLiveData<CSEv1Keychain?>(null)
 
@@ -79,6 +81,62 @@ class ApiController private constructor(context: Context) {
         get() = _sessionOpen.asStateFlow()
 
     private val workManager = WorkManager.getInstance(context)
+
+    class SessionLease private constructor(
+        private val apiController: ApiController,
+        private val sessionIdentity: SessionIdentity,
+        private val clearStoredKeychainOnClose: Boolean,
+    ) {
+        suspend fun close(): Boolean {
+            return apiController.closeSessionIfCurrent(
+                sessionIdentity = sessionIdentity,
+                clearStoredKeychain = clearStoredKeychainOnClose,
+            )
+        }
+
+        suspend fun <T> use(
+            onCloseFailed: () -> Unit = {},
+            block: suspend () -> T,
+        ): T {
+            return try {
+                block()
+            } finally {
+                if (!close()) {
+                    onCloseFailed()
+                }
+            }
+        }
+
+        companion object {
+            internal fun create(
+                apiController: ApiController,
+                sessionIdentity: SessionIdentity,
+                clearStoredKeychainOnClose: Boolean,
+            ): SessionLease {
+                return SessionLease(
+                    apiController = apiController,
+                    sessionIdentity = sessionIdentity,
+                    clearStoredKeychainOnClose = clearStoredKeychainOnClose,
+                )
+            }
+        }
+    }
+
+    sealed interface TemporarySessionResult {
+        data class Opened(val lease: SessionLease) : TemporarySessionResult
+        data object AlreadyOpen : TemporarySessionResult
+        data object Failed : TemporarySessionResult
+    }
+
+    internal data class SessionIdentity(
+        val sessionCode: String?,
+        val sessionVersion: Long,
+    )
+
+    private data class OpenSessionResult(
+        val opened: Boolean,
+        val sessionIdentity: SessionIdentity? = null,
+    )
 
     init {
         val currentAccount = SsoAccount.getCurrentSingleSignOnAccount(context)
@@ -132,6 +190,17 @@ class ApiController private constructor(context: Context) {
         _ssoReauthenticationRequired.value = false
     }
 
+    private fun currentSessionIdentity(): SessionIdentity? {
+        return if (sessionOpen.value) {
+            SessionIdentity(
+                sessionCode = sessionCode,
+                sessionVersion = sessionVersion,
+            )
+        } else {
+            null
+        }
+    }
+
     private fun Result<*>.consumeSsoReauthError(): Boolean {
         val isSsoReauthError =
             this is Result.Error && code == Error.SSO_REAUTHENTICATION_REQUIRED
@@ -181,7 +250,34 @@ class ApiController private constructor(context: Context) {
         PWDv1ChallengeMasterKeyNeededException::class,
         PWDv1ChallengeMasterKeyInvalidException::class
     )
-    suspend fun openSession(masterPassword: String?): Boolean = withContext(Dispatchers.Default) {
+    suspend fun openSession(masterPassword: String?): Boolean {
+        return openSessionForResult(masterPassword).opened
+    }
+
+    suspend fun openTemporarySession(
+        masterPassword: String?,
+        clearStoredKeychainOnClose: Boolean = true,
+    ): TemporarySessionResult {
+        if (sessionOpen.value) return TemporarySessionResult.AlreadyOpen
+        val sessionResult = openSessionForResult(masterPassword)
+        return if (sessionResult.opened) {
+            val sessionIdentity = sessionResult.sessionIdentity
+                ?: return TemporarySessionResult.Failed
+            TemporarySessionResult.Opened(
+                lease = SessionLease.create(
+                    apiController = this,
+                    sessionIdentity = sessionIdentity,
+                    clearStoredKeychainOnClose = clearStoredKeychainOnClose,
+                )
+            )
+        } else {
+            TemporarySessionResult.Failed
+        }
+    }
+
+    private suspend fun openSessionForResult(
+        masterPassword: String?
+    ): OpenSessionResult = withContext(Dispatchers.Default) {
         decryptCSEv1Keychain(
             preferencesManager.getCSEv1Keychain(),
             masterPassword
@@ -189,123 +285,189 @@ class ApiController private constructor(context: Context) {
             csEv1Keychain.postValue(it)
         }
 
-        val requestResult = sessionApi.requestSession()
+        val challenge = getSessionChallenge(masterPassword)
+            ?: return@withContext OpenSessionResult(opened = false)
 
-        if (requestResult is Result.Success) {
-            // E2EE state is derived from the session challenge: 3 salts → CSE enabled.
-            _endToEndEncryptionEnabled.value =
-                requestResult.data.salts.size == CSE_SALT_COUNT
-        }
-
-        val secretResult = if (requestResult is Result.Success) {
-            requestResult.data.solve(masterPassword)
-        } else {
-            // Error opening session
-            if (requestResult is Result.Error) {
-                if (requestResult.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
-                    requireSsoReauthentication()
-                    return@withContext false
-                }
-                // Could not open session, try to use cached keychain
-                preferencesManager.getCSEv1Keychain()?.let { cachedKeychain ->
-                    if (masterPassword == null) {
-                        throw PWDv1ChallengeMasterKeyNeededException()
-                    } else {
-                        decryptCSEv1Keychain(cachedKeychain, masterPassword)?.let {
-                            csEv1Keychain.postValue(it)
-                        } ?: throw PWDv1ChallengeMasterKeyInvalidException() // Could not decrypt
-                    }
-                }
-                // If we get here, keychain was decrypted from cache, but session is still not open
-                when (requestResult.code) {
-                    Error.API_TIMEOUT -> Log.e(
-                        "API Controller",
-                        "Timeout requesting session, user ${server.username}"
-                    )
-
-                    Error.API_BAD_RESPONSE -> Log.e(
-                        "API Controller",
-                        "Bad response on session request, user ${server.username}"
-                    )
-                }
-            }
-            return@withContext false
-        }
-
-        val secret = if (secretResult is Result.Success) {
-            secretResult.data
-        } else {
-            return@withContext if (secretResult is Result.Error && secretResult.code == Error.API_NO_CSE) {
-                // No encryption, we need no session
-                clearSessionState()
-                // Clear old keychain, if CSE was disabled
-                preferencesManager.setCSEv1Keychain(null)
-                _sessionOpen.emit(true)
-                true
-            } else {
-                // Error opening session
-                false
-            }
+        val secret = when (val secretResult = challenge.solve(masterPassword)) {
+            is Result.Success -> secretResult.data
+            is Result.Error -> return@withContext handleSecretError(secretResult.code)
         }
 
         val openedSessionRequest = sessionApi.openSession(secret)
+        val openedSession = getOpenedSession(openedSessionRequest)
+            ?: return@withContext OpenSessionResult(opened = false)
 
-        val (newSessionCode, encryptedKeychainJson) = if (openedSessionRequest is Result.Success) {
-            openedSessionRequest.data
-        } else {
-            if (openedSessionRequest is Result.Error) {
-                if (openedSessionRequest.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
-                    requireSsoReauthentication()
-                    return@withContext false
-                }
-                when (openedSessionRequest.code) {
-                    Error.API_TIMEOUT -> Log.e(
-                        "API Controller",
-                        "Timeout opening session, user ${server.username}"
-                    )
+        return@withContext finishOpenSession(openedSession, masterPassword)
+    }
 
-                    Error.API_BAD_RESPONSE -> Log.e(
-                        "API Controller",
-                        "Bad response on session open, user ${server.username}"
-                    )
-                }
+    private suspend fun getSessionChallenge(masterPassword: String?): PWDv1Challenge? {
+        return when (val requestResult = sessionApi.requestSession()) {
+            is Result.Success -> {
+                // E2EE state is derived from the session challenge: 3 salts -> CSE enabled.
+                _endToEndEncryptionEnabled.value =
+                    requestResult.data.salts.size == CSE_SALT_COUNT
+                requestResult.data
             }
-            return@withContext false
+
+            is Result.Error -> handleRequestSessionError(requestResult.code, masterPassword)
+        }
+    }
+
+    private fun handleRequestSessionError(
+        code: Int,
+        masterPassword: String?,
+    ): PWDv1Challenge? {
+        if (code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+            requireSsoReauthentication()
+            return null
         }
 
-        preferencesManager.setCSEv1Keychain(encryptedKeychainJson)
+        restoreCachedKeychain(masterPassword)
+        logRequestSessionError(code)
+        return null
+    }
 
-        encryptedKeychainJson.let {
-            masterPassword?.let { masterPassword ->
-                val keysJson = CSEv1Keychain.decryptJson(encryptedKeychainJson, masterPassword)
-                csEv1Keychain.postValue(CSEv1Keychain.fromJson(keysJson))
+    private fun restoreCachedKeychain(masterPassword: String?) {
+        preferencesManager.getCSEv1Keychain()?.let { cachedKeychain ->
+            if (masterPassword == null) {
+                throw PWDv1ChallengeMasterKeyNeededException()
             }
+
+            decryptCSEv1Keychain(cachedKeychain, masterPassword)?.let {
+                csEv1Keychain.postValue(it)
+            } ?: throw PWDv1ChallengeMasterKeyInvalidException()
+        }
+    }
+
+    private suspend fun handleSecretError(code: Int): OpenSessionResult {
+        return if (code == Error.API_NO_CSE) {
+            openSessionWithoutCse()
+        } else {
+            OpenSessionResult(opened = false)
+        }
+    }
+
+    private suspend fun openSessionWithoutCse(): OpenSessionResult {
+        clearSessionState()
+        preferencesManager.setCSEv1Keychain(null)
+        sessionVersion++
+        val sessionIdentity = SessionIdentity(
+            sessionCode = null,
+            sessionVersion = sessionVersion,
+        )
+        _sessionOpen.emit(true)
+        return OpenSessionResult(
+            opened = true,
+            sessionIdentity = sessionIdentity,
+        )
+    }
+
+    private fun getOpenedSession(
+        openedSessionRequest: Result<Pair<String, String>>
+    ): Pair<String, String>? {
+        return when (openedSessionRequest) {
+            is Result.Success -> openedSessionRequest.data
+            is Result.Error -> handleOpenSessionError(openedSessionRequest.code)
+        }
+    }
+
+    private fun handleOpenSessionError(code: Int): Pair<String, String>? {
+        if (code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+            requireSsoReauthentication()
+            return null
+        }
+
+        logOpenSessionError(code)
+        return null
+    }
+
+    private suspend fun finishOpenSession(
+        openedSession: Pair<String, String>,
+        masterPassword: String?,
+    ): OpenSessionResult {
+        val (newSessionCode, encryptedKeychainJson) = openedSession
+        preferencesManager.setCSEv1Keychain(encryptedKeychainJson)
+        masterPassword?.let {
+            val keysJson = CSEv1Keychain.decryptJson(encryptedKeychainJson, it)
+            csEv1Keychain.postValue(CSEv1Keychain.fromJson(keysJson))
         }
         sessionCode = newSessionCode
+        scheduleKeepAlive(newSessionCode)
+
+        sessionVersion++
+        val sessionIdentity = SessionIdentity(
+            sessionCode = newSessionCode,
+            sessionVersion = sessionVersion,
+        )
+        _sessionOpen.emit(true)
+        return OpenSessionResult(
+            opened = true,
+            sessionIdentity = sessionIdentity,
+        )
+    }
+
+    private fun scheduleKeepAlive(newSessionCode: String) {
         serverSettings.value?.let { settings ->
             val keepAliveDelay = (settings.sessionLifetime * 3 / 4 * 1000).toLong()
             workManager.cancelAllWorkByTag(KeepAliveWorker.TAG)
             workManager.enqueue(KeepAliveWorker.getRequest(keepAliveDelay, newSessionCode))
         }
+    }
 
-        _sessionOpen.emit(true)
-        return@withContext true
+    private fun logRequestSessionError(code: Int) {
+        when (code) {
+            Error.API_TIMEOUT -> Log.e(
+                "API Controller",
+                "Timeout requesting session, user ${server.username}"
+            )
+
+            Error.API_BAD_RESPONSE -> Log.e(
+                "API Controller",
+                "Bad response on session request, user ${server.username}"
+            )
+        }
+    }
+
+    private fun logOpenSessionError(code: Int) {
+        when (code) {
+            Error.API_TIMEOUT -> Log.e(
+                "API Controller",
+                "Timeout opening session, user ${server.username}"
+            )
+
+            Error.API_BAD_RESPONSE -> Log.e(
+                "API Controller",
+                "Bad response on session open, user ${server.username}"
+            )
+        }
     }
 
     /**
-     * Closes the current session and deletes the saved keychain from the app storage.
+     * Closes the current session.
      *
+     * @param clearStoredKeychain Whether to delete the saved keychain from app storage.
      * @return A boolean indicating if the session was successfully closed.
      */
-    suspend fun closeSession(): Boolean {
+    suspend fun closeSession(clearStoredKeychain: Boolean = true): Boolean {
         return if (sessionCode == null || sessionCode?.let { code -> sessionApi.closeSession(code) } == true) {
             clearSession()
-            preferencesManager.setCSEv1Keychain(null)
+            if (clearStoredKeychain) {
+                preferencesManager.setCSEv1Keychain(null)
+            }
             true
         } else {
             // Session was not closed, some error happened
             false
         }
+    }
+
+    private suspend fun closeSessionIfCurrent(
+        sessionIdentity: SessionIdentity,
+        clearStoredKeychain: Boolean = true
+    ): Boolean {
+        val currentSessionIdentity = currentSessionIdentity() ?: return true
+        if (currentSessionIdentity != sessionIdentity) return true
+        return closeSession(clearStoredKeychain)
     }
 
     fun clearSession() {
@@ -314,6 +476,7 @@ class ApiController private constructor(context: Context) {
 
     private fun clearSessionState() {
         sessionCode = null
+        sessionVersion++
         workManager.cancelAllWorkByTag(KeepAliveWorker.TAG)
         _sessionOpen.value = false
     }
