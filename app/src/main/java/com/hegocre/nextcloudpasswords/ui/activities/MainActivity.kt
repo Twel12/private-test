@@ -134,6 +134,7 @@ class MainActivity : FragmentActivity() {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
                     onLogOut = { logOut() },
+                    onCancelMasterPasswordDialog = ::finish,
                     showLockedAccountDialog = showLockedAccountDialog,
                     onUnlockLockedAccount = { unlockAccountInWeb() },
                     onCancelLockedAccount = ::finish,
@@ -182,7 +183,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun unlockAccountInWeb() {
-        val passwordsWebUri = passwordsViewModel.prepareE2eeMigrationUri()
+        val passwordsWebUri = passwordsViewModel.preparePasswordsWebUri()
 
         if (passwordsWebUri != null) {
             runCatching {

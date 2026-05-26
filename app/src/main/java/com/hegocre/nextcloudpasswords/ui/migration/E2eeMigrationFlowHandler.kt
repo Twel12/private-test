@@ -22,7 +22,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import timber.log.Timber
 
 interface E2eeMigrationFlowHandler {
-    fun prepareE2eeMigrationUri(): Uri?
+    fun preparePasswordsWebUri(): Uri?
 
     fun onE2eeMigrationLaunched()
 
@@ -32,12 +32,12 @@ interface E2eeMigrationFlowHandler {
 }
 
 fun ComponentActivity.launchE2eeMigration(handler: E2eeMigrationFlowHandler) {
-    val migrationUri = handler.prepareE2eeMigrationUri() ?: return
+    val passwordsWebUri = handler.preparePasswordsWebUri() ?: return
     handler.onE2eeMigrationLaunched()
     runCatching {
         CustomTabsIntent.Builder()
             .build()
-            .launchUrl(this, migrationUri)
+            .launchUrl(this, passwordsWebUri)
     }.onFailure { exception ->
         Timber.e(exception, "Failed to launch Murena Passwords web app")
         handler.onE2eeMigrationLaunchFailed()

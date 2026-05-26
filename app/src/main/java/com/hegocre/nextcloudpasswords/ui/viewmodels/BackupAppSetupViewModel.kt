@@ -1,6 +1,7 @@
 package com.hegocre.nextcloudpasswords.ui.viewmodels
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -39,6 +40,9 @@ class BackupAppSetupViewModel(private val application: Application) :
 
     private val _ssoReauthenticationRequested = MutableStateFlow(false)
     val ssoReauthenticationRequested = _ssoReauthenticationRequested.asStateFlow()
+
+    private val _clientDeauthorized = MutableStateFlow(false)
+    val clientDeauthorized = _clientDeauthorized.asStateFlow()
 
     private val migrationEligible = MutableStateFlow(false)
     private val endToEndEncryptionEnabled = MutableStateFlow<Boolean?>(null)
@@ -191,11 +195,11 @@ class BackupAppSetupViewModel(private val application: Application) :
         }
     }
 
-    fun finishWithResponse(response: SetupResponse) {
+    private fun finishWithResponse(response: SetupResponse) {
         _response.value = response
     }
 
-    override fun prepareE2eeMigrationUri() = e2eeMigrationCoordinator.prepareMigrationUri()
+    override fun preparePasswordsWebUri() = e2eeMigrationCoordinator.preparePasswordsWebUri()
 
     override fun onE2eeMigrationLaunched() {
         e2eeMigrationCoordinator.onMigrationLaunched()
@@ -218,6 +222,10 @@ class BackupAppSetupViewModel(private val application: Application) :
         _ssoReauthenticationRequested.value = false
     }
 
+    fun clearClientDeauthorized() {
+        _clientDeauthorized.value = false
+    }
+
     private fun requestSsoReauthentication() {
         Log.d(TAG, "stale SSO token, requesting reauthentication")
         _uiState.update {
@@ -228,6 +236,18 @@ class BackupAppSetupViewModel(private val application: Application) :
             )
         }
         _ssoReauthenticationRequested.value = true
+    }
+
+    private fun requestClientUnlock() {
+        Log.d(TAG, "client deauthorized, requesting unlock in web")
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                isCheckingPassword = false,
+                isWrongPassword = false,
+            )
+        }
+        _clientDeauthorized.value = true
     }
 
     private suspend fun verifySubmittedPassword(passphrase: String): PasswordCheckResult {
@@ -261,8 +281,7 @@ class BackupAppSetupViewModel(private val application: Application) :
         } catch (_: PWDv1ChallengePasswordException) {
             false
         } catch (_: ClientDeauthorizedException) {
-            Log.d(TAG, "please re-login again")
-            response = SetupResponse.AccountUnavailable
+            requestClientUnlock()
             false
         } finally {
             if (openedTemporarySession) {
@@ -295,7 +314,8 @@ class BackupAppSetupViewModel(private val application: Application) :
             clearMasterPasswordState()
             null
         } catch (_: ClientDeauthorizedException) {
-            SetupResponse.AccountUnavailable
+            requestClientUnlock()
+            null
         }
     }
 
@@ -324,6 +344,9 @@ class BackupAppSetupViewModel(private val application: Application) :
             false
         } catch (_: PWDv1ChallengePasswordException) {
             Log.d(TAG, "migration probe hit password challenge")
+            false
+        } catch (_: ClientDeauthorizedException) {
+            requestClientUnlock()
             false
         } finally {
             if (openedTemporarySession) {
