@@ -85,6 +85,8 @@ abstract class MurenaAutoFillService : AutofillService() {
     protected open fun unlockDatasetLabel(): String =
         getString(R.string.autofill_unlock_vault)
 
+    protected open fun isInlineAutofillEnabled(): Boolean = true
+
     protected open fun shouldIgnoreFillRequest(
         packageName: String,
         webDomain: String?
@@ -345,6 +347,12 @@ abstract class MurenaAutoFillService : AutofillService() {
         loginFields: LoginFields,
         queryResult: PasswordQueryResult
     ): FillResponse? {
+        val inlinePresentationSpec = resolveInlineValue(
+            preferenceEnabled = isInlineAutofillEnabled(),
+            requestInlineValue = request.inlineSuggestionsRequest
+                ?.inlinePresentationSpecs
+                ?.firstOrNull()
+        )
         val canFillCredential = loginFields.usernameIds.isNotEmpty() ||
             loginFields.passwordIds.isNotEmpty()
         val selectionIntent = if (canFillCredential && !queryResult.vaultLocked) {
@@ -396,25 +404,26 @@ abstract class MurenaAutoFillService : AutofillService() {
 
         if (hasUnlockAuthentication) {
             Timber.d("Adding unlock vault response authentication")
-            responseBuilder.applyUnlockVaultAuthentication(loginFields)
+            responseBuilder.applyUnlockVaultAuthentication(loginFields, inlinePresentationSpec)
         }
 
         selectionIntent?.let { intent ->
             Timber.d("Adding open-app selection dataset")
             responseBuilder.addDataset(
-                buildAutofillSelectionDataset(loginFields, intent)
+                buildAutofillSelectionDataset(loginFields, intent, inlinePresentationSpec)
             )
         }
 
         if (loginFields.passwordIds.isNotEmpty()) {
-            val inlinePresentationSpec =
-                request.inlineSuggestionsRequest?.inlinePresentationSpecs?.firstOrNull()
-
             queryResult.credentials.forEach { credential ->
                 if (credential.password.isNullOrBlank() || credential.locked) {
                     Timber.d("Adding locked/auth dataset id=${credential.id}, username=${credential.username}")
                     responseBuilder.addDataset(
-                        buildAuthenticatedCredentialDataset(loginFields, credential)
+                        buildAuthenticatedCredentialDataset(
+                            loginFields,
+                            credential,
+                            inlinePresentationSpec
+                        )
                     )
                 } else {
                     Timber.d("Adding password dataset id=${credential.id}, username=${credential.username}")
@@ -493,9 +502,13 @@ abstract class MurenaAutoFillService : AutofillService() {
 
     private fun buildAuthenticatedCredentialDataset(
         loginFields: LoginFields,
-        credential: PasswordEntry
+        credential: PasswordEntry,
+        inlinePresentationSpec: InlinePresentationSpec?
     ): Dataset {
-        val authIntent = Intent(this, autofillDatasetAuthActivityClass()).apply {
+        val authPendingIntent = PendingIntent.getActivity(
+            this,
+            AUTH_DATASET_REQUEST_CODE,
+            Intent(this, autofillDatasetAuthActivityClass()).apply {
             setIdentifier(credential.id)
             putExtra(AutofillDatasetAuthActivity.EXTRA_CREDENTIAL_ID, credential.id)
             putExtra(AutofillDatasetAuthActivity.EXTRA_PACKAGE_NAME, loginFields.packageName)
@@ -508,16 +521,17 @@ abstract class MurenaAutoFillService : AutofillService() {
                 AutofillDatasetAuthActivity.EXTRA_PASSWORD_IDS,
                 ArrayList(loginFields.passwordIds)
             )
-        }
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         return datasetBuilder(credential.label, packageName)
-            .setAuthentication(
-                PendingIntent.getActivity(
-                    this,
-                    AUTH_DATASET_REQUEST_CODE,
-                    authIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                ).intentSender
+            .setAuthentication(authPendingIntent.intentSender)
+            .applyInlinePresentation(
+                context = this,
+                label = credential.label,
+                pendingIntent = authPendingIntent,
+                inlinePresentationSpec = inlinePresentationSpec
             )
             .apply {
                 loginFields.usernameIds.forEach { autofillId ->
@@ -535,17 +549,23 @@ abstract class MurenaAutoFillService : AutofillService() {
 
     private fun buildAutofillSelectionDataset(
         loginFields: LoginFields,
-        selectionIntent: Intent
+        selectionIntent: Intent,
+        inlinePresentationSpec: InlinePresentationSpec?
     ): Dataset {
         val label = getString(R.string.autofill_open_app_selection)
+        val selectionPendingIntent = PendingIntent.getActivity(
+            this,
+            APP_SELECTION_REQUEST_CODE,
+            selectionIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or mutablePendingIntentFlag()
+        )
         return datasetBuilder(label, packageName)
-            .setAuthentication(
-                PendingIntent.getActivity(
-                    this,
-                    APP_SELECTION_REQUEST_CODE,
-                    selectionIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or mutablePendingIntentFlag()
-                ).intentSender
+            .setAuthentication(selectionPendingIntent.intentSender)
+            .applyInlinePresentation(
+                context = this,
+                label = label,
+                pendingIntent = selectionPendingIntent,
+                inlinePresentationSpec = inlinePresentationSpec
             )
             .apply {
                 loginFields.usernameIds.forEach { autofillId ->
@@ -563,10 +583,13 @@ abstract class MurenaAutoFillService : AutofillService() {
 
     @Suppress("DEPRECATION")
     private fun FillResponse.Builder.applyUnlockVaultAuthentication(
-        loginFields: LoginFields
+        loginFields: LoginFields,
+        inlinePresentationSpec: InlinePresentationSpec?
     ): FillResponse.Builder {
         val label = unlockDatasetLabel()
-        val unlockIntent =
+        val unlockPendingIntent = PendingIntent.getActivity(
+            this@MurenaAutoFillService,
+            UNLOCK_VAULT_REQUEST_CODE,
             Intent(this@MurenaAutoFillService, autofillDatasetAuthActivityClass()).apply {
                 putExtra(AutofillDatasetAuthActivity.EXTRA_UNLOCK_ONLY, true)
                 putExtra(AutofillDatasetAuthActivity.EXTRA_PACKAGE_NAME, loginFields.packageName)
@@ -579,18 +602,29 @@ abstract class MurenaAutoFillService : AutofillService() {
                     AutofillDatasetAuthActivity.EXTRA_PASSWORD_IDS,
                     ArrayList(loginFields.passwordIds)
                 )
-            }
-        val fieldIds = (loginFields.usernameIds + loginFields.passwordIds).distinct().toTypedArray()
-        setAuthentication(
-            fieldIds,
-            PendingIntent.getActivity(
-                this@MurenaAutoFillService,
-                UNLOCK_VAULT_REQUEST_CODE,
-                unlockIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            ).intentSender,
-            simplePresentation(label, packageName)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val fieldIds = (loginFields.usernameIds + loginFields.passwordIds).distinct().toTypedArray()
+        if (inlinePresentationSpec != null) {
+            setAuthentication(
+                fieldIds,
+                unlockPendingIntent.intentSender,
+                simplePresentation(label, packageName),
+                buildInlinePresentation(
+                    context = this@MurenaAutoFillService,
+                    label = label,
+                    inlinePresentationSpec = inlinePresentationSpec,
+                    pendingIntent = unlockPendingIntent
+                )
+            )
+        } else {
+            setAuthentication(
+                fieldIds,
+                unlockPendingIntent.intentSender,
+                simplePresentation(label, packageName)
+            )
+        }
         return this
     }
 
@@ -849,6 +883,22 @@ abstract class MurenaAutoFillService : AutofillService() {
         const val DISABLE_AUTOFILL_DURATION_MILLIS = 60 * 60 * 1000L
         val NON_EMPTY_TEXT_PATTERN: Pattern = Pattern.compile(".+")
         val TRIM_TEXT_PATTERN: Pattern = Pattern.compile("^\\s*(.*?)\\s*$")
+
+        internal fun shouldUseInlineAutofill(
+            preferenceEnabled: Boolean,
+            requestSupportsInline: Boolean
+        ): Boolean = preferenceEnabled && requestSupportsInline
+
+        internal fun <T> resolveInlineValue(
+            preferenceEnabled: Boolean,
+            requestInlineValue: T?
+        ): T? = requestInlineValue.takeIf {
+            shouldUseInlineAutofill(
+                preferenceEnabled = preferenceEnabled,
+                requestSupportsInline = requestInlineValue != null
+            )
+        }
+
         fun buildCredentialDataset(
             context: android.content.Context,
             authActivityClass: Class<out Activity>,
@@ -902,10 +952,15 @@ abstract class MurenaAutoFillService : AutofillService() {
                 if (inlinePresentationSpec != null) {
                     presentationsBuilder.setInlinePresentation(
                         buildInlinePresentation(
-                            context,
-                            authActivityClass,
-                            label,
-                            inlinePresentationSpec
+                            context = context,
+                            label = label,
+                            inlinePresentationSpec = inlinePresentationSpec,
+                            pendingIntent = PendingIntent.getActivity(
+                                context,
+                                INLINE_PRESENTATION_REQUEST_CODE,
+                                Intent(context, authActivityClass),
+                                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                            )
                         )
                     )
                 }
@@ -928,10 +983,15 @@ abstract class MurenaAutoFillService : AutofillService() {
                     AutofillValue.forText(value),
                     valuePresentation,
                     buildInlinePresentation(
-                        context,
-                        authActivityClass,
-                        label,
-                        inlinePresentationSpec
+                        context = context,
+                        label = label,
+                        inlinePresentationSpec = inlinePresentationSpec,
+                        pendingIntent = PendingIntent.getActivity(
+                            context,
+                            INLINE_PRESENTATION_REQUEST_CODE,
+                            Intent(context, authActivityClass),
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        )
                     )
                 )
             } else {
@@ -958,20 +1018,33 @@ abstract class MurenaAutoFillService : AutofillService() {
             }
         }
 
+        @Suppress("DEPRECATION")
+        private fun Dataset.Builder.applyInlinePresentation(
+            context: android.content.Context,
+            label: String,
+            pendingIntent: PendingIntent,
+            inlinePresentationSpec: InlinePresentationSpec?
+        ): Dataset.Builder {
+            if (inlinePresentationSpec != null) {
+                setInlinePresentation(
+                    buildInlinePresentation(
+                        context = context,
+                        label = label,
+                        inlinePresentationSpec = inlinePresentationSpec,
+                        pendingIntent = pendingIntent
+                    )
+                )
+            }
+            return this
+        }
+
         @SuppressLint("RestrictedApi")
         private fun buildInlinePresentation(
             context: android.content.Context,
-            authActivityClass: Class<out Activity>,
             label: String,
-            inlinePresentationSpec: InlinePresentationSpec
+            inlinePresentationSpec: InlinePresentationSpec,
+            pendingIntent: PendingIntent
         ): InlinePresentation {
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                INLINE_PRESENTATION_REQUEST_CODE,
-                Intent(context, authActivityClass),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
             return InlinePresentation(
                 InlineSuggestionUi.newContentBuilder(pendingIntent)
                     .setTitle(label)
