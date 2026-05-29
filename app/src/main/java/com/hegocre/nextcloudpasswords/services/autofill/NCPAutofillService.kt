@@ -3,11 +3,11 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Intent
 import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.ui.activities.AutoLoginActivity
+import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import foundation.e.autofill.MurenaAutoFillService
 import foundation.e.autofill.MurenaPasswordBackend
 import foundation.e.autofill.AutofillDatasetAuthActivity
 import foundation.e.autofill.PasswordSaveRequest
-import foundation.e.autofill.R
 
 class NCPAutofillService : MurenaAutoFillService() {
 
@@ -37,24 +37,8 @@ class NCPAutofillService : MurenaAutoFillService() {
         return NCPAutofillSaveInteractionActivity.intent(this, request)
     }
 
-    override fun openAppToFinishSavingMessage(): String {
-        return getString(R.string.autofill_open_app_to_finish_saving)
-    }
-
-    override fun saveCustomDescriptionText(): String {
-        return getString(R.string.autofill_save_description)
-    }
-
-    override fun delayedUsernameSaveDescriptionText(): String {
-        return getString(R.string.autofill_delayed_username_save_description)
-    }
-
-    override fun chooseLoginHeaderText(): String {
-        return getString(R.string.autofill_choose_login_header)
-    }
-
-    override fun unlockDatasetLabel(): String {
-        return getString(R.string.autofill_unlock_vault)
+    override fun isInlineAutofillEnabled(): Boolean {
+        return PreferencesManager.getInstance(this).getUseInlineAutofill()
     }
 
     companion object {
