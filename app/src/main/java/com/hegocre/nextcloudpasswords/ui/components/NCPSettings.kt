@@ -5,11 +5,8 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import android.view.autofill.AutofillManager
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -32,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,13 +36,11 @@ import androidx.compose.ui.res.stringResource
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
-import com.hegocre.nextcloudpasswords.utils.showBiometricPrompt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 import foundation.e.elib.compose.components.ETopAppBar
 import foundation.e.elib.compose.theme.ETheme
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,163 +167,6 @@ fun NCPSettingsScreen(
                         title = { Text(stringResource(R.string.search_by_username_preference_title)) },
                         subtitle = { Text(stringResource(R.string.search_by_username_preference_subtitle)) }
                     )
-                }
-
-                PreferencesCategory(title = { Text(text = stringResource(id = R.string.preferences_category_security)) }) {
-                    val hasAppLock by preferencesManager.getHasAppLock()
-                        .collectAsState(false)
-                    val hasBiometricAppLock by preferencesManager
-                        .getHasBiometricAppLock().collectAsState(false)
-                    val canUseBiometrics = remember {
-                        BiometricManager.from(context)
-                            .canAuthenticate(BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
-                    }
-
-                    var showCreatePasscodeDialog by rememberSaveable {
-                        mutableStateOf(false)
-                    }
-                    var showConfirmPasscodeDialog by rememberSaveable {
-                        mutableStateOf(false)
-                    }
-                    var showDeletePasscodeDialog by rememberSaveable {
-                        mutableStateOf(false)
-                    }
-                    var firstPasscode by rememberSaveable {
-                        mutableStateOf("")
-                    }
-                    var isEnablingBiometric by rememberSaveable {
-                        mutableStateOf(false)
-                    }
-
-                    SwitchPreference(
-                        checked = hasAppLock,
-                        onCheckedChange = { enabled ->
-                            if (enabled) {
-                                showCreatePasscodeDialog = true
-                            } else {
-                                showDeletePasscodeDialog = true
-                            }
-                        },
-                        title = { Text(text = stringResource(id = R.string.app_lock_preference_title)) },
-                        subtitle = { Text(text = stringResource(id = R.string.app_lock_preference_subtitle)) }
-                    )
-
-                    val biometricPromptTitle = stringResource(R.string.biometric_prompt_title)
-                    val biometricPromptDescription = stringResource(R.string.biometric_prompt_description)
-
-                    if (canUseBiometrics) {
-                        SwitchPreference(
-                            checked = hasBiometricAppLock,
-                            onCheckedChange = { enabled ->
-                                if (enabled && !hasAppLock) {
-                                    showCreatePasscodeDialog = true
-                                    isEnablingBiometric = true
-                                } else {
-                                    showBiometricPrompt(
-                                        context = context,
-                                        title = biometricPromptTitle,
-                                        description = biometricPromptDescription,
-                                        onBiometricUnlock = {
-                                            scope.launch(Dispatchers.IO) {
-                                                preferencesManager.setHasBiometricAppLock(enabled)
-                                            }
-                                        }
-                                    )
-                                }
-
-                            },
-                            title = { Text(text = stringResource(id = R.string.biometric_unlock_preference_title)) },
-                            subtitle = { Text(text = stringResource(id = R.string.biometric_unlock_preference_subtitle)) },
-                        )
-                    }
-
-                    if (showCreatePasscodeDialog) {
-                        InputPasscodeDialog(
-                            title = stringResource(id = R.string.app_lock_input_passcode),
-                            onInputPasscode = {
-                                firstPasscode = it
-                                showCreatePasscodeDialog = false
-                                showConfirmPasscodeDialog = true
-                            },
-                            onDismissRequest = {
-                                showCreatePasscodeDialog = false
-                                isEnablingBiometric = false
-                            }
-                        )
-                    }
-
-                    if (showConfirmPasscodeDialog) {
-                        InputPasscodeDialog(
-                            title = stringResource(id = R.string.app_lock_confirm_passcode),
-                            onInputPasscode = { secondPasscode ->
-                                if (firstPasscode != secondPasscode) {
-                                    Toast.makeText(
-                                        context,
-                                        R.string.error_passcodes_dont_match,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } else {
-                                    scope.launch(Dispatchers.IO) {
-                                        with(preferencesManager) {
-                                            setAppLockPasscode(secondPasscode)
-                                            setHasAppLock(true)
-                                        }
-                                    }
-                                }
-                                showConfirmPasscodeDialog = false
-                                if (isEnablingBiometric) {
-                                    isEnablingBiometric = false
-                                    showBiometricPrompt(
-                                        context = context,
-                                        title = biometricPromptTitle,
-                                        description = biometricPromptDescription,
-                                        onBiometricUnlock = {
-                                            scope.launch(Dispatchers.IO) {
-                                                preferencesManager.setHasBiometricAppLock(true)
-                                            }
-                                        }
-                                    )
-                                }
-                            },
-                            onDismissRequest = {
-                                showConfirmPasscodeDialog = false
-                                isEnablingBiometric = false
-                                firstPasscode = ""
-                            }
-                        )
-                    }
-
-                    if (showDeletePasscodeDialog) {
-                        InputPasscodeDialog(
-                            title = stringResource(id = R.string.app_lock_input_passcode),
-                            onInputPasscode = { passcode ->
-                                scope.launch(Dispatchers.IO) {
-                                    with(preferencesManager) {
-                                        val currentPasscode = getAppLockPasscode()
-
-                                        if (currentPasscode == passcode) {
-                                            setHasAppLock(false)
-                                            setAppLockPasscode(null)
-                                            setHasBiometricAppLock(false)
-                                        } else {
-                                            withContext(Dispatchers.Main) {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.error_app_lock_incorrect_code,
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
-                                        }
-
-                                    }
-                                }
-                                showDeletePasscodeDialog = false
-                            },
-                            onDismissRequest = {
-                                showDeletePasscodeDialog = false
-                            }
-                        )
-                    }
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
