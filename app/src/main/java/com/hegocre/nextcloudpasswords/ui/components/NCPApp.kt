@@ -526,6 +526,7 @@ fun NextcloudPasswordsApp(
                         R.string.error_secure_master_password_unavailable
                     ),
                     isLoading = isRefreshing,
+                    focusOnError = masterPasswordInvalid,
                     onCancelClick = onCancelMasterPasswordDialog,
                     onOkClick = {
                         passwordsViewModel.setMasterPassword(
