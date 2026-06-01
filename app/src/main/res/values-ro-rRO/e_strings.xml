@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Aplicația Passwords este blocată</string>
     <string name="locked_account_dialog_message">Prea multe încercări incorecte ale parolei principale. Deblochează-ți contul în versiunea web a Murena Passwords, apoi autentifică-te din nou aici.</string>
     <string name="locked_account_dialog_unlock">Deblochează contul</string>
+    <string name="error_no_internet_connection">Nicio conexiune la internet.</string>
 </resources>

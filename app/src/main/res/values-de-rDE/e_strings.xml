@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords-App gesperrt</string>
     <string name="locked_account_dialog_message">Zu viele falsche Versuche mit dem Master-Passwort. Entsperren Sie Ihr Konto in der Webversion von Murena Passwords und melden Sie sich dann hier erneut an.</string>
     <string name="locked_account_dialog_unlock">Konto entsperren</string>
+    <string name="error_no_internet_connection">Keine Internetverbindung.</string>
 </resources>

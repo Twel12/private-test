@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords 应用已锁定</string>
     <string name="locked_account_dialog_message">主密码输错次数过多。请先在 Murena Passwords 网页版中解锁您的账户，然后再回到这里重新登录。</string>
     <string name="locked_account_dialog_unlock">解锁账户</string>
+    <string name="error_no_internet_connection">无网络连接。</string>
 </resources>

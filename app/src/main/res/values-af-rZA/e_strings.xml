@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords-toepassing gesluit</string>
     <string name="locked_account_dialog_message">Te veel verkeerde meesterwagwoord-pogings. Ontsluit jou rekening in die webweergawe van Murena Passwords en meld dan weer hier aan.</string>
     <string name="locked_account_dialog_unlock">Ontsluit rekening</string>
+    <string name="error_no_internet_connection">Geen internetverbinding.</string>
 </resources>

@@ -9,6 +9,7 @@ import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
+import com.hegocre.nextcloudpasswords.api.exceptions.SodiumDecryptionException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.folder.DeletedFolder
 import com.hegocre.nextcloudpasswords.data.folder.Folder
@@ -285,7 +286,7 @@ class ApiController private constructor(context: Context) {
             csEv1Keychain.postValue(it)
         }
 
-        val challenge = getSessionChallenge(masterPassword)
+        val challenge = getSessionChallenge()
             ?: return@withContext OpenSessionResult(opened = false)
 
         val secret = when (val secretResult = challenge.solve(masterPassword)) {
@@ -300,7 +301,7 @@ class ApiController private constructor(context: Context) {
         return@withContext finishOpenSession(openedSession, masterPassword)
     }
 
-    private suspend fun getSessionChallenge(masterPassword: String?): PWDv1Challenge? {
+    private suspend fun getSessionChallenge(): PWDv1Challenge? {
         return when (val requestResult = sessionApi.requestSession()) {
             is Result.Success -> {
                 // E2EE state is derived from the session challenge: 3 salts -> CSE enabled.
@@ -309,34 +310,20 @@ class ApiController private constructor(context: Context) {
                 requestResult.data
             }
 
-            is Result.Error -> handleRequestSessionError(requestResult.code, masterPassword)
+            is Result.Error -> handleRequestSessionError(requestResult.code)
         }
     }
 
     private fun handleRequestSessionError(
         code: Int,
-        masterPassword: String?,
     ): PWDv1Challenge? {
         if (code == Error.SSO_REAUTHENTICATION_REQUIRED) {
             requireSsoReauthentication()
             return null
         }
 
-        restoreCachedKeychain(masterPassword)
         logRequestSessionError(code)
         return null
-    }
-
-    private fun restoreCachedKeychain(masterPassword: String?) {
-        preferencesManager.getCSEv1Keychain()?.let { cachedKeychain ->
-            if (masterPassword == null) {
-                throw PWDv1ChallengeMasterKeyNeededException()
-            }
-
-            decryptCSEv1Keychain(cachedKeychain, masterPassword)?.let {
-                csEv1Keychain.postValue(it)
-            } ?: throw PWDv1ChallengeMasterKeyInvalidException()
-        }
     }
 
     private suspend fun handleSecretError(code: Int): OpenSessionResult {
@@ -388,8 +375,12 @@ class ApiController private constructor(context: Context) {
         val (newSessionCode, encryptedKeychainJson) = openedSession
         preferencesManager.setCSEv1Keychain(encryptedKeychainJson)
         masterPassword?.let {
-            val keysJson = CSEv1Keychain.decryptJson(encryptedKeychainJson, it)
-            csEv1Keychain.postValue(CSEv1Keychain.fromJson(keysJson))
+            try {
+                val keysJson = CSEv1Keychain.decryptJson(encryptedKeychainJson, it)
+                csEv1Keychain.postValue(CSEv1Keychain.fromJson(keysJson))
+            } catch (e: SodiumDecryptionException) {
+                throw PWDv1ChallengeMasterKeyInvalidException().apply { initCause(e) }
+            }
         }
         sessionCode = newSessionCode
         scheduleKeepAlive(newSessionCode)
@@ -727,5 +718,4 @@ class ApiController private constructor(context: Context) {
             }
         }
     }
-
 }

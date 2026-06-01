@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Приложение Passwords заблокировано</string>
     <string name="locked_account_dialog_message">Слишком много неверных попыток ввода мастер-пароля. Разблокируйте свою учетную запись в веб-версии Murena Passwords, затем снова войдите здесь.</string>
     <string name="locked_account_dialog_unlock">Разблокировать учетную запись</string>
+    <string name="error_no_internet_connection">Нет подключения к интернету.</string>
 </resources>

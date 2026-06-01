@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords-sovellus on lukittu</string>
     <string name="locked_account_dialog_message">Liian monta virheellistä yritystä pääsalasanalla. Avaa tilisi lukitus Murena Passwordsin verkkoversiossa ja kirjaudu sitten täällä uudelleen sisään.</string>
     <string name="locked_account_dialog_unlock">Poista tilin lukitus</string>
+    <string name="error_no_internet_connection">Ei internetyhteyttä.</string>
 </resources>

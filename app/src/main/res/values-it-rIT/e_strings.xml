@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">App Passwords bloccata</string>
     <string name="locked_account_dialog_message">Troppi tentativi errati con la password principale. Sblocca il tuo account nella versione web di Murena Passwords, quindi accedi di nuovo qui.</string>
     <string name="locked_account_dialog_unlock">Sblocca account</string>
+    <string name="error_no_internet_connection">Nessuna connessione a Internet.</string>
 </resources>

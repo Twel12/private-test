@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Програму Passwords заблоковано</string>
     <string name="locked_account_dialog_message">Забагато неправильних спроб введення майстер-пароля. Розблокуйте свій обліковий запис у вебверсії Murena Passwords, а потім знову увійдіть тут.</string>
     <string name="locked_account_dialog_unlock">Розблокувати обліковий запис</string>
+    <string name="error_no_internet_connection">Немає підключення до інтернету.</string>
 </resources>

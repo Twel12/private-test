@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords-app vergrendeld</string>
     <string name="locked_account_dialog_message">Te veel onjuiste pogingen met het hoofdwachtwoord. Ontgrendel je account in de webversie van Murena Passwords en meld je daarna hier opnieuw aan.</string>
     <string name="locked_account_dialog_unlock">Account ontgrendelen</string>
+    <string name="error_no_internet_connection">Geen internetverbinding.</string>
 </resources>

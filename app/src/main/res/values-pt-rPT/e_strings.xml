@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Aplicação Passwords bloqueada</string>
     <string name="locked_account_dialog_message">Demasiadas tentativas incorretas da palavra-passe mestra. Desbloqueie a sua conta na versão web do Murena Passwords e depois inicie sessão aqui novamente.</string>
     <string name="locked_account_dialog_unlock">Desbloquear conta</string>
+    <string name="error_no_internet_connection">Sem ligação à internet.</string>
 </resources>

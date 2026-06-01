@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">יישום Passwords נעול</string>
     <string name="locked_account_dialog_message">יותר מדי ניסיונות שגויים של סיסמת המאסטר. יש לשחרר את נעילת החשבון בגרסת האינטרנט של Murena Passwords ואז להתחבר כאן שוב.</string>
     <string name="locked_account_dialog_unlock">ביטול נעילת החשבון</string>
+    <string name="error_no_internet_connection">אין חיבור לאינטרנט.</string>
 </resources>

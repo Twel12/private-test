@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Η εφαρμογή Passwords είναι κλειδωμένη</string>
     <string name="locked_account_dialog_message">Έγιναν πάρα πολλές λανθασμένες προσπάθειες για τον κύριο κωδικό πρόσβασης. Ξεκλειδώστε τον λογαριασμό σας στην έκδοση ιστού του Murena Passwords και έπειτα συνδεθείτε ξανά εδώ.</string>
     <string name="locked_account_dialog_unlock">Ξεκλείδωμα λογαριασμού</string>
+    <string name="error_no_internet_connection">Δεν υπάρχει σύνδεση στο διαδίκτυο.</string>
 </resources>

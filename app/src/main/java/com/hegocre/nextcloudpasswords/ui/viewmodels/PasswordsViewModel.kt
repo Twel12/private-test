@@ -214,6 +214,7 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         saveSecurelyAfterUnlock: Boolean = false
     ) {
         _isRefreshing.emit(true)
+        _masterPasswordInvalid.emit(false)
         _showSessionOpenError.emit(false)
         try {
             if (shouldStopForMurenaSyncDisabled()) {
@@ -273,6 +274,12 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     fun clearMasterPasswordInvalid() {
         viewModelScope.launch {
             _masterPasswordInvalid.emit(false)
+        }
+    }
+
+    fun clearSessionOpenError() {
+        viewModelScope.launch {
+            _showSessionOpenError.emit(false)
         }
     }
 

@@ -69,6 +69,7 @@ import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillSaveInteracti
 import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
+import com.hegocre.nextcloudpasswords.utils.hasActiveNetworkConnection
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import foundation.e.autofill.PasswordSaveResult
 import foundation.e.elib.compose.components.EFloatingActionButtonExtended
@@ -120,6 +121,12 @@ fun NextcloudPasswordsApp(
     val sessionOpen by passwordsViewModel.sessionOpen.collectAsState()
     val showSessionOpenError by passwordsViewModel.showSessionOpenError.collectAsState()
     val isRefreshing by passwordsViewModel.isRefreshing.collectAsState()
+    val hasNetworkConnection = context.hasActiveNetworkConnection()
+    val sessionOpenErrorText = if (hasNetworkConnection) {
+        stringResource(R.string.error_cannot_connect_to_server)
+    } else {
+        stringResource(R.string.error_no_internet_connection)
+    }
 
     var showLogOutDialog by rememberSaveable { mutableStateOf(false) }
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -364,7 +371,7 @@ fun NextcloudPasswordsApp(
                             modifier = Modifier.clickable { (passwordsViewModel.sync()) }
                         ) {
                             Text(
-                                text = stringResource(id = R.string.error_cannot_connect_to_server),
+                                text = sessionOpenErrorText,
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
@@ -517,6 +524,9 @@ fun NextcloudPasswordsApp(
                         if (masterPasswordInvalid) {
                             passwordsViewModel.clearMasterPasswordInvalid()
                         }
+                        if (showSessionOpenError) {
+                            passwordsViewModel.clearSessionOpenError()
+                        }
                         setMasterPassword(newValue)
                     },
                     savePassword = savePassword,
@@ -536,7 +546,7 @@ fun NextcloudPasswordsApp(
                     },
                     errorText = when {
                         masterPasswordInvalid -> stringResource(R.string.error_invalid_password)
-                        showSessionOpenError -> stringResource(R.string.error_cannot_connect_to_server)
+                        showSessionOpenError -> sessionOpenErrorText
                         else -> ""
                     },
                     onDismissRequest = onCancelMasterPasswordDialog
