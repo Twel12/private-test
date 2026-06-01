@@ -533,7 +533,6 @@ fun NextcloudPasswordsApp(
                             masterPassword,
                             savePassword && secureMasterPasswordStore.canUseSecureAuthentication
                         )
-                        setMasterPassword("")
                     },
                     errorText = when {
                         masterPasswordInvalid -> stringResource(R.string.error_invalid_password)
