@@ -320,7 +320,6 @@ abstract class MurenaAutoFillService : AutofillService() {
                     setOptionalIds(optionalIds)
                 }
                 loginFields.triggerId?.let(::setTriggerId)
-                setPositiveAction(SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE)
             }
             .build()
     }
@@ -925,7 +924,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                             context = context,
                             autofillId = autofillId,
                             value = credential.password.orEmpty(),
-                            label = "${credential.label}: password",
+                            label = "${credential.label}: ${credential.username}",
                             authActivityClass = authActivityClass,
                             inlinePresentationSpec = inlinePresentationSpec
                         )
