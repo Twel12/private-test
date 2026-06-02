@@ -176,7 +176,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         val loginFields = LoginFieldParser(structure).parse()
-        val usernameIds = saveRequest.clientState?.let { clientState ->
+        val initialUsernameIds = saveRequest.clientState?.let { clientState ->
             BundleCompat.getParcelableArrayList(
                 clientState,
                 CLIENT_STATE_USERNAME_IDS,
@@ -184,6 +184,12 @@ abstract class MurenaAutoFillService : AutofillService() {
             )
         }.orEmpty()
             .ifEmpty { loginFields.usernameIds }
+        val usernameIds = preferredSaveFieldIds(
+            primaryIds = initialUsernameIds,
+            fallbackIdsByContext = saveRequest.fillContexts.map { fillContext ->
+                LoginFieldParser(fillContext.structure).parse().usernameIds
+            }
+        )
         val passwordIds = saveRequest.clientState?.let { clientState ->
             BundleCompat.getParcelableArrayList(
                 clientState,
@@ -198,6 +204,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         Timber.d(
             "onSaveRequest parsed package=${loginFields.packageName}, webDomain=${loginFields.webDomain}, " +
                 "usernameIds=${usernameIds.size}, passwordIds=${passwordIds.size}, " +
+                "usedUsernameFallback=${initialUsernameIds.isEmpty() && usernameIds.isNotEmpty()}, " +
                 "usernamePresent=${username.isNotBlank()}, passwordPresent=${password.isNotBlank()}"
         )
 
@@ -1053,5 +1060,16 @@ abstract class MurenaAutoFillService : AutofillService() {
                     setTextViewText(android.R.id.text1, text)
                 }
         }
+    }
+}
+
+internal fun <T> preferredSaveFieldIds(
+    primaryIds: List<T>,
+    fallbackIdsByContext: List<List<T>>
+): List<T> {
+    return if (primaryIds.isNotEmpty()) {
+        primaryIds.distinct()
+    } else {
+        fallbackIdsByContext.flatten().distinct()
     }
 }
