@@ -407,13 +407,6 @@ abstract class MurenaAutoFillService : AutofillService() {
             responseBuilder.applyUnlockVaultAuthentication(loginFields, inlinePresentationSpec)
         }
 
-        selectionIntent?.let { intent ->
-            Timber.d("Adding open-app selection dataset")
-            responseBuilder.addDataset(
-                buildAutofillSelectionDataset(loginFields, intent, inlinePresentationSpec)
-            )
-        }
-
         if (loginFields.passwordIds.isNotEmpty()) {
             queryResult.credentials.forEach { credential ->
                 if (credential.password.isNullOrBlank() || credential.locked) {
@@ -460,6 +453,13 @@ abstract class MurenaAutoFillService : AutofillService() {
             if (queryResult.allowSavePrompt) {
                 responseBuilder.setSaveInfo(buildDelayedUsernameSaveInfo(loginFields))
             }
+        }
+
+        selectionIntent?.let { intent ->
+            Timber.d("Adding open-app selection dataset")
+            responseBuilder.addDataset(
+                buildAutofillSelectionDataset(loginFields, intent, inlinePresentationSpec)
+            )
         }
 
         return responseBuilder.build()
