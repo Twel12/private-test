@@ -79,9 +79,6 @@ abstract class MurenaAutoFillService : AutofillService() {
     protected open fun delayedUsernameSaveDescriptionText(): String =
         getString(R.string.autofill_delayed_username_save_description)
 
-    protected open fun chooseLoginHeaderText(): String =
-        getString(R.string.autofill_choose_login_header)
-
     protected open fun unlockDatasetLabel(): String =
         getString(R.string.autofill_unlock_vault)
 
@@ -388,18 +385,10 @@ abstract class MurenaAutoFillService : AutofillService() {
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     setIconResourceId(R.drawable.ic_autofill_provider)
-                        .setShowFillDialogIcon(true)
+                        .setShowFillDialogIcon(false)
                         .setShowSaveDialogIcon(true)
                 }
             }
-
-        if (hasCredentialDatasets) {
-            responseBuilder.apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    setDialogHeader(simplePresentation(chooseLoginHeaderText(), packageName))
-                }
-            }
-        }
 
         if (hasUnlockAuthentication) {
             Timber.d("Adding unlock vault response authentication")
@@ -476,15 +465,6 @@ abstract class MurenaAutoFillService : AutofillService() {
         loginFields: LoginFields,
         queryResult: PasswordQueryResult
     ): FillResponse.Builder {
-        val fillDialogTriggerIds = (loginFields.usernameIds + loginFields.passwordIds)
-            .distinct()
-            .toTypedArray()
-        if (fillDialogTriggerIds.isNotEmpty()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                setFillDialogTriggerIds(*fillDialogTriggerIds)
-            }
-        }
-
         val fieldClassificationIds = loginFields.usernameIds.distinct().toTypedArray()
         if (fieldClassificationIds.isNotEmpty()) {
             setFieldClassificationIds(*fieldClassificationIds)
@@ -944,22 +924,16 @@ abstract class MurenaAutoFillService : AutofillService() {
         ) {
             val valuePresentation = simplePresentation(label, context.packageName)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val presentationsBuilder = Presentations.Builder()
-                    .setMenuPresentation(valuePresentation)
-                    .setDialogPresentation(valuePresentation)
-
-                if (inlinePresentationSpec != null) {
-                    presentationsBuilder.setInlinePresentation(
-                        buildInlinePresentation(
-                            context = context,
-                            label = label,
-                            inlinePresentationSpec = inlinePresentationSpec,
-                            pendingIntent = PendingIntent.getActivity(
-                                context,
-                                INLINE_PRESENTATION_REQUEST_CODE,
-                                Intent(context, authActivityClass),
-                                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                            )
+                val inlinePresentation = inlinePresentationSpec?.let {
+                    buildInlinePresentation(
+                        context = context,
+                        label = label,
+                        inlinePresentationSpec = it,
+                        pendingIntent = PendingIntent.getActivity(
+                            context,
+                            INLINE_PRESENTATION_REQUEST_CODE,
+                            Intent(context, authActivityClass),
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
                     )
                 }
@@ -969,7 +943,12 @@ abstract class MurenaAutoFillService : AutofillService() {
                     Field.Builder()
                         .setValue(AutofillValue.forText(value))
                         .setFilter(Pattern.compile(".*", Pattern.CASE_INSENSITIVE))
-                        .setPresentations(presentationsBuilder.build())
+                        .setPresentations(
+                            buildFieldPresentations(
+                                valuePresentation = valuePresentation,
+                                inlinePresentation = inlinePresentation
+                            )
+                        )
                         .build()
                 )
                 return
@@ -1002,15 +981,25 @@ abstract class MurenaAutoFillService : AutofillService() {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        internal fun buildFieldPresentations(
+            valuePresentation: RemoteViews,
+            inlinePresentation: InlinePresentation? = null
+        ): Presentations {
+            return Presentations.Builder()
+                .setMenuPresentation(valuePresentation)
+                .apply {
+                    if (inlinePresentation != null) {
+                        setInlinePresentation(inlinePresentation)
+                    }
+                }
+                .build()
+        }
+
         private fun datasetBuilder(label: String, packageName: String): Dataset.Builder {
             val presentation = simplePresentation(label, packageName)
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                Dataset.Builder(
-                    Presentations.Builder()
-                        .setMenuPresentation(presentation)
-                        .setDialogPresentation(presentation)
-                        .build()
-                )
+                Dataset.Builder(buildFieldPresentations(presentation))
             } else {
                 @Suppress("DEPRECATION")
                 Dataset.Builder(presentation)
