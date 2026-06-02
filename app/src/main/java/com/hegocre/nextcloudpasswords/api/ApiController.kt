@@ -473,6 +473,45 @@ class ApiController private constructor(context: Context) {
     }
 
     /**
+     * Re-opens a session that was invalidated by the server (e.g. expired after the inactivity
+     * timeout, surfaced as an HTTP 412 [Error.API_SESSION_EXPIRED]). Uses the master password held
+     * in memory for CSE accounts, or none for accounts without client-side encryption.
+     *
+     * @return Whether a new session was successfully opened.
+     */
+    private suspend fun reopenExpiredSession(): Boolean {
+        Timber.w("Session no longer authorized on server; attempting to reopen")
+        clearSession()
+        return try {
+            openSession(MasterPasswordMemoryStore.get())
+        } catch (e: PWDv1ChallengeMasterKeyNeededException) {
+            Timber.e(e, "Failed to reopen expired session as master key couldn't be found in cache")
+            false
+        } catch (e: PWDv1ChallengeMasterKeyInvalidException) {
+            Timber.e(e, "Failed to reopen expired session as master key was invalid")
+            false
+        }
+    }
+
+    /**
+     * Runs an authenticated API [request] and, if it fails because the server expired the session,
+     * transparently re-opens the session once and retries. This makes the app resilient to the
+     * server killing idle sessions faster than the keep-alive worker can refresh them.
+     */
+    private suspend fun <T> withSessionRetry(
+        request: suspend () -> Result<T>
+    ): Result<T> {
+        val result = request()
+        if (result is Result.Error &&
+            result.code == Error.API_SESSION_EXPIRED &&
+            reopenExpiredSession()
+        ) {
+            return request()
+        }
+        return result
+    }
+
+    /**
      * Gets a list of the user passwords via the [PasswordsApi] class. This can only be called when a
      * session is open, otherwise an error is thrown.
      *
@@ -480,7 +519,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun listPasswords(): Result<List<Password>> {
         if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        val result = passwordsApi.list(sessionCode)
+        val result = withSessionRetry { passwordsApi.list(sessionCode) }
         if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
         return result
     }
@@ -493,7 +532,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun listFolders(): Result<List<Folder>> {
         if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        val result = foldersApi.list(sessionCode)
+        val result = withSessionRetry { foldersApi.list(sessionCode) }
         if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
         return result
     }
@@ -507,7 +546,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun createPassword(newPassword: NewPassword): Boolean {
         if (!sessionOpen.value) return false
-        val result = passwordsApi.create(newPassword, sessionCode)
+        val result = withSessionRetry { passwordsApi.create(newPassword, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
@@ -567,7 +606,7 @@ class ApiController private constructor(context: Context) {
             favorite = false
         )
 
-        val result = passwordsApi.create(newPassword, sessionCode)
+        val result = withSessionRetry { passwordsApi.create(newPassword, sessionCode) }
 
         return if (result.consumeSsoReauthError()) false else result is Result.Success
     }
@@ -581,7 +620,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun updatePassword(updatedPassword: UpdatedPassword): Boolean {
         if (!sessionOpen.value) return false
-        val result = passwordsApi.update(updatedPassword, sessionCode)
+        val result = withSessionRetry { passwordsApi.update(updatedPassword, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
@@ -595,7 +634,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun deletePassword(deletedPassword: DeletedPassword): Boolean {
         if (!sessionOpen.value) return false
-        val result = passwordsApi.delete(deletedPassword, sessionCode)
+        val result = withSessionRetry { passwordsApi.delete(deletedPassword, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
@@ -626,7 +665,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun createFolder(newFolder: NewFolder): Boolean {
         if (!sessionOpen.value) return false
-        val result = foldersApi.create(newFolder, sessionCode)
+        val result = withSessionRetry { foldersApi.create(newFolder, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
@@ -640,7 +679,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun updateFolder(updatedFolder: UpdatedFolder): Boolean {
         if (!sessionOpen.value) return false
-        val result = foldersApi.update(updatedFolder, sessionCode)
+        val result = withSessionRetry { foldersApi.update(updatedFolder, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
@@ -654,7 +693,7 @@ class ApiController private constructor(context: Context) {
      */
     suspend fun deleteFolder(deletedFolder: DeletedFolder): Boolean {
         if (!sessionOpen.value) return false
-        val result = foldersApi.delete(deletedFolder, sessionCode)
+        val result = withSessionRetry { foldersApi.delete(deletedFolder, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }

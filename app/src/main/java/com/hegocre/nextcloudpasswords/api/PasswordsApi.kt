@@ -1,6 +1,7 @@
 package com.hegocre.nextcloudpasswords.api
 
 import com.hegocre.nextcloudpasswords.BuildConfig
+import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
 import com.hegocre.nextcloudpasswords.data.password.DeletedPassword
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
@@ -13,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import timber.log.Timber
+import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 
@@ -51,6 +53,10 @@ class PasswordsApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
             if (code != 200) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
@@ -71,6 +77,12 @@ class PasswordsApi private constructor(private var server: Server) {
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -108,6 +120,10 @@ class PasswordsApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
             if (code !in 200..201) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
@@ -126,6 +142,12 @@ class PasswordsApi private constructor(private var server: Server) {
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -163,6 +185,10 @@ class PasswordsApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
             if (code != 200) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
@@ -181,6 +207,12 @@ class PasswordsApi private constructor(private var server: Server) {
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -217,6 +249,10 @@ class PasswordsApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
             if (code != 200) {
                 return Result.Error(Error.API_BAD_RESPONSE)
             }
@@ -235,6 +271,12 @@ class PasswordsApi private constructor(private var server: Server) {
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()

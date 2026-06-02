@@ -3,12 +3,10 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:AssistStructureParser.kt$AssistStructureParser$node.hasAttribute("type", "email") || node.hasAttribute("type", "tel") || node.hasAttribute("type", "text") || node.hasAttribute("name", "email") || node.hasAttribute("name", "mail") || node.hasAttribute("name", "user") || node.hasAttribute("name", "username")</ID>
-    <ID>CyclomaticComplexMethod:ApiController.kt$ApiController$@Throws( PWDv1ChallengeMasterKeyNeededException::class, PWDv1ChallengeMasterKeyInvalidException::class ) suspend fun openSession(masterPassword: String?): Boolean</ID>
     <ID>CyclomaticComplexMethod:AssistStructureParser.kt$AssistStructureParser$private fun getFieldType(node: AssistStructure.ViewNode): Int?</ID>
     <ID>CyclomaticComplexMethod:SsoOkHttpRequest.kt$SsoOkHttpRequest$private fun executeSso( method: String, sUrl: String, sessionCode: String?, body: String?, mediaType: MediaType? = null, successStatusCode: Int = 200 ): Response</ID>
     <ID>EmptyFunctionBlock:OkHttpRequest.kt$OkHttpRequest.&lt;no name provided&gt;${ }</ID>
     <ID>ImplicitDefaultLocale:EncryptionUtils.kt$String.format("%02x", b)</ID>
-    <ID>LongMethod:ApiController.kt$ApiController$@Throws( PWDv1ChallengeMasterKeyNeededException::class, PWDv1ChallengeMasterKeyInvalidException::class ) suspend fun openSession(masterPassword: String?): Boolean</ID>
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>LongMethod:SsoOkHttpRequest.kt$SsoOkHttpRequest$private fun executeSso( method: String, sUrl: String, sessionCode: String?, body: String?, mediaType: MediaType? = null, successStatusCode: Int = 200 ): Response</ID>
     <ID>LongParameterList:BiometricAuth.kt$( context: Context, title: String, description: String, onBiometricUnlock: () -&gt; Unit, onBiometricFailed: (() -&gt; Unit)? = null, onBiometricError: (() -&gt; Unit)? = null )</ID>
@@ -65,7 +63,6 @@
     <ID>MaxLineLength:NCPSettings.kt$PreferencesManager.ORDER_BY_DATE_DESCENDING to stringResource(R.string.preference_order_by_date_desc)</ID>
     <ID>MaxLineLength:NCPSettings.kt$PreferencesManager.ORDER_BY_TITLE_ASCENDING to stringResource(R.string.preference_order_by_title_asc)</ID>
     <ID>MaxLineLength:NCPSettings.kt$PreferencesManager.ORDER_BY_TITLE_DESCENDING to stringResource(R.string.preference_order_by_title_desc)</ID>
-    <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.biometric_unlock_preference_subtitle)) }</ID>
     <ID>MaxLineLength:NCPSettings.kt$subtitle = { Text(text = stringResource(id = R.string.inline_autofill_preference_subtitle)) }</ID>
     <ID>MaxLineLength:NCPSettings.kt$var useInlineAutofill by remember { mutableStateOf(preferencesManager.getUseInlineAutofill()) }</ID>
     <ID>MaxLineLength:NCPTopBar.kt$LocalContentColor provides LocalContentColor.current.copy(alpha = ContentAlpha.medium)</ID>
@@ -89,7 +86,6 @@
     <ID>NewLineAtEndOfFile:LogHelper.kt$com.hegocre.nextcloudpasswords.utils.LogHelper.kt</ID>
     <ID>NewLineAtEndOfFile:MarkdownTextView.kt$com.hegocre.nextcloudpasswords.ui.components.markdown.MarkdownTextView.kt</ID>
     <ID>NewLineAtEndOfFile:NCPScreen.kt$com.hegocre.nextcloudpasswords.ui.NCPScreen.kt</ID>
-    <ID>NewLineAtEndOfFile:NCPSettings.kt$com.hegocre.nextcloudpasswords.ui.components.NCPSettings.kt</ID>
     <ID>NewLineAtEndOfFile:NCPTheme.kt$com.hegocre.nextcloudpasswords.ui.theme.NCPTheme.kt</ID>
     <ID>NewLineAtEndOfFile:NewFolder.kt$com.hegocre.nextcloudpasswords.data.folder.NewFolder.kt</ID>
     <ID>NewLineAtEndOfFile:NewPassword.kt$com.hegocre.nextcloudpasswords.data.password.NewPassword.kt</ID>
@@ -118,8 +114,15 @@
     <ID>PrintStackTrace:SessionApi.kt$SessionApi$e</ID>
     <ID>PrintStackTrace:SettingsApi.kt$SettingsApi$e</ID>
     <ID>ReturnCount:AssistStructureParser.kt$AssistStructureParser$private fun getFieldType(node: AssistStructure.ViewNode): Int?</ID>
+    <ID>ReturnCount:FoldersApi.kt$FoldersApi$suspend fun delete( deletedFolder: DeletedFolder, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
+    <ID>ReturnCount:FoldersApi.kt$FoldersApi$suspend fun list( sessionCode: String? = null ): Result&lt;List&lt;Folder&gt;&gt;</ID>
+    <ID>ReturnCount:FoldersApi.kt$FoldersApi$suspend fun update( updatedFolder: UpdatedFolder, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
     <ID>ReturnCount:KeepAliveWorker.kt$KeepAliveWorker$override suspend fun doWork(): Result</ID>
     <ID>ReturnCount:PasswordEditView.kt$EditablePasswordState$fun isValid(): Boolean</ID>
+    <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun create( newPassword: NewPassword, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
+    <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun delete( deletedPassword: DeletedPassword, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
+    <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun list( sessionCode: String? = null, ): Result&lt;List&lt;Password&gt;&gt;</ID>
+    <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun update( updatedPassword: UpdatedPassword, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
     <ID>ReturnCount:SessionApi.kt$SessionApi$suspend fun requestSession(): Result&lt;PWDv1Challenge&gt;</ID>
     <ID>ThrowsCount:PWDv1Challenge.kt$PWDv1Challenge$fun solve(password: String?): Result&lt;String&gt;</ID>
     <ID>ThrowsCount:UserController.kt$UserController$@Throws(UserException::class) fun getServer(): Server</ID>
