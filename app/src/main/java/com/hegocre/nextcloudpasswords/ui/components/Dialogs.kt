@@ -59,6 +59,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -94,12 +95,14 @@ fun MasterPasswordDialog(
     savePasswordEnabled: Boolean = true,
     savePasswordErrorText: String = "",
     isLoading: Boolean = false,
+    focusOnError: Boolean = false,
     onCancelClick: (() -> Unit)? = null,
     onOkClick: () -> Unit,
     errorText: String = "",
     onDismissRequest: (() -> Unit)? = null
 ) {
     val requester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var showPassword by rememberSaveable { mutableStateOf(false) }
     Dialog(
@@ -112,12 +115,9 @@ fun MasterPasswordDialog(
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                LaunchedEffect(key1 = Unit) {
-                    coroutineContext.job.invokeOnCompletion {
-                        if (it?.cause == null) {
-                            requester.requestFocus()
-                        }
-                    }
+                LaunchedEffect(focusOnError) {
+                    requester.requestFocus()
+                    keyboardController?.show()
                 }
 
                 OutlinedTextFieldWithCaption(

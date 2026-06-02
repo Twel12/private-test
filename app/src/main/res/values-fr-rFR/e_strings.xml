@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Application Passwords verrouillée</string>
     <string name="locked_account_dialog_message">Trop de tentatives incorrectes de mot de passe maître. Déverrouillez votre compte dans la version web de Murena Passwords, puis reconnectez-vous ici.</string>
     <string name="locked_account_dialog_unlock">Déverrouiller le compte</string>
+    <string name="error_no_internet_connection">Aucune connexion Internet.</string>
 </resources>

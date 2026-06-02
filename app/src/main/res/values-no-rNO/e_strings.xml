@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords-appen er låst</string>
     <string name="locked_account_dialog_message">For mange feilaktige forsøk på hovedpassordet. Lås opp kontoen din i nettversjonen av Murena Passwords, og logg deretter inn her igjen.</string>
     <string name="locked_account_dialog_unlock">Lås opp konto</string>
+    <string name="error_no_internet_connection">Ingen internettforbindelse.</string>
 </resources>

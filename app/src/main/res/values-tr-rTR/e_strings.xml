@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords uygulaması kilitlendi</string>
     <string name="locked_account_dialog_message">Çok fazla yanlış ana parola denemesi yapıldı. Hesabınızın kilidini Murena Passwords web sürümünde açın, ardından burada yeniden oturum açın.</string>
     <string name="locked_account_dialog_unlock">Hesabın kilidini aç</string>
+    <string name="error_no_internet_connection">İnternet bağlantısı yok.</string>
 </resources>

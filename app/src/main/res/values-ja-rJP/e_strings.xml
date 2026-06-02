@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords アプリがロックされています</string>
     <string name="locked_account_dialog_message">マスターパスワードの入力を間違えた回数が多すぎます。Murena Passwords のウェブ版でアカウントのロックを解除してから、ここで再度サインインしてください。</string>
     <string name="locked_account_dialog_unlock">アカウントをロック解除</string>
+    <string name="error_no_internet_connection">インターネットに接続されていません。</string>
 </resources>

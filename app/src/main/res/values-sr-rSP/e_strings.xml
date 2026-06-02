@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Апликација Passwords је закључана</string>
     <string name="locked_account_dialog_message">Превише нетачних покушаја уноса главне лозинке. Откључајте свој налог у веб верзији Murena Passwords, а затим се овде поново пријавите.</string>
     <string name="locked_account_dialog_unlock">Откључај налог</string>
+    <string name="error_no_internet_connection">Нема интернет везе.</string>
 </resources>

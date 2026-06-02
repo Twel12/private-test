@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwords alkalmazás zárolva</string>
     <string name="locked_account_dialog_message">Túl sok helytelen mesterjelszó-próbálkozás. Oldja fel fiókja zárolását a Murena Passwords webes verziójában, majd jelentkezzen be itt újra.</string>
     <string name="locked_account_dialog_unlock">Fiók feloldása</string>
+    <string name="error_no_internet_connection">Nincs internetkapcsolat.</string>
 </resources>

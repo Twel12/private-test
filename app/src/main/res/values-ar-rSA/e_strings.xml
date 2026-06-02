@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">تطبيق كلمات المرور مقفل</string>
     <string name="locked_account_dialog_message">عدد كبير جدًا من محاولات كلمة المرور الرئيسية غير الصحيحة. افتح قفل حسابك في إصدار الويب من Murena Passwords، ثم سجّل الدخول هنا مرة أخرى.</string>
     <string name="locked_account_dialog_unlock">إلغاء قفل الحساب</string>
+    <string name="error_no_internet_connection">لا يوجد اتصال بالإنترنت.</string>
 </resources>

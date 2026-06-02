@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Aplikacja Passwords jest zablokowana</string>
     <string name="locked_account_dialog_message">Zbyt wiele nieprawidłowych prób wprowadzenia hasła głównego. Odblokuj swoje konto w internetowej wersji Murena Passwords, a następnie zaloguj się tutaj ponownie.</string>
     <string name="locked_account_dialog_unlock">Odblokuj konto</string>
+    <string name="error_no_internet_connection">Brak połączenia z internetem.</string>
 </resources>

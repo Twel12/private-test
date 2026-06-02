@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Ứng dụng Passwords đã bị khóa</string>
     <string name="locked_account_dialog_message">Đã có quá nhiều lần nhập sai mật khẩu chính. Hãy mở khóa tài khoản của bạn trong phiên bản web của Murena Passwords, rồi đăng nhập lại tại đây.</string>
     <string name="locked_account_dialog_unlock">Mở khóa tài khoản</string>
+    <string name="error_no_internet_connection">Không có kết nối Internet.</string>
 </resources>

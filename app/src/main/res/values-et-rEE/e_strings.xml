@@ -46,4 +46,5 @@
     <string name="locked_account_dialog_title">Passwordsi rakendus on lukustatud</string>
     <string name="locked_account_dialog_message">Põhiparooli jaoks on tehtud liiga palju valesid katseid. Ava oma konto lukustus Murena Passwordsi veebiversioonis ja logi seejärel siin uuesti sisse.</string>
     <string name="locked_account_dialog_unlock">Ava konto lukustus</string>
+    <string name="error_no_internet_connection">Internetiühendus puudub.</string>
 </resources>
