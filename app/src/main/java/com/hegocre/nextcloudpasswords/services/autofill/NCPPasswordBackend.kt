@@ -190,13 +190,15 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
             if (request.username.isNullOrBlank()) {
                 val candidates = saveInteractionCandidates(request)
-                return@withContext if (candidates.isEmpty()) {
-                    Timber.d("save ignored: username is missing package=${request.packageName}")
-                    PasswordSaveResult.Failed("Username is required to save a new password")
-                } else {
+                saveResultForMissingUsername(candidates.size)?.let { result ->
                     Timber.d("save needs user selection for password-only request")
-                    PasswordSaveResult.NeedsUserInteraction("Select the password to update")
+                    return@withContext result
                 }
+
+                Timber.d(
+                    "save creating new password-only entry package=${request.packageName}, " +
+                        "webDomain=${request.webDomain}, origin=${request.origin}"
+                )
             }
 
             Timber.d(
@@ -269,10 +271,6 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
 
         if (selectedCredentialId == null) {
-            if (request.username.isNullOrBlank()) {
-                Timber.d("save ignored: username is missing package=${request.packageName}")
-                return@withContext PasswordSaveResult.Failed("Username is required to save a new password")
-            }
             Timber.d(
                 "save creating new entry from user interaction package=${request.packageName}, " +
                     "usernamePresent=${request.username?.isNotBlank() == true}"
@@ -732,5 +730,13 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         const val DEFAULT_PASSWORD_HASH_LENGTH = 40
         const val LOCKED_DISPLAY_NAME = "Locked password"
         const val LOCKED_USERNAME = "Unlock to view"
+    }
+}
+
+internal fun saveResultForMissingUsername(candidateCount: Int): PasswordSaveResult? {
+    return if (candidateCount > 0) {
+        PasswordSaveResult.NeedsUserInteraction("Select the password to update")
+    } else {
+        null
     }
 }
