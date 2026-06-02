@@ -84,11 +84,6 @@ abstract class MurenaAutoFillService : AutofillService() {
 
     protected open fun isInlineAutofillEnabled(): Boolean = true
 
-    protected open fun shouldIgnoreFillRequest(
-        packageName: String,
-        webDomain: String?
-    ): Boolean = false
-
     override fun onFillRequest(
         request: FillRequest,
         cancellationSignal: CancellationSignal,
@@ -109,19 +104,6 @@ abstract class MurenaAutoFillService : AutofillService() {
         )
         if (loginFields.packageName == packageName) {
             Timber.d("Ignoring own package=${loginFields.packageName}")
-            fillCallback.onSuccess(
-                FillResponse.Builder()
-                    .disableAutofill(DISABLE_AUTOFILL_DURATION_MILLIS)
-                    .build()
-            )
-            return
-        }
-
-        if (shouldIgnoreFillRequest(loginFields.packageName, loginFields.webDomain)) {
-            Timber.d(
-                "Ignoring fill request package=${loginFields.packageName}, " +
-                    "webDomain=${loginFields.webDomain}"
-            )
             fillCallback.onSuccess(
                 FillResponse.Builder()
                     .disableAutofill(DISABLE_AUTOFILL_DURATION_MILLIS)
