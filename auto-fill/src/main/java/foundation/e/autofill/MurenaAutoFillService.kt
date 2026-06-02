@@ -130,6 +130,16 @@ abstract class MurenaAutoFillService : AutofillService() {
             return
         }
 
+        if (loginFields.isIgnoredContext) {
+            Timber.d("Ignoring autofill for package=${loginFields.packageName}")
+            fillCallback.onSuccess(
+                FillResponse.Builder()
+                    .disableAutofill(DISABLE_AUTOFILL_DURATION_MILLIS)
+                    .build()
+            )
+            return
+        }
+
         if (loginFields.usernameIds.isEmpty() && loginFields.passwordIds.isEmpty()) {
             Timber.d("No username/password AutofillIds found; returning null response")
             fillCallback.onSuccess(null)
@@ -657,7 +667,8 @@ abstract class MurenaAutoFillService : AutofillService() {
         val usernameIds: List<AutofillId>,
         val passwordIds: List<AutofillId>,
         val triggerId: AutofillId?,
-        val ignoredIds: List<AutofillId>
+        val ignoredIds: List<AutofillId>,
+        val isIgnoredContext: Boolean
     )
 
     private class LoginFieldParser(
@@ -670,6 +681,8 @@ abstract class MurenaAutoFillService : AutofillService() {
         private var lastTextId: AutofillId? = null
         private var usernameCandidateId: AutofillId? = null
         private var triggerId: AutofillId? = null
+        private var hasIgnoredContext = isIgnoredPackage(structure.activityComponent.packageName) ||
+            structure.activityComponent.className.containsAny(*IGNORED_CONTEXT_KEYWORDS)
 
         fun parse(): LoginFields {
             for (index in 0 until structure.windowNodeCount) {
@@ -689,16 +702,23 @@ abstract class MurenaAutoFillService : AutofillService() {
                 usernameIds = usernameIds,
                 passwordIds = passwordIds,
                 triggerId = triggerId,
-                ignoredIds = ignoredIds
+                ignoredIds = ignoredIds,
+                isIgnoredContext = hasIgnoredContext
             )
         }
 
-        private fun parseNode(node: AssistStructure.ViewNode?) {
+        private fun parseNode(node: AssistStructure.ViewNode?, isIgnoredSubtree: Boolean = false) {
             if (node == null) return
 
+            val shouldIgnoreNode = isIgnoredSubtree || node.shouldIgnore()
+            if (node.isIgnoredContext()) {
+                hasIgnoredContext = true
+            }
+
             node.autofillId?.let { autofillId ->
-                if (node.shouldIgnore()) {
+                if (shouldIgnoreNode) {
                     ignoredIds.add(autofillId)
+                    return@let
                 }
                 if (triggerId == null && node.isLikelyLoginTrigger()) {
                     triggerId = autofillId
@@ -721,7 +741,7 @@ abstract class MurenaAutoFillService : AutofillService() {
             }
 
             for (index in 0 until node.childCount) {
-                parseNode(node.getChildAt(index))
+                parseNode(node.getChildAt(index), shouldIgnoreNode)
             }
         }
 
@@ -731,12 +751,17 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         private fun AssistStructure.ViewNode.shouldIgnore(): Boolean {
-            return hint.containsAny("search", "otp", "one-time", "verification") ||
-                text.containsAny("search", "otp", "one-time", "verification") ||
+            return hint.containsAny(*IGNORED_FIELD_KEYWORDS, *IGNORED_CONTEXT_KEYWORDS) ||
+                text.containsAny(*IGNORED_FIELD_KEYWORDS, *IGNORED_CONTEXT_KEYWORDS) ||
                 autofillHints?.any {
                     it.contains("otp", ignoreCase = true) ||
                         it.contains("one", ignoreCase = true)
                 } == true
+        }
+
+        private fun AssistStructure.ViewNode.isIgnoredContext(): Boolean {
+            return hint.containsAny(*IGNORED_CONTEXT_KEYWORDS) ||
+                text.containsAny(*IGNORED_CONTEXT_KEYWORDS)
         }
 
         private fun AssistStructure.ViewNode.fieldType(): FieldType? {
@@ -786,6 +811,10 @@ abstract class MurenaAutoFillService : AutofillService() {
         private fun CharSequence?.containsAny(vararg needles: String): Boolean {
             val text = this?.toString()?.lowercase() ?: return false
             return needles.any(text::contains)
+        }
+
+        private fun isIgnoredPackage(packageName: String): Boolean {
+            return IGNORED_PACKAGE_NAMES.any { packageName == it || packageName.startsWith("$it.") }
         }
 
         private fun Int.isTextType(): Boolean {
@@ -867,6 +896,36 @@ abstract class MurenaAutoFillService : AutofillService() {
         const val APP_SELECTION_REQUEST_CODE = 29003
         const val UNLOCK_VAULT_REQUEST_CODE = 29004
         const val DISABLE_AUTOFILL_DURATION_MILLIS = 60 * 60 * 1000L
+        val IGNORED_PACKAGE_NAMES = setOf(
+            "com.android.settings",
+            "com.android.packageinstaller",
+            "com.android.permissioncontroller",
+            "com.android.provision",
+            "com.google.android.packageinstaller",
+            "com.google.android.permissioncontroller",
+            "com.google.android.setupwizard",
+            "foundation.e.setupwizard",
+            "foundation.e.settings"
+        )
+        val IGNORED_FIELD_KEYWORDS = arrayOf(
+            "search",
+            "otp",
+            "one-time",
+            "verification"
+        )
+        val IGNORED_CONTEXT_KEYWORDS = arrayOf(
+            "wifi",
+            "wi-fi",
+            "network",
+            "hotspot",
+            "settings",
+            "pin",
+            "passcode",
+            "screen lock",
+            "device password",
+            "sim",
+            "vpn"
+        )
         val NON_EMPTY_TEXT_PATTERN: Pattern = Pattern.compile(".+")
         val TRIM_TEXT_PATTERN: Pattern = Pattern.compile("^\\s*(.*?)\\s*$")
 
