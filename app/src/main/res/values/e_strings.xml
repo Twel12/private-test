@@ -33,6 +33,8 @@
     <string name="autofill_save_update_entry">Update %1$s</string>
     <string name="autofill_save_create_new_entry">Create new entry</string>
     <string name="autofill_save_select_password_to_update">Select the password to update</string>
+    <string name="autofill_manual_selection_title">Do you want to autofill or view this item?</string>
+    <string name="autofill_manual_selection_confirm">Autofill and save</string>
     <string name="login_welcome_icon">Passwords app icon</string>
     <string name="login_welcome_title">Welcome to Passwords</string>
     <string name="login_welcome_details">Choose to sync your credentials with your Murena Workspace account or another Nextcloud-based solution.</string>

@@ -136,6 +136,8 @@ class AutoLoginActivity : ComponentActivity() {
             "com.hegocre.nextcloudpasswords.extra.POST_LOGIN_DESTINATION"
         private const val EXTRA_AUTOFILL_SEARCH_HINT =
             "com.hegocre.nextcloudpasswords.extra.AUTOFILL_SEARCH_HINT"
+        const val EXTRA_AUTOFILL_WEB_DOMAIN =
+            "com.hegocre.nextcloudpasswords.extra.AUTOFILL_WEB_DOMAIN"
         private const val EXTRA_AUTOFILL_ASSIST_STRUCTURE =
             "com.hegocre.nextcloudpasswords.extra.AUTOFILL_ASSIST_STRUCTURE"
         private const val EXTRA_AUTOFILL_CONTINUATION_TOKEN =
@@ -150,7 +152,10 @@ class AutoLoginActivity : ComponentActivity() {
 
         fun intent(context: Context, sourceIntent: Intent? = null): Intent {
             return Intent(context, AutoLoginActivity::class.java).apply {
-                if (sourceIntent?.isAutofillSelectionRequest(context) == true) {
+                if (
+                    sourceIntent?.isAutofillSelectionRequest(context) == true ||
+                    sourceIntent?.isTrustedAutofillSelectionIntent(context) == true
+                ) {
                     putAutofillSelectionExtras(sourceIntent)
                     addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                 }
@@ -160,9 +165,11 @@ class AutoLoginActivity : ComponentActivity() {
         fun reauthenticationIntent(context: Context, sourceIntent: Intent? = null): Intent =
             intent(context, sourceIntent).putExtra(EXTRA_FORCE_SSO_REAUTHENTICATION, true)
 
-
-
-        fun autofillSelectionIntent(context: Context, searchHint: String): Intent {
+        fun autofillSelectionIntent(
+            context: Context,
+            searchHint: String,
+            webDomain: String?
+        ): Intent {
             val token = newAutofillContinuationToken(context)
             return Intent(context, AutoLoginActivity::class.java).apply {
                 putExtra(EXTRA_POST_LOGIN_DESTINATION, DESTINATION_AUTOFILL_SELECTION)
@@ -170,12 +177,14 @@ class AutoLoginActivity : ComponentActivity() {
                     EXTRA_AUTOFILL_SEARCH_HINT,
                     searchHint.take(MAX_AUTOFILL_SEARCH_HINT_LENGTH)
                 )
+                putExtra(EXTRA_AUTOFILL_WEB_DOMAIN, webDomain)
                 putExtra(EXTRA_AUTOFILL_CONTINUATION_TOKEN, token)
             }
         }
 
         fun autofillSelectionMainIntent(context: Context, sourceIntent: Intent): Intent {
             return Intent(context, MainActivity::class.java).apply {
+                putExtra(EXTRA_POST_LOGIN_DESTINATION, DESTINATION_AUTOFILL_SELECTION)
                 putExtra(NCPAutofillService.AUTOFILL_REQUEST, true)
                 putExtra(
                     NCPAutofillService.AUTOFILL_SEARCH_HINT,
@@ -184,6 +193,10 @@ class AutoLoginActivity : ComponentActivity() {
                 putExtra(
                     EXTRA_AUTOFILL_CONTINUATION_TOKEN,
                     sourceIntent.getStringExtra(EXTRA_AUTOFILL_CONTINUATION_TOKEN)
+                )
+                putExtra(
+                    EXTRA_AUTOFILL_WEB_DOMAIN,
+                    sourceIntent.getStringExtra(EXTRA_AUTOFILL_WEB_DOMAIN)
                 )
                 sourceIntent.getTrustedOrAutofillAssistStructure()?.let { assistStructure ->
                     putExtra(AutofillManager.EXTRA_ASSIST_STRUCTURE, assistStructure)
@@ -202,7 +215,11 @@ class AutoLoginActivity : ComponentActivity() {
                 EXTRA_AUTOFILL_CONTINUATION_TOKEN,
                 sourceIntent.getStringExtra(EXTRA_AUTOFILL_CONTINUATION_TOKEN)
             )
-            sourceIntent.getAutofillAssistStructure()?.let { assistStructure ->
+            putExtra(
+                EXTRA_AUTOFILL_WEB_DOMAIN,
+                sourceIntent.getStringExtra(EXTRA_AUTOFILL_WEB_DOMAIN)
+            )
+            sourceIntent.getTrustedOrAutofillAssistStructure()?.let { assistStructure ->
                 putExtra(EXTRA_AUTOFILL_ASSIST_STRUCTURE, assistStructure)
             }
         }

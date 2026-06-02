@@ -22,11 +22,14 @@ import coil.Coil
 import coil.ImageLoader
 import coil.disk.DiskCache
 import com.hegocre.nextcloudpasswords.BuildConfig
+import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.services.autofill.AutofillHelper
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillMetadata
 import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillService
+import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
@@ -35,6 +38,7 @@ import com.hegocre.nextcloudpasswords.utils.LogHelper
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
+import foundation.e.autofill.PasswordSaveResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -78,27 +82,22 @@ class MainActivity : FragmentActivity() {
                 AssistStructure::class.java
             )
 
-        val autofillRequested =
-            intent.getBooleanExtra(NCPAutofillService.AUTOFILL_REQUEST, false) &&
-                autofillAssistStructure != null &&
-                AutoLoginActivity.isTrustedAutofillSelectionIntent(this, intent)
+        val autofillSelectionState = resolveAutofillSelectionState(
+            autofillRequestedExtra = intent.getBooleanExtra(NCPAutofillService.AUTOFILL_REQUEST, false),
+            trustedAutofillSelection = AutoLoginActivity.isTrustedAutofillSelectionIntent(this, intent),
+            hasAssistStructure = autofillAssistStructure != null,
+            webDomain = intent.getStringExtra(AutoLoginActivity.EXTRA_AUTOFILL_WEB_DOMAIN)
+        )
+        val autofillRequested = autofillSelectionState.autofillRequested
         Timber.d("autofillRequested=$autofillRequested")
 
-        val autofillSearchQuery =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && autofillRequested) {
-                intent.getStringExtra(NCPAutofillService.AUTOFILL_SEARCH_HINT) ?: ""
-            } else {
-                ""
-            }
-
-        val replyAutofill: ((String, String, String) -> Unit)? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                && autofillRequested
-            ) {
-                { label, username, password ->
-                    autofillReply(Triple(label, username, password), autofillAssistStructure)
-                }
-            } else null
+        val autofillSearchQuery = autofillSearchQuery(autofillRequested)
+        val replyAutofill = createAutofillReply(
+            canReplyAutofill = autofillSelectionState.canReplyAutofill,
+            autofillAssistStructure = autofillAssistStructure
+        )
+        val manualWebAutofillWebsite = manualWebAutofillWebsite(autofillSelectionState)
+        val backend = NCPApplication.passwordBackend(this) as? NCPPasswordBackend
         observeSsoReauthenticationRequired(passwordsViewModel)
 
         passwordsViewModel.murenaSyncDisabled.observe(this) { disabled ->
@@ -142,6 +141,17 @@ class MainActivity : FragmentActivity() {
                     onStartE2eeMigration = { launchE2eeMigration(passwordsViewModel) },
                     onCancelE2eeMigration = { finish() },
                     replyAutofill = replyAutofill,
+                    manualWebAutofillWebsite = manualWebAutofillWebsite,
+                    onManualWebAutofillSave = { password ->
+                        if (backend == null || manualWebAutofillWebsite == null) {
+                            PasswordSaveResult.Failed("Manual autofill save is unavailable")
+                        } else {
+                            backend.linkWebsiteForManualSelection(
+                                password = password,
+                                website = manualWebAutofillWebsite
+                            )
+                        }
+                    },
                     isAutofillRequest = autofillRequested,
                     defaultSearchQuery = autofillSearchQuery
                 )
@@ -165,6 +175,39 @@ class MainActivity : FragmentActivity() {
     override fun onPause() {
         super.onPause()
         syncDisabled.onPause()
+    }
+
+    private fun autofillSearchQuery(autofillRequested: Boolean): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && autofillRequested) {
+            intent.getStringExtra(NCPAutofillService.AUTOFILL_SEARCH_HINT) ?: ""
+        } else {
+            ""
+        }
+    }
+
+    private fun createAutofillReply(
+        canReplyAutofill: Boolean,
+        autofillAssistStructure: AssistStructure?
+    ): ((String, String, String) -> Unit)? {
+        val assistStructure = autofillAssistStructure ?: return null
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && canReplyAutofill) {
+            { label, username, password ->
+                autofillReply(Triple(label, username, password), assistStructure)
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun manualWebAutofillWebsite(
+        autofillSelectionState: AutofillSelectionState
+    ): String? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            autofillSelectionState.manualWebAutofillWebsite
+        } else {
+            null
+        }
     }
 
     private fun logOut() {
@@ -229,4 +272,28 @@ class MainActivity : FragmentActivity() {
         finish()
     }
 
+}
+
+internal data class AutofillSelectionState(
+    val autofillRequested: Boolean,
+    val canReplyAutofill: Boolean,
+    val manualWebAutofillWebsite: String?
+)
+
+internal fun resolveAutofillSelectionState(
+    autofillRequestedExtra: Boolean,
+    trustedAutofillSelection: Boolean,
+    hasAssistStructure: Boolean,
+    webDomain: String?
+): AutofillSelectionState {
+    val autofillRequested = autofillRequestedExtra && trustedAutofillSelection
+    return AutofillSelectionState(
+        autofillRequested = autofillRequested,
+        canReplyAutofill = autofillRequested && hasAssistStructure,
+        manualWebAutofillWebsite = if (autofillRequested) {
+            NCPAutofillMetadata.normalizeWebsite(webDomain)
+        } else {
+            null
+        }
+    )
 }

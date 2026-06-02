@@ -30,7 +30,7 @@ class NCPAutofillService : MurenaAutoFillService() {
     ): Intent {
         val searchHint = webDomain
             ?: packageName.substringAfterLast('.')
-        return AutoLoginActivity.autofillSelectionIntent(this, searchHint)
+        return AutoLoginActivity.autofillSelectionIntent(this, searchHint, webDomain)
     }
 
     override fun saveInteractionIntent(request: PasswordSaveRequest): Intent {

@@ -119,6 +119,9 @@ class NCPAutofillMatcher(private val context: Context) {
         return listOf(label, username, url).any {
             it.lowercase().contains(normalizedCandidate)
         } ||
+            NCPAutofillMetadata.websiteUrls(customFields).any { customUrl ->
+                customUrl.matchesUrlCandidate(candidate)
+            } ||
             packageNames(this).any { it.equals(candidate, ignoreCase = true) } ||
             matchesEffectiveDomain(candidate) ||
             matches(candidate, strictUrlMatching = false)
@@ -163,13 +166,6 @@ class NCPAutofillMatcher(private val context: Context) {
             isKnownBrowserPackage(packageName)
     }
 
-    private fun String.effectiveDomainOrNull(): String? {
-        return runCatching {
-            val host = toUri().host ?: "https://$this".toUri().host ?: return null
-            PublicSuffixDatabase.get().getEffectiveTldPlusOne(host) ?: host
-        }.getOrNull()
-    }
-
     private fun loadBrowserPackages(): Set<String> {
         return runCatching {
             context.resources.getXml(R.xml.service_configuration).use { parser ->
@@ -198,6 +194,27 @@ class NCPAutofillMatcher(private val context: Context) {
 
 object NCPAutofillMetadata {
     private const val ANDROID_APPS_FIELD_LABEL = "Android apps"
+    private const val WEBSITE_FIELD_LABEL = "URL"
+    private val WEBSITE_FIELD_KEYWORDS = listOf("website", "url")
+
+    data class WebsiteAssociationUpdate(
+        val url: String,
+        val customFieldsJson: String
+    )
+
+    fun normalizeWebsite(website: String?): String? {
+        val trimmedWebsite = website?.trim().orEmpty()
+        if (trimmedWebsite.isBlank()) return null
+
+        return if (
+            trimmedWebsite.startsWith("http://") ||
+            trimmedWebsite.startsWith("https://")
+        ) {
+            trimmedWebsite
+        } else {
+            "https://$trimmedWebsite"
+        }
+    }
 
     fun packageNames(customFieldsJson: String): Set<String> {
         return customFields(customFieldsJson)
@@ -208,6 +225,25 @@ object NCPAutofillMetadata {
             ?.filter { it.isNotBlank() }
             ?.toSet()
             .orEmpty()
+    }
+
+    fun websiteUrls(customFieldsJson: String): List<String> {
+        return customFields(customFieldsJson)
+            .asSequence()
+            .filter(::isWebsiteLikeField)
+            .map { it.value.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .toList()
+    }
+
+    fun hasWebsiteAssociation(password: Password, website: String): Boolean {
+        val normalizedWebsite = normalizeWebsite(website) ?: return false
+
+        return password.matches(normalizedWebsite, strictUrlMatching = false) ||
+            websiteUrls(password.customFields).any { customUrl ->
+                customUrl.matchesUrlCandidate(normalizedWebsite)
+            }
     }
 
     fun withPackage(customFieldsJson: String, packageName: String): String {
@@ -234,6 +270,43 @@ object NCPAutofillMetadata {
         return Json.encodeToString(fields)
     }
 
+    fun linkWebsite(
+        currentUrl: String,
+        customFieldsJson: String,
+        website: String
+    ): WebsiteAssociationUpdate {
+        val normalizedWebsite = normalizeWebsite(website)
+        val update = if (normalizedWebsite == null) {
+            WebsiteAssociationUpdate(currentUrl, customFieldsJson)
+        } else if (currentUrl.isBlank()) {
+            WebsiteAssociationUpdate(
+                url = normalizedWebsite,
+                customFieldsJson = customFieldsJson
+            )
+        } else {
+            val fields = customFields(customFieldsJson).toMutableList()
+            val alreadyPresent = fields.any { field ->
+                isWebsiteLikeField(field) && field.value.trim() == normalizedWebsite
+            }
+            if (!alreadyPresent) {
+                fields.add(
+                    CustomField(
+                        label = WEBSITE_FIELD_LABEL,
+                        type = CustomField.TYPE_URL,
+                        value = normalizedWebsite
+                    )
+                )
+            }
+
+            WebsiteAssociationUpdate(
+                url = currentUrl,
+                customFieldsJson = Json.encodeToString(fields)
+            )
+        }
+
+        return update
+    }
+
     private fun customFields(customFieldsJson: String): List<CustomField> {
         if (customFieldsJson.isBlank()) return emptyList()
         return try {
@@ -244,4 +317,23 @@ object NCPAutofillMetadata {
             emptyList()
         }
     }
+
+    private fun isWebsiteLikeField(field: CustomField): Boolean {
+        return field.type.equals(CustomField.TYPE_URL, ignoreCase = true) ||
+            WEBSITE_FIELD_KEYWORDS.any { keyword ->
+                field.label.contains(keyword, ignoreCase = true)
+            }
+    }
+}
+
+private fun String.effectiveDomainOrNull(): String? {
+    return runCatching {
+        val host = toUri().host ?: "https://$this".toUri().host ?: return null
+        PublicSuffixDatabase.get().getEffectiveTldPlusOne(host) ?: host
+    }.getOrNull()
+}
+
+private fun String.matchesUrlCandidate(candidate: String): Boolean {
+    return lowercase().contains(candidate.lowercase()) ||
+        effectiveDomainOrNull() == candidate.effectiveDomainOrNull()
 }

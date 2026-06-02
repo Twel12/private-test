@@ -70,6 +70,7 @@
     <string name="top_level_folder_name">Home</string>
     <string name="folder">Folder</string>
     <string name="action_select">Select</string>
+    <string name="action_view">View</string>
     <string name="action_create_element">Create</string>
     <string name="edit_folder">Edit folder</string>
     <string name="error_folder_saving_failed">Folder saving has failed. Please, try again</string>
