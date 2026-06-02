@@ -320,7 +320,6 @@ abstract class MurenaAutoFillService : AutofillService() {
                     setOptionalIds(optionalIds)
                 }
                 loginFields.triggerId?.let(::setTriggerId)
-                setPositiveAction(SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE)
             }
             .build()
     }
