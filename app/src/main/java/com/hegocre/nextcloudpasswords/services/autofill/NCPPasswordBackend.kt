@@ -475,16 +475,23 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         password: Password,
         apiController: ApiController,
         updatedPassword: String,
-        packageName: String?
+        packageName: String?,
+        linkedWebsite: String? = null
     ): PasswordSaveResult {
         return if (apiController.updatePassword(
-                password.toUpdatedPassword(apiController, updatedPassword, packageName)
+                password.toUpdatedPassword(apiController, updatedPassword, packageName, linkedWebsite)
             )
         ) {
             PasswordController.getInstance(appContext).syncPasswords()
             PasswordSaveResult.Saved
         } else {
-            retryExistingPasswordUpdate(password, apiController, updatedPassword, packageName)
+            retryExistingPasswordUpdate(
+                password,
+                apiController,
+                updatedPassword,
+                packageName,
+                linkedWebsite
+            )
         }
     }
 
@@ -492,7 +499,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         password: Password,
         apiController: ApiController,
         updatedPassword: String,
-        packageName: String?
+        packageName: String?,
+        linkedWebsite: String?
     ): PasswordSaveResult {
         Timber.d("update failed for id=${password.id}; syncing and retrying once")
         PasswordController.getInstance(appContext).syncPasswords()
@@ -508,7 +516,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 password = latestPassword,
                 apiController = apiController,
                 updatedPassword = updatedPassword,
-                packageName = packageName
+                packageName = packageName,
+                linkedWebsite = linkedWebsite
             )
         }
     }
@@ -517,10 +526,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         password: Password,
         apiController: ApiController,
         updatedPassword: String,
-        packageName: String?
+        packageName: String?,
+        linkedWebsite: String?
     ): PasswordSaveResult {
         return if (apiController.updatePassword(
-                password.toUpdatedPassword(apiController, updatedPassword, packageName)
+                password.toUpdatedPassword(apiController, updatedPassword, packageName, linkedWebsite)
             )
         ) {
             PasswordController.getInstance(appContext).syncPasswords()
@@ -546,17 +556,22 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private fun Password.toUpdatedPassword(
         apiController: ApiController,
         updatedPassword: String,
-        packageName: String?
+        packageName: String?,
+        linkedWebsite: String? = null
     ): UpdatedPassword {
         val serverSettings = apiController.serverSettings.value
         val currentKeychain = apiController.csEv1Keychain.value
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
+        val websiteUpdate = linkedWebsite
+            ?.takeIf { it.isNotBlank() }
+            ?.let { NCPAutofillMetadata.linkWebsite(url, customFields, it) }
+        val updatedUrl = websiteUpdate?.url ?: url
         val updatedCustomFields = packageName
             ?.takeIf { it.isNotBlank() }
-            ?.let { NCPAutofillMetadata.withPackage(customFields, it) }
-            ?: customFields
+            ?.let { NCPAutofillMetadata.withPackage(websiteUpdate?.customFieldsJson ?: customFields, it) }
+            ?: (websiteUpdate?.customFieldsJson ?: customFields)
 
         return if (shouldEncrypt) {
             UpdatedPassword(
@@ -565,7 +580,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 password = updatedPassword.encryptValue(currentKeychain.current, currentKeychain),
                 label = label.encryptValue(currentKeychain.current, currentKeychain),
                 username = username.encryptValue(currentKeychain.current, currentKeychain),
-                url = url.encryptValue(currentKeychain.current, currentKeychain),
+                url = updatedUrl.encryptValue(currentKeychain.current, currentKeychain),
                 notes = notes.encryptValue(currentKeychain.current, currentKeychain),
                 customFields = updatedCustomFields.encryptValue(
                     currentKeychain.current,
@@ -586,7 +601,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 password = updatedPassword,
                 label = label,
                 username = username,
-                url = url,
+                url = updatedUrl,
                 notes = notes,
                 customFields = updatedCustomFields,
                 hash = updatedPassword.sha1Hash().take(hashLength),
@@ -598,6 +613,27 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 favorite = favorite
             )
         }
+    }
+
+    suspend fun linkWebsiteForManualSelection(
+        password: Password,
+        website: String
+    ): PasswordSaveResult = withContext(Dispatchers.IO) {
+        if (website.isBlank()) {
+            return@withContext PasswordSaveResult.Failed("No website available for manual autofill")
+        }
+
+        val apiController = apiControllerOrNull()
+            ?: return@withContext PasswordSaveResult.Failed("No account is configured")
+        if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+
+        updateExistingPassword(
+            password = password,
+            apiController = apiController,
+            updatedPassword = password.password,
+            packageName = null,
+            linkedWebsite = website
+        )
     }
 
     private fun PasswordSaveRequest.toNewPassword(apiController: ApiController): NewPassword {
@@ -657,9 +693,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private fun PasswordSaveRequest.saveUrl(): String {
-        return webDomain?.takeIf { it.isNotBlank() }?.let { domain ->
-            if (domain.startsWith("http://") || domain.startsWith("https://")) domain else "https://$domain"
-        }
+        return NCPAutofillMetadata.normalizeWebsite(webDomain)
             ?: origin?.takeIf { it.isNotBlank() }
             ?: ""
     }

@@ -240,6 +240,60 @@ fun LogOutDialog(
 }
 
 @Composable
+fun ManualAutofillSelectionDialog(
+    onAutofillAndSave: () -> Unit,
+    onView: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+    ) {
+        Surface(
+            color = colorResource(eR.color.e_floating_background),
+            contentColor = contentColorFor(backgroundColor = MaterialTheme.colorScheme.surface),
+            shape = MaterialTheme.shapes.extraLarge,
+        ) {
+            Column(modifier = Modifier.padding(vertical = 24.dp)) {
+                Text(
+                    text = stringResource(R.string.autofill_manual_selection_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .padding(horizontal = 24.dp)
+                )
+
+                EFloatingListItem(
+                    headlineContent = {
+                        Text(text = stringResource(R.string.autofill_manual_selection_confirm))
+                    },
+                    modifier = Modifier
+                        .clickable(onClick = onAutofillAndSave)
+                        .padding(horizontal = 8.dp)
+                )
+
+                EFloatingListItem(
+                    headlineContent = {
+                        Text(text = stringResource(R.string.action_view))
+                    },
+                    modifier = Modifier
+                        .clickable(onClick = onView)
+                        .padding(horizontal = 8.dp)
+                )
+
+                TextButton(
+                    onClick = onDismissRequest,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun E2eeMigrationDialog(
     onStartMigration: () -> Unit,
     onCancel: () -> Unit

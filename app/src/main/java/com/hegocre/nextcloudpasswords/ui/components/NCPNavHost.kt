@@ -46,6 +46,7 @@ import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillMetadata
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
@@ -65,7 +66,9 @@ fun NCPNavHost(
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     isAutofillRequest: Boolean,
+    manualWebAutofillWebsite: String? = null,
     openPasswordDetails: (Password, List<String>) -> Unit,
+    onManualAutofillChoiceRequested: (Password, List<String>) -> Unit,
     replyAutofill: ((String, String, String) -> Unit)? = null,
     modalSheetState: SheetState? = null,
     searchVisibility: Boolean? = null,
@@ -98,20 +101,34 @@ fun NCPNavHost(
 
     val baseFolderName = stringResource(R.string.top_level_folder_name)
     val onPasswordClick: (Password) -> Unit = { password ->
-        if (isAutofillRequest && replyAutofill != null) {
-            replyAutofill(password.label, password.username, password.password)
-        } else {
-            val folderPath = mutableListOf<String>()
-            var nextFolderUuid = password.folder
-            while (nextFolderUuid != FoldersApi.DEFAULT_FOLDER_UUID) {
-                val nextFolder =
-                    foldersDecryptionState.decryptedList?.find { it.id == nextFolderUuid }
-                nextFolder?.label?.let {
-                    folderPath.add(it)
-                }
-                nextFolderUuid = nextFolder?.parent ?: FoldersApi.DEFAULT_FOLDER_UUID
+        val folderPath = mutableListOf<String>()
+        var nextFolderUuid = password.folder
+        while (nextFolderUuid != FoldersApi.DEFAULT_FOLDER_UUID) {
+            val nextFolder =
+                foldersDecryptionState.decryptedList?.find { it.id == nextFolderUuid }
+            nextFolder?.label?.let {
+                folderPath.add(it)
             }
-            folderPath.add(baseFolderName)
+            nextFolderUuid = nextFolder?.parent ?: FoldersApi.DEFAULT_FOLDER_UUID
+        }
+        folderPath.add(baseFolderName)
+
+        if (isAutofillRequest) {
+            if (
+                manualWebAutofillWebsite != null &&
+                !NCPAutofillMetadata.hasWebsiteAssociation(password, manualWebAutofillWebsite)
+            ) {
+                onManualAutofillChoiceRequested(password, folderPath.toList())
+            } else if (replyAutofill != null) {
+                replyAutofill(
+                    password.label,
+                    password.username,
+                    password.password
+                )
+            } else {
+                openPasswordDetails(password, folderPath.toList())
+            }
+        } else {
             openPasswordDetails(password, folderPath.toList())
         }
     }

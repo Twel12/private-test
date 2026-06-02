@@ -64,7 +64,9 @@ import androidx.navigation.compose.rememberNavController
 import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.FoldersApi
+import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillPendingSaveStore
+import com.hegocre.nextcloudpasswords.services.autofill.AutofillSavingDialog
 import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillSaveInteractionActivity
 import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
 import com.hegocre.nextcloudpasswords.ui.NCPScreen
@@ -76,6 +78,21 @@ import foundation.e.elib.compose.components.EFloatingActionButtonExtended
 import foundation.e.elib.compose.components.EModalBottomSheet
 import foundation.e.elib.compose.theme.ETheme
 import kotlinx.coroutines.launch
+
+internal fun manualAutofillSaveMessage(
+    saveResult: PasswordSaveResult?,
+    fallbackMessage: String
+): String? {
+    return when (saveResult) {
+        PasswordSaveResult.Saved,
+        PasswordSaveResult.DuplicateIgnored,
+        is PasswordSaveResult.QueuedForRetry -> null
+        PasswordSaveResult.NeedsUnlock -> fallbackMessage
+        is PasswordSaveResult.NeedsUserInteraction -> saveResult.reason ?: fallbackMessage
+        is PasswordSaveResult.Failed -> saveResult.message ?: fallbackMessage
+        null -> fallbackMessage
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +112,8 @@ fun NextcloudPasswordsApp(
     defaultSearchQuery: String = "",
     onAutofillUnlockComplete: (() -> Unit)? = null,
     onPendingAutofillSaveComplete: ((PasswordSaveResult) -> Unit)? = null,
+    manualWebAutofillWebsite: String? = null,
+    onManualWebAutofillSave: (suspend (Password) -> PasswordSaveResult)? = null,
     replyAutofill: ((String, String, String) -> Unit)? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -134,6 +153,8 @@ fun NextcloudPasswordsApp(
     var unlockCompleteDelivered by remember { mutableStateOf(false) }
     var attemptedSecureMasterPasswordUnlock by rememberSaveable { mutableStateOf(false) }
     var showManualMasterPasswordDialog by rememberSaveable { mutableStateOf(false) }
+    var pendingManualAutofillChoice by remember { mutableStateOf<Pair<Password, List<String>>?>(null) }
+    var showManualAutofillSavingDialog by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -272,6 +293,23 @@ fun NextcloudPasswordsApp(
                 onPendingAutofillSaveComplete?.invoke(saveResult)
             }
         }
+    }
+    suspend fun completeManualAutofillSave(selected: Password) {
+        showManualAutofillSavingDialog = true
+        val saveMessage = manualAutofillSaveMessage(
+            saveResult = onManualWebAutofillSave?.invoke(selected),
+            fallbackMessage = context.getString(R.string.error_password_saving_failed)
+        )
+        showManualAutofillSavingDialog = false
+
+        saveMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+        replyAutofill?.invoke(
+            selected.label,
+            selected.username,
+            selected.password
+        )
     }
     LaunchedEffect(currentScreen) {
         fabMenuExpanded = false
@@ -466,17 +504,25 @@ fun NextcloudPasswordsApp(
                 }
             }
         ) { innerPadding ->
+            if (showManualAutofillSavingDialog) {
+                AutofillSavingDialog()
+            }
+
             NCPNavHost(
                 modifier = Modifier.padding(innerPadding),
                 navController = navController,
                 passwordsViewModel = passwordsViewModel,
                 searchQuery = searchQuery,
                 isAutofillRequest = isAutofillRequest,
+                manualWebAutofillWebsite = manualWebAutofillWebsite,
                 modalSheetState = modalSheetState,
                 openPasswordDetails = { password, folderPath ->
                     passwordsViewModel.setVisiblePassword(password, folderPath)
                     keyboardController?.hide()
                     openBottomSheet = true
+                },
+                onManualAutofillChoiceRequested = { password, folderPath ->
+                    pendingManualAutofillChoice = password to folderPath
                 },
                 replyAutofill = replyAutofill,
                 searchVisibility = searchExpanded,
@@ -504,6 +550,30 @@ fun NextcloudPasswordsApp(
                 E2eeMigrationDialog(
                     onStartMigration = onStartE2eeMigration,
                     onCancel = onCancelE2eeMigration
+                )
+            }
+
+            if (pendingManualAutofillChoice != null) {
+                ManualAutofillSelectionDialog(
+                    onAutofillAndSave = {
+                        pendingManualAutofillChoice?.let { (selected, _) ->
+                            pendingManualAutofillChoice = null
+                            coroutineScope.launch {
+                                completeManualAutofillSave(selected)
+                            }
+                        }
+                    },
+                    onView = {
+                        pendingManualAutofillChoice?.let { (password, folderPath) ->
+                            passwordsViewModel.setVisiblePassword(password, folderPath)
+                            keyboardController?.hide()
+                            openBottomSheet = true
+                        }
+                        pendingManualAutofillChoice = null
+                    },
+                    onDismissRequest = {
+                        pendingManualAutofillChoice = null
+                    }
                 )
             }
 
