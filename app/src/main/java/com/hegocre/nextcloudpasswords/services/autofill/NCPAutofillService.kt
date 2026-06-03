@@ -11,10 +11,6 @@ import foundation.e.autofill.PasswordSaveRequest
 
 class NCPAutofillService : MurenaAutoFillService() {
 
-    override fun shouldIgnoreFillRequest(packageName: String, webDomain: String?): Boolean {
-        return webDomain == null && packageName in IGNORED_FILL_PACKAGES
-    }
-
     override fun passwordBackend(): MurenaPasswordBackend {
         return NCPApplication.passwordBackend(this)
     }
@@ -44,11 +40,6 @@ class NCPAutofillService : MurenaAutoFillService() {
     companion object {
         const val AUTOFILL_REQUEST = "autofill_request"
         const val AUTOFILL_SEARCH_HINT = "autofill_query"
-
-        private val IGNORED_FILL_PACKAGES = setOf(
-            "com.android.settings",
-            "foundation.e.parentalcontrol",
-        )
     }
 
 }
