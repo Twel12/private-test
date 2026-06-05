@@ -63,6 +63,7 @@ import com.hegocre.nextcloudpasswords.ui.components.LockedAccountDialog
 import com.hegocre.nextcloudpasswords.ui.components.OutlinedTextFieldWithCaption
 import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
 import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel
+import foundation.e.backupappapi.PasswordsApp.EXTRA_IS_RESTORE
 import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
 import foundation.e.elib.compose.components.ELargeTopAppBar
@@ -74,7 +75,6 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "BackupAppSetupActivity"
-        private const val EXTRA_IS_RESTORE = "is_restore"
     }
 
     private val viewModel: BackupAppSetupViewModel by viewModels {
