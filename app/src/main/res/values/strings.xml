@@ -131,4 +131,11 @@
     <string name="preference_order_by_date_asc">Oldest first</string>
     <string name="preference_order_by_date_desc">Newest first</string>
     <string name="order_by_preference_title">Order content by</string>
+
+    <!-- Shown when Nextcloud 2FA blocks Passwords sync and an app password must be acquired -->
+    <string name="two_factor_app_password_title">Passwords sync paused</string>
+    <string name="two_factor_app_password_message">Your Nextcloud account has two-factor authentication enabled. Sign in once to enable Passwords sync.</string>
+    <string name="two_factor_app_password_enable">Enable sync</string>
+    <string name="two_factor_app_password_not_now">Not now</string>
+    <string name="two_factor_app_password_unavailable">Couldn\'t open the sign-in screen. Please make sure your account manager is up to date.</string>
 </resources>

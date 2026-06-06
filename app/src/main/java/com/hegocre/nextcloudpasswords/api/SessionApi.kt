@@ -6,6 +6,8 @@ import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
+import com.hegocre.nextcloudpasswords.api.exceptions.twoFactorErrorCodeOrNull
+import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
@@ -62,16 +64,9 @@ class SessionApi private constructor(private var server: Server) {
                 Timber.e(e)
                 return Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
             } catch (e: HttpStatusException) {
-                return when (e.statusCode) {
-                    HttpURLConnection.HTTP_FORBIDDEN,
-                    HttpURLConnection.HTTP_UNAUTHORIZED -> throw ClientDeauthorizedException()
-                    else -> Result.Error(Error.API_BAD_RESPONSE)
-                }
+                return e.toRequestSessionHttpError()
             } catch (e: Exception) {
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace()
-                }
-                return Result.Error(0)
+                return e.toRequestSessionError()
             }
 
             val code = apiResponse.code
@@ -129,22 +124,45 @@ class SessionApi private constructor(private var server: Server) {
             when (e.statusCode) {
                 HttpURLConnection.HTTP_UNAUTHORIZED -> throw PWDv1ChallengeMasterKeyInvalidException()
                 HttpURLConnection.HTTP_FORBIDDEN -> throw ClientDeauthorizedException()
+                HttpURLConnection.HTTP_SEE_OTHER ->
+                    OpenSessionAttempt.Failed(Result.Error(Error.TWO_FACTOR_APP_PASSWORD_REQUIRED))
                 else -> OpenSessionAttempt.Failed(Result.Error(Error.API_BAD_RESPONSE))
             }
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             OpenSessionAttempt.Failed(Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED))
         } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace()
-            }
-            OpenSessionAttempt.Failed(Result.Error(Error.UNKNOWN))
+            e.toOpenSessionFailure()
         }
 
         return when (attempt) {
             is OpenSessionAttempt.Response -> attempt.response.toOpenSessionResult()
             is OpenSessionAttempt.Failed -> attempt.result
         }
+    }
+
+    private fun HttpStatusException.toRequestSessionHttpError(): Result<PWDv1Challenge> =
+        when (statusCode) {
+            HttpURLConnection.HTTP_FORBIDDEN,
+            HttpURLConnection.HTTP_UNAUTHORIZED -> throw ClientDeauthorizedException()
+            HttpURLConnection.HTTP_SEE_OTHER -> Result.Error(Error.TWO_FACTOR_APP_PASSWORD_REQUIRED)
+            else -> Result.Error(Error.API_BAD_RESPONSE)
+        }
+
+    private fun Exception.recoverableErrorCodeOrNull(): Int? =
+        twoFactorErrorCodeOrNull()
+            ?: Error.API_BAD_RESPONSE.takeIf { AppPasswordRequest.isBlockingRequests() }
+
+    private fun Exception.toRequestSessionError(): Result<PWDv1Challenge> {
+        val code = recoverableErrorCodeOrNull()
+        if (code == null && BuildConfig.DEBUG) printStackTrace()
+        return Result.Error(code ?: 0)
+    }
+
+    private fun Exception.toOpenSessionFailure(): OpenSessionAttempt.Failed {
+        val code = recoverableErrorCodeOrNull()
+        if (code == null && BuildConfig.DEBUG) printStackTrace()
+        return OpenSessionAttempt.Failed(Result.Error(code ?: Error.UNKNOWN))
     }
 
     private suspend fun postOpenSession(jsonChallenge: String): OpenSessionResponse =

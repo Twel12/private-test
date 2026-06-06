@@ -1,6 +1,7 @@
 package com.hegocre.nextcloudpasswords.ui.activities
 
 import android.app.assist.AssistStructure
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
@@ -10,6 +11,7 @@ import android.view.autofill.AutofillManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collectAsState
@@ -48,6 +50,13 @@ import timber.log.Timber
 class MainActivity : FragmentActivity() {
 
     private val passwordsViewModel by viewModels<PasswordsViewModel>()
+
+    // Launches the AccountManager 2FA app-password flow. When the user returns (grant done or
+    // cancelled), refetch so a freshly stored app password takes effect and the prompt clears.
+    private val appPasswordLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            passwordsViewModel.onReturnedFromAppPasswordFlow()
+        }
 
     private val syncDisabled: MurenaSyncDisabledFlow by lazy {
         MurenaSyncDisabledFlow(
@@ -99,6 +108,21 @@ class MainActivity : FragmentActivity() {
         val manualWebAutofillWebsite = manualWebAutofillWebsite(autofillSelectionState)
         val backend = NCPApplication.passwordBackend(this) as? NCPPasswordBackend
         observeSsoReauthenticationRequired(passwordsViewModel)
+        observeAppPasswordRequired(passwordsViewModel) { intent ->
+            if (!SsoAccount.hasValidAccountManagerSignature(this)) {
+                Timber.e("AccountManager signature mismatch; refusing app-password launch")
+                passwordsViewModel.onAppPasswordFlowUnavailable()
+                Toast.makeText(this, R.string.two_factor_app_password_unavailable, Toast.LENGTH_LONG).show()
+                return@observeAppPasswordRequired
+            }
+            try {
+                appPasswordLauncher.launch(intent)
+            } catch (e: ActivityNotFoundException) {
+                Timber.e(e, "AccountManager app-password activity unavailable")
+                passwordsViewModel.onAppPasswordFlowUnavailable()
+                Toast.makeText(this, R.string.two_factor_app_password_unavailable, Toast.LENGTH_LONG).show()
+            }
+        }
 
         passwordsViewModel.murenaSyncDisabled.observe(this) { disabled ->
             if (disabled) {

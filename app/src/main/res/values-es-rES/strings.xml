@@ -131,4 +131,8 @@
     <string name="preference_order_by_date_asc">Más antiguo primero</string>
     <string name="preference_order_by_date_desc">Más reciente primero</string>
     <string name="order_by_preference_title">Ordenar el contenido por</string>
+    <string name="two_factor_app_password_title">Sincronización de contraseñas en pausa</string>
+    <string name="two_factor_app_password_message">Tu cuenta de Nextcloud tiene la autenticación en dos pasos activada. Inicia sesión una vez para activar la sincronización de contraseñas.</string>
+    <string name="two_factor_app_password_enable">Activar sincronización</string>
+    <string name="two_factor_app_password_unavailable">No se pudo abrir la pantalla de inicio de sesión. Asegúrate de que tu gestor de cuentas esté actualizado.</string>
 </resources>
