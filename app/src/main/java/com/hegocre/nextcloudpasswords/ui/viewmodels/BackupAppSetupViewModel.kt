@@ -13,6 +13,7 @@ import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.data.password.PasswordController
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.data.user.UserException
 import com.hegocre.nextcloudpasswords.ui.migration.E2eeMigrationFlowHandler
@@ -20,6 +21,7 @@ import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import foundation.e.data.SetupResponse
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -272,6 +274,14 @@ class BackupAppSetupViewModel(private val application: Application) :
             }
             if (sessionOpened) {
                 MasterPasswordMemoryStore.set(passphrase)
+                // Warm the Room cache while the session is still open so downstream consumers
+                // (Backup app, autofill) hit the cache instead of triggering their own sync.
+                runCatching {
+                    PasswordController.getInstance(getApplication()).syncPasswords()
+                }.onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w(TAG, "post-master-password sync failed", it)
+                }
             }
             sessionOpened
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
