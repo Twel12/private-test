@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="preferences_category_search">Search</string>
+    <string name="two_factor_app_password_title">Sincronizzazione delle password in pausa</string>
+    <string name="two_factor_app_password_message">L\'autenticazione a due fattori è abilitata per il tuo account Nextcloud. Accedi una volta per abilitare la sincronizzazione delle password.</string>
+    <string name="two_factor_app_password_enable">Abilita sincronizzazione</string>
+    <string name="two_factor_app_password_unavailable">Impossibile aprire la schermata di accesso. Assicurati che il gestore account sia aggiornato.</string>
 </resources>

@@ -3,7 +3,6 @@ package com.hegocre.nextcloudpasswords.ui.activities
 import android.accounts.Account
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import com.hegocre.nextcloudpasswords.data.user.UserController.Companion.getInstance
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
@@ -52,10 +51,8 @@ abstract class BaseAutoLogin(val activity: Activity) {
         AccountImporter.pickAccount(activity, murenaAccount)
     }
 
-    private fun isSignatureMismatchWithAccountManager() = activity.packageManager.checkSignatures(
-        ACCOUNT_MANAGER_PACKAGE,
-        activity.packageName
-    ) != PackageManager.SIGNATURE_MATCH
+    private fun isSignatureMismatchWithAccountManager() =
+        !SsoAccount.hasValidAccountManagerSignature(activity)
 
     private fun onSsoLoginSuccess(ssoAccount: SingleSignOnAccount) {
         SingleAccountHelper.commitCurrentAccount(activity.application, ssoAccount.name)
@@ -69,11 +66,6 @@ abstract class BaseAutoLogin(val activity: Activity) {
         } catch (_: AccountImportCancelledException) {
             ssoFailed()
         }
-    }
-
-
-    companion object {
-        private const val ACCOUNT_MANAGER_PACKAGE = "foundation.e.accountmanager"
     }
 
 }

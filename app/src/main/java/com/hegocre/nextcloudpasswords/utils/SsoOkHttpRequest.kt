@@ -35,6 +35,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import timber.log.Timber
 import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -206,11 +207,21 @@ class SsoOkHttpRequest(
     }
 
     private fun performSsoRequest(request: NextcloudRequest) = try {
-        ssoApi.performNetworkRequestV2(request)
+        ssoApi.performNetworkRequestV2(request).also {
+            // Success on an app route means auth is working again — dismiss any pending 2FA prompt.
+            AppPasswordRequest.clear()
+        }
     } catch (e: TokenMismatchException) {
         Timber.e(e)
         throw SsoReauthenticationRequiredException(e)
     } catch (e: NextcloudHttpRequestFailedException) {
+        if (e.statusCode == HttpURLConnection.HTTP_SEE_OTHER) {
+            // Nextcloud 2FA is blocking this app route — surface the prompt to mint an app password.
+            AppPasswordRequest.signal(
+                accountName = ssoAccount.name,
+                accountType = SsoAccount.MURENA_ACCOUNT_TYPE
+            )
+        }
         throw HttpStatusException(statusCode = e.statusCode, cause = e)
     } catch (e: Exception) {
         // this intentional `performNetworkRequestV2` can throw generic `Exception`

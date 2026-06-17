@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.ui.components.NCPLoginScreen
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,7 +66,7 @@ class LoginActivity : ComponentActivity() {
     private suspend fun getAddAccountIntent(): Intent? = try {
         val bundle = withContext(Dispatchers.IO) {
             AccountManager.get(this@LoginActivity).addAccount(
-                MURENA_ACCOUNT_TYPE,
+                SsoAccount.MURENA_ACCOUNT_TYPE,
                 OAUTH2_ACCESS_TOKEN_TYPE,
                 null,
                 null,
@@ -108,7 +109,6 @@ class LoginActivity : ComponentActivity() {
 
     companion object {
         private const val LOGIN_ACTIVITY_TAG = "LoginActivity"
-        private const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
         private const val OAUTH2_ACCESS_TOKEN_TYPE = "oauth2-access-token"
     }
 }

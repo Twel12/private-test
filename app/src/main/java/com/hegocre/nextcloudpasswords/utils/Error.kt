@@ -10,6 +10,7 @@ object Error {
     const val SSL_HANDSHAKE_EXCEPTION = 20000
 
     const val SSO_REAUTHENTICATION_REQUIRED = 30000
+    const val TWO_FACTOR_APP_PASSWORD_REQUIRED = 30001
 
     const val UNKNOWN = -1
 }

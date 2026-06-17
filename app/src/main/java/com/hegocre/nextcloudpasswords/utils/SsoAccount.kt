@@ -19,6 +19,7 @@ package com.hegocre.nextcloudpasswords.utils
 import android.accounts.Account
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException
 import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException
 import com.nextcloud.android.sso.AccountImporter
@@ -59,6 +60,13 @@ object SsoAccount {
         return isMurenaSyncEnabled(murenaAccount)
     }
 
+    /** Whether the installed AccountManager is signed with the same certificate as this app. */
+    fun hasValidAccountManagerSignature(context: Context): Boolean =
+        context.packageManager.checkSignatures(
+            ACCOUNT_MANAGER_PACKAGE,
+            context.packageName
+        ) == PackageManager.SIGNATURE_MATCH
+
     private fun findMurenaAccounts(context: Context): List<Account> {
         return try {
             AccountImporter.findAccounts(context)
@@ -69,7 +77,8 @@ object SsoAccount {
         }
     }
 
-    private const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
+    const val MURENA_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
+    const val ACCOUNT_MANAGER_PACKAGE = "foundation.e.accountmanager"
     private const val CONTENT_AUTHORITY =
         "foundation.e.passwords.providers.PasswordSyncProvider"
 

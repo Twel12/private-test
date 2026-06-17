@@ -22,10 +22,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.hegocre.nextcloudpasswords.data.user.UserController
+import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import java.util.Optional
 
 const val ACTION_ACCOUNT_REMOVED: String = "foundation.e.accountmanager.action.ACCOUNT_REMOVED"
-const val SUPPORTED_ACCOUNT_TYPE = "e.foundation.webdav.eelo"
 
 class AccountRemovedReceiver : BroadcastReceiver() {
 
@@ -54,7 +54,7 @@ class AccountRemovedReceiver : BroadcastReceiver() {
 
     private fun isSupportedAccountType(data: Bundle): Boolean {
         val accountTpe = data.getString(AccountManager.KEY_ACCOUNT_TYPE)
-        return SUPPORTED_ACCOUNT_TYPE == accountTpe
+        return SsoAccount.MURENA_ACCOUNT_TYPE == accountTpe
     }
 
 }

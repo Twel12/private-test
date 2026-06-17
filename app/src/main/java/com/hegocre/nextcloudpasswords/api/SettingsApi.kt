@@ -1,8 +1,11 @@
 package com.hegocre.nextcloudpasswords.api
 
 import com.hegocre.nextcloudpasswords.BuildConfig
+import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.SsoReauthenticationRequiredException
+import com.hegocre.nextcloudpasswords.api.exceptions.twoFactorErrorCodeOrNull
 import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
+import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
@@ -10,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import timber.log.Timber
+import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 
@@ -58,11 +62,24 @@ class SettingsApi private constructor(private val server: Server) {
         } catch (e: SsoReauthenticationRequiredException) {
             Timber.e(e)
             Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace()
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_SEE_OTHER) {
+                Result.Error(Error.TWO_FACTOR_APP_PASSWORD_REQUIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
             }
-            Result.Error(Error.UNKNOWN)
+        } catch (e: Exception) {
+            val twoFactorError = e.twoFactorErrorCodeOrNull()
+            when {
+                twoFactorError != null -> Result.Error(twoFactorError)
+                AppPasswordRequest.isBlockingRequests() -> Result.Error(Error.API_BAD_RESPONSE)
+                else -> {
+                    if (BuildConfig.DEBUG) {
+                        e.printStackTrace()
+                    }
+                    Result.Error(Error.UNKNOWN)
+                }
+            }
         }
 
     }

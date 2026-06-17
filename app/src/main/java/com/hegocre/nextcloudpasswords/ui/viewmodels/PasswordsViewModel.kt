@@ -49,6 +49,7 @@ import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.SsoOkHttpRequest
+import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -100,6 +101,36 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun clearSsoReauthenticationRequired() {
         apiController.clearSsoReauthenticationRequired()
+    }
+
+    val appPasswordRequired: StateFlow<AppPasswordRequest.Prompt?>
+        get() = AppPasswordRequest.required
+
+    fun onLaunchingAppPasswordFlow() {
+        AppPasswordRequest.pause()
+    }
+
+    fun onAppPasswordFlowUnavailable() {
+        AppPasswordRequest.disable()
+    }
+
+    fun onAppPasswordFlowDismissed() {
+        AppPasswordRequest.disable()
+    }
+
+    fun onReturnedFromAppPasswordFlow() {
+        viewModelScope.launch {
+            var accessRestored = false
+            AppPasswordRequest.pause()
+            try {
+                accessRestored = apiController.refreshServerSettings()
+                if (accessRestored) {
+                    syncInternal()
+                }
+            } finally {
+                AppPasswordRequest.resume(showPendingPrompt = !accessRestored)
+            }
+        }
     }
 
     val sessionOpen
@@ -232,7 +263,9 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                 syncPasswordsAndFolders()
                 return
             }
-            _showSessionOpenError.emit(true)
+            if (!AppPasswordRequest.isBlockingRequests()) {
+                _showSessionOpenError.emit(true)
+            }
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
             _needsMasterPassword.emit(true)
         } catch (_: ClientDeauthorizedException) {
@@ -293,18 +326,20 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     fun sync() {
         if (_isRefreshing.value) return
 
+        viewModelScope.launch {
+            syncInternal()
+        }
+    }
+
+    private suspend fun syncInternal() {
         if (shouldStopForMurenaSyncDisabled()) {
             return
         }
 
         if (sessionOpen.value) {
-            viewModelScope.launch {
-                syncPasswordsAndFolders()
-            }
+            syncPasswordsAndFolders()
         } else {
-            viewModelScope.launch {
-                openSession(masterPassword.value)
-            }
+            openSession(masterPassword.value)
         }
     }
 

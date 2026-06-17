@@ -19,6 +19,7 @@ import com.hegocre.nextcloudpasswords.data.password.DeletedPassword
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
+import com.hegocre.nextcloudpasswords.data.serversettings.ServerSettings
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker
 import com.hegocre.nextcloudpasswords.utils.Error
@@ -27,6 +28,7 @@ import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.Result
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
+import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
 import com.hegocre.nextcloudpasswords.utils.encryptValue
 import com.hegocre.nextcloudpasswords.utils.sha1Hash
 import com.nextcloud.android.sso.AccountImporter
@@ -163,15 +165,20 @@ class ApiController private constructor(context: Context) {
                     requireSsoReauthentication()
                     return@launch
                 }
-                Log.e("ServerSettings", "Error getting server settings")
-                delay(5000L)
+                if (result is Result.Error &&
+                    result.code == Error.TWO_FACTOR_APP_PASSWORD_REQUIRED
+                ) {
+                    AppPasswordRequest.awaitRequestsUnblocked()
+                } else if (AppPasswordRequest.isBlockingRequests()) {
+                    AppPasswordRequest.awaitRequestsUnblocked()
+                } else {
+                    Log.e("ServerSettings", "Error getting server settings")
+                    delay(5000L)
+                }
                 result = settingsApi.get()
             }
             Log.i("ServerSettings", "Got server settings")
-            val settings = result.data
-            serverSettings.postValue(settings)
-            preferencesManager.setServerSettings(settings)
-            preferencesManager.setInstanceColor(settings.themeColorPrimary)
+            applyServerSettings(result.data)
         }
 
     }
@@ -185,6 +192,24 @@ class ApiController private constructor(context: Context) {
 
     fun isSsoReauthenticationRequired(): Boolean {
         return _ssoReauthenticationRequired.value
+    }
+
+    suspend fun refreshServerSettings(): Boolean {
+        val result = settingsApi.get()
+        if (result is Result.Success) {
+            applyServerSettings(result.data)
+            return true
+        }
+        if (result is Result.Error && result.code == Error.SSO_REAUTHENTICATION_REQUIRED) {
+            requireSsoReauthentication()
+        }
+        return false
+    }
+
+    private suspend fun applyServerSettings(settings: ServerSettings) {
+        serverSettings.postValue(settings)
+        preferencesManager.setServerSettings(settings)
+        preferencesManager.setInstanceColor(settings.themeColorPrimary)
     }
 
     fun clearSsoReauthenticationRequired() {
@@ -321,6 +346,12 @@ class ApiController private constructor(context: Context) {
             requireSsoReauthentication()
             return null
         }
+        if (code == Error.TWO_FACTOR_APP_PASSWORD_REQUIRED) {
+            return null
+        }
+        if (AppPasswordRequest.isBlockingRequests()) {
+            return null
+        }
 
         logRequestSessionError(code)
         return null
@@ -361,6 +392,12 @@ class ApiController private constructor(context: Context) {
     private fun handleOpenSessionError(code: Int): Pair<String, String>? {
         if (code == Error.SSO_REAUTHENTICATION_REQUIRED) {
             requireSsoReauthentication()
+            return null
+        }
+        if (code == Error.TWO_FACTOR_APP_PASSWORD_REQUIRED) {
+            return null
+        }
+        if (AppPasswordRequest.isBlockingRequests()) {
             return null
         }
 

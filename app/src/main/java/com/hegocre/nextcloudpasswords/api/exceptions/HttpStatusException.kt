@@ -16,9 +16,26 @@
  */
 package com.hegocre.nextcloudpasswords.api.exceptions
 
+import com.hegocre.nextcloudpasswords.utils.Error
 import java.io.IOException
+import java.net.HttpURLConnection
 
 class HttpStatusException(
     val statusCode: Int,
     cause: Throwable? = null
 ) : IOException("HTTP request failed with status $statusCode", cause)
+
+fun Throwable.httpStatusCodeOrNull(): Int? {
+    var current: Throwable? = this
+    while (current != null) {
+        if (current is HttpStatusException) return current.statusCode
+        current = current.cause
+    }
+    return null
+}
+
+fun Throwable.twoFactorErrorCodeOrNull(): Int? =
+    if (httpStatusCodeOrNull() == HttpURLConnection.HTTP_SEE_OTHER)
+        Error.TWO_FACTOR_APP_PASSWORD_REQUIRED
+    else
+        null

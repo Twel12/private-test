@@ -126,4 +126,8 @@
     <string name="use_strict_domain_matching_preference_subtitle">Passwörter nach der vollständigen Domain abgleichen, ohne Subdomains</string>
     <string name="action_discard">Verwerfen</string>
     <string name="dialog_discard_changes_text">Änderungen an diesem Element werden verworfen. Möchten Sie fortfahren?</string>
+    <string name="two_factor_app_password_title">Passwort-Synchronisierung pausiert</string>
+    <string name="two_factor_app_password_message">Für Ihr Nextcloud-Konto ist die Zwei-Faktor-Authentifizierung aktiviert. Melden Sie sich einmal an, um die Passwort-Synchronisierung zu aktivieren.</string>
+    <string name="two_factor_app_password_enable">Synchronisierung aktivieren</string>
+    <string name="two_factor_app_password_unavailable">Der Anmeldebildschirm konnte nicht geöffnet werden. Bitte stellen Sie sicher, dass Ihr Kontomanager aktuell ist.</string>
 </resources>
