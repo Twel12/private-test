@@ -9,9 +9,14 @@ import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
@@ -68,24 +73,148 @@ class SettingsApi private constructor(private val server: Server) {
             } else {
                 Result.Error(Error.API_BAD_RESPONSE)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            val twoFactorError = e.twoFactorErrorCodeOrNull()
-            when {
-                twoFactorError != null -> Result.Error(twoFactorError)
-                AppPasswordRequest.isBlockingRequests() -> Result.Error(Error.API_BAD_RESPONSE)
-                else -> {
-                    if (BuildConfig.DEBUG) {
-                        e.printStackTrace()
-                    }
-                    Result.Error(Error.UNKNOWN)
-                }
-            }
+            mapUnexpectedError(e)
         }
 
     }
 
+    private fun mapUnexpectedError(e: Exception): Result<ServerSettings> {
+        val twoFactorError = e.twoFactorErrorCodeOrNull()
+        return when {
+            twoFactorError != null -> Result.Error(twoFactorError)
+            AppPasswordRequest.isBlockingRequests() -> Result.Error(Error.API_BAD_RESPONSE)
+            else -> {
+                if (BuildConfig.DEBUG) e.printStackTrace()
+                Result.Error(Error.UNKNOWN)
+            }
+        }
+    }
+
+    suspend fun getUserSetting(key: String, sessionCode: String? = null): Result<String?> {
+        return try {
+            val apiResponse = withContext(Dispatchers.IO) {
+                OkHttpRequest.getInstance().post(
+                    sUrl = server.url + GET_URL,
+                    sessionCode = sessionCode,
+                    body = Json.encodeToString(listOf(key)),
+                    mediaType = OkHttpRequest.JSON,
+                    username = server.username,
+                    password = server.password,
+                )
+            }
+
+            val code = apiResponse.code
+            val body = withContext(Dispatchers.IO) {
+                apiResponse.use { it.body.string() }
+            }
+
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
+            if (code != 200) {
+                return Result.Error(Error.API_BAD_RESPONSE)
+            }
+
+            Result.Success(extractStringValue(body, key))
+        } catch (e: SocketTimeoutException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.API_TIMEOUT)
+        } catch (e: SSLHandshakeException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) e.printStackTrace()
+            Result.Error(Error.UNKNOWN)
+        }
+    }
+
+    suspend fun setUserSetting(
+        key: String,
+        value: String,
+        sessionCode: String? = null,
+    ): Result<Unit> {
+        return try {
+            val body = Json.encodeToString(
+                JsonObject(mapOf(key to JsonPrimitive(value)))
+            )
+            val apiResponse = withContext(Dispatchers.IO) {
+                OkHttpRequest.getInstance().post(
+                    sUrl = server.url + SET_URL,
+                    sessionCode = sessionCode,
+                    body = body,
+                    mediaType = OkHttpRequest.JSON,
+                    username = server.username,
+                    password = server.password,
+                )
+            }
+
+            val code = withContext(Dispatchers.IO) { apiResponse.use { it.code } }
+
+            if (code == HttpURLConnection.HTTP_PRECON_FAILED) {
+                return Result.Error(Error.API_SESSION_EXPIRED)
+            }
+
+            if (code !in 200..201) {
+                return Result.Error(Error.API_BAD_RESPONSE)
+            }
+
+            Result.Success(Unit)
+        } catch (e: SocketTimeoutException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.API_TIMEOUT)
+        } catch (e: SSLHandshakeException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) e.printStackTrace()
+            Result.Error(Error.UNKNOWN)
+        }
+    }
+
+    private fun extractStringValue(body: String, key: String): String? {
+        val obj = Json.parseToJsonElement(body) as? JsonObject ?: return null
+        val value = obj[key] ?: return null
+        if (value is JsonNull) return null
+        return (value as? JsonPrimitive)?.contentOrNull
+    }
+
     companion object {
         private const val GET_URL = "/index.php/apps/passwords/api/1.0/settings/get"
+        private const val SET_URL = "/index.php/apps/passwords/api/1.0/settings/set"
 
         private var instance: SettingsApi? = null
 

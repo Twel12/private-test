@@ -48,6 +48,7 @@
     <ID>MagicNumber:ServiceApi.kt$ServiceApi$200</ID>
     <ID>MagicNumber:ServiceApi.kt$ServiceApi$256</ID>
     <ID>MagicNumber:SettingsApi.kt$SettingsApi$200</ID>
+    <ID>MagicNumber:SettingsApi.kt$SettingsApi$201</ID>
     <ID>MagicNumber:WebLoginActivity.kt$WebLoginActivity$3</ID>
     <ID>MatchingDeclarationName:FolderEditView.kt$EditableFolderState</ID>
     <ID>MatchingDeclarationName:ItemList.kt$ListDecryptionState&lt;T&gt;</ID>
@@ -78,7 +79,6 @@
     <ID>NewLineAtEndOfFile:Color.kt$com.hegocre.nextcloudpasswords.ui.theme.Color.kt</ID>
     <ID>NewLineAtEndOfFile:ContentAlpha.kt$com.hegocre.nextcloudpasswords.ui.theme.ContentAlpha.kt</ID>
     <ID>NewLineAtEndOfFile:EncryptionUtils.kt$com.hegocre.nextcloudpasswords.utils.EncryptionUtils.kt</ID>
-    <ID>NewLineAtEndOfFile:Error.kt$com.hegocre.nextcloudpasswords.utils.Error.kt</ID>
     <ID>NewLineAtEndOfFile:FolderController.kt$com.hegocre.nextcloudpasswords.data.folder.FolderController.kt</ID>
     <ID>NewLineAtEndOfFile:FolderDatabaseDao.kt$com.hegocre.nextcloudpasswords.databases.folderdatabase.FolderDatabaseDao.kt</ID>
     <ID>NewLineAtEndOfFile:KeepAliveWorker.kt$com.hegocre.nextcloudpasswords.services.keepalive.KeepAliveWorker.kt</ID>
@@ -124,6 +124,9 @@
     <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun list( sessionCode: String? = null, ): Result&lt;List&lt;Password&gt;&gt;</ID>
     <ID>ReturnCount:PasswordsApi.kt$PasswordsApi$suspend fun update( updatedPassword: UpdatedPassword, sessionCode: String? = null ): Result&lt;Unit&gt;</ID>
     <ID>ReturnCount:SessionApi.kt$SessionApi$suspend fun requestSession(): Result&lt;PWDv1Challenge&gt;</ID>
+    <ID>ReturnCount:SettingsApi.kt$SettingsApi$private fun extractStringValue(body: String, key: String): String?</ID>
+    <ID>ReturnCount:SettingsApi.kt$SettingsApi$suspend fun getUserSetting(key: String, sessionCode: String? = null): Result&lt;String?&gt;</ID>
+    <ID>ReturnCount:SettingsApi.kt$SettingsApi$suspend fun setUserSetting( key: String, value: String, sessionCode: String? = null, ): Result&lt;Unit&gt;</ID>
     <ID>ThrowsCount:PWDv1Challenge.kt$PWDv1Challenge$fun solve(password: String?): Result&lt;String&gt;</ID>
     <ID>ThrowsCount:UserController.kt$UserController$@Throws(UserException::class) fun getServer(): Server</ID>
     <ID>TooGenericExceptionCaught:FoldersApi.kt$FoldersApi$e: Exception</ID>
