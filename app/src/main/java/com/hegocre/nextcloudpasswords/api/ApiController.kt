@@ -263,6 +263,8 @@ class ApiController private constructor(context: Context) {
         null
     }
 
+    fun hasStoredKeychain(): Boolean = preferencesManager.getCSEv1Keychain() != null
+
     fun restoreStoredKeychain(masterPassword: String?): Boolean {
         val keychain = decryptCSEv1Keychain(
             preferencesManager.getCSEv1Keychain(),

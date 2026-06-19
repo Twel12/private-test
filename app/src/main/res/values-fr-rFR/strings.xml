@@ -120,4 +120,5 @@
     <string name="two_factor_app_password_message">L\'authentification à deux facteurs est activée pour votre compte Nextcloud. Connectez-vous une fois pour activer la synchronisation des mots de passe.</string>
     <string name="two_factor_app_password_enable">Activer la synchronisation</string>
     <string name="two_factor_app_password_unavailable">Impossible d\'ouvrir l\'écran de connexion. Veuillez vérifier que votre gestionnaire de comptes est à jour.</string>
+    <string name="offline_read_only_banner">Hors ligne – les mots de passe sont en lecture seule. Appuyez pour réessayer.</string>
 </resources>
