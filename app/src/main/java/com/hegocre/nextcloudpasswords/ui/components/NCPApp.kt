@@ -258,14 +258,7 @@ fun NextcloudPasswordsApp(
         val backend = NCPApplication.passwordBackend(context) as? NCPPasswordBackend
             ?: return@LaunchedEffect
         val saveResult = runCatching {
-            if (pendingSave.createNew || pendingSave.selectedCredentialId != null) {
-                backend.saveFromUserInteraction(
-                    request = pendingSave.request,
-                    selectedCredentialId = pendingSave.selectedCredentialId
-                )
-            } else {
-                backend.save(pendingSave.request)
-            }
+            backend.completePendingSave(pendingSave)
         }.getOrElse { error ->
             if (error is CancellationException) throw error
             Timber.e(error, "Autofill pending save failed")

@@ -45,6 +45,7 @@ import foundation.e.autofill.PasswordSaveRequest
 import foundation.e.autofill.PasswordSaveResult
 import foundation.e.autofill.VaultUnlockRequest
 import foundation.e.autofill.VaultUnlockResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -70,6 +71,7 @@ private sealed interface ExistingSaveSelection {
     data class Update(val password: Password) : ExistingSaveSelection
 }
 
+@Suppress("LargeClass")
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
     private val userController = UserController.getInstance(appContext)
@@ -83,14 +85,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val vaultLocked = savedPasswords.isNotEmpty() && !isUnlocked()
 
             if (!userController.isLoggedIn) {
+                val loginInProgress = NCPAutofillPendingSaveContinuation.isActive()
                 Timber.d(
                     "query backend unavailable package=${request.packageName}, " +
-                        "cachedPasswords=${savedPasswords.size}, vaultLocked=$vaultLocked"
+                        "cachedPasswords=${savedPasswords.size}, vaultLocked=$vaultLocked, " +
+                        "loginInProgress=$loginInProgress"
                 )
                 return@withContext PasswordQueryResult(
                     credentials = emptyList(),
                     savedPasswordCount = savedPasswords.size,
-                    allowSavePrompt = false,
+                    allowSavePrompt = !loginInProgress,
                     vaultLocked = vaultLocked
                 )
             }
@@ -162,7 +166,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     override suspend fun save(request: PasswordSaveRequest): PasswordSaveResult =
         withContext(Dispatchers.IO) {
             if (!userController.isLoggedIn) {
-                return@withContext PasswordSaveResult.Failed("No account is configured")
+                return@withContext PasswordSaveResult.NeedsUnlock
             }
 
             if (request.hasUntrustedCredentialManagerBrowserContext()) {
@@ -178,6 +182,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val apiController = apiControllerOrNull()
                 ?: return@withContext PasswordSaveResult.Failed("No account is configured")
             if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+
+            ensureInitialPasswordSync()
 
             val existingSaveResult = handleExistingEntryForSave(
                 request = request,
@@ -293,6 +299,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         )
     }
 
+    suspend fun completePendingSave(
+        pendingSave: NCPAutofillPendingSaveStore.PendingSave
+    ): PasswordSaveResult {
+        return if (pendingSave.createNew || pendingSave.selectedCredentialId != null) {
+            saveFromUserInteraction(pendingSave.request, pendingSave.selectedCredentialId)
+        } else {
+            save(pendingSave.request)
+        }
+    }
+
     private fun apiControllerOrNull(): ApiController? {
         if (!userController.isLoggedIn) return null
         return runCatching { ApiController.getInstance(appContext) }.getOrNull()
@@ -301,6 +317,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private fun isUnlocked(): Boolean {
         return !MasterPasswordMemoryStore.get().isNullOrBlank() ||
             apiControllerOrNull()?.sessionOpen?.value == true
+    }
+
+    private suspend fun ensureInitialPasswordSync() {
+        if (passwordDatabase.passwordDao.hasVisiblePasswords()) return
+
+        runCatching { PasswordController.getInstance(appContext).syncPasswords() }
+            .onFailure {
+                if (it is CancellationException) throw it
+                Timber.w(it, "initial password sync before save failed")
+            }
     }
 
     private suspend fun ensureSessionOpen(apiController: ApiController): Boolean {
