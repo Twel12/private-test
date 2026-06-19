@@ -77,7 +77,9 @@ import foundation.e.autofill.PasswordSaveResult
 import foundation.e.elib.compose.components.EFloatingActionButtonExtended
 import foundation.e.elib.compose.components.EModalBottomSheet
 import foundation.e.elib.compose.theme.ETheme
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 internal fun manualAutofillSaveMessage(
     saveResult: PasswordSaveResult?,
@@ -242,7 +244,7 @@ fun NextcloudPasswordsApp(
         }
         passwordsViewModel.onSecureMasterPasswordSaveHandled()
     }
-    LaunchedEffect(sessionOpen, pendingSaveToComplete) {
+    LaunchedEffect(sessionOpen) {
         if (!sessionOpen || !isAutofillUnlockRequest) return@LaunchedEffect
         val pendingSave = pendingSaveToComplete
         if (pendingSave == null) {
@@ -255,13 +257,19 @@ fun NextcloudPasswordsApp(
         pendingSaveToComplete = null
         val backend = NCPApplication.passwordBackend(context) as? NCPPasswordBackend
             ?: return@LaunchedEffect
-        val saveResult = if (pendingSave.createNew || pendingSave.selectedCredentialId != null) {
-            backend.saveFromUserInteraction(
-                request = pendingSave.request,
-                selectedCredentialId = pendingSave.selectedCredentialId
-            )
-        } else {
-            backend.save(pendingSave.request)
+        val saveResult = runCatching {
+            if (pendingSave.createNew || pendingSave.selectedCredentialId != null) {
+                backend.saveFromUserInteraction(
+                    request = pendingSave.request,
+                    selectedCredentialId = pendingSave.selectedCredentialId
+                )
+            } else {
+                backend.save(pendingSave.request)
+            }
+        }.getOrElse { error ->
+            if (error is CancellationException) throw error
+            Timber.e(error, "Autofill pending save failed")
+            PasswordSaveResult.Failed(error.message)
         }
         when (saveResult) {
             PasswordSaveResult.Saved,
