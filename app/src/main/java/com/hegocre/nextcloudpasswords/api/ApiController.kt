@@ -67,6 +67,16 @@ class ApiController private constructor(context: Context) {
 
     val csEv1Keychain = MutableLiveData<CSEv1Keychain?>(null)
 
+    @Volatile
+    private var latestKeychain: CSEv1Keychain? = null
+
+    fun currentKeychain(): CSEv1Keychain? = latestKeychain
+
+    private fun publishKeychain(keychain: CSEv1Keychain?) {
+        latestKeychain = keychain
+        csEv1Keychain.postValue(keychain)
+    }
+
     val serverSettings = MutableLiveData(
         preferencesManager.getServerSettings()
     )
@@ -154,7 +164,7 @@ class ApiController private constructor(context: Context) {
             preferencesManager.getCSEv1Keychain(),
             MasterPasswordMemoryStore.get()
         )?.let {
-            csEv1Keychain.postValue(it)
+            publishKeychain(it)
         }
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -258,7 +268,7 @@ class ApiController private constructor(context: Context) {
             preferencesManager.getCSEv1Keychain(),
             masterPassword
         ) ?: return false
-        csEv1Keychain.postValue(keychain)
+        publishKeychain(keychain)
         return true
     }
 
@@ -308,7 +318,7 @@ class ApiController private constructor(context: Context) {
             preferencesManager.getCSEv1Keychain(),
             masterPassword
         )?.let {
-            csEv1Keychain.postValue(it)
+            publishKeychain(it)
         }
 
         val challenge = getSessionChallenge()
@@ -368,6 +378,7 @@ class ApiController private constructor(context: Context) {
     private suspend fun openSessionWithoutCse(): OpenSessionResult {
         clearSessionState()
         preferencesManager.setCSEv1Keychain(null)
+        publishKeychain(null)
         sessionVersion++
         val sessionIdentity = SessionIdentity(
             sessionCode = null,
@@ -414,7 +425,7 @@ class ApiController private constructor(context: Context) {
         masterPassword?.let {
             try {
                 val keysJson = CSEv1Keychain.decryptJson(encryptedKeychainJson, it)
-                csEv1Keychain.postValue(CSEv1Keychain.fromJson(keysJson))
+                publishKeychain(CSEv1Keychain.fromJson(keysJson))
             } catch (e: SodiumDecryptionException) {
                 throw PWDv1ChallengeMasterKeyInvalidException().apply { initCause(e) }
             }
@@ -481,6 +492,7 @@ class ApiController private constructor(context: Context) {
             clearSession()
             if (clearStoredKeychain) {
                 preferencesManager.setCSEv1Keychain(null)
+                publishKeychain(null)
             }
             true
         } else {
@@ -562,6 +574,48 @@ class ApiController private constructor(context: Context) {
     }
 
     /**
+     * Fetches a single password by UUID. Cheaper than [listPasswords] when the id is already known
+     * (e.g. cached locally or pinned in a server-side setting).
+     *
+     * @return [Result.Success] with the password, [Result.Error] with [Error.API_NOT_FOUND] if the
+     *  server has no entry under that id (deleted from another client), or another error code on
+     *  transport/server failure.
+     */
+    suspend fun showPassword(id: String): Result<Password> {
+        if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
+        val result = withSessionRetry { passwordsApi.show(id, sessionCode) }
+        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
+        return result
+    }
+
+    /**
+     * Reads a user-scoped Passwords setting (typically a `client.*` key). The value is persisted
+     * server-side per user, so it is shared across every device signed into the same account.
+     *
+     * @return [Result.Success] carrying the stored string, or `null` if the key has never been
+     *  set; [Result.Error] on transport/server failure. Callers should distinguish the two so they
+     *  don't treat a transient error as "key never written".
+     */
+    suspend fun getUserSetting(key: String): Result<String?> {
+        if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
+        val result = withSessionRetry { settingsApi.getUserSetting(key, sessionCode) }
+        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
+        return result
+    }
+
+    /**
+     * Persists a user-scoped Passwords setting (see [getUserSetting]). Best-effort: callers should
+     * treat failures as non-fatal, because the lookup paths that read this setting can fall back
+     * to a local scan and re-persist on a later attempt.
+     */
+    suspend fun setUserSetting(key: String, value: String): Result<Unit> {
+        if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
+        val result = withSessionRetry { settingsApi.setUserSetting(key, value, sessionCode) }
+        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
+        return result
+    }
+
+    /**
      * Gets a list of the user folders via the [FoldersApi] class. This can only be called when a session
      * is open, otherwise an error is thrown.
      *
@@ -589,7 +643,7 @@ class ApiController private constructor(context: Context) {
     }
 
     fun isEndToEndEncryptionKeyAvailable(): Boolean {
-        val currentKeychain = csEv1Keychain.value ?: return false
+        val currentKeychain = currentKeychain() ?: return false
         return currentKeychain.current.isNotBlank()
     }
 
@@ -601,7 +655,7 @@ class ApiController private constructor(context: Context) {
     ): Boolean {
         if (!sessionOpen.value) return false
 
-        val currentKeychain = csEv1Keychain.value
+        val currentKeychain = currentKeychain()
         val currentServerSettings = serverSettings.value
         if (currentKeychain == null ||
             currentServerSettings == null ||

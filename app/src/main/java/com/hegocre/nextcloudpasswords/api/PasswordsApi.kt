@@ -10,6 +10,7 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface as OkHttpRequest
 import com.hegocre.nextcloudpasswords.utils.Result
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -83,6 +84,8 @@ class PasswordsApi private constructor(private var server: Server) {
             } else {
                 Result.Error(Error.API_BAD_RESPONSE)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -148,6 +151,8 @@ class PasswordsApi private constructor(private var server: Server) {
             } else {
                 Result.Error(Error.API_BAD_RESPONSE)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -213,6 +218,8 @@ class PasswordsApi private constructor(private var server: Server) {
             } else {
                 Result.Error(Error.API_BAD_RESPONSE)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -277,6 +284,8 @@ class PasswordsApi private constructor(private var server: Server) {
             } else {
                 Result.Error(Error.API_BAD_RESPONSE)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 e.printStackTrace()
@@ -285,8 +294,73 @@ class PasswordsApi private constructor(private var server: Server) {
         }
     }
 
+    /**
+     * Fetches a single password by its id.
+     *
+     * @param sessionCode Code of the current session, only needed if CSE enabled.
+     * @return A result with the password if success, or with an error code otherwise.
+     */
+    suspend fun show(
+        id: String,
+        sessionCode: String? = null,
+    ): Result<Password> {
+        return try {
+            val apiResponse = withContext(Dispatchers.IO) {
+                OkHttpRequest.getInstance().post(
+                    sUrl = server.url + SHOW_URL,
+                    sessionCode = sessionCode,
+                    body = Json.encodeToString(mapOf("id" to id)),
+                    mediaType = OkHttpRequest.JSON,
+                    username = server.username,
+                    password = server.password,
+                )
+            }
+
+            val code = apiResponse.code
+            val body = withContext(Dispatchers.IO) { apiResponse.body.string() }
+            withContext(Dispatchers.IO) { apiResponse.close() }
+
+            if (code != 200) {
+                return Result.Error(errorForStatusCode(code))
+            }
+
+            withContext(Dispatchers.Default) {
+                Result.Success(Json.decodeFromString(body))
+            }
+        } catch (e: SocketTimeoutException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.API_TIMEOUT)
+        } catch (e: SSLHandshakeException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            Result.Error(errorForStatusCode(e.statusCode))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.UNKNOWN)
+        }
+    }
+
+    private fun errorForStatusCode(code: Int): Int = when (code) {
+        HttpURLConnection.HTTP_PRECON_FAILED -> Error.API_SESSION_EXPIRED
+        HttpURLConnection.HTTP_NOT_FOUND -> Error.API_NOT_FOUND
+        else -> Error.API_BAD_RESPONSE
+    }
+
     companion object {
         private const val LIST_URL = "/index.php/apps/passwords/api/1.0/password/list"
+        private const val SHOW_URL = "/index.php/apps/passwords/api/1.0/password/show"
         private const val CREATE_URL = "/index.php/apps/passwords/api/1.0/password/create"
         private const val UPDATE_URL = "/index.php/apps/passwords/api/1.0/password/update"
         private const val DELETE_URL = "/index.php/apps/passwords/api/1.0/password/delete"
