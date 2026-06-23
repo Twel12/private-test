@@ -143,8 +143,6 @@ fun NextcloudPasswordsAppLock(
         }
     }
 
-    val biometricPromptTitle = stringResource(R.string.biometric_prompt_title)
-    val biometricPromptDescription = stringResource(R.string.biometric_prompt_description)
     LaunchedEffect(key1 = hasBiometricAppLock) {
         if (hasBiometricAppLock && canAuthenticateBiometric) {
             showBiometricPrompt(

@@ -19,6 +19,7 @@ buildscript {
 
 plugins {
     id 'io.gitlab.arturbosch.detekt' version "1.23.8"
+    id 'org.jetbrains.kotlin.plugin.parcelize' version "2.3.20" apply false
 }
 
 detekt {
