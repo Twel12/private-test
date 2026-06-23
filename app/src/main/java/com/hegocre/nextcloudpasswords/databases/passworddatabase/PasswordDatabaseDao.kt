@@ -15,6 +15,9 @@ interface PasswordDatabaseDao {
     @Query("SELECT id FROM passwords")
     suspend fun fetchAllPasswordsId(): List<String>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM passwords WHERE trashed = 0 AND hidden = 0)")
+    suspend fun hasVisiblePasswords(): Boolean
+
     @Query("SELECT revision FROM passwords WHERE id = :id")
     suspend fun getPasswordRevision(id: String): String?
 

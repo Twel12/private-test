@@ -26,29 +26,14 @@ abstract class BaseAutoLogin(val activity: Activity) {
     abstract fun ssoFailed()
 
     fun start(forceSsoReauthentication: Boolean = false) {
-        if (!forceSsoReauthentication && getInstance(activity).isLoggedIn) {
-            accountExist()
-            return
-        }
-
-        if (isSignatureMismatchWithAccountManager()) {
-            signatureError()
-            return
-        }
-
         val murenaAccount = SsoAccount.getFirstMurenaAccount(activity)
-
-        if (murenaAccount == null) {
-            accountUnavailable()
-            return
+        when {
+            !forceSsoReauthentication && getInstance(activity).isLoggedIn -> accountExist()
+            isSignatureMismatchWithAccountManager() -> signatureError()
+            murenaAccount == null -> accountUnavailable()
+            !SsoAccount.isMurenaSyncEnabled(murenaAccount) -> syncDisabled(murenaAccount)
+            else -> AccountImporter.pickAccount(activity, murenaAccount)
         }
-
-        if (!SsoAccount.isMurenaSyncEnabled(murenaAccount)) {
-            syncDisabled(murenaAccount)
-            return
-        }
-
-        AccountImporter.pickAccount(activity, murenaAccount)
     }
 
     private fun isSignatureMismatchWithAccountManager() =

@@ -99,6 +99,11 @@ sealed interface PasswordSaveResult {
     data class Failed(val message: String?) : PasswordSaveResult
 }
 
+val PasswordSaveResult.isSuccessful: Boolean
+    get() = this is PasswordSaveResult.Saved ||
+        this is PasswordSaveResult.DuplicateIgnored ||
+        this is PasswordSaveResult.QueuedForRetry
+
 sealed interface VaultUnlockResult {
     data object Unlocked : VaultUnlockResult
     data object Canceled : VaultUnlockResult

@@ -13,7 +13,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import com.hegocre.nextcloudpasswords.R
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillPendingSaveContinuation
+import com.hegocre.nextcloudpasswords.services.autofill.clearAutofillSaveIfAbandoned
+import com.hegocre.nextcloudpasswords.services.autofill.resumeAutofillSave
 import com.hegocre.nextcloudpasswords.ui.components.NCPLoginScreen
+import com.hegocre.nextcloudpasswords.utils.ActionsConst
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import java.io.IOException
@@ -24,9 +28,21 @@ import timber.log.Timber
 
 class LoginActivity : ComponentActivity() {
 
+    private val saveContinuationToken: String? by lazy {
+        intent.getStringExtra(NCPAutofillPendingSaveContinuation.EXTRA_TOKEN)
+    }
+    private var continuingFlow = false
+
     private val addMurenaAccountLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            startActivity(Intent(this, AutoLoginActivity::class.java))
+            continuingFlow = true
+            startActivity(
+                Intent(this, AutoLoginActivity::class.java).apply {
+                    saveContinuationToken?.let {
+                        putExtra(NCPAutofillPendingSaveContinuation.EXTRA_TOKEN, it)
+                    }
+                }
+            )
             finish()
         }
 
@@ -42,10 +58,7 @@ class LoginActivity : ComponentActivity() {
                 loginIntent = loginIntent,
                 onMurenaWorkspaceClick = { launchMurenaWorkspaceLogin() },
                 onLoginSuccess = {
-                    val intent = Intent("com.hegocre.nextcloudpasswords.action.main")
-                        .setPackage(packageName)
-                    startActivity(intent)
-                    finish()
+                    proceedAfterLogin()
                 },
                 onLoginFailed = {
                     PreferencesManager.getInstance(this).setSkipCertificateValidation(false)
@@ -54,6 +67,22 @@ class LoginActivity : ComponentActivity() {
                 }
             )
         }
+    }
+
+    private fun proceedAfterLogin() {
+        continuingFlow = true
+        val token = saveContinuationToken
+        if (token != null && NCPAutofillPendingSaveContinuation.matches(token)) {
+            resumeAutofillSave(token)
+        } else {
+            startActivity(Intent(ActionsConst.MAIN_SCREEN).setPackage(packageName))
+            finish()
+        }
+    }
+
+    override fun onDestroy() {
+        clearAutofillSaveIfAbandoned(saveContinuationToken, continuingFlow)
+        super.onDestroy()
     }
 
     private fun launchMurenaWorkspaceLogin() {

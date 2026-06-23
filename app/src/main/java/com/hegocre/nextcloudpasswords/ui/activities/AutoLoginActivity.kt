@@ -27,7 +27,10 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.core.content.IntentCompat
 import com.hegocre.nextcloudpasswords.R
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillPendingSaveContinuation
 import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillService
+import com.hegocre.nextcloudpasswords.services.autofill.clearAutofillSaveIfAbandoned
+import com.hegocre.nextcloudpasswords.services.autofill.resumeAutofillSave
 import com.hegocre.nextcloudpasswords.utils.ActionsConst
 import com.hegocre.nextcloudpasswords.utils.OkHttpRequestInterface
 import java.util.UUID
@@ -42,6 +45,26 @@ class AutoLoginActivity : ComponentActivity() {
                 false
             )
         )
+    }
+
+    private val saveContinuationToken: String? by lazy {
+        intent.getStringExtra(NCPAutofillPendingSaveContinuation.EXTRA_TOKEN)
+    }
+    private var continuingFlow = false
+
+    private fun startPostLogin() {
+        val token = saveContinuationToken
+        if (token != null && NCPAutofillPendingSaveContinuation.matches(token)) {
+            continuingFlow = true
+            resumeAutofillSave(token)
+        } else {
+            startMain()
+        }
+    }
+
+    override fun onDestroy() {
+        clearAutofillSaveIfAbandoned(saveContinuationToken, continuingFlow)
+        super.onDestroy()
     }
 
     private fun startMain() {
@@ -76,11 +99,11 @@ class AutoLoginActivity : ComponentActivity() {
     private val baseAutoLogin: BaseAutoLogin by lazy {
         object : BaseAutoLogin(this@AutoLoginActivity) {
             override fun accountExist() {
-                startMain()
+                startPostLogin()
             }
 
             override fun onLoginSuccess() {
-                startMain()
+                startPostLogin()
             }
 
             override fun signatureError() {
@@ -124,8 +147,13 @@ class AutoLoginActivity : ComponentActivity() {
         OkHttpRequestInterface.useBasic(null)
         Toast.makeText(this, error, Toast.LENGTH_LONG).show()
 
+        continuingFlow = true
         startActivity(
-            Intent(ActionsConst.CLASSIC_LOGIN).setPackage(packageName)
+            Intent(ActionsConst.CLASSIC_LOGIN).setPackage(packageName).apply {
+                saveContinuationToken?.let {
+                    putExtra(NCPAutofillPendingSaveContinuation.EXTRA_TOKEN, it)
+                }
+            }
         )
 
         finish()
