@@ -127,6 +127,9 @@ fun NextcloudPasswordsAppLock(
             .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
     }
 
+    val biometricPromptTitle = stringResource(R.string.biometric_prompt_title)
+    val biometricPromptDescription = stringResource(R.string.biometric_prompt_description)
+
     LaunchedEffect(key1 = inputPassword) {
         if (onCheckPasscode(inputPassword).await()) {
             onCorrectPasscode()

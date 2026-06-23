@@ -5,16 +5,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.ColorStateList
 import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -500,13 +502,16 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                     diskCacheKey("favicon:$domain")
                 }
                 crossfade(false)
-                val lockDrawable = context.getDrawable(R.drawable.ic_lock)?.apply {
-                    setTintList(
-                        ColorStateList.valueOf(
-                            MaterialTheme.colorScheme.primary.toArgb()
-                        )
-                    )
+
+                val tintColor = MaterialTheme.colorScheme.primary.toArgb()
+                val lockDrawable = remember(context, tintColor) {
+                    ContextCompat.getDrawable(context, R.drawable.ic_lock)?.let { drawable ->
+                        val wrappedDrawable = DrawableCompat.wrap(drawable).mutate()
+                        DrawableCompat.setTint(wrappedDrawable, tintColor)
+                        wrappedDrawable
+                    }
                 }
+
                 placeholder(lockDrawable)
                 fallback(lockDrawable)
                 error(lockDrawable)
@@ -541,13 +546,16 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                     diskCacheKey("avatar:${server?.username}")
                 }
                 crossfade(false)
-                val accountDrawable = context.getDrawable(R.drawable.ic_account_circle)?.apply {
-                    setTintList(
-                        ColorStateList.valueOf(
-                            MaterialTheme.colorScheme.primary.toArgb()
-                        )
-                    )
+
+                val tintColor = MaterialTheme.colorScheme.primary.toArgb()
+                val accountDrawable = remember(context, tintColor) {
+                    ContextCompat.getDrawable(context, R.drawable.ic_account_circle)?.let { drawable ->
+                        val wrappedDrawable = DrawableCompat.wrap(drawable).mutate()
+                        DrawableCompat.setTint(wrappedDrawable, tintColor)
+                        wrappedDrawable
+                    }
                 }
+
                 placeholder(accountDrawable)
                 fallback(accountDrawable)
                 error(accountDrawable)
