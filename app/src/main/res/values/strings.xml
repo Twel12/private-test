@@ -90,6 +90,7 @@
     <string name="biometric_prompt_description">Please, verify your identity to access the passwords</string>
     <string name="biometric_prompt_title">Biometric authentication</string>
     <string name="error_cannot_connect_to_server">Cannot connect to server. Tap to retry.</string>
+    <string name="offline_read_only_banner">Offline – passwords are read-only. Tap to retry.</string>
     <string name="dialog_invalid_certificate_title">Invalid certificate</string>
     <string name="dialog_invalid_certificate_text">The HTTPS certificate is invalid. Do you want to proceed?</string>
     <string name="password_strength_ultra">Ultra</string>

@@ -130,4 +130,5 @@
     <string name="two_factor_app_password_message">Für Ihr Nextcloud-Konto ist die Zwei-Faktor-Authentifizierung aktiviert. Melden Sie sich einmal an, um die Passwort-Synchronisierung zu aktivieren.</string>
     <string name="two_factor_app_password_enable">Synchronisierung aktivieren</string>
     <string name="two_factor_app_password_unavailable">Der Anmeldebildschirm konnte nicht geöffnet werden. Bitte stellen Sie sicher, dass Ihr Kontomanager aktuell ist.</string>
+    <string name="offline_read_only_banner">Offline – Passwörter sind schreibgeschützt. Zum Wiederholen tippen.</string>
 </resources>

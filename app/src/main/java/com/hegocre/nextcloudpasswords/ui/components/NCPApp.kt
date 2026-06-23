@@ -141,6 +141,7 @@ fun NextcloudPasswordsApp(
 
     val sessionOpen by passwordsViewModel.sessionOpen.collectAsState()
     val showSessionOpenError by passwordsViewModel.showSessionOpenError.collectAsState()
+    val offlineUnlocked by passwordsViewModel.offlineUnlocked.collectAsState()
     val isRefreshing by passwordsViewModel.isRefreshing.collectAsState()
     val hasNetworkConnection = context.hasActiveNetworkConnection()
     val sessionOpenErrorText = if (hasNetworkConnection) {
@@ -411,6 +412,26 @@ fun NextcloudPasswordsApp(
                         ) {
                             Text(
                                 text = sessionOpenErrorText,
+                                style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = !sessionOpen &&
+                            offlineUnlocked &&
+                            !needsMasterPassword &&
+                            !isRefreshing
+                    ) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.clickable { (passwordsViewModel.sync()) }
+                        ) {
+                            Text(
+                                text = stringResource(R.string.offline_read_only_banner),
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier

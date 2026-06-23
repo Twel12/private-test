@@ -142,6 +142,10 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
     val showSessionOpenError: StateFlow<Boolean>
         get() = _showSessionOpenError.asStateFlow()
 
+    private val _offlineUnlocked = MutableStateFlow(false)
+    val offlineUnlocked: StateFlow<Boolean>
+        get() = _offlineUnlocked.asStateFlow()
+
     private val _pendingSecureMasterPasswordSave = MutableStateFlow(false)
     val pendingSecureMasterPasswordSave: StateFlow<Boolean>
         get() = _pendingSecureMasterPasswordSave.asStateFlow()
@@ -259,13 +263,14 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                 _needsMasterPassword.emit(false)
                 _masterPasswordInvalid.emit(false)
                 _showSessionOpenError.emit(false)
+                _offlineUnlocked.emit(false)
                 if (saveSecurelyAfterUnlock) {
                     _pendingSecureMasterPasswordSave.emit(true)
                 }
                 syncPasswordsAndFolders()
-                return
-            }
-            if (!AppPasswordRequest.isBlockingRequests()) {
+            } else if (!handleSessionUnavailable(password) &&
+                !AppPasswordRequest.isBlockingRequests()
+            ) {
                 _showSessionOpenError.emit(true)
             }
         } catch (_: PWDv1ChallengeMasterKeyNeededException) {
@@ -283,13 +288,38 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
                     clearMasterPasswordState()
                 }
                 else -> {
-                    _showSessionOpenError.emit(true)
                     Timber.e(ex, "Unexpected error opening session")
+                    if (!handleSessionUnavailable(password)) {
+                        _showSessionOpenError.emit(true)
+                    }
                 }
             }
         } finally {
             _isRefreshing.emit(false)
         }
+    }
+
+    private suspend fun handleSessionUnavailable(password: String?): Boolean {
+        if (tryOfflineUnlock(password)) return true
+        if (!apiController.hasStoredKeychain()) return false
+        _needsMasterPassword.emit(true)
+        if (!password.isNullOrBlank()) {
+            _masterPasswordInvalid.emit(true)
+            masterPassword.postValue(null)
+        }
+        return true
+    }
+
+    private suspend fun tryOfflineUnlock(password: String?): Boolean {
+        if (password.isNullOrBlank()) return false
+        if (!apiController.restoreStoredKeychain(password)) return false
+        MasterPasswordMemoryStore.set(password)
+        masterPassword.postValue(password)
+        _needsMasterPassword.emit(false)
+        _masterPasswordInvalid.emit(false)
+        _showSessionOpenError.emit(false)
+        _offlineUnlocked.emit(true)
+        return true
     }
 
     fun setMasterPassword(password: String, save: Boolean = false) {

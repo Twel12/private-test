@@ -135,4 +135,5 @@
     <string name="two_factor_app_password_message">Tu cuenta de Nextcloud tiene la autenticación en dos pasos activada. Inicia sesión una vez para activar la sincronización de contraseñas.</string>
     <string name="two_factor_app_password_enable">Activar sincronización</string>
     <string name="two_factor_app_password_unavailable">No se pudo abrir la pantalla de inicio de sesión. Asegúrate de que tu gestor de cuentas esté actualizado.</string>
+    <string name="offline_read_only_banner">Sin conexión – las contraseñas son de solo lectura. Toca para reintentar.</string>
 </resources>
