@@ -26,18 +26,7 @@ class PasswordController private constructor(context: Context) {
         withContext(Dispatchers.IO) {
             val result = apiController.listPasswords()
             if (result is Result.Success) {
-                val savedPasswordsSet =
-                    passwordDatabase.passwordDao.fetchAllPasswordsId().toHashSet()
-                for (password in result.data) {
-                    val oldRevision = passwordDatabase.passwordDao.getPasswordRevision(password.id)
-                    if (oldRevision == null || oldRevision != password.revision) {
-                        passwordDatabase.passwordDao.insertPassword(password)
-                    }
-                    savedPasswordsSet.remove(password.id)
-                }
-                for (id in savedPasswordsSet) {
-                    passwordDatabase.passwordDao.deletePassword(id)
-                }
+                passwordDatabase.passwordDao.syncWithRemote(result.data)
             }
         }
     }

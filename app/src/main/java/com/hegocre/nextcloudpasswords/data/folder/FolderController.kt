@@ -26,17 +26,7 @@ class FolderController private constructor(context: Context) {
         withContext(Dispatchers.IO) {
             val result = apiController.listFolders()
             if (result is Result.Success) {
-                val savedFoldersSet = folderDatabase.folderDao.fetchAllFoldersId().toHashSet()
-                for (folder in result.data) {
-                    val oldRevision = folderDatabase.folderDao.getFolderRevision(folder.id)
-                    if (oldRevision == null || oldRevision != folder.revision) {
-                        folderDatabase.folderDao.insertFolder(folder)
-                    }
-                    savedFoldersSet.remove(folder.id)
-                }
-                for (id in savedFoldersSet) {
-                    folderDatabase.folderDao.deleteFolder(id)
-                }
+                folderDatabase.folderDao.syncWithRemote(result.data)
             }
         }
     }

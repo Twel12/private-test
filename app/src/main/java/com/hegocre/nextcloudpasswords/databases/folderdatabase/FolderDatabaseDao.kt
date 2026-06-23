@@ -18,15 +18,24 @@ interface FolderDatabaseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFolder(folder: Folder)
 
-    @Update
-    suspend fun updateFolder(folder: Folder)
-
-    @Delete
-    suspend fun deleteFolder(folder: Folder)
-
     @Query("DELETE FROM folders WHERE id = :id")
     suspend fun deleteFolder(id: String)
 
     @Query("DELETE FROM folders")
     suspend fun deleteDatabase()
+
+    @Transaction
+    suspend fun syncWithRemote(remoteFolders: List<Folder>) {
+        val savedFoldersSet = fetchAllFoldersId().toHashSet()
+        for (folder in remoteFolders) {
+            val oldRevision = getFolderRevision(folder.id)
+            if (oldRevision == null || oldRevision != folder.revision) {
+                insertFolder(folder)
+            }
+            savedFoldersSet.remove(folder.id)
+        }
+        for (id in savedFoldersSet) {
+            deleteFolder(id)
+        }
+    }
 }

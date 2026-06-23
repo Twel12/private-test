@@ -24,15 +24,24 @@ interface PasswordDatabaseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPassword(password: Password)
 
-    @Update
-    suspend fun updatePassword(password: Password)
-
-    @Delete
-    suspend fun deletePassword(password: Password)
-
     @Query("DELETE FROM passwords WHERE id = :id")
     suspend fun deletePassword(id: String)
 
     @Query("DELETE FROM passwords")
     suspend fun deleteDatabase()
+
+    @Transaction
+    suspend fun syncWithRemote(remotePasswords: List<Password>) {
+        val savedPasswordsSet = fetchAllPasswordsId().toHashSet()
+        for (password in remotePasswords) {
+            val oldRevision = getPasswordRevision(password.id)
+            if (oldRevision == null || oldRevision != password.revision) {
+                insertPassword(password)
+            }
+            savedPasswordsSet.remove(password.id)
+        }
+        for (id in savedPasswordsSet) {
+            deletePassword(id)
+        }
+    }
 }
