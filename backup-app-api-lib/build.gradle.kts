@@ -59,7 +59,7 @@ android {
                 create<MavenPublication>("release") {
                     groupId = "foundation.e.passwords"
                     artifactId = "backupappapi"
-                    version = "1.0.5"
+                    version = "1.0.6"
 
                     from(components["release"])
 
