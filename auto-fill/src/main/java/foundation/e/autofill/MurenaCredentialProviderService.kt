@@ -33,6 +33,7 @@ import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.BeginCreateCredentialRequest
 import androidx.credentials.provider.BeginCreateCredentialResponse
 import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
+import androidx.credentials.provider.Action
 import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.credentials.provider.BeginGetCredentialResponse
 import androidx.credentials.provider.BeginGetPasswordOption
@@ -62,6 +63,13 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
         getString(R.string.autofill_unlock_vault)
 
     protected open fun privilegedAppAllowlistJson(): String? = null
+
+    protected open fun suggestPasswordPendingIntent(): PendingIntent? = null
+
+    protected open fun suggestPasswordActionTitle(): String =
+        getString(R.string.suggest_password_action_title)
+
+    protected open val suggestPasswordRequestCode: Int = SUGGEST_PASSWORD_REQUEST_CODE
 
     override fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
@@ -187,7 +195,20 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
                     emptyList()
                 }
 
-                if (credentialEntries.isEmpty() && authenticationActions.isEmpty()) {
+                val actions = if (credentialEntries.isEmpty() && authenticationActions.isEmpty()) {
+                    suggestPasswordPendingIntent()?.let { pendingIntent ->
+                        listOf(
+                            Action(
+                                title = suggestPasswordActionTitle(),
+                                pendingIntent = pendingIntent
+                            )
+                        )
+                    }.orEmpty()
+                } else {
+                    emptyList()
+                }
+
+                if (credentialEntries.isEmpty() && authenticationActions.isEmpty() && actions.isEmpty()) {
                     callback.onResult(BeginGetCredentialResponse())
                     return@runBackendCall
                 }
@@ -195,7 +216,8 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
                 callback.onResult(
                     BeginGetCredentialResponse(
                         credentialEntries = credentialEntries,
-                        authenticationActions = authenticationActions
+                        authenticationActions = authenticationActions,
+                        actions = actions
                     )
                 )
             },
@@ -254,5 +276,6 @@ abstract class MurenaCredentialProviderService : CredentialProviderService() {
         const val PASSWORD_SAVE_REQUEST_CODE = 28042
         const val PASSWORD_GET_REQUEST_CODE = 28043
         const val PASSWORD_UNLOCK_REQUEST_CODE = 28044
+        const val SUGGEST_PASSWORD_REQUEST_CODE = 28045
     }
 }

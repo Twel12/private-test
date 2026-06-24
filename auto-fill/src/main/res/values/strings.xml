@@ -11,5 +11,6 @@
     <string name="autofill_save_description">Save this login securely in Passwords.</string>
     <string name="autofill_delayed_username_save_description">Continue to save this login with Passwords</string>
     <string name="autofill_open_app_selection">Select credentials</string>
+    <string name="suggest_password_action_title">Suggest strong password</string>
 
 </resources>

@@ -53,4 +53,13 @@
     <string name="locked_account_dialog_message">Too many incorrect master password attempts. Unlock your account in the web version of Murena Passwords, then sign in here again.</string>
     <string name="locked_account_dialog_unlock">Unlock account</string>
     <string name="error_no_internet_connection">No internet connection.</string>
+
+    <string name="suggested_password_autofill">Suggested Password</string>
+    <string name="suggest_password_dialog_title">Use Strong Password?</string>
+    <string name="suggest_password_app_name" translatable="false">Murena Passwords Manager</string>
+    <string name="suggest_password_dialog_summary">You won\'t need to remember this password. It will be saved to Murena Passwords Manager</string>
+    <string name="suggest_password_dialog_use_button">Use Password</string>
+    <string name="suggest_password_error">Could not generate a password</string>
+    <string name="suggest_password_error_locked">Unlock the Passwords app first, then try again</string>
+    <string name="suggest_password_error_offline">No internet connection. Connect and try again</string>
 </resources>

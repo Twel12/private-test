@@ -1,12 +1,13 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Intent
+import android.view.autofill.AutofillId
 import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.ui.activities.AutoLoginActivity
 import com.hegocre.nextcloudpasswords.utils.PreferencesManager
+import foundation.e.autofill.AutofillDatasetAuthActivity
 import foundation.e.autofill.MurenaAutoFillService
 import foundation.e.autofill.MurenaPasswordBackend
-import foundation.e.autofill.AutofillDatasetAuthActivity
 import foundation.e.autofill.PasswordSaveRequest
 
 class NCPAutofillService : MurenaAutoFillService() {
@@ -35,6 +36,15 @@ class NCPAutofillService : MurenaAutoFillService() {
 
     override fun isInlineAutofillEnabled(): Boolean {
         return PreferencesManager.getInstance(this).getUseInlineAutofill()
+    }
+
+    override fun suggestPasswordIntent(
+        passwordIds: List<AutofillId>
+    ): Intent {
+        return NCPSuggestPasswordActivity.autofillIntent(
+            context = this,
+            passwordIds = passwordIds
+        )
     }
 
     companion object {

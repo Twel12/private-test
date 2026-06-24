@@ -57,6 +57,8 @@ import androidx.core.os.BundleCompat
 import timber.log.Timber
 import java.util.regex.Pattern
 
+const val SUGGEST_PASSWORD_DATASET_ID = "murena-suggest-password"
+
 abstract class MurenaAutoFillService : AutofillService() {
     protected abstract fun passwordBackend(): MurenaPasswordBackend
 
@@ -83,6 +85,10 @@ abstract class MurenaAutoFillService : AutofillService() {
         getString(R.string.autofill_unlock_vault)
 
     protected open fun isInlineAutofillEnabled(): Boolean = true
+
+    protected open fun suggestPasswordIntent(
+        passwordIds: List<AutofillId>
+    ): Intent? = null
 
     override fun onFillRequest(
         request: FillRequest,
@@ -359,14 +365,33 @@ abstract class MurenaAutoFillService : AutofillService() {
         } else {
             null
         }
+        val suggestIntent = if (
+            canFillCredential &&
+            loginFields.passwordIds.isNotEmpty() &&
+            queryResult.credentials.isEmpty() &&
+            !queryResult.vaultLocked
+        ) {
+            suggestPasswordIntent(
+                passwordIds = loginFields.passwordIds
+            )
+        } else {
+            null
+        }
         val hasCredentialDatasets = canFillCredential &&
             queryResult.credentials.isNotEmpty()
         val hasUnlockAuthentication = canFillCredential && queryResult.vaultLocked
         val hasSelectionDataset = selectionIntent != null
         val hasSaveInfo = queryResult.allowSavePrompt &&
             (loginFields.passwordIds.isNotEmpty() || loginFields.usernameIds.isNotEmpty())
+        val hasSuggestPassword = suggestIntent != null
 
-        if (!hasCredentialDatasets && !hasUnlockAuthentication && !hasSelectionDataset && !hasSaveInfo) {
+        if (
+            !hasCredentialDatasets &&
+            !hasUnlockAuthentication &&
+            !hasSelectionDataset &&
+            !hasSaveInfo &&
+            !hasSuggestPassword
+        ) {
             Timber.d("No datasets and no SaveInfo; returning null FillResponse")
             return null
         }
@@ -375,7 +400,8 @@ abstract class MurenaAutoFillService : AutofillService() {
             "Building FillResponse hasCredentialDatasets=$hasCredentialDatasets, " +
                 "hasUnlockAuthentication=$hasUnlockAuthentication, " +
                 "hasSelectionDataset=$hasSelectionDataset, " +
-                "hasSaveInfo=$hasSaveInfo, usernameOnly=${loginFields.passwordIds.isEmpty()}"
+                "hasSaveInfo=$hasSaveInfo, hasSuggestPassword=$hasSuggestPassword, " +
+                "usernameOnly=${loginFields.passwordIds.isEmpty()}"
         )
 
         val responseBuilder = FillResponse.Builder()
@@ -392,6 +418,13 @@ abstract class MurenaAutoFillService : AutofillService() {
         if (hasUnlockAuthentication) {
             Timber.d("Adding unlock vault response authentication")
             responseBuilder.applyUnlockVaultAuthentication(loginFields, inlinePresentationSpec)
+        }
+
+        suggestIntent?.let { intent ->
+            Timber.d("Adding suggest-password dataset")
+            responseBuilder.addDataset(
+                buildSuggestPasswordDataset(loginFields, intent)
+            )
         }
 
         if (loginFields.passwordIds.isNotEmpty()) {
@@ -556,6 +589,30 @@ abstract class MurenaAutoFillService : AutofillService() {
                 }
             }
             .setId("murena-open-app-selection")
+            .build()
+    }
+
+    private fun buildSuggestPasswordDataset(
+        loginFields: LoginFields,
+        suggestIntent: Intent
+    ): Dataset {
+        val label = getString(R.string.suggest_password_action_title)
+        return datasetBuilder(label, packageName)
+            .setAuthentication(
+                PendingIntent.getActivity(
+                    this,
+                    SUGGEST_PASSWORD_REQUEST_CODE,
+                    suggestIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                ).intentSender
+            )
+            .apply {
+                loginFields.passwordIds.forEach { autofillId ->
+                    @Suppress("DEPRECATION")
+                    setValue(autofillId, null, simplePresentation(label, packageName))
+                }
+            }
+            .setId(SUGGEST_PASSWORD_DATASET_ID)
             .build()
     }
 
@@ -873,10 +930,12 @@ abstract class MurenaAutoFillService : AutofillService() {
         const val CLIENT_STATE_TARGET = "foundation.e.auto_fill.CLIENT_STATE_TARGET"
         const val CLIENT_STATE_USERNAME_IDS = "foundation.e.auto_fill.CLIENT_STATE_USERNAME_IDS"
         const val CLIENT_STATE_PASSWORD_IDS = "foundation.e.auto_fill.CLIENT_STATE_PASSWORD_IDS"
+        const val SUGGEST_PASSWORD_DATASET_ID = "murena-suggest-password"
         const val AUTH_DATASET_REQUEST_CODE = 29001
         const val INLINE_PRESENTATION_REQUEST_CODE = 29002
         const val APP_SELECTION_REQUEST_CODE = 29003
         const val UNLOCK_VAULT_REQUEST_CODE = 29004
+        const val SUGGEST_PASSWORD_REQUEST_CODE = 29005
         const val DISABLE_AUTOFILL_DURATION_MILLIS = 60 * 60 * 1000L
         val NON_EMPTY_TEXT_PATTERN: Pattern = Pattern.compile(".+")
         val TRIM_TEXT_PATTERN: Pattern = Pattern.compile("^\\s*(.*?)\\s*$")
