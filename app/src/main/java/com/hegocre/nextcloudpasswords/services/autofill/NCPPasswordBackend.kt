@@ -26,6 +26,7 @@ import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordExcep
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
+import com.hegocre.nextcloudpasswords.data.password.RequestedPassword
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.databases.AppDatabase
@@ -33,7 +34,9 @@ import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.decryptPasswords
 import com.hegocre.nextcloudpasswords.utils.encryptValue
+import com.hegocre.nextcloudpasswords.utils.hasActiveNetworkConnection
 import com.hegocre.nextcloudpasswords.utils.sha1Hash
+import foundation.e.autofill.GeneratePasswordResult
 import foundation.e.autofill.MurenaPasswordBackend
 import foundation.e.autofill.PasswordEntry
 import foundation.e.autofill.PasswordEvent
@@ -77,6 +80,19 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val userController = UserController.getInstance(appContext)
     private val passwordDatabase = AppDatabase.getInstance(appContext)
     private val matcher = NCPAutofillMatcher(appContext)
+    private val serverPasswordGenerator = ServerPasswordGenerator(
+        loadClient = { apiControllerOrNull() },
+        prepareClient = { apiController -> ensureSessionOpen(apiController) },
+        isVaultUnlocked = { isUnlocked() },
+        isOnline = { appContext.hasActiveNetworkConnection() },
+        requestPassword = { apiController ->
+            apiController.generatePassword(
+                strength = RequestedPassword.STRENGTH_MEDIUM,
+                includeDigits = true,
+                includeSymbols = true
+            )
+        }
+    )
 
     override suspend fun query(request: PasswordQuery): PasswordQueryResult =
         withContext(Dispatchers.IO) {
@@ -238,6 +254,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }
 
     override suspend fun report(event: PasswordEvent) = Unit
+
+    override suspend fun generatePassword(): GeneratePasswordResult = withContext(Dispatchers.IO) {
+        serverPasswordGenerator.generate()
+    }
 
     suspend fun saveInteractionCandidates(request: PasswordSaveRequest): List<NCPAutofillSaveCandidate> =
         withContext(Dispatchers.IO) {

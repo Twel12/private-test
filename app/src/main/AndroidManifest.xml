@@ -180,6 +180,12 @@
             android:exported="false"
             android:theme="@style/Theme.MurenaAutoFill.Transparent" />
 
+        <activity
+            android:name=".services.autofill.NCPSuggestPasswordActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent" />
+
         <provider
             android:name=".providers.PasswordSyncProvider"
             android:authorities="foundation.e.passwords.providers.PasswordSyncProvider"

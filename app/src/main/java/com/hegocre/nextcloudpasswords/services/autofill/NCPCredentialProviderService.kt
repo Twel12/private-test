@@ -17,6 +17,7 @@
  */
 package com.hegocre.nextcloudpasswords.services.autofill
 
+import android.app.PendingIntent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.hegocre.nextcloudpasswords.NCPApplication
@@ -59,5 +60,14 @@ class NCPCredentialProviderService : MurenaCredentialProviderService() {
 
     override fun privilegedAppAllowlistJson(): String {
         return NCPCredentialManagerPrivilegedApps.json(this)
+    }
+
+    override fun suggestPasswordPendingIntent(): PendingIntent {
+        return PendingIntent.getActivity(
+            this,
+            suggestPasswordRequestCode,
+            NCPSuggestPasswordActivity.credentialManagerIntent(this),
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 }

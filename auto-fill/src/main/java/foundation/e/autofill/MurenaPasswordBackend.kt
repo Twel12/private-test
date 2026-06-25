@@ -27,6 +27,25 @@ interface MurenaPasswordBackend {
     suspend fun unlock(request: VaultUnlockRequest): VaultUnlockResult = VaultUnlockResult.Unlocked
 
     suspend fun report(event: PasswordEvent) = Unit
+
+    suspend fun generatePassword(): GeneratePasswordResult = GeneratePasswordResult.Failed
+}
+
+/**
+ * Outcome of a suggest-password generation attempt. Each failure carries a distinct reason so the
+ * UI can show an actionable message instead of a single generic error.
+ */
+sealed interface GeneratePasswordResult {
+    data class Success(val password: String) : GeneratePasswordResult
+
+    /** The vault is locked (or the user is not signed in), so no password could be generated. */
+    data object VaultLocked : GeneratePasswordResult
+
+    /** No usable network connection was available to reach the server. */
+    data object Offline : GeneratePasswordResult
+
+    /** Generation failed for any other reason (server error, unexpected exception, …). */
+    data object Failed : GeneratePasswordResult
 }
 
 enum class PasswordRequestSource {
