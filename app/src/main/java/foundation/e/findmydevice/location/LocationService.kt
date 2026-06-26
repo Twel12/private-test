@@ -66,10 +66,16 @@ class LocationService : Service() {
         Log.d(TAG, "Service created")
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:LocationServiceWakelock")
-        wakeLock?.acquire(MIN_TIMEOUT*2*MAX_RETRIES) // MIN_TIMEOUT*2*MAX_RETRIES > First+Second+third+fourth retry
-
-        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "$packageName:LocationServiceWakelock"
+        )
+        wakeLock?.acquire(MIN_TIMEOUT * 2 * MAX_RETRIES) // MIN_TIMEOUT*2*MAX_RETRIES > First+Second+third+fourth retry
+        try {
+            locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        } catch (e: Exception){
+            Log.e(TAG, "ERROR in LocationService onCreate : $e")
+        }
         setupForegroundNotification()
     }
 
