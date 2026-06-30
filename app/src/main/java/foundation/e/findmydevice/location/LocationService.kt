@@ -62,10 +62,9 @@ class LocationService : Service() {
     private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate() {
+        super.onCreate()
+        Log.d(TAG, "Service created")
         try {
-            super.onCreate()
-            Log.d(TAG, "Service created")
-
             val powerManager = getSystemService(POWER_SERVICE) as PowerManager
             wakeLock = powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
@@ -75,10 +74,11 @@ class LocationService : Service() {
 
             locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
             setupForegroundNotification()
-        } catch (e: Exception){
-            Log.e(TAG, "ERROR in LocationService onCreate : $e")
+        } catch (e: SecurityException){
+            Log.e(TAG, "ERROR : Missing permissions in onCreate : ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "ERROR in onCreate : ${e.message}")
         }
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
