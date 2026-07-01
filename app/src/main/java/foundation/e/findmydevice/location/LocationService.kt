@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.telephony.SubscriptionManager
 import android.util.Log
 import foundation.e.findmydevice.util.NotificationHelper
 import foundation.e.findmydevice.util.SmsSender
@@ -31,11 +32,13 @@ class LocationService : Service() {
         private const val TAG = "LocationService"
         private const val MIN_TIMEOUT = 15000L
         const val KEY_SENDER = "sender"
+        const val KEY_SUB_ID = "sub_id"
         private const val MAX_RETRIES = 4
     }
 
     private lateinit var locationManager: LocationManager
     private val senders = mutableListOf<String>()
+    private var subscriptionId: Int = SubscriptionManager.INVALID_SUBSCRIPTION_ID
     private var locationReceived = false
     private var retryCount: Int = 1
     private var stopServiceDelay: Long = MIN_TIMEOUT
@@ -79,6 +82,8 @@ class LocationService : Service() {
             senders.clear()
             senders.addAll(it)
         }
+        subscriptionId = intent?.getIntExtra(KEY_SUB_ID, SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+            ?: SubscriptionManager.INVALID_SUBSCRIPTION_ID
 
         retryCount = 1
         stopServiceDelay = MIN_TIMEOUT
@@ -154,7 +159,7 @@ class LocationService : Service() {
         Log.d(TAG, "Sending location to senders: $latitude, $longitude")
         val senderUtil = SmsSender(this)
         senders.forEach { sender ->
-            senderUtil.sendSms(sender, latitude, longitude)
+            senderUtil.sendSms(sender, latitude, longitude, subscriptionId)
         }
     }
 
