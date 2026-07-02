@@ -17,6 +17,7 @@ class SmsReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "SmsReceiver"
+        private const val KEY_SUBSCRIPTION = "subscription"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -25,7 +26,7 @@ class SmsReceiver : BroadcastReceiver() {
             val result = manageInMessage(context, messages)
             if (result) {
                 val subscriptionId = intent.getIntExtra(
-                    "subscription",
+                    KEY_SUBSCRIPTION,
                     SubscriptionManager.INVALID_SUBSCRIPTION_ID
                 )
                 processMessages(context, messages, subscriptionId)
