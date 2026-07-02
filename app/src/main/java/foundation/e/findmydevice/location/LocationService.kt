@@ -64,13 +64,21 @@ class LocationService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service created")
+        try {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "$packageName:LocationServiceWakelock"
+            )
+            wakeLock?.acquire(MIN_TIMEOUT * 2 * MAX_RETRIES) // MIN_TIMEOUT*2*MAX_RETRIES > First+Second+third+fourth retry
 
-        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:LocationServiceWakelock")
-        wakeLock?.acquire(MIN_TIMEOUT*2*MAX_RETRIES) // MIN_TIMEOUT*2*MAX_RETRIES > First+Second+third+fourth retry
-
-        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        setupForegroundNotification()
+            locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+            setupForegroundNotification()
+        } catch (e: SecurityException){
+            Log.e(TAG, "ERROR : Missing permissions in onCreate : ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "ERROR in onCreate : ${e.message}")
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
