@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import android.telephony.SmsMessage
+import android.telephony.SubscriptionManager
 import android.util.Log
 import foundation.e.findmydevice.location.LocationService
 import foundation.e.findmydevice.storage.PersistentStorage
@@ -16,6 +17,7 @@ class SmsReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "SmsReceiver"
+        private const val KEY_SUBSCRIPTION = "subscription"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,12 +25,20 @@ class SmsReceiver : BroadcastReceiver() {
             val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
             val result = manageInMessage(context, messages)
             if (result) {
-                processMessages(context, messages)
+                val subscriptionId = intent.getIntExtra(
+                    KEY_SUBSCRIPTION,
+                    SubscriptionManager.INVALID_SUBSCRIPTION_ID
+                )
+                processMessages(context, messages, subscriptionId)
             }
         }
     }
 
-    private fun processMessages(context: Context, messages: Array<SmsMessage>) {
+    private fun processMessages(
+        context: Context,
+        messages: Array<SmsMessage>,
+        subscriptionId: Int
+    ) {
         val senders = mutableListOf<String>()
 
         val password = PersistentStorage(context).getPassword()
@@ -52,10 +62,14 @@ class SmsReceiver : BroadcastReceiver() {
                 }
             }
         }
-        executeLocationWorkOnce(senders.toTypedArray(), context)
+        executeLocationWorkOnce(senders.toTypedArray(), context, subscriptionId)
     }
 
-    private fun executeLocationWorkOnce(senders: Array<String>, context: Context) {
+    private fun executeLocationWorkOnce(
+        senders: Array<String>,
+        context: Context,
+        subscriptionId: Int
+    ) {
         if (senders.isEmpty()) {
             Log.d(TAG, "No sender (with password) found.")
             return
@@ -63,6 +77,7 @@ class SmsReceiver : BroadcastReceiver() {
         val serviceIntent = Intent(context, LocationService::class.java)
 
         serviceIntent.putStringArrayListExtra(LocationService.KEY_SENDER, ArrayList(senders.asList()))
+        serviceIntent.putExtra(LocationService.KEY_SUB_ID, subscriptionId)
         context.startForegroundService(serviceIntent)
     }
 

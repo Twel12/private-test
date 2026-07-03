@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.telephony.SmsManager
+import android.telephony.SubscriptionManager
 import android.util.Log
 import foundation.e.findmydevice.R
 
@@ -20,7 +21,12 @@ class SmsSender(private val context: Context) {
         private const val DELIVERED = "SMS_DELIVERED"
     }
 
-    fun sendSms(phoneNumber: String, latitude: Double?, longitude: Double?) {
+    fun sendSms(
+        phoneNumber: String,
+        latitude: Double?,
+        longitude: Double?,
+        subscriptionId: Int = SubscriptionManager.INVALID_SUBSCRIPTION_ID
+    ) {
         val message: String = if (latitude != null && longitude != null) {
             context.getString(R.string.sms_message_with_location) + "\n" +
                     context.getString(R.string.sms_message_with_location_1,
@@ -30,12 +36,21 @@ class SmsSender(private val context: Context) {
             context.getString(R.string.sms_message_with_location_not_found)
         }
 
-        sendSmsDirect(phoneNumber, message)
+        sendSmsDirect(phoneNumber, message, subscriptionId)
     }
 
-    fun sendSmsDirect(phoneNumber: String, message: String) {
+    fun sendSmsDirect(
+        phoneNumber: String,
+        message: String,
+        subscriptionId: Int = SubscriptionManager.INVALID_SUBSCRIPTION_ID
+    ) {
         try {
-            val smsManager = context.getSystemService(SmsManager::class.java)
+            val defaultSmsManager = context.getSystemService(SmsManager::class.java)
+            val smsManager = if (subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                defaultSmsManager.createForSubscriptionId(subscriptionId)
+            } else {
+                defaultSmsManager
+            }
             val sentPI = PendingIntent.getBroadcast(
                 context,
                 phoneNumber.hashCode(),
@@ -61,7 +76,7 @@ class SmsSender(private val context: Context) {
                     deliveredList as ArrayList<PendingIntent>?
                 )
             } else {
-                Log.d(TAG, "Try to sent SMS to $phoneNumber")
+                Log.d(TAG, "Try to sent SMS to $phoneNumber (subId=$subscriptionId)")
                 smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI)
             }
 
