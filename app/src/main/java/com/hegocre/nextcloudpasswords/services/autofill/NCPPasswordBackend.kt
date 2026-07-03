@@ -96,8 +96,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     override suspend fun query(request: PasswordQuery): PasswordQueryResult =
         withContext(Dispatchers.IO) {
-            val savedPasswords = passwordDatabase.passwordDao.fetchAllPasswordsList()
-                .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
+            val savedPasswords = getVisiblePasswords()
             val vaultLocked = savedPasswords.isNotEmpty() && !isUnlocked()
 
             if (!userController.isLoggedIn) {
@@ -263,9 +262,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         withContext(Dispatchers.IO) {
             val candidates = matcher.candidates(request)
             if (candidates.isEmpty()) return@withContext emptyList()
-            val savedPasswords = passwordDatabase.passwordDao.fetchAllPasswordsList()
-                .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
-            val decryptedPasswords = decryptIfUnlocked(savedPasswords)
+            val decryptedPasswords = getDecryptedVisiblePasswords()
             val username = request.username?.takeIf { it.isNotBlank() }
 
             decryptedPasswords
@@ -378,10 +375,19 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val candidates = matcher.candidates(request)
         if (candidates.isEmpty()) return emptyList()
 
-        val decrypted = decryptIfUnlocked(passwords)
+        val decrypted = decryptIfUnlocked(passwords).excludeBackupAppKeys()
         return decrypted.filter { password ->
             matcher.matches(password, candidates)
         }
+    }
+
+    private suspend fun getVisiblePasswords(): List<Password> {
+        return passwordDatabase.passwordDao.fetchAllPasswordsList()
+            .filter { !it.trashed && !it.hidden }
+    }
+
+    private suspend fun getDecryptedVisiblePasswords(): List<Password> {
+        return decryptIfUnlocked(getVisiblePasswords()).excludeBackupAppKeys()
     }
 
     private suspend fun decryptIfUnlocked(passwords: List<Password>): List<Password> {
@@ -422,14 +428,12 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private suspend fun existingSaveLookup(request: PasswordSaveRequest): ExistingSaveLookup? {
         val username = request.username?.takeIf { it.isNotBlank() } ?: return null
-        val savedPasswords = passwordDatabase.passwordDao.fetchAllPasswordsList()
-            .filter { !it.trashed && !it.hidden && !it.isBackupAppKey() }
 
         return ExistingSaveLookup(
             packageName = request.appPackageNameForLink(),
             username = username,
             password = request.password,
-            passwords = decryptIfUnlocked(savedPasswords),
+            passwords = getDecryptedVisiblePasswords(),
             candidates = matcher.candidates(request)
         )
     }
@@ -777,6 +781,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         const val LOCKED_DISPLAY_NAME = "Locked password"
         const val LOCKED_USERNAME = "Unlock to view"
     }
+}
+
+internal fun List<Password>.excludeBackupAppKeys(): List<Password> {
+    return filterNot(Password::isBackupAppKey)
 }
 
 internal fun saveResultForMissingUsername(candidateCount: Int): PasswordSaveResult? {
