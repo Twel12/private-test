@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
@@ -198,7 +198,7 @@ class BackupAppSetupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.width(64.dp)
+                        modifier = Modifier.size(64.dp)
                     )
                 }
             }
