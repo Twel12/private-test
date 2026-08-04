@@ -48,7 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
@@ -128,28 +128,35 @@ class EditablePasswordState(originalPassword: Password?) {
     }
 
     companion object {
-        val Saver: Saver<EditablePasswordState, *> = listSaver(
+        val Saver: Saver<EditablePasswordState, *> = mapSaver(
             save = {
-                listOf(
-                    it.password, it.label, it.username, it.url, it.notes,
-                    it.folder,
-                    Json.encodeToString(it.customFields.map { field -> field.toCustomField() }),
-                    it.favorite.toString(), it.replyAutofill.toString()
+                mapOf(
+                    "password" to it.password,
+                    "label" to it.label,
+                    "username" to it.username,
+                    "url" to it.url,
+                    "notes" to it.notes,
+                    "folder" to it.folder,
+                    "customFields" to
+                        Json.encodeToString(it.customFields.map { field -> field.toCustomField() }),
+                    "favorite" to it.favorite,
+                    "replyAutofill" to it.replyAutofill
                 )
             },
             restore = {
                 EditablePasswordState(null).apply {
-                    passwordState.setTextAndPlaceCursorAtEnd(it[0])
-                    labelState.setTextAndPlaceCursorAtEnd(it[1])
-                    usernameState.setTextAndPlaceCursorAtEnd(it[2])
-                    urlState.setTextAndPlaceCursorAtEnd(it[3])
-                    notesState.setTextAndPlaceCursorAtEnd(it[4])
-                    folder = it[5]
-                    customFields = Json.decodeFromString<List<CustomField>>(it[6])
-                        .map { field -> EditableCustomField(field.label, field.type, field.value) }
-                        .toMutableStateList()
-                    favorite = it[7].toBooleanStrictOrNull() ?: false
-                    replyAutofill = it[8].toBooleanStrictOrNull() ?: false
+                    passwordState.setTextAndPlaceCursorAtEnd(it["password"] as? String ?: "")
+                    labelState.setTextAndPlaceCursorAtEnd(it["label"] as? String ?: "")
+                    usernameState.setTextAndPlaceCursorAtEnd(it["username"] as? String ?: "")
+                    urlState.setTextAndPlaceCursorAtEnd(it["url"] as? String ?: "")
+                    notesState.setTextAndPlaceCursorAtEnd(it["notes"] as? String ?: "")
+                    folder = it["folder"] as? String ?: FoldersApi.DEFAULT_FOLDER_UUID
+                    customFields =
+                        Json.decodeFromString<List<CustomField>>(it["customFields"] as? String ?: "[]")
+                            .map { field -> EditableCustomField(field.label, field.type, field.value) }
+                            .toMutableStateList()
+                    favorite = it["favorite"] as? Boolean ?: false
+                    replyAutofill = it["replyAutofill"] as? Boolean ?: false
                 }
             }
         )

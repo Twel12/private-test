@@ -35,7 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,17 +62,19 @@ class EditableFolderState(originalFolder: Folder?) {
     }
 
     companion object {
-        val Saver: Saver<EditableFolderState, *> = listSaver(
+        val Saver: Saver<EditableFolderState, *> = mapSaver(
             save = {
-                listOf(
-                    it.label, it.parent, it.favorite.toString()
+                mapOf(
+                    "label" to it.label,
+                    "parent" to it.parent,
+                    "favorite" to it.favorite
                 )
             },
             restore = {
                 EditableFolderState(null).apply {
-                    labelState.setTextAndPlaceCursorAtEnd(it[0])
-                    parent = it[1]
-                    favorite = it[2].toBooleanStrictOrNull() ?: false
+                    labelState.setTextAndPlaceCursorAtEnd(it["label"] as? String ?: "")
+                    parent = it["parent"] as? String ?: FoldersApi.DEFAULT_FOLDER_UUID
+                    favorite = it["favorite"] as? Boolean ?: false
                 }
             }
         )
