@@ -20,6 +20,10 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cached
 import androidx.compose.material.icons.filled.Delete
@@ -33,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,8 +59,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hegocre.nextcloudpasswords.R
@@ -74,16 +77,29 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KFunction3
 
+class EditableCustomField(val label: String, val type: String, initialValue: String) {
+    val valueState = TextFieldState(initialValue)
+    val value: String get() = valueState.text.toString()
+
+    fun toCustomField(): CustomField = CustomField(label = label, type = type, value = value)
+}
+
 class EditablePasswordState(originalPassword: Password?) {
-    var password by mutableStateOf(originalPassword?.password ?: "")
-    var label by mutableStateOf(originalPassword?.label ?: "")
-    var username by mutableStateOf(originalPassword?.username ?: "")
-    var url by mutableStateOf(originalPassword?.url ?: "")
-    var notes by mutableStateOf(originalPassword?.notes ?: "")
+    val passwordState = TextFieldState(originalPassword?.password ?: "")
+    val labelState = TextFieldState(originalPassword?.label ?: "")
+    val usernameState = TextFieldState(originalPassword?.username ?: "")
+    val urlState = TextFieldState(originalPassword?.url ?: "")
+    val notesState = TextFieldState(originalPassword?.notes ?: "")
+    val password: String get() = passwordState.text.toString()
+    val label: String get() = labelState.text.toString()
+    val username: String get() = usernameState.text.toString()
+    val url: String get() = urlState.text.toString()
+    val notes: String get() = notesState.text.toString()
     var folder by mutableStateOf(originalPassword?.folder ?: FoldersApi.DEFAULT_FOLDER_UUID)
     var customFields =
         if (originalPassword?.customFields?.isBlank() == true) mutableStateListOf() else
         Json.decodeFromString<List<CustomField>>(originalPassword?.customFields ?: "[]")
+            .map { EditableCustomField(it.label, it.type, it.value) }
             .toMutableStateList()
     var favorite by mutableStateOf(originalPassword?.favorite ?: false)
     var replyAutofill = false
@@ -116,20 +132,22 @@ class EditablePasswordState(originalPassword: Password?) {
             save = {
                 listOf(
                     it.password, it.label, it.username, it.url, it.notes,
-                    it.folder, Json.encodeToString(it.customFields.toList()),
+                    it.folder,
+                    Json.encodeToString(it.customFields.map { field -> field.toCustomField() }),
                     it.favorite.toString(), it.replyAutofill.toString()
                 )
             },
             restore = {
                 EditablePasswordState(null).apply {
-                    password = it[0]
-                    label = it[1]
-                    username = it[2]
-                    url = it[3]
-                    notes = it[4]
+                    passwordState.setTextAndPlaceCursorAtEnd(it[0])
+                    labelState.setTextAndPlaceCursorAtEnd(it[1])
+                    usernameState.setTextAndPlaceCursorAtEnd(it[2])
+                    urlState.setTextAndPlaceCursorAtEnd(it[3])
+                    notesState.setTextAndPlaceCursorAtEnd(it[4])
                     folder = it[5]
-                    customFields =
-                        Json.decodeFromString<List<CustomField>>(it[6]).toMutableStateList()
+                    customFields = Json.decodeFromString<List<CustomField>>(it[6])
+                        .map { field -> EditableCustomField(field.label, field.type, field.value) }
+                        .toMutableStateList()
                     favorite = it[7].toBooleanStrictOrNull() ?: false
                     replyAutofill = it[8].toBooleanStrictOrNull() ?: false
                 }
@@ -215,11 +233,9 @@ fun EditablePasswordView(
                     .padding(horizontal = 16.dp)
             ) {
                 OutlinedTextField(
-                    value = editablePasswordState.label,
-                    onValueChange = { newText -> editablePasswordState.label = newText },
+                    state = editablePasswordState.labelState,
                     label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
-                    singleLine = true,
-                    maxLines = 1,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     modifier = Modifier.weight(1f),
                     isError = showFieldErrors && editablePasswordState.label.isBlank(),
                     supportingText = if (showFieldErrors && editablePasswordState.label.isBlank()) {
@@ -246,11 +262,9 @@ fun EditablePasswordView(
 
         item(key = "password_username") {
             OutlinedTextField(
-                value = editablePasswordState.username,
-                onValueChange = { newText -> editablePasswordState.username = newText },
+                state = editablePasswordState.usernameState,
                 label = { Text(text = stringResource(id = R.string.password_attr_username)) },
-                singleLine = true,
-                maxLines = 1,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
@@ -272,13 +286,12 @@ fun EditablePasswordView(
                 mutableStateOf(false)
             }
 
-            OutlinedTextField(
-                value = editablePasswordState.password,
-                onValueChange = { newText -> editablePasswordState.password = newText },
+            OutlinedSecureTextField(
+                state = editablePasswordState.passwordState,
                 textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily(Font(R.font.dejavu_sans_mono))),
                 label = { Text(text = stringResource(id = R.string.password_attr_password)) },
-                singleLine = true,
-                maxLines = 1,
+                textObfuscationMode = if (showPassword)
+                    TextObfuscationMode.Visible else TextObfuscationMode.Hidden,
                 trailingIcon = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
 
@@ -312,9 +325,6 @@ fun EditablePasswordView(
 
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                visualTransformation = if (showPassword)
-                    VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
@@ -343,7 +353,8 @@ fun EditablePasswordView(
                                         Toast.LENGTH_LONG
                                     ).show()
                                 } else {
-                                    editablePasswordState.password = generatedPassword
+                                    editablePasswordState.passwordState
+                                        .setTextAndPlaceCursorAtEnd(generatedPassword)
                                 }
                                 isGenerating = false
                             }
@@ -359,11 +370,9 @@ fun EditablePasswordView(
 
         item(key = "password_url") {
             OutlinedTextField(
-                value = editablePasswordState.url,
-                onValueChange = { newText -> editablePasswordState.url = newText },
+                state = editablePasswordState.urlState,
                 label = { Text(text = stringResource(id = R.string.password_attr_url)) },
-                singleLine = true,
-                maxLines = 1,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Uri),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -400,90 +409,20 @@ fun EditablePasswordView(
         itemsIndexed(
             items = editablePasswordState.customFields,
             key = { index, field -> "${index}_password_custom_${field.label}" }) { index, customField ->
-            var showValue by rememberSaveable {
-                mutableStateOf(customField.type != CustomField.TYPE_SECRET)
-            }
-
-            OutlinedTextField(
-                value = customField.value,
-                onValueChange = { newText ->
-                    val newElement = editablePasswordState.customFields[index].copy(value = newText)
-                    editablePasswordState.customFields.removeAt(index)
-                    editablePasswordState.customFields.add(index, newElement)
-                },
-                textStyle = if (customField.type == CustomField.TYPE_SECRET)
-                    LocalTextStyle.current.copy(fontFamily = FontFamily(Font(R.font.dejavu_sans_mono)))
-                else
-                    LocalTextStyle.current,
-                label = { Text(text = customField.label) },
-                singleLine = true,
-                maxLines = 1,
-                trailingIcon = {
-                    Row {
-                        if (customField.type == CustomField.TYPE_SECRET) {
-                            IconButton(onClick = { showValue = !showValue }) {
-                                Icon(
-                                    imageVector = if (showValue)
-                                        Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                    contentDescription = stringResource(R.string.text_input_show_password_toggle)
-                                )
-                            }
-                        }
-
-                        IconButton(onClick = { editablePasswordState.customFields.removeAt(index) }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.action_delete)
-                            )
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = when (customField.type) {
-                        CustomField.TYPE_SECRET -> KeyboardType.Password
-                        CustomField.TYPE_EMAIL -> KeyboardType.Email
-                        CustomField.TYPE_URL -> KeyboardType.Uri
-                        else -> KeyboardType.Text
-                    }
-                ),
-                visualTransformation = if (showValue)
-                    VisualTransformation.None else PasswordVisualTransformation(),
+            CustomFieldRow(
+                customField = customField,
+                showFieldErrors = showFieldErrors,
+                onDelete = { editablePasswordState.customFields.removeAt(index) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp),
-                isError = when (customField.type) {
-                    CustomField.TYPE_URL -> showFieldErrors && !customField.value.isValidURL()
-                    CustomField.TYPE_EMAIL -> showFieldErrors && !customField.value.isValidEmail()
-                    else -> false
-                },
-                supportingText = when (customField.type) {
-                    CustomField.TYPE_URL -> {
-                        if (showFieldErrors && !customField.value.isValidURL()) {
-                            {
-                                Text(text = stringResource(id = R.string.error_enter_valid_url))
-                            }
-                        } else null
-                    }
-
-                    CustomField.TYPE_EMAIL -> {
-                        if (showFieldErrors && !customField.value.isValidEmail()) {
-                            {
-                                Text(text = stringResource(id = R.string.error_enter_valid_email))
-                            }
-                        } else null
-                    }
-
-                    else -> null
-                },
+                    .padding(horizontal = 16.dp)
             )
-
         }
 
         item(key = "password_notes") {
             OutlinedTextField(
-                value = editablePasswordState.notes,
-                onValueChange = { newText -> editablePasswordState.notes = newText },
+                state = editablePasswordState.notesState,
                 label = { Text(text = stringResource(id = R.string.password_attr_notes)) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -606,8 +545,8 @@ fun EditablePasswordView(
         AddCustomFieldDialog(
             onAddClick = { type, label ->
                 editablePasswordState.customFields.add(
-                    CustomField(
-                        type = type, label = label, value = ""
+                    EditableCustomField(
+                        type = type, label = label, initialValue = ""
                     )
                 )
                 showAddCustomFieldDialog = false
@@ -633,6 +572,94 @@ fun EditablePasswordView(
     }
 }
 
+@Composable
+private fun CustomFieldRow(
+    customField: EditableCustomField,
+    showFieldErrors: Boolean,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showValue by rememberSaveable {
+        mutableStateOf(customField.type != CustomField.TYPE_SECRET)
+    }
+
+    val isError = when (customField.type) {
+        CustomField.TYPE_URL -> showFieldErrors && !customField.value.isValidURL()
+        CustomField.TYPE_EMAIL -> showFieldErrors && !customField.value.isValidEmail()
+        else -> false
+    }
+    val supportingText: (@Composable () -> Unit)? = when (customField.type) {
+        CustomField.TYPE_URL -> {
+            if (showFieldErrors && !customField.value.isValidURL()) {
+                {
+                    Text(text = stringResource(id = R.string.error_enter_valid_url))
+                }
+            } else null
+        }
+
+        CustomField.TYPE_EMAIL -> {
+            if (showFieldErrors && !customField.value.isValidEmail()) {
+                {
+                    Text(text = stringResource(id = R.string.error_enter_valid_email))
+                }
+            } else null
+        }
+
+        else -> null
+    }
+    val trailingIcon: @Composable () -> Unit = {
+        Row {
+            if (customField.type == CustomField.TYPE_SECRET) {
+                IconButton(onClick = { showValue = !showValue }) {
+                    Icon(
+                        imageVector = if (showValue)
+                            Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = stringResource(R.string.text_input_show_password_toggle)
+                    )
+                }
+            }
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.action_delete)
+                )
+            }
+        }
+    }
+
+    if (customField.type == CustomField.TYPE_SECRET) {
+        OutlinedSecureTextField(
+            state = customField.valueState,
+            textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily(Font(R.font.dejavu_sans_mono))),
+            label = { Text(text = customField.label) },
+            textObfuscationMode = if (showValue)
+                TextObfuscationMode.Visible else TextObfuscationMode.Hidden,
+            trailingIcon = trailingIcon,
+            modifier = modifier,
+            isError = isError,
+            supportingText = supportingText,
+        )
+    } else {
+        OutlinedTextField(
+            state = customField.valueState,
+            label = { Text(text = customField.label) },
+            lineLimits = TextFieldLineLimits.SingleLine,
+            trailingIcon = trailingIcon,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = when (customField.type) {
+                    CustomField.TYPE_EMAIL -> KeyboardType.Email
+                    CustomField.TYPE_URL -> KeyboardType.Uri
+                    else -> KeyboardType.Text
+                }
+            ),
+            modifier = modifier,
+            isError = isError,
+            supportingText = supportingText,
+        )
+    }
+}
+
 @Preview
 @Composable
 fun PasswordEditPreview() {
@@ -641,17 +668,17 @@ fun PasswordEditPreview() {
             EditablePasswordView(
                 editablePasswordState = rememberEditablePasswordState().apply {
                     customFields.add(
-                        CustomField(
+                        EditableCustomField(
                             type = CustomField.TYPE_TEXT,
                             label = "Custom field 1",
-                            value = ""
+                            initialValue = ""
                         )
                     )
                     customFields.add(
-                        CustomField(
+                        EditableCustomField(
                             type = CustomField.TYPE_SECRET,
                             label = "Custom field 2",
-                            value = ""
+                            initialValue = ""
                         )
                     )
                 },
