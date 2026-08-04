@@ -583,29 +583,17 @@ private fun CustomFieldRow(
         mutableStateOf(customField.type != CustomField.TYPE_SECRET)
     }
 
-    val isError = when (customField.type) {
-        CustomField.TYPE_URL -> showFieldErrors && !customField.value.isValidURL()
-        CustomField.TYPE_EMAIL -> showFieldErrors && !customField.value.isValidEmail()
-        else -> false
-    }
-    val supportingText: (@Composable () -> Unit)? = when (customField.type) {
-        CustomField.TYPE_URL -> {
-            if (showFieldErrors && !customField.value.isValidURL()) {
-                {
-                    Text(text = stringResource(id = R.string.error_enter_valid_url))
-                }
-            } else null
-        }
+    val errorRes: Int? = if (!showFieldErrors) null else when (customField.type) {
+        CustomField.TYPE_URL ->
+            R.string.error_enter_valid_url.takeIf { !customField.value.isValidURL() }
 
-        CustomField.TYPE_EMAIL -> {
-            if (showFieldErrors && !customField.value.isValidEmail()) {
-                {
-                    Text(text = stringResource(id = R.string.error_enter_valid_email))
-                }
-            } else null
-        }
+        CustomField.TYPE_EMAIL ->
+            R.string.error_enter_valid_email.takeIf { !customField.value.isValidEmail() }
 
         else -> null
+    }
+    val supportingText: (@Composable () -> Unit)? = errorRes?.let {
+        { Text(text = stringResource(id = it)) }
     }
     val trailingIcon: @Composable () -> Unit = {
         Row {
@@ -637,7 +625,7 @@ private fun CustomFieldRow(
                 TextObfuscationMode.Visible else TextObfuscationMode.Hidden,
             trailingIcon = trailingIcon,
             modifier = modifier,
-            isError = isError,
+            isError = errorRes != null,
             supportingText = supportingText,
         )
     } else {
@@ -654,7 +642,7 @@ private fun CustomFieldRow(
                 }
             ),
             modifier = modifier,
-            isError = isError,
+            isError = errorRes != null,
             supportingText = supportingText,
         )
     }
