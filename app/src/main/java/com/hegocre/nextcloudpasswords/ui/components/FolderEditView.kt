@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -49,7 +52,8 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 class EditableFolderState(originalFolder: Folder?) {
-    var label by mutableStateOf(originalFolder?.label ?: "")
+    val labelState = TextFieldState(originalFolder?.label ?: "")
+    val label: String get() = labelState.text.toString()
     var parent by mutableStateOf(originalFolder?.parent ?: FoldersApi.DEFAULT_FOLDER_UUID)
     var favorite by mutableStateOf(originalFolder?.favorite ?: false)
 
@@ -66,7 +70,7 @@ class EditableFolderState(originalFolder: Folder?) {
             },
             restore = {
                 EditableFolderState(null).apply {
-                    label = it[0]
+                    labelState.setTextAndPlaceCursorAtEnd(it[0])
                     parent = it[1]
                     favorite = it[2].toBooleanStrictOrNull() ?: false
                 }
@@ -145,11 +149,9 @@ fun EditableFolderView(
                     .padding(bottom = 16.dp)
                     .padding(horizontal = 16.dp)) {
                 OutlinedTextField(
-                    value = editableFolderState.label,
-                    onValueChange = { newText -> editableFolderState.label = newText },
+                    state = editableFolderState.labelState,
                     label = { Text(text = stringResource(id = R.string.password_folder_attr_label)) },
-                    singleLine = true,
-                    maxLines = 1,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     modifier = Modifier.weight(1f),
                     isError = showFieldErrors && editableFolderState.label.isBlank(),
                     supportingText = if (showFieldErrors && editableFolderState.label.isBlank()) {
