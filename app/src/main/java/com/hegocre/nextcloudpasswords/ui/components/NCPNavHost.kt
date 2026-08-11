@@ -487,7 +487,9 @@ fun NCPNavHost(
                                 val currentKeychain = keychain
 
                                 val customFields =
-                                    Json.encodeToString(editablePasswordState.customFields.toList())
+                                    Json.encodeToString(
+                                        editablePasswordState.customFields.map { it.toCustomField() }
+                                    )
 
                                 if (selectedPassword == null) {
                                     // New password
