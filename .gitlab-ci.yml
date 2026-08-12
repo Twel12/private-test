@@ -11,6 +11,9 @@ include:
   - project: "e/templates"
     ref: main
     file: "/.gitlab/gitlab-ci/gitlab-ci-import-updates-from-upstream.yml"
+  - project: "e/templates"
+    ref: main
+    file: "/.gitlab/gitlab-ci/gitlab-ci-check-mr-description.yml"
   - project: "e/os/ai-review"
     ref: main
     file: "/.gitlab-ci.yml"
