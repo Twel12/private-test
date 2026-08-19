@@ -717,6 +717,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         private val passwordIds = mutableListOf<AutofillId>()
         private val webDomains = linkedMapOf<String, Int>()
         private val ignoredIds = mutableListOf<AutofillId>()
+        private val shortNumericIds = mutableListOf<AutofillId>()
         private var lastTextId: AutofillId? = null
         private var usernameCandidateId: AutofillId? = null
         private var triggerId: AutofillId? = null
@@ -730,6 +731,11 @@ abstract class MurenaAutoFillService : AutofillService() {
 
             if (usernameIds.isEmpty()) {
                 usernameCandidateId?.let(usernameIds::add)
+            }
+
+            if (usernameIds.isEmpty()) {
+                passwordIds.removeAll(shortNumericIds)
+                ignoredIds.addAll(shortNumericIds)
             }
 
             return LoginFields(
@@ -767,6 +773,7 @@ abstract class MurenaAutoFillService : AutofillService() {
                     FieldType.USERNAME -> usernameIds.add(autofillId)
                     FieldType.PASSWORD -> {
                         passwordIds.add(autofillId)
+                        if (node.isTooShortToBeAPassword()) shortNumericIds.add(autofillId)
                         usernameCandidateId = lastTextId
                     }
 
@@ -792,11 +799,21 @@ abstract class MurenaAutoFillService : AutofillService() {
         private fun AssistStructure.ViewNode.shouldIgnore(): Boolean {
             return hint.containsAny(*AutoFillConsts.IGNORED_FIELD_KEYWORDS, *AutoFillConsts.IGNORED_CONTEXT_KEYWORDS) ||
                 text.containsAny(*AutoFillConsts.IGNORED_FIELD_KEYWORDS, *AutoFillConsts.IGNORED_CONTEXT_KEYWORDS) ||
-                autofillHints?.any {
-                    it.contains("otp", ignoreCase = true) ||
-                        it.contains("one", ignoreCase = true)
-                } == true
+                isLabelledAsCode()
         }
+
+        private fun AssistStructure.ViewNode.isLabelledAsCode(): Boolean =
+            CredentialFieldFilter.isLabelledAsCode(
+                hint = hint,
+                text = text?.toString(),
+                autofillHints = autofillHints?.toList()
+            )
+
+        private fun AssistStructure.ViewNode.isTooShortToBeAPassword(): Boolean =
+            CredentialFieldFilter.isTooShortToBeAPassword(
+                isNumericInput = inputType.isNumberType(),
+                maxLength = maxTextLength
+            )
 
         private fun AssistStructure.ViewNode.isIgnoredContext(): Boolean {
             return hint.containsAny(*AutoFillConsts.IGNORED_CONTEXT_KEYWORDS) ||
@@ -859,6 +876,9 @@ abstract class MurenaAutoFillService : AutofillService() {
         private fun Int.isTextType(): Boolean {
             return this and InputType.TYPE_CLASS_TEXT != 0
         }
+
+        private fun Int.isNumberType(): Boolean =
+            this and EditorInfo.TYPE_MASK_CLASS == EditorInfo.TYPE_CLASS_NUMBER
 
         private fun Int.isPasswordType(): Boolean {
             val variation = this and (EditorInfo.TYPE_MASK_CLASS or EditorInfo.TYPE_MASK_VARIATION)

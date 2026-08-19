@@ -14,11 +14,26 @@ object AutoFillConsts {
         "foundation.e.settings"
     )
     val IGNORED_FIELD_KEYWORDS = arrayOf(
-        "search",
-        "otp",
-        "one-time",
-        "verification"
+        "search"
     )
+
+    val CODE_LABEL_KEYWORDS = arrayOf(
+        "otp",
+        "totp",
+        "2fa",
+        "mfa",
+        "tfa"
+    )
+
+    val CODE_TEXT_KEYWORDS = arrayOf(
+        "one-time",
+        "onetime",
+        "verification",
+        "confirmation code"
+    )
+
+    val SHORT_NUMERIC_LENGTHS = 3..8
+
     val IGNORED_CONTEXT_KEYWORDS = arrayOf(
         "wifi",
         "wi-fi",

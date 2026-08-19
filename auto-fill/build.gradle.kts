@@ -33,4 +33,5 @@ dependencies {
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.fragment:fragment:1.8.9")
     implementation("com.jakewharton.timber:timber:5.0.1")
+    testImplementation("junit:junit:4.13.2")
 }
