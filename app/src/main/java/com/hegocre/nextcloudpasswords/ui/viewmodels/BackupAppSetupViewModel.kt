@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewModelScope
 import com.hegocre.nextcloudpasswords.api.ApiController
+import com.hegocre.nextcloudpasswords.api.exceptions.UnauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
@@ -290,6 +291,9 @@ class BackupAppSetupViewModel(private val application: Application) :
             false
         } catch (_: PWDv1ChallengePasswordException) {
             false
+        } catch (_: UnauthorizedException) {
+            requestSsoReauthentication()
+            false
         } catch (_: ClientDeauthorizedException) {
             requestClientUnlock()
             false
@@ -323,6 +327,9 @@ class BackupAppSetupViewModel(private val application: Application) :
         } catch (_: PWDv1ChallengePasswordException) {
             clearMasterPasswordState()
             null
+        } catch (_: UnauthorizedException) {
+            requestSsoReauthentication()
+            null
         } catch (_: ClientDeauthorizedException) {
             requestClientUnlock()
             null
@@ -354,6 +361,9 @@ class BackupAppSetupViewModel(private val application: Application) :
             false
         } catch (_: PWDv1ChallengePasswordException) {
             Log.d(TAG, "migration probe hit password challenge")
+            false
+        } catch (_: UnauthorizedException) {
+            requestSsoReauthentication()
             false
         } catch (_: ClientDeauthorizedException) {
             requestClientUnlock()

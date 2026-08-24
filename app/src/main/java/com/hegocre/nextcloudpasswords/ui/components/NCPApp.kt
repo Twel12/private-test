@@ -135,6 +135,7 @@ fun NextcloudPasswordsApp(
     val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val needsMasterPassword by passwordsViewModel.needsMasterPassword.collectAsState()
+    val accountSyncIssue by passwordsViewModel.accountSyncIssue.collectAsState()
     val masterPasswordInvalid by passwordsViewModel.masterPasswordInvalid.collectAsState()
     val pendingSecureMasterPasswordSave by
         passwordsViewModel.pendingSecureMasterPasswordSave.collectAsState()
@@ -568,6 +569,13 @@ fun NextcloudPasswordsApp(
                 )
             }
 
+            if (accountSyncIssue) {
+                AccountSyncIssueDialog(
+                    username = passwordsViewModel.accountName,
+                    onDismiss = { passwordsViewModel.clearAccountSyncIssue() }
+                )
+            }
+
             if (showE2eeMigrationDialog) {
                 E2eeMigrationDialog(
                     onStartMigration = onStartE2eeMigration,
@@ -599,7 +607,7 @@ fun NextcloudPasswordsApp(
                 )
             }
 
-            if (needsMasterPassword && showManualMasterPasswordDialog) {
+            if (needsMasterPassword && showManualMasterPasswordDialog && !accountSyncIssue) {
                 if (onCancelMasterPasswordDialog != null) {
                     BackHandler(onBack = onCancelMasterPasswordDialog)
                 }
