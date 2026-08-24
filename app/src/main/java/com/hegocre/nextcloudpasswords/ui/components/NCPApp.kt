@@ -607,7 +607,10 @@ fun NextcloudPasswordsApp(
                 )
             }
 
-            if (needsMasterPassword && showManualMasterPasswordDialog && !accountSyncIssue) {
+            // An account-level problem must be resolved before the master password is of any use.
+            val accountBlocksUnlock = accountSyncIssue || showLockedAccountDialog
+
+            if (needsMasterPassword && showManualMasterPasswordDialog && !accountBlocksUnlock) {
                 if (onCancelMasterPasswordDialog != null) {
                     BackHandler(onBack = onCancelMasterPasswordDialog)
                 }
