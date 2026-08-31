@@ -6,7 +6,7 @@
     <string name="channel_name">Vind mijn apparaat via SMS-kanaal</string>
     <string name="channel_description">Dit kanaal wordt gebruikt door de SMS-geolocatieapp</string>
     <string name="notification_service_caption">Vind mijn apparaat via SMS</string>
-    <string name="notification_service_content">Locatie aan het volgen in de achtergrond</string>
+    <string name="notification_service_content">Locatie aan het volgen op de achtergrond</string>
     <string name="current_password">Huidige geheime code:</string>
     <string name="enter_password">Vul geheime code in</string>
     <string name="generate_new_password">Genereer nieuwe geheime code</string>
