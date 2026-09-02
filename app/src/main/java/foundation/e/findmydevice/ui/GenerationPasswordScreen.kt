@@ -1,8 +1,13 @@
 package foundation.e.findmydevice.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +23,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +58,7 @@ import foundation.e.findmydevice.ui.buttons.actionColor
 import foundation.e.findmydevice.ui.buttons.buttonColor
 import foundation.e.findmydevice.util.Dimens
 import foundation.e.findmydevice.util.PasswordGenerator
+import foundation.e.findmydevice.util.PasswordsVault
 import kotlinx.coroutines.launch
 
 /**
@@ -73,10 +81,11 @@ object GenerationPasswordScreen {
     @Composable
     fun displayScreen(
         onBackPressed: () -> Unit,
-        onSelection: () -> Unit
+        onSelection: () -> Unit,
+        onCodeSet: () -> Unit
     ) {
         BackHandler(onBack = { onBackPressed() })
-        generatePasswordScreenContent(onSelection)
+        generatePasswordScreenContent(onSelection, onCodeSet)
     }
 }
 
@@ -84,30 +93,26 @@ object GenerationPasswordScreen {
 @SuppressLint("ComposableNaming")
 @Composable
 fun generatePasswordScreenPreview() {
-    generatePasswordScreenContent(onSelection = {})
+    generatePasswordScreenContent(onSelection = {}, onCodeSet = {})
 }
 
 @SuppressLint("ComposableNaming")
 @Composable
-fun generatePasswordScreenContent(onSelection: () -> Unit) {
+fun generatePasswordScreenContent(onSelection: () -> Unit, onCodeSet: () -> Unit) {
     val context = LocalContext.current
     val persistentStorage = PersistentStorage(context)
     val scope = rememberCoroutineScope()
     var currentPassword by remember { mutableStateOf("") }
+    var storedPassword by remember { mutableStateOf("") }
+    var showUpdatePrompt by remember { mutableStateOf(false) }
     var isSwitchChecked by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         scope.launch {
-            var savedPassword = persistentStorage.getPassword()
-            if (savedPassword.isNullOrEmpty()) {
-                val newPassword = PasswordGenerator().generatePassword()
-                persistentStorage.savePassword(newPassword)
-                savedPassword = newPassword
-            }
-            currentPassword = savedPassword
-            val savedStatus = persistentStorage.getStatus()
-            isSwitchChecked = savedStatus
-
+            val loaded = persistentStorage.loadCodeState()
+            currentPassword = loaded.current
+            storedPassword = loaded.stored
+            isSwitchChecked = loaded.statusOn
         }
     }
 
@@ -172,7 +177,7 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
         val isProvisioned = Settings.Global.getInt(
             contentResolver,
             Settings.Global.DEVICE_PROVISIONED
-        ) == 1;
+        ) == 1
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -181,12 +186,21 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
                 onClick = {
                     scope.launch {
                         persistentStorage.savePassword(currentPassword)
+                        storedPassword = currentPassword
                         persistentStorage.saveStatus(true)
-                        if(isProvisioned) {
-                            onSelection()
+                        Toast.makeText(
+                            context,
+                            R.string.code_set_success,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        if (isProvisioned) {
+                            onCodeSet()
                         }
+                        showUpdatePrompt =
+                            persistentStorage.passwordsMirrorNeedsUpdate(currentPassword)
                     }
                 },
+                enabled = currentPassword.isNotEmpty() && currentPassword != storedPassword,
                 colors = buttonColor()
             ) {
                 Text(text = stringResource(id = R.string.set))
@@ -298,6 +312,148 @@ fun generatePasswordScreenContent(onSelection: () -> Unit) {
 
         Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
 
+        saveIntoPasswordsButton(
+            code = currentPassword,
+            storedCode = storedPassword,
+            onSaved = { persistentStorage.savePasswordsMirrorCode(currentPassword) }
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.TEXT_SPACING))
+
         displayNextButton()
     }
+
+    updateInPasswordsDialog(
+        visible = showUpdatePrompt,
+        code = currentPassword,
+        onFinished = { saved ->
+            if (saved) persistentStorage.savePasswordsMirrorCode(currentPassword)
+            showUpdatePrompt = false
+        }
+    )
+}
+
+
+@SuppressLint("ComposableNaming")
+@Composable
+private fun saveIntoPasswordsButton(
+    code: String,
+    storedCode: String,
+    onSaved: () -> Unit
+) {
+    if (code.isEmpty() || code != storedCode) return
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val saved = result.resultCode == Activity.RESULT_OK
+        if (saved) onSaved()
+        val message = if (saved) {
+            R.string.save_into_passwords_done
+        } else {
+            R.string.save_into_passwords_failed
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = {
+                try {
+                    launcher.launch(PasswordsVault.saveCodeIntent(context, code))
+                } catch (_: ActivityNotFoundException) {
+                    Toast.makeText(
+                        context,
+                        R.string.save_into_passwords_unavailable,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            },
+            colors = actionColor()
+        ) {
+            Text(text = stringResource(id = R.string.save_into_passwords))
+        }
+    }
+}
+
+private data class CodeState(
+    val current: String,
+    val stored: String,
+    val statusOn: Boolean
+)
+
+/**
+ * Loads the code to show and whether it counts as already set.
+ *
+ * A code is only "stored" once the user has activated it with Set — the status flag. A code that
+ * was generated on first entry is persisted immediately but is not in use until then, so deriving
+ * "set" from persistence would leave an unconfirmed code looking active, block Set, and offer to
+ * mirror a code that no SMS would match.
+ */
+private fun PersistentStorage.loadCodeState(): CodeState {
+    val saved = getPassword()?.takeIf { it.isNotEmpty() }
+        ?: PasswordGenerator().generatePassword().also { savePassword(it) }
+    val statusOn = getStatus()
+    return CodeState(
+        current = saved,
+        stored = if (statusOn) saved else "",
+        statusOn = statusOn
+    )
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+private fun updateInPasswordsDialog(visible: Boolean, code: String, onFinished: (Boolean) -> Unit) {
+    if (!visible) return
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val saved = result.resultCode == Activity.RESULT_OK
+        val message = if (saved) {
+            R.string.save_into_passwords_done
+        } else {
+            R.string.save_into_passwords_failed
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        onFinished(saved)
+    }
+
+    AlertDialog(
+        onDismissRequest = { onFinished(false) },
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        textContentColor = MaterialTheme.colorScheme.onBackground,
+        title = { Text(text = stringResource(id = R.string.update_in_passwords_title)) },
+        text = { Text(text = stringResource(id = R.string.update_in_passwords_message)) },
+        confirmButton = {
+            TextButton(
+                colors = actionColor(),
+                onClick = {
+                    try {
+                        launcher.launch(PasswordsVault.saveCodeIntent(context, code))
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(
+                            context,
+                            R.string.save_into_passwords_unavailable,
+                            Toast.LENGTH_LONG
+                        ).show()
+                        onFinished(false)
+                    }
+                }
+            ) {
+                Text(text = stringResource(id = R.string.update_in_passwords_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(colors = actionColor(), onClick = { onFinished(false) }) {
+                Text(text = stringResource(id = R.string.update_in_passwords_dismiss))
+            }
+        }
+    )
 }

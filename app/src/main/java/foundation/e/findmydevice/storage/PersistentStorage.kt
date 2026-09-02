@@ -6,6 +6,7 @@ import foundation.e.findmydevice.data.PasswordCheckResult
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import androidx.core.content.edit
+import java.security.MessageDigest
 
 /**
  * PersistentStorage
@@ -20,6 +21,7 @@ class PersistentStorage (context: Context) {
         const val PASSWORD_KEY = "password"
         const val STATUS_KEY = "status" // Geolocation by SMS is On/off
         const val DATE_BOOLEAN_LIST_KEY = "date_boolean_list"
+        const val PASSWORDS_MIRROR_KEY = "passwords_mirror_digest"
     }
 
     private val sharedPreferences: SharedPreferences =
@@ -41,6 +43,22 @@ class PersistentStorage (context: Context) {
         return sharedPreferences.getString(PASSWORD_KEY, null)
     }
     //endregion
+
+    fun savePasswordsMirrorCode(code: String) {
+        sharedPreferences.edit {
+            putString(PASSWORDS_MIRROR_KEY, digestOf(code))
+        }
+    }
+
+    fun passwordsMirrorNeedsUpdate(code: String): Boolean {
+        val mirrored = sharedPreferences.getString(PASSWORDS_MIRROR_KEY, null)
+        return !mirrored.isNullOrEmpty() && mirrored != digestOf(code)
+    }
+
+    private fun digestOf(code: String): String =
+        MessageDigest.getInstance("SHA-256")
+            .digest(code.toByteArray())
+            .joinToString("") { byte -> "%02x".format(byte) }
 
     // region Status
     fun saveStatus(status: Boolean) {

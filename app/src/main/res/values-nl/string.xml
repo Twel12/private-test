@@ -37,4 +37,14 @@
     <string name="sms_message_with_location_not_found">Kon huidige locatie niet bepalen. Probeer later opnieuw.</string>
     <string name="no_sim_caption">Geen SIM-kaart</string>
     <string name="no_sim_details">Vind mijn apparaat werkt via SMS. Om Vind mijn apparaat te gebruiken, plaats een SIM-kaart.</string>
+
+    <string name="save_into_passwords">Opslaan in Wachtwoorden</string>
+    <string name="save_into_passwords_done">Code opgeslagen in Wachtwoorden</string>
+    <string name="save_into_passwords_failed">De code is niet opgeslagen. Probeer het opnieuw.</string>
+    <string name="save_into_passwords_unavailable">Wachtwoorden is niet beschikbaar op dit apparaat.</string>
+    <string name="update_in_passwords_title">Code bijwerken in Wachtwoorden?</string>
+    <string name="update_in_passwords_message">Je hebt je code gewijzigd. De kopie in Wachtwoorden is nu verouderd.</string>
+    <string name="update_in_passwords_confirm">Bijwerken</string>
+    <string name="update_in_passwords_dismiss">Niet nu</string>
+    <string name="code_set_success">Nieuwe Find my Device-code ingesteld</string>
 </resources>

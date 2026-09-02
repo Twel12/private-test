@@ -37,4 +37,14 @@
     <string name="channel_description">Este canal é usado pelo aplicativo de geolocalização de SMS</string>
     <string name="password_correct">Senha Correta!</string>
     <string name="password_test_procedure">Por favor, verifique se o código está funcionando enviando-o para o seu número de telefone de outro telefone à sua disposição.</string>
+
+    <string name="save_into_passwords">Salvar em Senhas</string>
+    <string name="save_into_passwords_done">Código salvo em Senhas</string>
+    <string name="save_into_passwords_failed">O código não foi salvo. Tente novamente.</string>
+    <string name="save_into_passwords_unavailable">Senhas não está disponível neste dispositivo.</string>
+    <string name="update_in_passwords_title">Atualizar o código em Senhas?</string>
+    <string name="update_in_passwords_message">Você alterou seu código. A cópia salva em Senhas está desatualizada.</string>
+    <string name="update_in_passwords_confirm">Atualizar</string>
+    <string name="update_in_passwords_dismiss">Agora não</string>
+    <string name="code_set_success">Novo código do Find my Device definido</string>
 </resources>

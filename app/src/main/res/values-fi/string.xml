@@ -37,4 +37,14 @@
     <string name="location_not_found">Nykyistä sijaintia ei voida selvittää, yritä uudelleen</string>
     <string name="password_test_procedure">Varmista koodin toimivuus lähettämällä se puhelinnumeroosi toisesta puhelimesta.</string>
     <string name="sms_message_with_location_2">* OpenStreetMap -karttalinkki: https://www.openstreetmap.org/?mlat=%1$s&amp;mlon=%2$s#map=16/%1$s/%2$s</string>
+
+    <string name="save_into_passwords">Tallenna Salasanoihin</string>
+    <string name="save_into_passwords_done">Koodi tallennettu Salasanoihin</string>
+    <string name="save_into_passwords_failed">Koodia ei tallennettu. Yritä uudelleen.</string>
+    <string name="save_into_passwords_unavailable">Salasanat ei ole käytettävissä tällä laitteella.</string>
+    <string name="update_in_passwords_title">Päivitetäänkö koodi Salasanoihin?</string>
+    <string name="update_in_passwords_message">Vaihdoit koodin. Salasanoihin tallennettu kopio ei ole enää ajan tasalla.</string>
+    <string name="update_in_passwords_confirm">Päivitä</string>
+    <string name="update_in_passwords_dismiss">Ei nyt</string>
+    <string name="code_set_success">Uusi Find my Device -koodi asetettu</string>
 </resources>
