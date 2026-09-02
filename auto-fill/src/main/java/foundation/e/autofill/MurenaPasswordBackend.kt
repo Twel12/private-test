@@ -50,7 +50,8 @@ sealed interface GeneratePasswordResult {
 
 enum class PasswordRequestSource {
     AUTOFILL,
-    CREDENTIAL_MANAGER
+    CREDENTIAL_MANAGER,
+    EXTERNAL_APP
 }
 
 data class PasswordQuery(
@@ -79,7 +80,8 @@ data class PasswordSaveRequest(
     val origin: String?,
     val username: String?,
     val password: String,
-    val isWebOriginRequest: Boolean = false
+    val isWebOriginRequest: Boolean = false,
+    val identityKey: String? = null
 )
 
 data class VaultUnlockRequest(

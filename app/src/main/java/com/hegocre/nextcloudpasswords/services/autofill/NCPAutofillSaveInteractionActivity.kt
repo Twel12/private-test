@@ -93,6 +93,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         saveRequest = request
         Timber.d(
             "opened package=**, usernamePresent=${saveRequest.username?.isNotBlank() == true}, " +
+                "identityKeyPresent=${saveRequest.identityKey?.isNotBlank() == true}, " +
                 "source=${saveRequest.source}"
         )
 
@@ -255,6 +256,8 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
         private const val EXTRA_PASSWORD = "foundation.e.passwords.autofill.EXTRA_PASSWORD"
         private const val EXTRA_IS_WEB_ORIGIN_REQUEST =
             "foundation.e.passwords.autofill.EXTRA_IS_WEB_ORIGIN_REQUEST"
+        private const val EXTRA_IDENTITY_KEY =
+            "foundation.e.passwords.autofill.EXTRA_IDENTITY_KEY"
 
         fun intent(context: Context, request: PasswordSaveRequest): Intent {
             return Intent(context, NCPAutofillSaveInteractionActivity::class.java)
@@ -265,6 +268,7 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
                 .putExtra(EXTRA_USERNAME, request.username)
                 .putExtra(EXTRA_PASSWORD, request.password)
                 .putExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, request.isWebOriginRequest)
+                .putExtra(EXTRA_IDENTITY_KEY, request.identityKey)
         }
 
         private fun Intent.toPasswordSaveRequest(): PasswordSaveRequest? {
@@ -279,7 +283,8 @@ class NCPAutofillSaveInteractionActivity : ComponentActivity() {
                 origin = getStringExtra(EXTRA_ORIGIN),
                 username = getStringExtra(EXTRA_USERNAME),
                 password = password,
-                isWebOriginRequest = getBooleanExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, false)
+                isWebOriginRequest = getBooleanExtra(EXTRA_IS_WEB_ORIGIN_REQUEST, false),
+                identityKey = getStringExtra(EXTRA_IDENTITY_KEY)
             )
         }
     }
