@@ -8,6 +8,7 @@ import android.util.Base64
 import android.util.Log
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
+import com.hegocre.nextcloudpasswords.api.exceptions.UnauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
@@ -131,6 +132,8 @@ class BackupAppService : Service() {
                 } catch (_: PWDv1ChallengePasswordException) {
                     clearMasterPasswordState()
                     BackupSessionState(error = errorE2eeUnavailable())
+                } catch (_: UnauthorizedException) {
+                    BackupSessionState(error = errorMurenaAccountUnavailable())
                 } catch (_: ClientDeauthorizedException) {
                     BackupSessionState(error = errorMurenaAccountUnavailable())
                 }

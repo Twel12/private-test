@@ -17,7 +17,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
 import coil.Coil
@@ -250,18 +249,8 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun unlockAccountInWeb() {
-        val passwordsWebUri = passwordsViewModel.preparePasswordsWebUri()
-
-        if (passwordsWebUri != null) {
-            runCatching {
-                CustomTabsIntent.Builder()
-                    .build()
-                    .launchUrl(this, passwordsWebUri)
-                waitingForUnlockInWeb = true
-                passwordsViewModel.clearClientDeauthorized()
-            }.onFailure { exception ->
-                Timber.e(exception, "Failed to launch Murena Passwords web app for unlock flow")
-            }
+        if (openPasswordsWebUnlock(passwordsViewModel)) {
+            waitingForUnlockInWeb = true
         }
     }
 

@@ -26,6 +26,7 @@ import coil.request.ImageRequest
 import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
+import com.hegocre.nextcloudpasswords.api.exceptions.UnauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
@@ -90,6 +91,18 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun clearClientDeauthorized() {
         _clientDeauthorized.postValue(false)
+    }
+
+    private val _accountSyncIssue = MutableStateFlow(false)
+    val accountSyncIssue: StateFlow<Boolean>
+        get() = _accountSyncIssue.asStateFlow()
+
+    fun reportAccountSyncIssue() {
+        _accountSyncIssue.value = true
+    }
+
+    fun clearAccountSyncIssue() {
+        _accountSyncIssue.value = false
     }
 
     private val _murenaSyncDisabled = MutableLiveData(false)
@@ -197,6 +210,11 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             null
         }
 
+    val accountName: String
+        get() = SsoAccount.getCurrentMurenaAccount(getApplication())?.name
+            ?: SsoAccount.getFirstMurenaAccount(getApplication())?.name
+            ?: server?.username.orEmpty()
+
     val supportsLocalLogout: Boolean
         get() = OkHttpRequestInterface.getInstance() !is SsoOkHttpRequest
 
@@ -277,25 +295,31 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
             _needsMasterPassword.emit(true)
         } catch (_: ClientDeauthorizedException) {
             _clientDeauthorized.postValue(true)
+        } catch (_: UnauthorizedException) {
+            reportAccountSyncIssue()
         } catch (_: SsoReauthenticationRequiredException) {
             apiController.requireSsoReauthentication()
         } catch (ex: Exception) {
-            when (ex) {
-                is PWDv1ChallengeMasterKeyInvalidException, is PWDv1ChallengePasswordException -> {
-                    _needsMasterPassword.emit(true)
-                    _masterPasswordInvalid.emit(true)
-                    masterPassword.postValue(null)
-                    clearMasterPasswordState()
-                }
-                else -> {
-                    Timber.e(ex, "Unexpected error opening session")
-                    if (!handleSessionUnavailable(password)) {
-                        _showSessionOpenError.emit(true)
-                    }
-                }
-            }
+            handleOpenSessionException(ex, password)
         } finally {
             _isRefreshing.emit(false)
+        }
+    }
+
+    private suspend fun handleOpenSessionException(ex: Exception, password: String?) {
+        when (ex) {
+            is PWDv1ChallengeMasterKeyInvalidException, is PWDv1ChallengePasswordException -> {
+                _needsMasterPassword.emit(true)
+                _masterPasswordInvalid.emit(true)
+                masterPassword.postValue(null)
+                clearMasterPasswordState()
+            }
+            else -> {
+                Timber.e(ex, "Unexpected error opening session")
+                if (!handleSessionUnavailable(password)) {
+                    _showSessionOpenError.emit(true)
+                }
+            }
         }
     }
 

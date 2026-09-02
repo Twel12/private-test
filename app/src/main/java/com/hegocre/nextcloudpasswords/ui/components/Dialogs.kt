@@ -346,6 +346,25 @@ fun LockedAccountDialog(
 }
 
 @Composable
+fun AccountSyncIssueDialog(
+    username: String,
+    onDismiss: () -> Unit,
+) {
+    EAlertDialog(
+        onDismissRequest = {},
+        title = { Text(text = stringResource(R.string.account_sync_issue_dialog_title)) },
+        text = {
+            Text(text = stringResource(R.string.account_sync_issue_dialog_message, username))
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(id = android.R.string.ok))
+            }
+        }
+    )
+}
+
+@Composable
 fun DeleteElementDialog(
     onDismissRequest: (() -> Unit)? = null,
     onConfirmButton: () -> Unit

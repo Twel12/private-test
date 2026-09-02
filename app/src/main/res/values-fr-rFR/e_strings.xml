@@ -47,4 +47,6 @@
     <string name="locked_account_dialog_message">Trop de tentatives incorrectes de mot de passe maître. Déverrouillez votre compte dans la version web de Murena Passwords, puis reconnectez-vous ici.</string>
     <string name="locked_account_dialog_unlock">Déverrouiller le compte</string>
     <string name="error_no_internet_connection">Aucune connexion Internet.</string>
+    <string name="account_sync_issue_dialog_title">Problème de synchronisation du compte</string>
+    <string name="account_sync_issue_dialog_message">Un problème de synchronisation affecte votre compte Murena Workspace %1$s. Veuillez consulter vos notifications pour vous réauthentifier et retrouver l\'accès à Passwords.</string>
 </resources>

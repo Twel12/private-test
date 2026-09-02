@@ -20,11 +20,14 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.activities.observeSsoReauthenticationRequired
+import com.hegocre.nextcloudpasswords.ui.activities.openPasswordsWebUnlock
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
@@ -118,9 +121,21 @@ class NCPAutofillPendingSaveUnlockActivity : FragmentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val showLockedAccountDialog by
+                passwordsViewModel.clientDeauthorized.observeAsState(false)
             NCPAppLockWrapper {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
+                    showLockedAccountDialog = showLockedAccountDialog,
+                    onUnlockLockedAccount = {
+                        openPasswordsWebUnlock(passwordsViewModel)
+                        setResult(RESULT_CANCELED)
+                        finish()
+                    },
+                    onCancelLockedAccount = {
+                        setResult(RESULT_CANCELED)
+                        finish()
+                    },
                     onLogOut = {
                         setResult(RESULT_CANCELED)
                         finish()

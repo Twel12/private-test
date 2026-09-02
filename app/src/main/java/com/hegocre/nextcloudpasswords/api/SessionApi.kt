@@ -2,6 +2,7 @@ package com.hegocre.nextcloudpasswords.api
 
 import com.hegocre.nextcloudpasswords.BuildConfig
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
+import com.hegocre.nextcloudpasswords.api.exceptions.UnauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.HttpStatusException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
@@ -76,8 +77,8 @@ class SessionApi private constructor(private var server: Server) {
                 apiResponse.close()
             }
 
-            if (code == HttpURLConnection.HTTP_FORBIDDEN || code == HttpURLConnection.HTTP_UNAUTHORIZED)
-                throw ClientDeauthorizedException()
+            if (code == HttpURLConnection.HTTP_FORBIDDEN) throw ClientDeauthorizedException()
+            if (code == HttpURLConnection.HTTP_UNAUTHORIZED) throw UnauthorizedException()
 
             if (code == HttpURLConnection.HTTP_OK) {
                 Result.Success(PWDv1Challenge.fromJson(body))
@@ -143,8 +144,8 @@ class SessionApi private constructor(private var server: Server) {
 
     private fun HttpStatusException.toRequestSessionHttpError(): Result<PWDv1Challenge> =
         when (statusCode) {
-            HttpURLConnection.HTTP_FORBIDDEN,
-            HttpURLConnection.HTTP_UNAUTHORIZED -> throw ClientDeauthorizedException()
+            HttpURLConnection.HTTP_FORBIDDEN -> throw ClientDeauthorizedException()
+            HttpURLConnection.HTTP_UNAUTHORIZED -> throw UnauthorizedException()
             HttpURLConnection.HTTP_SEE_OTHER -> Result.Error(Error.TWO_FACTOR_APP_PASSWORD_REQUIRED)
             else -> Result.Error(Error.API_BAD_RESPONSE)
         }

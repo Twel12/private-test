@@ -20,7 +20,6 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Context
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
-import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
@@ -364,8 +363,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private fun Throwable.invalidatesStoredMasterPassword(): Boolean {
         return this is PWDv1ChallengeMasterKeyInvalidException ||
-            this is PWDv1ChallengePasswordException ||
-            this is ClientDeauthorizedException
+            this is PWDv1ChallengePasswordException
     }
 
     private suspend fun matchingPasswords(

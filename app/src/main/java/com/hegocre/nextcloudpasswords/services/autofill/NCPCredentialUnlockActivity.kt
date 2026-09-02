@@ -22,6 +22,8 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.activity.viewModels
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.BeginGetCredentialRequest
@@ -37,6 +39,7 @@ import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
 import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.activities.observeSsoReauthenticationRequired
+import com.hegocre.nextcloudpasswords.ui.activities.openPasswordsWebUnlock
 import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import foundation.e.autofill.CredentialGetActivity
 import foundation.e.autofill.PasswordEntry
@@ -76,9 +79,21 @@ class NCPCredentialUnlockActivity : FragmentActivity() {
         )
 
         setContent {
+            val showLockedAccountDialog by
+                passwordsViewModel.clientDeauthorized.observeAsState(false)
             NCPAppLockWrapper {
                 NextcloudPasswordsApp(
                     passwordsViewModel = passwordsViewModel,
+                    showLockedAccountDialog = showLockedAccountDialog,
+                    onUnlockLockedAccount = {
+                        openPasswordsWebUnlock(passwordsViewModel)
+                        setResult(RESULT_CANCELED)
+                        finish()
+                    },
+                    onCancelLockedAccount = {
+                        setResult(RESULT_CANCELED)
+                        finish()
+                    },
                     onLogOut = {
                         setResult(RESULT_CANCELED)
                         finish()
