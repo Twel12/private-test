@@ -17,8 +17,8 @@ android {
     namespace = 'com.hegocre.nextcloudpasswords'
     compileSdk = 37
 
-    def vCode = 46
-    def vName = "1.0.12-8"
+    def vCode = 47
+    def vName = "1.0.12-9"
 
     defaultConfig {
         applicationId "foundation.e.passwords"
