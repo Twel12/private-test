@@ -37,4 +37,16 @@
     <string name="sms_message_with_location_not_found">Standort momentan nicht verfügbar. Versuchen Sie es später erneut.</string>
     <string name="no_sim_caption">Keine SIM-Karte</string>
     <string name="no_sim_details">Find my Device verwendet SMS-Nachrichten. Bitte legen Sie zur Aktivierung eine SIM-Karte ein.</string>
+
+    <string name="save_into_passwords">In Passwörter speichern</string>
+    <string name="save_into_passwords_done">Code in Passwörter gespeichert</string>
+    <string name="save_into_passwords_failed">Der Code wurde nicht gespeichert. Versuchen Sie es erneut.</string>
+    <string name="save_into_passwords_unavailable">Passwörter ist auf diesem Gerät nicht verfügbar.</string>
+
+    <string name="update_in_passwords_title">Code in Passwörter aktualisieren?</string>
+    <string name="update_in_passwords_message">Sie haben Ihren Code geändert. Die in Passwörter gespeicherte Kopie ist nicht mehr aktuell.</string>
+    <string name="update_in_passwords_confirm">Aktualisieren</string>
+    <string name="update_in_passwords_dismiss">Später</string>
+
+    <string name="code_set_success">Neuer Find my Device-Code festgelegt</string>
 </resources>

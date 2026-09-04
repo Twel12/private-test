@@ -48,4 +48,16 @@
 
     <string name="no_sim_caption">No SIM card</string>
     <string name="no_sim_details">Find my Device works with SMS. To enable Find my Device please insert a SIM card.</string>
+
+    <string name="save_into_passwords">Save into Passwords</string>
+    <string name="save_into_passwords_done">Code saved into Passwords</string>
+    <string name="save_into_passwords_failed">The code was not saved. Try again.</string>
+    <string name="save_into_passwords_unavailable">Passwords is not available on this device.</string>
+
+    <string name="update_in_passwords_title">Update code in Passwords?</string>
+    <string name="update_in_passwords_message">You changed your code. The copy saved in Passwords is now out of date.</string>
+    <string name="update_in_passwords_confirm">Update</string>
+    <string name="update_in_passwords_dismiss">Not now</string>
+
+    <string name="code_set_success">New Find my Device code set</string>
 </resources>

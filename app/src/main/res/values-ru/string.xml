@@ -37,4 +37,14 @@
     <string name="sms_message_with_location_not_found">Не удалось получить текущее местоположение. Пожалуйста, попробуйте позже.</string>
     <string name="no_sim_caption">Нет SIM-карты</string>
     <string name="no_sim_details">Find my Device работает через SMS. Чтобы активировать Find my Device, вставьте SIM-карту.</string>
+
+    <string name="save_into_passwords">Сохранить в «Пароли»</string>
+    <string name="save_into_passwords_done">Код сохранён в «Пароли»</string>
+    <string name="save_into_passwords_failed">Код не сохранён. Попробуйте ещё раз.</string>
+    <string name="save_into_passwords_unavailable">«Пароли» недоступны на этом устройстве.</string>
+    <string name="update_in_passwords_title">Обновить код в «Пароли»?</string>
+    <string name="update_in_passwords_message">Вы изменили код. Копия, сохранённая в «Пароли», устарела.</string>
+    <string name="update_in_passwords_confirm">Обновить</string>
+    <string name="update_in_passwords_dismiss">Не сейчас</string>
+    <string name="code_set_success">Новый код Find my Device установлен</string>
 </resources>

@@ -37,4 +37,16 @@
     <string name="sms_message_with_location_not_found">Imposible obtener la ubicación actual en este momento. Por favor inténtalo más tarde.</string>
     <string name="no_sim_caption">Sin tarjeta SIM</string>
     <string name="no_sim_details">Find my Device utiliza mensajes SMS. Para activar Find my Device, inserta una tarjeta SIM.</string>
+
+    <string name="save_into_passwords">Guardar en Contraseñas</string>
+    <string name="save_into_passwords_done">Código guardado en Contraseñas</string>
+    <string name="save_into_passwords_failed">No se guardó el código. Inténtalo de nuevo.</string>
+    <string name="save_into_passwords_unavailable">Contraseñas no está disponible en este dispositivo.</string>
+
+    <string name="update_in_passwords_title">¿Actualizar el código en Contraseñas?</string>
+    <string name="update_in_passwords_message">Has cambiado tu código. La copia guardada en Contraseñas ya no está actualizada.</string>
+    <string name="update_in_passwords_confirm">Actualizar</string>
+    <string name="update_in_passwords_dismiss">Ahora no</string>
+
+    <string name="code_set_success">Nuevo código de Find my Device establecido</string>
 </resources>
