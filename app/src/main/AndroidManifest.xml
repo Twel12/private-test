@@ -17,6 +17,10 @@
         android:protectionLevel="signature" />
     <uses-permission android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API" />
 
+    <permission
+        android:name="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
+        android:protectionLevel="signature" />
+
     <application
         android:name=".NCPApplication"
         android:icon="@mipmap/ic_launcher"
@@ -209,6 +213,18 @@
             android:permission="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API">
             <intent-filter>
                 <action android:name="foundation.e.passwords.ACTION_SETUP_E2EE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.activities.SaveFindMyDeviceCodeActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:permission="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
+            android:theme="@style/Theme.MurenaAutoFill.Transparent">
+            <intent-filter>
+                <action android:name="foundation.e.passwords.ACTION_SAVE_CREDENTIAL" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

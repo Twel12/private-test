@@ -59,9 +59,23 @@ data class NCPAutofillSaveCandidate(
     val url: String
 )
 
+private data class EntryUpdate(
+    val password: String,
+    val packageName: String?,
+    val linkedWebsite: String? = null,
+    val username: String? = null,
+    val identityKey: String? = null
+)
+
+private data class UpdatedMetadata(
+    val url: String,
+    val customFields: String
+)
+
 private data class ExistingSaveLookup(
     val packageName: String?,
-    val username: String,
+    val username: String?,
+    val identityKey: String?,
     val password: String,
     val passwords: List<Password>,
     val candidates: List<String>
@@ -310,8 +324,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         updateExistingPassword(
             password = decryptedPassword,
             apiController = apiController,
-            updatedPassword = request.password,
-            packageName = request.appPackageNameForLink()
+            entryUpdate = EntryUpdate(
+                password = request.password,
+                packageName = request.appPackageNameForLink(),
+                identityKey = request.identityKey?.takeIf { it.isNotBlank() }
+            )
         )
     }
 
@@ -420,45 +437,93 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     ): PasswordSaveResult? {
         val lookup = existingSaveLookup(request) ?: return null
 
-        return exactPasswordMatchSaveResult(lookup, apiController)
+        return identityKeySaveResult(lookup, apiController)
+            ?: exactPasswordMatchSaveResult(lookup, apiController)
             ?: matchingUsernameSaveResult(lookup, apiController)
     }
 
     private suspend fun existingSaveLookup(request: PasswordSaveRequest): ExistingSaveLookup? {
-        val username = request.username?.takeIf { it.isNotBlank() } ?: return null
+        val username = request.username?.takeIf { it.isNotBlank() }
+        val identityKey = request.identityKey?.takeIf { it.isNotBlank() }
+        if (username == null && identityKey == null) return null
 
         return ExistingSaveLookup(
             packageName = request.appPackageNameForLink(),
             username = username,
+            identityKey = identityKey,
             password = request.password,
             passwords = getDecryptedVisiblePasswords(),
             candidates = matcher.candidates(request)
         )
     }
 
+    private suspend fun identityKeySaveResult(
+        lookup: ExistingSaveLookup,
+        apiController: ApiController
+    ): PasswordSaveResult? {
+        val identityKey = lookup.identityKey ?: return null
+        val packageName = lookup.packageName ?: return null
+
+        val claimed = lookup.passwords.firstOrNull { password ->
+            matcher.hasIdentityKey(password, identityKey) &&
+                matcher.hasPackage(password, packageName)
+        } ?: return null
+
+        val usernameUnchanged = lookup.username == null ||
+            claimed.username.equals(lookup.username, ignoreCase = true)
+        if (claimed.password == lookup.password && usernameUnchanged) {
+            Timber.d("save duplicate ignored for claimed entry id=${claimed.id}")
+            return PasswordSaveResult.DuplicateIgnored
+        }
+
+        Timber.d("save updating claimed entry id=${claimed.id}")
+        return updateExistingPassword(
+            password = claimed,
+            apiController = apiController,
+            entryUpdate = EntryUpdate(
+                password = lookup.password,
+                packageName = lookup.packageName,
+                username = lookup.username,
+                identityKey = identityKey
+            )
+        )
+    }
+
+    private fun Password.isClaimableBy(identityKey: String?): Boolean {
+        val owner = NCPAutofillMetadata.identityKey(customFields) ?: return true
+        return owner == identityKey
+    }
+
     private suspend fun exactPasswordMatchSaveResult(
         lookup: ExistingSaveLookup,
         apiController: ApiController
     ): PasswordSaveResult? {
+        val username = lookup.username ?: return null
         val exactPasswordMatch = lookup.passwords.firstOrNull { password ->
-            password.username.equals(lookup.username, ignoreCase = true) &&
+            password.username.equals(username, ignoreCase = true) &&
                 password.password == lookup.password &&
+                password.isClaimableBy(lookup.identityKey) &&
                 matcher.matches(password, lookup.candidates)
         } ?: return null
 
+        val alreadyOwned = lookup.identityKey == null ||
+            NCPAutofillMetadata.identityKey(exactPasswordMatch.customFields) != null
         return if (
-            lookup.packageName == null ||
-            matcher.hasPackage(exactPasswordMatch, lookup.packageName)
+            alreadyOwned &&
+            (lookup.packageName == null || matcher.hasPackage(exactPasswordMatch, lookup.packageName))
         ) {
             Timber.d("save duplicate ignored id=${exactPasswordMatch.id}")
             PasswordSaveResult.DuplicateIgnored
         } else {
-            Timber.d("save linking package to existing id=${exactPasswordMatch.id}")
+            Timber.d("save linking/claiming existing id=${exactPasswordMatch.id}")
             updateExistingPassword(
                 password = exactPasswordMatch,
                 apiController = apiController,
-                updatedPassword = exactPasswordMatch.password,
-                packageName = lookup.packageName
+                entryUpdate = EntryUpdate(
+                    password = exactPasswordMatch.password,
+                    packageName = lookup.packageName,
+                    identityKey = lookup.identityKey
+                )
             )
         }
     }
@@ -469,6 +534,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     ): PasswordSaveResult? {
         val matchingUsernameEntries = lookup.passwords.filter { password ->
             password.username.equals(lookup.username, ignoreCase = true) &&
+                password.isClaimableBy(lookup.identityKey) &&
                 matcher.matches(password, lookup.candidates)
         }
 
@@ -512,41 +578,34 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         return updateExistingPassword(
             password = password,
             apiController = apiController,
-            updatedPassword = lookup.password,
-            packageName = lookup.packageName
+            entryUpdate = EntryUpdate(
+                password = lookup.password,
+                packageName = lookup.packageName,
+                identityKey = lookup.identityKey
+            )
         )
     }
 
     private suspend fun updateExistingPassword(
         password: Password,
         apiController: ApiController,
-        updatedPassword: String,
-        packageName: String?,
-        linkedWebsite: String? = null
+        entryUpdate: EntryUpdate
     ): PasswordSaveResult {
         return if (apiController.updatePassword(
-                password.toUpdatedPassword(apiController, updatedPassword, packageName, linkedWebsite)
+                password.toUpdatedPassword(apiController, entryUpdate)
             )
         ) {
             PasswordController.getInstance(appContext).syncPasswords()
             PasswordSaveResult.Saved
         } else {
-            retryExistingPasswordUpdate(
-                password,
-                apiController,
-                updatedPassword,
-                packageName,
-                linkedWebsite
-            )
+            retryExistingPasswordUpdate(password, apiController, entryUpdate)
         }
     }
 
     private suspend fun retryExistingPasswordUpdate(
         password: Password,
         apiController: ApiController,
-        updatedPassword: String,
-        packageName: String?,
-        linkedWebsite: String?
+        entryUpdate: EntryUpdate
     ): PasswordSaveResult {
         Timber.d("update failed for id=${password.id}; syncing and retrying once")
         PasswordController.getInstance(appContext).syncPasswords()
@@ -561,9 +620,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             updateRefreshedExistingPassword(
                 password = latestPassword,
                 apiController = apiController,
-                updatedPassword = updatedPassword,
-                packageName = packageName,
-                linkedWebsite = linkedWebsite
+                entryUpdate = entryUpdate
             )
         }
     }
@@ -571,12 +628,10 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private suspend fun updateRefreshedExistingPassword(
         password: Password,
         apiController: ApiController,
-        updatedPassword: String,
-        packageName: String?,
-        linkedWebsite: String?
+        entryUpdate: EntryUpdate
     ): PasswordSaveResult {
         return if (apiController.updatePassword(
-                password.toUpdatedPassword(apiController, updatedPassword, packageName, linkedWebsite)
+                password.toUpdatedPassword(apiController, entryUpdate)
             )
         ) {
             PasswordController.getInstance(appContext).syncPasswords()
@@ -599,25 +654,40 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         return PasswordSaveResult.Saved
     }
 
+    private fun Password.updatedMetadata(update: EntryUpdate): UpdatedMetadata {
+        val websiteUpdate = update.linkedWebsite
+            ?.takeIf { it.isNotBlank() }
+            ?.let { NCPAutofillMetadata.linkWebsite(url, customFields, it) }
+        val baseFields = websiteUpdate?.customFieldsJson ?: customFields
+        val withPackage = update.packageName
+            ?.takeIf { it.isNotBlank() }
+            ?.let { NCPAutofillMetadata.withPackage(baseFields, it) }
+            ?: baseFields
+        val withIdentity = update.identityKey
+            ?.takeIf { it.isNotBlank() }
+            ?.let { NCPAutofillMetadata.withIdentityKey(withPackage, it) }
+            ?: withPackage
+
+        return UpdatedMetadata(
+            url = websiteUpdate?.url ?: url,
+            customFields = withIdentity
+        )
+    }
+
     private fun Password.toUpdatedPassword(
         apiController: ApiController,
-        updatedPassword: String,
-        packageName: String?,
-        linkedWebsite: String? = null
+        entryUpdate: EntryUpdate
     ): UpdatedPassword {
+        val updatedPassword = entryUpdate.password
         val serverSettings = apiController.serverSettings.value
         val currentKeychain = apiController.csEv1Keychain.value
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
-        val websiteUpdate = linkedWebsite
-            ?.takeIf { it.isNotBlank() }
-            ?.let { NCPAutofillMetadata.linkWebsite(url, customFields, it) }
-        val updatedUrl = websiteUpdate?.url ?: url
-        val updatedCustomFields = packageName
-            ?.takeIf { it.isNotBlank() }
-            ?.let { NCPAutofillMetadata.withPackage(websiteUpdate?.customFieldsJson ?: customFields, it) }
-            ?: (websiteUpdate?.customFieldsJson ?: customFields)
+        val metadata = updatedMetadata(entryUpdate)
+        val updatedUrl = metadata.url
+        val updatedCustomFields = metadata.customFields
+        val updatedUsername = entryUpdate.username?.takeIf { it.isNotBlank() } ?: username
 
         return if (shouldEncrypt) {
             UpdatedPassword(
@@ -625,7 +695,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 revision = revision,
                 password = updatedPassword.encryptValue(currentKeychain.current, currentKeychain),
                 label = label.encryptValue(currentKeychain.current, currentKeychain),
-                username = username.encryptValue(currentKeychain.current, currentKeychain),
+                username = updatedUsername.encryptValue(currentKeychain.current, currentKeychain),
                 url = updatedUrl.encryptValue(currentKeychain.current, currentKeychain),
                 notes = notes.encryptValue(currentKeychain.current, currentKeychain),
                 customFields = updatedCustomFields.encryptValue(
@@ -646,7 +716,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                 revision = revision,
                 password = updatedPassword,
                 label = label,
-                username = username,
+                username = updatedUsername,
                 url = updatedUrl,
                 notes = notes,
                 customFields = updatedCustomFields,
@@ -676,9 +746,11 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         updateExistingPassword(
             password = password,
             apiController = apiController,
-            updatedPassword = password.password,
-            packageName = null,
-            linkedWebsite = website
+            entryUpdate = EntryUpdate(
+                password = password.password,
+                packageName = null,
+                linkedWebsite = website
+            )
         )
     }
 
@@ -690,9 +762,13 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val url = saveUrl()
         val usernameValue = username.orEmpty()
         val notes = ""
-        val customFields = appPackageNameForLink()?.let { packageName ->
+        val packageFields = appPackageNameForLink()?.let { packageName ->
             NCPAutofillMetadata.withPackage("[]", packageName)
         } ?: "[]"
+        val customFields = identityKey
+            ?.takeIf { it.isNotBlank() }
+            ?.let { NCPAutofillMetadata.withIdentityKey(packageFields, it) }
+            ?: packageFields
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
 
         return if (shouldEncrypt) {

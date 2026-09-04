@@ -94,6 +94,10 @@ class NCPAutofillMatcher(private val context: Context) {
             password.url.contains(androidUri(packageName), ignoreCase = true)
     }
 
+    fun hasIdentityKey(password: Password, identityKey: String): Boolean {
+        return NCPAutofillMetadata.identityKey(password.customFields) == identityKey
+    }
+
     fun isKnownBrowserPackage(packageName: String?): Boolean {
         return packageName != null && packageName in browserPackages
     }
@@ -195,6 +199,7 @@ class NCPAutofillMatcher(private val context: Context) {
 object NCPAutofillMetadata {
     private const val ANDROID_APPS_FIELD_LABEL = "Android apps"
     private const val WEBSITE_FIELD_LABEL = "URL"
+    private const val IDENTITY_KEY_FIELD_LABEL = "foundation.e.credential.key"
     private val WEBSITE_FIELD_KEYWORDS = listOf("website", "url")
 
     data class WebsiteAssociationUpdate(
@@ -266,6 +271,33 @@ object NCPAutofillMetadata {
             fields[existingIndex] = appField
         } else {
             fields.add(appField)
+        }
+        return Json.encodeToString(fields)
+    }
+
+    fun identityKey(customFieldsJson: String): String? {
+        return customFields(customFieldsJson)
+            .firstOrNull { it.label == IDENTITY_KEY_FIELD_LABEL }
+            ?.value
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    fun withIdentityKey(customFieldsJson: String, identityKey: String): String {
+        val fields = customFields(customFieldsJson).toMutableList()
+        // Stored trimmed because identityKey() trims on read; leaving them asymmetric would let a
+        // padded key fail to match itself and duplicate on every save.
+        val identityField = CustomField(
+            label = IDENTITY_KEY_FIELD_LABEL,
+            type = CustomField.TYPE_DATA,
+            value = identityKey.trim()
+        )
+
+        val existingIndex = fields.indexOfFirst { it.label == IDENTITY_KEY_FIELD_LABEL }
+        if (existingIndex >= 0) {
+            fields[existingIndex] = identityField
+        } else {
+            fields.add(identityField)
         }
         return Json.encodeToString(fields)
     }
