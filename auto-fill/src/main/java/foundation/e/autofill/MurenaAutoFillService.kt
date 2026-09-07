@@ -876,7 +876,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
 
         private fun Int.isTextType(): Boolean {
-            return this and InputType.TYPE_CLASS_TEXT != 0
+            return this and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_TEXT
         }
 
         private fun Int.isNumberType(): Boolean =
