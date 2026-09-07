@@ -379,7 +379,7 @@ abstract class MurenaAutoFillService : AutofillService() {
         }
         val hasCredentialDatasets = canFillCredential &&
             queryResult.credentials.isNotEmpty()
-        val hasUnlockAuthentication = canFillCredential && queryResult.vaultLocked
+        val isVaultLocked = canFillCredential && queryResult.vaultLocked
         val hasSelectionDataset = selectionIntent != null
         val hasSaveInfo = queryResult.allowSavePrompt &&
             (loginFields.passwordIds.isNotEmpty() || loginFields.usernameIds.isNotEmpty())
@@ -387,7 +387,7 @@ abstract class MurenaAutoFillService : AutofillService() {
 
         if (
             !hasCredentialDatasets &&
-            !hasUnlockAuthentication &&
+            !isVaultLocked &&
             !hasSelectionDataset &&
             !hasSaveInfo &&
             !hasSuggestPassword
@@ -398,7 +398,7 @@ abstract class MurenaAutoFillService : AutofillService() {
 
         Timber.d(
             "Building FillResponse hasCredentialDatasets=$hasCredentialDatasets, " +
-                "hasUnlockAuthentication=$hasUnlockAuthentication, " +
+                "isVaultLocked=$isVaultLocked, " +
                 "hasSelectionDataset=$hasSelectionDataset, " +
                 "hasSaveInfo=$hasSaveInfo, hasSuggestPassword=$hasSuggestPassword, " +
                 "usernameOnly=${loginFields.passwordIds.isEmpty()}"
@@ -415,16 +415,16 @@ abstract class MurenaAutoFillService : AutofillService() {
                 }
             }
 
-        if (hasUnlockAuthentication) {
+        if (isVaultLocked) {
             Timber.d("Adding unlock vault response authentication")
             responseBuilder.applyUnlockVaultAuthentication(loginFields, inlinePresentationSpec)
-        }
-
-        suggestIntent?.let { intent ->
-            Timber.d("Adding suggest-password dataset")
-            responseBuilder.addDataset(
-                buildSuggestPasswordDataset(loginFields, intent)
-            )
+        } else {
+            suggestIntent?.let { intent ->
+                Timber.d("Adding suggest-password dataset")
+                responseBuilder.addDataset(
+                    buildSuggestPasswordDataset(loginFields, intent)
+                )
+            }
         }
 
         if (loginFields.passwordIds.isNotEmpty()) {
@@ -475,11 +475,13 @@ abstract class MurenaAutoFillService : AutofillService() {
             }
         }
 
-        selectionIntent?.let { intent ->
-            Timber.d("Adding open-app selection dataset")
-            responseBuilder.addDataset(
-                buildAutofillSelectionDataset(loginFields, intent, inlinePresentationSpec)
-            )
+        if (!isVaultLocked) {
+            selectionIntent?.let { intent ->
+                Timber.d("Adding open-app selection dataset")
+                responseBuilder.addDataset(
+                    buildAutofillSelectionDataset(loginFields, intent, inlinePresentationSpec)
+                )
+            }
         }
 
         return responseBuilder.build()
