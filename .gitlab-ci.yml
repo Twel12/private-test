@@ -33,7 +33,7 @@ before_script:
       variables:
         CACHE_POLICY: pull
       interruptible: true
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^v/
       variables:
         CACHE_POLICY: pull-push
       interruptible: false
