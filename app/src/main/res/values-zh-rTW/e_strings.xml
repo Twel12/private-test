@@ -47,4 +47,16 @@
     <string name="locked_account_dialog_message">主密碼輸入錯誤次數過多。請先在 Murena Passwords 網頁版中解除帳號鎖定，然後再回到這裡重新登入。</string>
     <string name="locked_account_dialog_unlock">解除帳號鎖定</string>
     <string name="error_no_internet_connection">沒有網際網路連線。</string>
+    <string name="suggest_password_app_name" translatable="false"></string>
+    <string name="autofill_manual_selection_title"></string>
+    <string name="suggest_password_error_offline"></string>
+    <string name="suggest_password_error"></string>
+    <string name="suggest_password_error_locked"></string>
+    <string name="suggest_password_dialog_summary"></string>
+    <string name="suggested_password_autofill"></string>
+    <string name="suggest_password_dialog_title"></string>
+    <string name="suggest_password_dialog_use_button"></string>
+    <string name="autofill_manual_selection_confirm"></string>
+    <string name="account_sync_issue_dialog_message"></string>
+    <string name="account_sync_issue_dialog_title"></string>
 </resources>
