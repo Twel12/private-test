@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    </resources>
+    <string name="unlock_vault_title">Déverrouillez Mots de passe</string>
+    <string name="unlock_vault_message">Déverouillez Mots de passe pour utiliser ce mot de passe.</string>
+    <string name="unlock_vault_button">Déverrouillez</string>
+    <string name="credential_provider_settings_subtitle">Sauvegarder et utiliser les mots de passe</string>
+    <string name="credential_provider_create_entry_title">Enregistrer dans Mots de passe</string>
+    <string name="credential_provider_create_entry_description">Gardez vos mots de passe en sécurité et loguez vous facilement la prochaine fois grâce à l\'autocomplétion</string>
+    <string name="autofill_unlock_vault">Déverrouillez Mots de passe</string>
+    <string name="autofill_open_app_to_finish_saving">Ouvrez Mots de passe pour terminer l\'enregistrement</string>
+    <string name="autofill_save_description">Enregistrez cet identifiant de manière sécurisée dans Mots de passe.</string>
+    <string name="autofill_delayed_username_save_description">Continuez pour sauvegarder cette identifiant dans Mots de passe</string>
+    <string name="autofill_open_app_selection">Sélectionnez des identifiants</string>
+    <string name="suggest_password_action_title">Suggérer un mot de passe fort</string>
+</resources>
