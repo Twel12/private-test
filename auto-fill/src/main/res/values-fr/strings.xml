@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="credential_provider_settings_subtitle"></string>
+    <string name="credential_provider_create_entry_description"></string>
+    <string name="autofill_open_app_selection"></string>
+    <string name="autofill_open_app_to_finish_saving"></string>
+    <string name="unlock_vault_button"></string>
+    <string name="unlock_vault_title"></string>
+    <string name="credential_provider_create_entry_title"></string>
+    <string name="autofill_save_description"></string>
+    <string name="suggest_password_action_title"></string>
+    <string name="autofill_delayed_username_save_description"></string>
+    <string name="autofill_unlock_vault"></string>
+    <string name="unlock_vault_message"></string>
 </resources>
