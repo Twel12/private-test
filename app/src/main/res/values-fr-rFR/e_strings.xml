@@ -58,5 +58,4 @@
     <string name="suggest_password_error">Impossible de générer un mot de passe</string>
     <string name="suggest_password_error_locked">Déverrouillez l\'application Mots de passe d\'abord et essayez de nouveau</string>
     <string name="suggest_password_error_offline">Pas de connexion Internet. Connectez-vous et réessayez</string>
-    <string name="suggest_password_app_name" translatable="false"></string>
 </resources>

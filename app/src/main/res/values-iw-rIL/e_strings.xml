@@ -47,16 +47,4 @@
     <string name="locked_account_dialog_message">יותר מדי ניסיונות שגויים של סיסמת המאסטר. יש לשחרר את נעילת החשבון בגרסת האינטרנט של Murena Passwords ואז להתחבר כאן שוב.</string>
     <string name="locked_account_dialog_unlock">ביטול נעילת החשבון</string>
     <string name="error_no_internet_connection">אין חיבור לאינטרנט.</string>
-    <string name="suggest_password_app_name" translatable="false"></string>
-    <string name="autofill_manual_selection_title"></string>
-    <string name="suggest_password_error_offline"></string>
-    <string name="suggest_password_error"></string>
-    <string name="suggest_password_error_locked"></string>
-    <string name="suggest_password_dialog_summary"></string>
-    <string name="suggested_password_autofill"></string>
-    <string name="suggest_password_dialog_title"></string>
-    <string name="suggest_password_dialog_use_button"></string>
-    <string name="autofill_manual_selection_confirm"></string>
-    <string name="account_sync_issue_dialog_message"></string>
-    <string name="account_sync_issue_dialog_title"></string>
 </resources>

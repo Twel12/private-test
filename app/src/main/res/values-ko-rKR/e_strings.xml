@@ -47,16 +47,4 @@
     <string name="locked_account_dialog_message">마스터 비밀번호를 너무 많이 잘못 입력했습니다. Murena Passwords 웹 버전에서 계정 잠금을 해제한 후 여기에서 다시 로그인해 주세요.</string>
     <string name="locked_account_dialog_unlock">계정 잠금 해제</string>
     <string name="error_no_internet_connection">인터넷에 연결되어 있지 않습니다.</string>
-    <string name="suggest_password_app_name" translatable="false"></string>
-    <string name="autofill_manual_selection_title"></string>
-    <string name="suggest_password_error_offline"></string>
-    <string name="suggest_password_error"></string>
-    <string name="suggest_password_error_locked"></string>
-    <string name="suggest_password_dialog_summary"></string>
-    <string name="suggested_password_autofill"></string>
-    <string name="suggest_password_dialog_title"></string>
-    <string name="suggest_password_dialog_use_button"></string>
-    <string name="autofill_manual_selection_confirm"></string>
-    <string name="account_sync_issue_dialog_message"></string>
-    <string name="account_sync_issue_dialog_title"></string>
 </resources>

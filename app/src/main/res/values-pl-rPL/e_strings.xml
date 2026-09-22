@@ -47,16 +47,4 @@
     <string name="locked_account_dialog_message">Zbyt wiele nieprawidłowych prób wprowadzenia hasła głównego. Odblokuj swoje konto w internetowej wersji Murena Passwords, a następnie zaloguj się tutaj ponownie.</string>
     <string name="locked_account_dialog_unlock">Odblokuj konto</string>
     <string name="error_no_internet_connection">Brak połączenia z internetem.</string>
-    <string name="suggest_password_app_name" translatable="false"></string>
-    <string name="autofill_manual_selection_title"></string>
-    <string name="suggest_password_error_offline"></string>
-    <string name="suggest_password_error"></string>
-    <string name="suggest_password_error_locked"></string>
-    <string name="suggest_password_dialog_summary"></string>
-    <string name="suggested_password_autofill"></string>
-    <string name="suggest_password_dialog_title"></string>
-    <string name="suggest_password_dialog_use_button"></string>
-    <string name="autofill_manual_selection_confirm"></string>
-    <string name="account_sync_issue_dialog_message"></string>
-    <string name="account_sync_issue_dialog_title"></string>
 </resources>
