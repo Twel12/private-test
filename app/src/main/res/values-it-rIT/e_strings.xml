@@ -49,4 +49,14 @@
     <string name="error_no_internet_connection">Nessuna connessione a Internet.</string>
     <string name="account_sync_issue_dialog_title">Problema di sincronizzazione dell\'account</string>
     <string name="account_sync_issue_dialog_message">Si è verificato un problema di sincronizzazione con il tuo account Murena Workspace %1$s. Controlla le tue notifiche per autenticarti di nuovo e riottenere l\'accesso a Passwords.</string>
+    <string name="suggest_password_app_name" translatable="false"></string>
+    <string name="autofill_manual_selection_title"></string>
+    <string name="suggest_password_error_offline"></string>
+    <string name="suggest_password_error"></string>
+    <string name="suggest_password_error_locked"></string>
+    <string name="suggest_password_dialog_summary"></string>
+    <string name="suggested_password_autofill"></string>
+    <string name="suggest_password_dialog_title"></string>
+    <string name="suggest_password_dialog_use_button"></string>
+    <string name="autofill_manual_selection_confirm"></string>
 </resources>
