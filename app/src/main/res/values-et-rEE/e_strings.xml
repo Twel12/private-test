@@ -47,4 +47,16 @@
     <string name="locked_account_dialog_message">Põhiparooli jaoks on tehtud liiga palju valesid katseid. Ava oma konto lukustus Murena Passwordsi veebiversioonis ja logi seejärel siin uuesti sisse.</string>
     <string name="locked_account_dialog_unlock">Ava konto lukustus</string>
     <string name="error_no_internet_connection">Internetiühendus puudub.</string>
+    <string name="suggest_password_app_name" translatable="false"></string>
+    <string name="autofill_manual_selection_title"></string>
+    <string name="suggest_password_error_offline"></string>
+    <string name="suggest_password_error"></string>
+    <string name="suggest_password_error_locked"></string>
+    <string name="suggest_password_dialog_summary"></string>
+    <string name="suggested_password_autofill"></string>
+    <string name="suggest_password_dialog_title"></string>
+    <string name="suggest_password_dialog_use_button"></string>
+    <string name="autofill_manual_selection_confirm"></string>
+    <string name="account_sync_issue_dialog_message"></string>
+    <string name="account_sync_issue_dialog_title"></string>
 </resources>
