@@ -25,7 +25,7 @@ import foundation.e.autofill.PasswordRequestSource
 import foundation.e.autofill.PasswordSaveRequest
 import timber.log.Timber
 
-class SaveFindMyDeviceCodeActivity : ComponentActivity() {
+class SaveCredentialActivity : ComponentActivity() {
 
     private val saveLauncher = registerForActivityResult(StartActivityForResult()) { result ->
         setResult(result.resultCode)

@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Dieses Passwort wird mehr als einmal verwendet</string>
     <string name="password_security_description_leaked">Das Passwort ist schlecht und kann in Hacker-Datenbanken im Internet gefunden werden. Sie müssen es ändern und sollten sicherstellen, dass das Konto, für das Sie es verwenden, nicht kompromittiert wurde.</string>
     <string name="passwords_floating_action_button">Neu</string>
-    <string name="backup_app_setup_title">Verschlüsselungsschlüssel der Sicherung speichern</string>
-    <string name="backup_app_setup_cta">Verschlüsselungsschlüssel speichern</string>
-    <string name="backup_app_restore_title">Verschlüsselungsschlüssel der Sicherung abrufen</string>
-    <string name="backup_app_restore_cta">Verschlüsselungsschlüssel abrufen</string>
-    <string name="backup_app_setup_password_error">Falsches Passwort. Bitte versuchen Sie es erneut.</string>
     <string name="enter_password_hint">Geben Sie Ihr Murena Workspace-Passwort ein</string>
-    <string name="description">Geben Sie Ihr Murena Workspace-Passwort ein, um den Verschlüsselungsschlüssel in Murena Passwords zu speichern</string>
-    <string name="backup_app_restore_description">Geben Sie Ihr Murena Workspace-Passwort ein, um den Verschlüsselungsschlüssel aus Murena Passwords abzurufen</string>
     <string name="autofill_password_saved">Passwort gespeichert</string>
     <string name="autofill_saving_password">Passwort wird gespeichert</string>
     <string name="autofill_saving_password_message">Bitte warten Sie, während %1$s diese Anmeldedaten speichert.</string>

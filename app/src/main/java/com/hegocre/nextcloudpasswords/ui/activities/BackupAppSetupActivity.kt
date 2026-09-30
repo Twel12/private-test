@@ -5,83 +5,35 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.ContentType
-import androidx.compose.ui.autofill.contentType
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.hegocre.nextcloudpasswords.R
-import com.hegocre.nextcloudpasswords.ui.components.E2eeMigrationDialog
-import com.hegocre.nextcloudpasswords.ui.components.LockedAccountDialog
-import com.hegocre.nextcloudpasswords.ui.components.OutlinedTextFieldWithCaption
+import com.hegocre.nextcloudpasswords.api.ApiController
+import com.hegocre.nextcloudpasswords.ui.components.NCPAppLockWrapper
+import com.hegocre.nextcloudpasswords.ui.components.NextcloudPasswordsApp
 import com.hegocre.nextcloudpasswords.ui.migration.launchE2eeMigration
-import com.hegocre.nextcloudpasswords.ui.viewmodels.BackupAppSetupViewModel
-import foundation.e.backupappapi.PasswordsApp.EXTRA_IS_RESTORE
+import com.hegocre.nextcloudpasswords.ui.viewmodels.PasswordsViewModel
 import foundation.e.data.SetupConsent
 import foundation.e.data.SetupResponse
-import foundation.e.elib.compose.components.ELargeTopAppBar
-import foundation.e.elib.compose.theme.ETheme
-import timber.log.Timber
+import kotlinx.coroutines.launch
 
-@ExperimentalMaterial3Api
-class BackupAppSetupActivity : ComponentActivity() {
+class BackupAppSetupActivity : FragmentActivity() {
 
     companion object {
         const val TAG = "BackupAppSetupActivity"
     }
 
-    private val viewModel: BackupAppSetupViewModel by viewModels {
-        BackupAppSetupViewModel.factory(application)
-    }
+    private val passwordsViewModel by viewModels<PasswordsViewModel>()
 
-    private var setupContentShown = false
+    private var unlockShown = false
     private var waitingForUnlockInWeb = false
 
     private val syncDisabled: MurenaSyncDisabledFlow by lazy {
@@ -94,19 +46,13 @@ class BackupAppSetupActivity : ComponentActivity() {
 
     private val baseAutoLogin: BaseAutoLogin by lazy {
         object : BaseAutoLogin(this@BackupAppSetupActivity) {
-            override fun accountExist() {
-                showSetupContent()
-                viewModel.refreshAccounts()
-            }
+            override fun accountExist() = showUnlock()
 
             override fun onLoginSuccess() {
-                showSetupContent()
-                viewModel.refreshAccounts()
+                if (unlockShown) restartAfterReauthentication() else showUnlock()
             }
 
-            override fun signatureError() {
-                response(SetupResponse.Failed)
-            }
+            override fun signatureError() = response(SetupResponse.Failed)
 
             override fun accountUnavailable() {
                 Log.d(TAG, "murena account is not available, leaving e2ee setup")
@@ -122,9 +68,7 @@ class BackupAppSetupActivity : ComponentActivity() {
                 syncDisabled.launch(account)
             }
 
-            override fun ssoFailed() {
-                response(SetupResponse.Failed)
-            }
+            override fun ssoFailed() = response(SetupResponse.Failed)
         }
     }
 
@@ -134,100 +78,68 @@ class BackupAppSetupActivity : ComponentActivity() {
         baseAutoLogin.start()
     }
 
-    private fun showSetupContent() {
-        if (setupContentShown) return
-        setupContentShown = true
-        val isRestore = intent.getBooleanExtra(EXTRA_IS_RESTORE, false)
-        setContent {
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val response by viewModel.response.collectAsStateWithLifecycle()
-            val showE2eeMigrationDialog by viewModel.showE2eeMigrationDialog.collectAsStateWithLifecycle()
-            val showLockedAccountDialog by viewModel.clientDeauthorized.collectAsStateWithLifecycle()
-            val ssoReauthenticationRequested by
-                viewModel.ssoReauthenticationRequested.collectAsStateWithLifecycle()
+    private fun showUnlock() {
+        if (unlockShown) return
+        unlockShown = true
 
-            HandleSetupResponse(response)
-            HandleSsoReauthentication(ssoReauthenticationRequested)
-            BackupAppSetupContent(isRestore = isRestore, uiState = uiState)
-
-            if (showE2eeMigrationDialog) {
-                ETheme {
-                    E2eeMigrationDialog(
-                        onStartMigration = { launchE2eeMigration(viewModel) },
-                        onCancel = ::finishCanceled
-                    )
-                }
-            }
-
-            if (showLockedAccountDialog) {
-                ETheme {
-                    LockedAccountDialog(
-                        onUnlockAccount = ::unlockAccountInWeb,
-                        onCancel = ::finishCanceled,
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun HandleSetupResponse(response: SetupResponse?) {
-        LaunchedEffect(response) {
-            response?.let(::response)
-        }
-    }
-
-    @Composable
-    private fun HandleSsoReauthentication(ssoReauthenticationRequested: Boolean) {
-        LaunchedEffect(ssoReauthenticationRequested) {
-            if (ssoReauthenticationRequested) {
-                viewModel.clearSsoReauthenticationRequest()
-                baseAutoLogin.start(forceSsoReauthentication = true)
-            }
-        }
-    }
-
-    @Composable
-    private fun BackupAppSetupContent(
-        isRestore: Boolean,
-        uiState: BackupAppSetupViewModel.BackupAppSetupUiState,
-    ) {
-        if (uiState.isLoading || uiState.accountName == null) {
-            ETheme {
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
-            }
-            return
-        }
-
-        MasterKeyScreen(
-            isRestore = isRestore,
-            isCheckingPassword = uiState.isCheckingPassword,
-            isWrongPassword = uiState.isWrongPassword,
-            password = uiState.password,
-            canSubmit = uiState.canSubmitPassword,
-            onPasswordChange = viewModel::onPasswordChanged,
-            onSubmit = viewModel::submitPassword,
-            onBack = ::finishCanceled
+        observeSsoReauthenticationRequired(
+            passwordsViewModel = passwordsViewModel,
+            reauthenticate = { baseAutoLogin.start(forceSsoReauthentication = true) },
         )
+
+        setContent {
+            val showLockedAccountDialog by
+                passwordsViewModel.clientDeauthorized.observeAsState(false)
+            val showE2eeMigrationDialog by passwordsViewModel.showE2eeMigrationDialog.collectAsState()
+            NCPAppLockWrapper {
+                NextcloudPasswordsApp(
+                    passwordsViewModel = passwordsViewModel,
+                    onLogOut = { response(SetupResponse.AccountUnavailable) },
+                    onCancelMasterPasswordDialog = ::finishCanceled,
+                    showLockedAccountDialog = showLockedAccountDialog,
+                    onUnlockLockedAccount = ::unlockAccountInWeb,
+                    onCancelLockedAccount = ::finishCanceled,
+                    showE2eeMigrationDialog = showE2eeMigrationDialog,
+                    onStartE2eeMigration = { launchE2eeMigration(passwordsViewModel) },
+                    onCancelE2eeMigration = ::finishCanceled
+                )
+            }
+        }
+
+        // The session reopens after an E2EE migration, so watch it here.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                passwordsViewModel.sessionOpen.collect { open ->
+                    if (open) onUnlocked()
+                }
+            }
+        }
+    }
+
+    // Re-authentication gives the account a new ApiController that this screen's view model never
+    // sees. A fresh screen picks it up, and FORWARD_RESULT still answers the original caller.
+    private fun restartAfterReauthentication() {
+        startActivity(Intent(intent).addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
+        finish()
+    }
+
+    // No E2EE key yet: stay open so the migration dialog can run.
+    private fun onUnlocked() {
+        if (ApiController.getInstance(this).isEndToEndEncryptionKeyAvailable()) {
+            response(SetupResponse.Success)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         if (syncDisabled.onResume()) return
-        if (!setupContentShown) return
+        if (!unlockShown) return
         if (waitingForUnlockInWeb) {
             waitingForUnlockInWeb = false
-            viewModel.refreshAccounts()
+            passwordsViewModel.sync()
             return
         }
-
-        viewModel.onAppResumedAfterMigration()
+        passwordsViewModel.onAppResumedAfterMigration()
     }
 
     override fun onPause() {
@@ -241,215 +153,19 @@ class BackupAppSetupActivity : ComponentActivity() {
     }
 
     private fun unlockAccountInWeb() {
-        val passwordsWebUri = viewModel.preparePasswordsWebUri()
-
-        if (passwordsWebUri != null) {
-            runCatching {
-                CustomTabsIntent.Builder()
-                    .build()
-                    .launchUrl(this, passwordsWebUri)
-                waitingForUnlockInWeb = true
-                viewModel.clearClientDeauthorized()
-            }.onFailure { exception ->
-                Timber.e(exception, "Failed to launch Murena Passwords web app for unlock flow")
-            }
+        if (openPasswordsWebUnlock(passwordsViewModel)) {
+            waitingForUnlockInWeb = true
         }
-    }
-
-    @Preview
-    @Composable
-    private fun Demo() {
-        MasterKeyScreen(
-            isRestore = false,
-            isCheckingPassword = false,
-            isWrongPassword = false,
-            password = "",
-            canSubmit = false,
-            onPasswordChange = {},
-            onSubmit = {},
-            onBack = {})
-    }
-
-    @Composable
-    private fun MasterKeyScreen(
-        isRestore: Boolean,
-        isCheckingPassword: Boolean,
-        isWrongPassword: Boolean,
-        password: String,
-        canSubmit: Boolean,
-        onPasswordChange: (String) -> Unit,
-        onSubmit: () -> Unit,
-        onBack: () -> Unit,
-    ) {
-        val focusRequester = remember { FocusRequester() }
-
-        LaunchedEffect(isCheckingPassword) {
-            if (!isCheckingPassword) {
-                focusRequester.requestFocus()
-            }
-        }
-        ETheme {
-            BackHandler(onBack = onBack)
-
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding()
-                    .imePadding(),
-                topBar = {
-                    ELargeTopAppBar(
-                        expandedHeight = TopAppBarDefaults.LargeAppBarCollapsedHeight,
-                        title = {}, navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.navigation_back)
-                                )
-                            }
-                        },
-                        windowInsets = WindowInsets.statusBars
-                    )
-                },
-                bottomBar = {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Button(
-                                onClick = {
-                                    onSubmit()
-                                },
-                                enabled = canSubmit,
-                            ) {
-                                Text(
-                                    stringResource(
-                                        if (isRestore) {
-                                            R.string.backup_app_restore_cta
-                                        } else {
-                                            R.string.backup_app_setup_cta
-                                        }
-                                    )
-                                )
-                            }
-                        }
-                    }
-                },
-            ) { innerPadding ->
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .padding(horizontal = 24.dp),
-                ) {
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Text(
-                        text = stringResource(
-                            if (isRestore) {
-                                R.string.backup_app_restore_title
-                            } else {
-                                R.string.backup_app_setup_title
-                            }
-                        ),
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Text(
-                        text = stringResource(
-                            if (isRestore) {
-                                R.string.backup_app_restore_description
-                            } else {
-                                R.string.description
-                            }
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isCheckingPassword) {
-                            CircularProgressIndicator()
-                        } else {
-                            PasswordInputField(
-                                isWrongPassword = isWrongPassword,
-                                password = password,
-                                onValueChange = onPasswordChange,
-                                onSubmit = onSubmit,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .focusRequester(focusRequester)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun PasswordInputField(
-        isWrongPassword: Boolean,
-        password: String,
-        onValueChange: (String) -> Unit,
-        onSubmit: () -> Unit,
-        modifier: Modifier = Modifier,
-    ) {
-        var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
-
-        OutlinedTextFieldWithCaption(
-            text = password,
-            onValueChange = onValueChange,
-            errorText = if (isWrongPassword) {
-                stringResource(R.string.backup_app_setup_password_error)
-            } else {
-                ""
-            },
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardType = KeyboardType.Password,
-            label = stringResource(R.string.enter_password_hint),
-            trailingIcon = {
-                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                    Icon(
-                        imageVector = if (isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = stringResource(R.string.text_input_show_password_toggle)
-                    )
-                }
-            },
-            modifier = Modifier
-                .then(modifier)
-                .contentType(ContentType.Password),
-            textFieldModifier = Modifier.fillMaxWidth(),
-            onDone = { onSubmit() })
     }
 
     private fun response(response: SetupResponse) {
-        if (setupContentShown) {
-            viewModel.clearPasswordInput()
-        }
         val code = if (response == SetupResponse.Success) RESULT_OK else RESULT_CANCELED
-        setResult(code, response.toExtra())
+        setResult(code, Intent().putExtra(SetupConsent.EXTRA_SETUP_RESPONSE, response.ordinal))
         finish()
     }
 
     private fun finishCanceled() {
-        if (setupContentShown) {
-            viewModel.clearPasswordInput()
-        }
         setResult(RESULT_CANCELED)
         finish()
     }
-
-    private fun SetupResponse.toExtra() = Intent().apply {
-        putExtra(SetupConsent.EXTRA_SETUP_RESPONSE, ordinal)
-    }
-
 }

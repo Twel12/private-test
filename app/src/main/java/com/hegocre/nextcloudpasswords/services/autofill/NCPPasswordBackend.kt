@@ -18,10 +18,12 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Context
+import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.api.session.SessionFailure
+import com.hegocre.nextcloudpasswords.api.session.invalidatesStoredMasterPassword
+import com.hegocre.nextcloudpasswords.api.session.openSessionOrFailure
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
@@ -59,6 +61,22 @@ data class NCPAutofillSaveCandidate(
     val url: String
 )
 
+data class OwnedEntryTemplate(
+    val label: String,
+    val url: String,
+    val notes: String,
+    val customFieldsJson: String,
+    val requireEndToEnd: Boolean
+)
+
+sealed interface OwnedEntryLookup {
+    data class Found(val password: Password) : OwnedEntryLookup
+    data object Absent : OwnedEntryLookup
+    data class Ambiguous(val count: Int) : OwnedEntryLookup
+    data object SyncFailed : OwnedEntryLookup
+    data object Inconclusive : OwnedEntryLookup
+}
+
 private data class EntryUpdate(
     val password: String,
     val packageName: String?,
@@ -87,7 +105,7 @@ private sealed interface ExistingSaveSelection {
     data class Update(val password: Password) : ExistingSaveSelection
 }
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
     private val userController = UserController.getInstance(appContext)
@@ -95,7 +113,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val matcher = NCPAutofillMatcher(appContext)
     private val serverPasswordGenerator = ServerPasswordGenerator(
         loadClient = { apiControllerOrNull() },
-        prepareClient = { apiController -> ensureSessionOpen(apiController) },
+        prepareClient = { apiController -> ensureSessionOpen(apiController) == null },
         isVaultUnlocked = { isUnlocked() },
         isOnline = { appContext.hasActiveNetworkConnection() },
         requestPassword = { apiController ->
@@ -192,6 +210,12 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }
 
     override suspend fun save(request: PasswordSaveRequest): PasswordSaveResult =
+        save(request, template = null)
+
+    suspend fun save(
+        request: PasswordSaveRequest,
+        template: OwnedEntryTemplate?
+    ): PasswordSaveResult =
         withContext(Dispatchers.IO) {
             if (!userController.isLoggedIn) {
                 return@withContext PasswordSaveResult.NeedsUnlock
@@ -209,9 +233,16 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
             val apiController = apiControllerOrNull()
                 ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-            if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+            val sessionFailure = ensureSessionOpen(apiController)
+            if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
             ensureInitialPasswordSync()
+
+            // The caller has already looked the owned entry up; matching here could overwrite
+            // another entry with the new secret.
+            if (template != null) {
+                return@withContext createNewPassword(request, apiController, template)
+            }
 
             val existingSaveResult = handleExistingEntryForSave(
                 request = request,
@@ -242,6 +273,17 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             createNewPassword(request, apiController)
         }
 
+    suspend fun findOwnedEntry(isOwned: (Password) -> Boolean): OwnedEntryLookup =
+        withContext(Dispatchers.IO) {
+            // The cache can still hold an entry that was deleted on the server since the last sync.
+            if (!PasswordController.getInstance(appContext).syncPasswords()) {
+                return@withContext OwnedEntryLookup.SyncFailed
+            }
+            val visible = getVisiblePasswords()
+            val decrypted = decryptIfUnlocked(visible)
+            decrypted.toOwnedEntryLookup(isOwned, undecryptable = visible.size - decrypted.size)
+        }
+
     override suspend fun unlock(request: VaultUnlockRequest): VaultUnlockResult =
         withContext(Dispatchers.IO) {
             val secret = request.secret?.takeIf { it.isNotBlank() }
@@ -249,15 +291,14 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val apiController = apiControllerOrNull()
                 ?: return@withContext VaultUnlockResult.Failed("No account is configured")
 
-            val unlocked = runCatching {
-                apiController.openSession(secret)
-            }.getOrElse { error ->
-                Timber.e(error,"Failed to unlock vault")
-                false
-            }
-
-            if (!unlocked) {
-                return@withContext VaultUnlockResult.Failed("Could not unlock vault")
+            val failure = apiController.openSessionOrFailure(secret)
+            if (failure != null) {
+                Timber.e(
+                    (failure as? SessionFailure.Transport)?.cause,
+                    "Failed to unlock vault: %s",
+                    failure
+                )
+                return@withContext VaultUnlockResult.Failed(failure.userMessage)
             }
 
             MasterPasswordMemoryStore.set(secret)
@@ -304,7 +345,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-        if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+        val sessionFailure = ensureSessionOpen(apiController)
+        if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
         if (selectedCredentialId == null) {
             Timber.d(
@@ -362,25 +404,49 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
     }
 
-    private suspend fun ensureSessionOpen(apiController: ApiController): Boolean {
-        if (apiController.sessionOpen.value) return true
+    /** @return `null` once a session is open, otherwise why it could not be opened. */
+    private suspend fun ensureSessionOpen(apiController: ApiController): SessionFailure? {
+        if (apiController.sessionOpen.value) return null
         val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
-            ?: return false
-        return runCatching {
-            apiController.openSession(masterPassword)
-        }.getOrElse { error ->
-            Timber.d("stored master password failed to open session: ${error.javaClass.simpleName}")
-            if (error.invalidatesStoredMasterPassword()) {
-                MasterPasswordMemoryStore.clear()
-                SecureMasterPasswordStore(appContext).clear()
-            }
-            false
+            ?: return SessionFailure.MasterPasswordMissing
+
+        val failure = apiController.openSessionOrFailure(masterPassword) ?: return null
+        Timber.d("stored master password failed to open session: $failure")
+        if (failure.invalidatesStoredMasterPassword) {
+            MasterPasswordMemoryStore.clear()
+            SecureMasterPasswordStore(appContext).clear()
         }
+        return failure
     }
 
-    private fun Throwable.invalidatesStoredMasterPassword(): Boolean {
-        return this is PWDv1ChallengeMasterKeyInvalidException ||
-            this is PWDv1ChallengePasswordException
+    private val SessionFailure.userMessage: String
+        get() = appContext.getString(
+            when (this) {
+                SessionFailure.ClientDeauthorized -> R.string.error_session_client_deauthorized
+
+                SessionFailure.AccountUnauthorized,
+                SessionFailure.SsoReauthenticationRequired ->
+                    R.string.error_session_account_reauthentication
+
+                SessionFailure.NoAccount -> R.string.error_session_no_account
+
+                SessionFailure.MasterPasswordMissing,
+                SessionFailure.MasterPasswordRejected,
+                SessionFailure.AppPasswordRequired,
+                is SessionFailure.Transport -> R.string.error_session_vault_locked
+            }
+        )
+
+    private fun SessionFailure.toSaveResult(): PasswordSaveResult = when (this) {
+        SessionFailure.MasterPasswordMissing,
+        SessionFailure.MasterPasswordRejected,
+        SessionFailure.AppPasswordRequired,
+        SessionFailure.AccountUnauthorized,
+        SessionFailure.ClientDeauthorized,
+        SessionFailure.SsoReauthenticationRequired,
+        is SessionFailure.Transport -> PasswordSaveResult.NeedsUnlock
+
+        SessionFailure.NoAccount -> PasswordSaveResult.Failed(userMessage)
     }
 
     private suspend fun matchingPasswords(
@@ -408,7 +474,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private suspend fun decryptIfUnlocked(passwords: List<Password>): List<Password> {
         val apiController = apiControllerOrNull() ?: return emptyList()
         if (!isUnlocked()) return emptyList()
-        return passwords.decryptPasswords(apiController.csEv1Keychain.value)
+        return passwords.decryptPasswords(apiController.currentKeychain())
     }
 
     private fun Password.toPasswordEntry(): PasswordEntry {
@@ -643,9 +709,12 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private suspend fun createNewPassword(
         request: PasswordSaveRequest,
-        apiController: ApiController
+        apiController: ApiController,
+        template: OwnedEntryTemplate? = null
     ): PasswordSaveResult {
-        val created = apiController.createPassword(request.toNewPassword(apiController))
+        val newPassword = request.toNewPassword(apiController, template)
+            ?: return PasswordSaveResult.Failed("End-to-end encryption is required for this entry")
+        val created = apiController.createPassword(newPassword)
         if (!created) {
             return PasswordSaveResult.Failed("Could not save password")
         }
@@ -680,7 +749,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     ): UpdatedPassword {
         val updatedPassword = entryUpdate.password
         val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
+        val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
@@ -741,7 +810,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-        if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+        val sessionFailure = ensureSessionOpen(apiController)
+        if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
         updateExistingPassword(
             password = password,
@@ -754,17 +824,22 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         )
     }
 
-    private fun PasswordSaveRequest.toNewPassword(apiController: ApiController): NewPassword {
+    private fun PasswordSaveRequest.toNewPassword(
+        apiController: ApiController,
+        template: OwnedEntryTemplate?
+    ): NewPassword? {
         val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
+        val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && serverSettings?.encryptionCse != 0
-        val label = saveLabel()
-        val url = saveUrl()
+        if (template?.requireEndToEnd == true && !shouldEncrypt) return null
+        val label = template?.label ?: saveLabel()
+        val url = template?.url ?: saveUrl()
         val usernameValue = username.orEmpty()
-        val notes = ""
+        val notes = template?.notes.orEmpty()
+        val baseFields = template?.customFieldsJson ?: "[]"
         val packageFields = appPackageNameForLink()?.let { packageName ->
-            NCPAutofillMetadata.withPackage("[]", packageName)
-        } ?: "[]"
+            NCPAutofillMetadata.withPackage(baseFields, packageName)
+        } ?: baseFields
         val customFields = identityKey
             ?.takeIf { it.isNotBlank() }
             ?.let { NCPAutofillMetadata.withIdentityKey(packageFields, it) }
@@ -854,6 +929,20 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         const val DEFAULT_PASSWORD_HASH_LENGTH = 40
         const val LOCKED_DISPLAY_NAME = "Locked password"
         const val LOCKED_USERNAME = "Unlock to view"
+    }
+}
+
+internal fun List<Password>.toOwnedEntryLookup(
+    isOwned: (Password) -> Boolean,
+    undecryptable: Int = 0,
+): OwnedEntryLookup {
+    val owned = filter(isOwned)
+    return when {
+        owned.size == 1 -> OwnedEntryLookup.Found(owned.single())
+        owned.size > 1 -> OwnedEntryLookup.Ambiguous(owned.size)
+        // An entry that couldn't be decrypted may be the owned one, so it isn't proven absent.
+        undecryptable > 0 -> OwnedEntryLookup.Inconclusive
+        else -> OwnedEntryLookup.Absent
     }
 }
 

@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">تُستخدم كلمة المرور هذه أكثر من مرة</string>
     <string name="password_security_description_leaked">كلمة المرور هذه غير آمنة ويمكن العثور عليها في قواعد بيانات المخترقين على الإنترنت. يجب عليك تغييرها، كما ينبغي التأكد من أن الحساب الذي تستخدمها له لم يتم اختراقه.</string>
     <string name="passwords_floating_action_button">جديد</string>
-    <string name="backup_app_setup_title">احفظ مفتاح تشفير النسخة الاحتياطية</string>
-    <string name="backup_app_setup_cta">احفظ مفتاح التشفير</string>
-    <string name="backup_app_restore_title">استرجاع مفتاح تشفير النسخة الاحتياطية</string>
-    <string name="backup_app_restore_cta">استرجاع مفتاح التشفير</string>
-    <string name="backup_app_setup_password_error">كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.</string>
     <string name="enter_password_hint">أدخل كلمة مرور Murena Workspace</string>
-    <string name="description">أدخل كلمة مرور Murena Workspace لحفظ مفتاح التشفير في Murena Passwords</string>
-    <string name="backup_app_restore_description">أدخل كلمة مرور Murena Workspace لاسترجاع مفتاح التشفير من Murena Passwords</string>
     <string name="autofill_password_saved">تم حفظ كلمة المرور</string>
     <string name="autofill_saving_password">جارٍ حفظ كلمة المرور</string>
     <string name="autofill_saving_password_message">يُرجى الانتظار بينما يحفظ %1$s بيانات الاعتماد هذه.</string>

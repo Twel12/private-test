@@ -218,7 +218,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activities.SaveFindMyDeviceCodeActivity"
+            android:name=".ui.activities.SaveCredentialActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:permission="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"

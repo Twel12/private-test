@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">이 비밀번호는 두 번 이상 사용되고 있습니다</string>
     <string name="password_security_description_leaked">이 비밀번호는 안전하지 않으며 인터넷상의 해커 데이터베이스에서 발견될 수 있습니다. 비밀번호를 변경해야 하며, 이 비밀번호를 사용하는 계정이 침해되지 않았는지도 확인해야 합니다.</string>
     <string name="passwords_floating_action_button">새로 만들기</string>
-    <string name="backup_app_setup_title">백업 암호화 키 저장</string>
-    <string name="backup_app_setup_cta">암호화 키 저장</string>
-    <string name="backup_app_restore_title">백업 암호화 키 가져오기</string>
-    <string name="backup_app_restore_cta">암호화 키 가져오기</string>
-    <string name="backup_app_setup_password_error">비밀번호가 올바르지 않습니다. 다시 시도해 주세요.</string>
     <string name="enter_password_hint">Murena Workspace 비밀번호를 입력해 주세요</string>
-    <string name="description">암호화 키를 Murena Passwords에 저장하려면 Murena Workspace 비밀번호를 입력해 주세요</string>
-    <string name="backup_app_restore_description">Murena Passwords에서 암호화 키를 가져오려면 Murena Workspace 비밀번호를 입력해 주세요</string>
     <string name="autofill_password_saved">비밀번호가 저장되었습니다</string>
     <string name="autofill_saving_password">비밀번호 저장 중</string>
     <string name="autofill_saving_password_message">%1$s에서 이 자격 증명을 저장하는 동안 기다려 주세요.</string>

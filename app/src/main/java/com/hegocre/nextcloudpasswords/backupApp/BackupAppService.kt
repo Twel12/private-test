@@ -6,22 +6,24 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Base64
 import android.util.Log
+import com.hegocre.nextcloudpasswords.NCPApplication
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
-import com.hegocre.nextcloudpasswords.api.exceptions.UnauthorizedException
-import com.hegocre.nextcloudpasswords.api.exceptions.ClientDeauthorizedException
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyNeededException
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.api.session.SessionFailure
+import com.hegocre.nextcloudpasswords.api.session.SessionResult
+import com.hegocre.nextcloudpasswords.api.session.invalidatesStoredMasterPassword
+import com.hegocre.nextcloudpasswords.api.session.withTemporarySession
 import com.hegocre.nextcloudpasswords.data.password.Password
-import com.hegocre.nextcloudpasswords.data.password.PasswordController
-import com.hegocre.nextcloudpasswords.databases.AppDatabase
+import com.hegocre.nextcloudpasswords.services.autofill.NCPPasswordBackend
+import com.hegocre.nextcloudpasswords.services.autofill.OwnedEntryLookup
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
 import com.hegocre.nextcloudpasswords.utils.Result
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
-import com.hegocre.nextcloudpasswords.utils.decryptPasswords
+import foundation.e.autofill.PasswordRequestSource
+import foundation.e.autofill.PasswordSaveRequest
+import foundation.e.autofill.PasswordSaveResult
 import foundation.e.backupappapi.BackupAppApi
 import foundation.e.backupappapi.BackupKey
 import foundation.e.backupappapi.E2eeKeyWrapper
@@ -52,11 +54,7 @@ class BackupAppService : Service() {
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val openSessionMutex = Mutex()
     private val backupKeyMutex = Mutex()
-
-    @Volatile
-    private var isUuidPinned = false
 
     private val implementation = object : BackupAppApi.Stub() {
 
@@ -96,74 +94,36 @@ class BackupAppService : Service() {
         return E2eeKeyWrapper.E2eeUnavailable()
     }
 
-    private data class BackupSessionState(
-        val error: E2eeKeyWrapper? = null,
-        val sessionLease: ApiController.SessionLease? = null,
-    )
-
-    private suspend fun openSessionOrGetError(): BackupSessionState {
-        return openSessionMutex.withLock {
-            val apiController = ApiController.getInstance(this)
-
-            if (!apiController.sessionOpen.value) {
-                val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
-                    ?: return@withLock BackupSessionState(error = errorE2eeUnavailable())
-                return@withLock try {
-                    when (val temporarySession = apiController.openTemporarySession(
-                        masterPassword = masterPassword,
-                        clearStoredKeychainOnClose = false,
-                    )) {
-                        is ApiController.TemporarySessionResult.Opened ->
-                            BackupSessionState(sessionLease = temporarySession.lease)
-
-                        ApiController.TemporarySessionResult.AlreadyOpen ->
-                            BackupSessionState()
-
-                        ApiController.TemporarySessionResult.Failed -> {
-                            Log.d(TAG, "unable to open a session for backup api")
-                            BackupSessionState(error = E2eeKeyWrapper.ApiError(shouldRetry = true))
-                        }
-                    }
-                } catch (_: PWDv1ChallengeMasterKeyNeededException) {
-                    BackupSessionState(error = errorE2eeUnavailable())
-                } catch (_: PWDv1ChallengeMasterKeyInvalidException) {
-                    clearMasterPasswordState()
-                    BackupSessionState(error = errorE2eeUnavailable())
-                } catch (_: PWDv1ChallengePasswordException) {
-                    clearMasterPasswordState()
-                    BackupSessionState(error = errorE2eeUnavailable())
-                } catch (_: UnauthorizedException) {
-                    BackupSessionState(error = errorMurenaAccountUnavailable())
-                } catch (_: ClientDeauthorizedException) {
-                    BackupSessionState(error = errorMurenaAccountUnavailable())
-                }
-            }
-            BackupSessionState()
-        }
-    }
-
-    private fun clearMasterPasswordState() {
-        MasterPasswordMemoryStore.clear()
-        SecureMasterPasswordStore(this).clear()
-    }
-
     private suspend fun getBackupKey(context: Context): E2eeKeyWrapper {
         SsoAccount.getCurrentSingleSignOnAccount(context) ?: return errorMurenaAccountUnavailable()
         return backupKeyMutex.withLock {
             val apiController = ApiController.getInstance(context)
-            val sessionState = openSessionOrGetError()
-            sessionState.error?.let { return@withLock it }
+            if (apiController.sessionOpen.value) {
+                return@withLock resolveBackupKey(apiController, context)
+            }
 
-            val resolve: suspend () -> E2eeKeyWrapper = {
+            val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
+                ?: return@withLock errorE2eeUnavailable()
+
+            val result = apiController.withTemporarySession(
+                masterPassword = masterPassword,
+                clearStoredKeychainOnClose = false,
+                onCloseFailed = { Log.w(TAG, "failed to close session opened for backup api") },
+            ) {
                 resolveBackupKey(apiController, context)
             }
 
-            sessionState.sessionLease?.use(
-                onCloseFailed = {
-                    Log.w(TAG, "failed to close session opened for backup api")
-                },
-                block = resolve,
-            ) ?: resolve()
+            when (result) {
+                is SessionResult.Success -> result.value
+                is SessionResult.Failure -> {
+                    Log.d(TAG, "could not open a session for backup api: ${result.reason}")
+                    if (result.reason.invalidatesStoredMasterPassword) {
+                        MasterPasswordMemoryStore.clear()
+                        SecureMasterPasswordStore(context).clear()
+                    }
+                    result.reason.toE2eeKeyWrapper()
+                }
+            }
         }
     }
 
@@ -172,164 +132,143 @@ class BackupAppService : Service() {
         context: Context,
     ): E2eeKeyWrapper {
         val keychain = apiController.currentKeychain()?.takeIf { it.current.isNotBlank() }
-            ?: run {
-                Log.d(TAG, "session opened but no keychain available; treat as retryable")
-                return E2eeKeyWrapper.ApiError(shouldRetry = true)
+        val backend = NCPApplication.passwordBackend(context) as? NCPPasswordBackend
+        return when {
+            keychain == null -> {
+                Log.d(TAG, "session opened but end-to-end encryption is not set up")
+                E2eeKeyWrapper.E2eeUnavailable()
             }
-
-        return fetchByStoredUuid(apiController, keychain)
-            ?.also { if (it is E2eeKeyWrapper.E2eeKey) isUuidPinned = true }
-            ?: servedFromCache(apiController, context, keychain)
-            ?: syncThenServeOrCreate(apiController, context, keychain)
-    }
-
-    private suspend fun servedFromCache(
-        apiController: ApiController,
-        context: Context,
-        keychain: CSEv1Keychain,
-    ): E2eeKeyWrapper? =
-        pickAndPinSingleKey(
-            apiController,
-            matches = findInLocalCache(context, keychain),
-            isNewlyCreated = false,
-            matchLogMsg = "served backup key from local cache",
-        )
-
-    private suspend fun pickAndPinSingleKey(
-        apiController: ApiController,
-        matches: List<Password>,
-        isNewlyCreated: Boolean,
-        matchLogMsg: String,
-    ): E2eeKeyWrapper? = when (matches.size) {
-        0 -> null
-        1 -> matches.single().let { hit ->
-            Log.d(TAG, matchLogMsg)
-            ensureKeyUuidPinned(apiController, hit.id)
-            hit.asE2eeKey(isNewlyCreated = isNewlyCreated)
-        }
-        else -> {
-            Log.e(TAG, "found ${matches.size} backup keys with the reserved marker; refusing to pin")
-            E2eeKeyWrapper.ApiError(shouldRetry = false)
+            backend == null -> E2eeKeyWrapper.ApiError(shouldRetry = false)
+            else -> resolveWithPin(apiController, keychain, backend)
         }
     }
 
-    private suspend fun syncThenServeOrCreate(
+    private suspend fun resolveWithPin(
         apiController: ApiController,
-        context: Context,
         keychain: CSEv1Keychain,
+        backend: NCPPasswordBackend,
     ): E2eeKeyWrapper {
-        Log.d(TAG, "local cache miss; syncing passwords from server")
-        val synced = runCatching { PasswordController.getInstance(context).syncPasswords() }
-            .onFailure { Log.w(TAG, "syncPasswords failed during backup-key lookup", it) }
-            .isSuccess
-        if (!synced) {
-            return E2eeKeyWrapper.ApiError(shouldRetry = true)
+        val pinned = readPinnedKey(apiController, keychain)
+        val blocked = pinned.blockingResult()
+        return when {
+            pinned is PinnedKey.Readable -> pinned.password.asE2eeKey()
+            pinned is PinnedKey.ReadFailed -> findWithoutCreating(backend, pinned.pinnedId)
+            blocked != null -> {
+                Log.w(TAG, "pinned backup key is $pinned; not looking for or creating another")
+                blocked
+            }
+            else -> findOrCreateBackupKey(apiController, backend)
         }
-        return servedFromCache(apiController, context, keychain)
-            ?: createBackupKey(apiController, keychain, context)
     }
 
-    private suspend fun fetchByStoredUuid(
+    private suspend fun findOrCreateBackupKey(
+        apiController: ApiController,
+        backend: NCPPasswordBackend,
+    ): E2eeKeyWrapper = when (val found = findBackupKey(backend)) {
+        is OwnedEntryLookup.Found -> {
+            pinBackupKey(apiController, found.password.id)
+            found.password.asE2eeKey()
+        }
+        OwnedEntryLookup.Absent -> createBackupKey(apiController, backend)
+        is OwnedEntryLookup.Ambiguous -> ambiguousBackupKeys(found.count)
+        OwnedEntryLookup.SyncFailed -> E2eeKeyWrapper.ApiError(shouldRetry = true)
+        OwnedEntryLookup.Inconclusive -> {
+            Log.w(TAG, "some passwords could not be decrypted; not creating a backup key")
+            E2eeKeyWrapper.ApiError(shouldRetry = true)
+        }
+    }
+
+    // The pin couldn't be read, so a key may well exist: serve the one the lookup finds (if it is
+    // the pinned one), but never create another.
+    private suspend fun findWithoutCreating(
+        backend: NCPPasswordBackend,
+        pinnedId: String?,
+    ): E2eeKeyWrapper {
+        val found = (findBackupKey(backend) as? OwnedEntryLookup.Found)?.password
+        if (found != null && (pinnedId == null || found.id == pinnedId)) return found.asE2eeKey()
+        Log.w(TAG, "could not read the pinned backup key; not creating another")
+        return E2eeKeyWrapper.ApiError(shouldRetry = true)
+    }
+
+    private suspend fun findBackupKey(backend: NCPPasswordBackend): OwnedEntryLookup =
+        backend.findOwnedEntry(BackupAppPassword::isOwned)
+
+    private fun ambiguousBackupKeys(count: Int): E2eeKeyWrapper {
+        Log.e(TAG, "found $count backup keys with the reserved marker; refusing to pick one")
+        return E2eeKeyWrapper.ApiError(shouldRetry = false)
+    }
+
+    private suspend fun readPinnedKey(
         apiController: ApiController,
         keychain: CSEv1Keychain,
-    ): E2eeKeyWrapper? =
-        when (val result = apiController.getUserSetting(SETTING_KEY_BACKUP_PASSWORD_ID)) {
-            is Result.Error -> {
-                Log.w(TAG, "could not read pinned uuid: ${result.code}; falling back to cache")
-                null
-            }
-            is Result.Success -> {
-                val storedUuid = result.data?.takeIf { it.isNotBlank() }
-                if (storedUuid == null) null
-                else resolvePinnedKey(apiController, storedUuid, keychain)
-            }
-        }
+    ): PinnedKey = when (val setting = apiController.getUserSetting(SETTING_KEY_BACKUP_PASSWORD_ID)) {
+        is Result.Error -> PinnedKey.ReadFailed(pinnedId = null)
+        is Result.Success -> setting.data?.takeIf(::isUuid)
+            ?.let { uuid -> readPinnedEntry(apiController, uuid, keychain) }
+            ?: PinnedKey.NotSet
+    }
 
-    private suspend fun resolvePinnedKey(
+    private fun isUuid(value: String): Boolean = runCatching { UUID.fromString(value) }.isSuccess
+
+    private suspend fun readPinnedEntry(
         apiController: ApiController,
-        storedUuid: String,
+        uuid: String,
         keychain: CSEv1Keychain,
-    ): E2eeKeyWrapper? =
-        when (val result = apiController.showPassword(storedUuid)) {
-            is Result.Success ->
-                result.data.decrypt(keychain)?.takeIf(BackupAppPassword::matches)?.asE2eeKey()
-            is Result.Error -> {
-                if (result.code != Error.API_NOT_FOUND) {
-                    Log.w(TAG, "show by pinned uuid failed: ${result.code}; falling back to cache")
-                }
-                null
+    ): PinnedKey = when (val shown = apiController.showPassword(uuid)) {
+        is Result.Error ->
+            if (shown.code == Error.API_NOT_FOUND) PinnedKey.Deleted else PinnedKey.ReadFailed(uuid)
+        is Result.Success -> {
+            val decrypted = shown.data.decrypt(keychain)
+            when {
+                decrypted == null -> PinnedKey.Unreadable
+                !BackupAppPassword.isOwned(decrypted) -> PinnedKey.Modified
+                else -> PinnedKey.Readable(decrypted)
             }
         }
+    }
 
-    private suspend fun findInLocalCache(
-        context: Context,
-        keychain: CSEv1Keychain,
-    ): List<Password> =
-        AppDatabase.getInstance(context).passwordDao
-            .fetchAllPasswordsList()
-            .filter { !it.trashed && !it.hidden }
-            .decryptPasswords(keychain)
-            .filter(BackupAppPassword::matches)
-
-    private suspend fun ensureKeyUuidPinned(apiController: ApiController, uuid: String) {
-        if (isUuidPinned) return
-
-        val currentlyPinned = when (val result = apiController.getUserSetting(SETTING_KEY_BACKUP_PASSWORD_ID)) {
-            is Result.Success -> result.data?.takeIf { it.isNotBlank() }
-            is Result.Error -> {
-                Log.w(TAG, "could not read pinned uuid before write: ${result.code}; attempting write")
-                null
-            }
+    private suspend fun pinBackupKey(apiController: ApiController, uuid: String) {
+        val result = apiController.setUserSetting(SETTING_KEY_BACKUP_PASSWORD_ID, uuid)
+        if (result is Result.Error) {
+            Log.w(TAG, "could not pin backup key uuid in server settings: ${result.code}")
         }
-
-        if (currentlyPinned == uuid) {
-            isUuidPinned = true
-            Log.d(TAG, "backup-key uuid already pinned in server settings")
-            return
-        }
-
-        val writeResult = runCatching {
-            apiController.setUserSetting(SETTING_KEY_BACKUP_PASSWORD_ID, uuid)
-        }
-        writeResult
-            .onSuccess {
-                if (it is Result.Success) {
-                    isUuidPinned = true
-                    Log.d(TAG, "pinned backup-key uuid to server settings")
-                } else if (it is Result.Error) {
-                    Log.w(TAG, "could not persist backup-key UUID to server settings: ${it.code}")
-                }
-            }
-            .onFailure { Log.w(TAG, "could not persist backup-key UUID to server settings", it) }
     }
 
     private suspend fun createBackupKey(
         apiController: ApiController,
-        keychain: CSEv1Keychain,
-        context: Context,
+        backend: NCPPasswordBackend,
     ): E2eeKeyWrapper {
-        val newKeysCreated = apiController.createBackupKeys(
-            userName = BackupAppPassword.USERNAME,
-            label = BackupAppPassword.LABEL,
-            url = BackupAppPassword.URI,
-            password = generateEncryptionKeys()
+        val request = PasswordSaveRequest(
+            source = PasswordRequestSource.EXTERNAL_APP,
+            packageName = BackupAppPassword.PACKAGE_NAME,
+            webDomain = null,
+            origin = null,
+            username = BackupAppPassword.USERNAME,
+            password = generateEncryptionKeys(),
+            identityKey = BackupAppPassword.IDENTITY_KEY,
         )
-        if (!newKeysCreated) {
-            Log.d(TAG, "failed to generate backup keys")
-            return E2eeKeyWrapper.ApiError(shouldRetry = true)
-        }
+        return when (val saved = backend.save(request, BackupAppPassword.template)) {
+            PasswordSaveResult.Saved -> when (val created = findBackupKey(backend)) {
+                is OwnedEntryLookup.Found -> {
+                    Log.d(TAG, "created new backup key")
+                    pinBackupKey(apiController, created.password.id)
+                    created.password.asE2eeKey(isNewlyCreated = true)
+                }
+                is OwnedEntryLookup.Ambiguous -> ambiguousBackupKeys(created.count)
+                OwnedEntryLookup.Absent,
+                OwnedEntryLookup.SyncFailed,
+                OwnedEntryLookup.Inconclusive -> E2eeKeyWrapper.ApiError(shouldRetry = true)
+            }
 
-        runCatching { PasswordController.getInstance(context).syncPasswords() }
-            .onFailure { Log.w(TAG, "syncPasswords failed after creating backup key", it) }
+            PasswordSaveResult.NeedsUnlock -> E2eeKeyWrapper.E2eeUnavailable()
 
-        return pickAndPinSingleKey(
-            apiController,
-            matches = findInLocalCache(context, keychain),
-            isNewlyCreated = true,
-            matchLogMsg = "created new backup key",
-        ) ?: run {
-            Log.d(TAG, "newly created backup key not found in cache after sync")
-            E2eeKeyWrapper.ApiError(shouldRetry = true)
+            PasswordSaveResult.DuplicateIgnored,
+            is PasswordSaveResult.NeedsUserInteraction,
+            is PasswordSaveResult.QueuedForRetry,
+            is PasswordSaveResult.Failed -> {
+                Log.w(TAG, "could not save a new backup key: $saved")
+                E2eeKeyWrapper.ApiError(shouldRetry = true)
+            }
         }
     }
 
@@ -361,4 +300,40 @@ class BackupAppService : Service() {
         super.onDestroy()
     }
 
+}
+
+// AccountUnauthorized and ClientDeauthorized need opposite user actions but share a wire value,
+// because the published AIDL contract is frozen.
+internal fun SessionFailure.toE2eeKeyWrapper(): E2eeKeyWrapper = when (this) {
+    SessionFailure.MasterPasswordMissing,
+    SessionFailure.MasterPasswordRejected -> E2eeKeyWrapper.E2eeUnavailable()
+
+    SessionFailure.AccountUnauthorized,
+    SessionFailure.ClientDeauthorized,
+    SessionFailure.SsoReauthenticationRequired,
+    SessionFailure.NoAccount -> E2eeKeyWrapper.MurenaAccountUnavailable()
+
+    SessionFailure.AppPasswordRequired,
+    is SessionFailure.Transport -> E2eeKeyWrapper.ApiError(shouldRetry = true)
+}
+
+internal sealed interface PinnedKey {
+    data object NotSet : PinnedKey
+    data object Deleted : PinnedKey
+    data class ReadFailed(val pinnedId: String?) : PinnedKey
+    data object Unreadable : PinnedKey
+    data object Modified : PinnedKey
+    data class Readable(val password: Password) : PinnedKey
+}
+
+// A pin means a key was handed out before, so anything short of "gone" or "never set" must not
+// lead to a new key: backups made with the old one would become unreadable.
+internal fun PinnedKey.blockingResult(): E2eeKeyWrapper? = when (this) {
+    PinnedKey.NotSet,
+    PinnedKey.Deleted,
+    is PinnedKey.Readable -> null
+
+    is PinnedKey.ReadFailed -> E2eeKeyWrapper.ApiError(shouldRetry = true)
+    PinnedKey.Unreadable -> E2eeKeyWrapper.E2eeUnavailable()
+    PinnedKey.Modified -> E2eeKeyWrapper.ApiError(shouldRetry = false)
 }

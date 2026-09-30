@@ -21,14 +21,14 @@ class PasswordController private constructor(context: Context) {
     /**
      * Sync the passwords obtained from the [ApiController] with the cached ones.
      *
+     * @return Whether the server list was fetched and applied.
      */
-    suspend fun syncPasswords() {
-        withContext(Dispatchers.IO) {
-            val result = apiController.listPasswords()
-            if (result is Result.Success) {
-                passwordDatabase.passwordDao.syncWithRemote(result.data)
-            }
+    suspend fun syncPasswords(): Boolean = withContext(Dispatchers.IO) {
+        val result = apiController.listPasswords()
+        if (result is Result.Success) {
+            passwordDatabase.passwordDao.syncWithRemote(result.data)
         }
+        result is Result.Success
     }
 
     fun getPasswords(): LiveData<List<Password>> =

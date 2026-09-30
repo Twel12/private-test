@@ -76,7 +76,7 @@ data class Password(
     val created: Int,
     val updated: Int
 ) {
-    fun isBackupAppKey(): Boolean = BackupAppPassword.matches(this)
+    fun isBackupAppKey(): Boolean = BackupAppPassword.isOwned(this)
 
     fun canEdit(): Boolean = editable && !isBackupAppKey()
 

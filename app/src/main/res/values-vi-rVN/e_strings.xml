@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Mật khẩu này đang được sử dụng nhiều hơn một lần</string>
     <string name="password_security_description_leaked">Mật khẩu này không an toàn và có thể được tìm thấy trong các cơ sở dữ liệu của tin tặc trên internet. Bạn cần thay đổi mật khẩu này và nên đảm bảo rằng tài khoản đang dùng nó chưa bị xâm phạm.</string>
     <string name="passwords_floating_action_button">Mới</string>
-    <string name="backup_app_setup_title">Lưu khóa mã hóa bản sao lưu</string>
-    <string name="backup_app_setup_cta">Lưu khóa mã hóa</string>
-    <string name="backup_app_restore_title">Lấy khóa mã hóa bản sao lưu</string>
-    <string name="backup_app_restore_cta">Lấy khóa mã hóa</string>
-    <string name="backup_app_setup_password_error">Mật khẩu không chính xác. Vui lòng thử lại.</string>
     <string name="enter_password_hint">Nhập mật khẩu tài khoản Murena Workspace của bạn</string>
-    <string name="description">Nhập mật khẩu tài khoản Murena Workspace của bạn để lưu khóa mã hóa trong Murena Passwords</string>
-    <string name="backup_app_restore_description">Nhập mật khẩu tài khoản Murena Workspace của bạn để lấy khóa mã hóa từ Murena Passwords</string>
     <string name="autofill_password_saved">Đã lưu mật khẩu</string>
     <string name="autofill_saving_password">Đang lưu mật khẩu</string>
     <string name="autofill_saving_password_message">Vui lòng đợi trong khi %1$s lưu thông tin đăng nhập này.</string>
