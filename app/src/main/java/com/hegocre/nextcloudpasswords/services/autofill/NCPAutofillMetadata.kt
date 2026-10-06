@@ -20,6 +20,7 @@ package com.hegocre.nextcloudpasswords.services.autofill
 import android.content.Context
 import androidx.core.net.toUri
 import com.hegocre.nextcloudpasswords.R
+import com.hegocre.nextcloudpasswords.companion.OwnedEntry
 import com.hegocre.nextcloudpasswords.data.password.CustomField
 import com.hegocre.nextcloudpasswords.data.password.Password
 import foundation.e.autofill.PasswordQuery
@@ -197,9 +198,9 @@ class NCPAutofillMatcher(private val context: Context) {
 }
 
 object NCPAutofillMetadata {
-    private const val ANDROID_APPS_FIELD_LABEL = "Android apps"
+    private const val ANDROID_APPS_FIELD_LABEL = OwnedEntry.ANDROID_APPS_FIELD
     private const val WEBSITE_FIELD_LABEL = "URL"
-    private const val IDENTITY_KEY_FIELD_LABEL = "foundation.e.credential.key"
+    private const val IDENTITY_KEY_FIELD_LABEL = OwnedEntry.CREDENTIAL_ID_FIELD
     private val WEBSITE_FIELD_KEYWORDS = listOf("website", "url")
 
     data class WebsiteAssociationUpdate(

@@ -81,6 +81,13 @@ class OwnedEntryTest {
     }
 
     @Test
+    fun `app-owned entries cannot be edited, ordinary ones can`() {
+        assertFalse(password(ownedEntry("1", FMD)).canEdit())
+        assertFalse(password(legacyBackupEntry("2")).canEdit())
+        assertTrue(password(plainEntry("3")).canEdit())
+    }
+
+    @Test
     fun `entries and drafts never print their secret`() {
         assertFalse(ownedEntry("1", FMD, secret = "s3cret").toString().contains("s3cret"))
         assertFalse(

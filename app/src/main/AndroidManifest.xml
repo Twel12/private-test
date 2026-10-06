@@ -13,15 +13,6 @@
         tools:targetApi="s" />
 
     <permission
-        android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API" />
-
-    <permission
-        android:name="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
-        android:protectionLevel="signature" />
-
-    <permission
         android:name="foundation.e.passwords.permission.COMPANION_API"
         android:protectionLevel="signature" />
 
@@ -210,37 +201,6 @@
                 <action android:name="foundation.e.passwords.companion.SERVICE" />
             </intent-filter>
         </service>
-
-        <service
-            android:name=".backupApp.BackupAppService"
-            android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API">
-            <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_BACKUP_APP_PRIVATE_API" />
-            </intent-filter>
-        </service>
-
-        <activity
-            android:name=".ui.activities.BackupAppSetupActivity"
-            android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API">
-            <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_SETUP_E2EE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".ui.activities.SaveCredentialActivity"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
-            android:theme="@style/Theme.MurenaAutoFill.Transparent">
-            <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_SAVE_CREDENTIAL" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name=".companion.CompanionRequestActivity"

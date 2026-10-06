@@ -61,22 +61,6 @@ data class NCPAutofillSaveCandidate(
     val url: String
 )
 
-data class OwnedEntryTemplate(
-    val label: String,
-    val url: String,
-    val notes: String,
-    val customFieldsJson: String,
-    val requireEndToEnd: Boolean
-)
-
-sealed interface OwnedEntryLookup {
-    data class Found(val password: Password) : OwnedEntryLookup
-    data object Absent : OwnedEntryLookup
-    data class Ambiguous(val count: Int) : OwnedEntryLookup
-    data object SyncFailed : OwnedEntryLookup
-    data object Inconclusive : OwnedEntryLookup
-}
-
 private data class EntryUpdate(
     val password: String,
     val packageName: String?,
@@ -210,12 +194,6 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }
 
     override suspend fun save(request: PasswordSaveRequest): PasswordSaveResult =
-        save(request, template = null)
-
-    suspend fun save(
-        request: PasswordSaveRequest,
-        template: OwnedEntryTemplate?
-    ): PasswordSaveResult =
         withContext(Dispatchers.IO) {
             if (!userController.isLoggedIn) {
                 return@withContext PasswordSaveResult.NeedsUnlock
@@ -237,12 +215,6 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
             ensureInitialPasswordSync()
-
-            // The caller has already looked the owned entry up; matching here could overwrite
-            // another entry with the new secret.
-            if (template != null) {
-                return@withContext createNewPassword(request, apiController, template)
-            }
 
             val existingSaveResult = handleExistingEntryForSave(
                 request = request,
@@ -271,17 +243,6 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
                     "usernamePresent=${request.username?.isNotBlank() == true}"
             )
             createNewPassword(request, apiController)
-        }
-
-    suspend fun findOwnedEntry(isOwned: (Password) -> Boolean): OwnedEntryLookup =
-        withContext(Dispatchers.IO) {
-            // The cache can still hold an entry that was deleted on the server since the last sync.
-            if (!PasswordController.getInstance(appContext).syncPasswords()) {
-                return@withContext OwnedEntryLookup.SyncFailed
-            }
-            val visible = getVisiblePasswords()
-            val decrypted = decryptIfUnlocked(visible)
-            decrypted.toOwnedEntryLookup(isOwned, undecryptable = visible.size - decrypted.size)
         }
 
     override suspend fun unlock(request: VaultUnlockRequest): VaultUnlockResult =
@@ -456,7 +417,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val candidates = matcher.candidates(request)
         if (candidates.isEmpty()) return emptyList()
 
-        val decrypted = decryptIfUnlocked(passwords).excludeBackupAppKeys()
+        val decrypted = decryptIfUnlocked(passwords).excludeAppOwned()
         return decrypted.filter { password ->
             matcher.matches(password, candidates)
         }
@@ -468,7 +429,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private suspend fun getDecryptedVisiblePasswords(): List<Password> {
-        return decryptIfUnlocked(getVisiblePasswords()).excludeBackupAppKeys()
+        return decryptIfUnlocked(getVisiblePasswords()).excludeAppOwned()
     }
 
     private suspend fun decryptIfUnlocked(passwords: List<Password>): List<Password> {
@@ -710,11 +671,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private suspend fun createNewPassword(
         request: PasswordSaveRequest,
         apiController: ApiController,
-        template: OwnedEntryTemplate? = null
     ): PasswordSaveResult {
-        val newPassword = request.toNewPassword(apiController, template)
-            ?: return PasswordSaveResult.Failed("End-to-end encryption is required for this entry")
-        val created = apiController.createPassword(newPassword)
+        val created = apiController.createPassword(request.toNewPassword(apiController))
         if (!created) {
             return PasswordSaveResult.Failed("Could not save password")
         }
@@ -824,22 +782,17 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         )
     }
 
-    private fun PasswordSaveRequest.toNewPassword(
-        apiController: ApiController,
-        template: OwnedEntryTemplate?
-    ): NewPassword? {
+    private fun PasswordSaveRequest.toNewPassword(apiController: ApiController): NewPassword {
         val serverSettings = apiController.serverSettings.value
         val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && serverSettings?.encryptionCse != 0
-        if (template?.requireEndToEnd == true && !shouldEncrypt) return null
-        val label = template?.label ?: saveLabel()
-        val url = template?.url ?: saveUrl()
+        val label = saveLabel()
+        val url = saveUrl()
         val usernameValue = username.orEmpty()
-        val notes = template?.notes.orEmpty()
-        val baseFields = template?.customFieldsJson ?: "[]"
+        val notes = ""
         val packageFields = appPackageNameForLink()?.let { packageName ->
-            NCPAutofillMetadata.withPackage(baseFields, packageName)
-        } ?: baseFields
+            NCPAutofillMetadata.withPackage("[]", packageName)
+        } ?: "[]"
         val customFields = identityKey
             ?.takeIf { it.isNotBlank() }
             ?.let { NCPAutofillMetadata.withIdentityKey(packageFields, it) }
@@ -932,22 +885,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 }
 
-internal fun List<Password>.toOwnedEntryLookup(
-    isOwned: (Password) -> Boolean,
-    undecryptable: Int = 0,
-): OwnedEntryLookup {
-    val owned = filter(isOwned)
-    return when {
-        owned.size == 1 -> OwnedEntryLookup.Found(owned.single())
-        owned.size > 1 -> OwnedEntryLookup.Ambiguous(owned.size)
-        // An entry that couldn't be decrypted may be the owned one, so it isn't proven absent.
-        undecryptable > 0 -> OwnedEntryLookup.Inconclusive
-        else -> OwnedEntryLookup.Absent
-    }
-}
-
-internal fun List<Password>.excludeBackupAppKeys(): List<Password> {
-    return filterNot(Password::isBackupAppKey)
+internal fun List<Password>.excludeAppOwned(): List<Password> {
+    return filterNot(Password::isAppOwned)
 }
 
 internal fun saveResultForMissingUsername(candidateCount: Int): PasswordSaveResult? {
