@@ -211,8 +211,9 @@ class CompanionVaultTest {
 
     @Test
     fun `a non-backup owner ignores the legacy backup pin`() = runBlocking {
-        store.add(legacyBackupEntry("k", secret = "backup-key"))
-        store.settings[LegacyBackupEntry.PIN_SETTING] = "k"
+        val backupId = "3f1c2a4e-0000-4000-8000-000000000002"
+        store.add(legacyBackupEntry(backupId, secret = "backup-key"))
+        store.settings[LegacyBackupEntry.PIN_SETTING] = backupId
         store.add(ownedEntry("a", FMD, secret = "code"))
 
         assertEquals(VaultOutcome.Found("code", 1L), vault.get(FMD))
@@ -269,7 +270,7 @@ class CompanionVaultTest {
     }
 
     @Test
-    fun `replace writes nothing when the pin cannot be unsealed first`() = runBlocking {
+    fun `replace writes nothing when the fingerprint-free pin cannot be written first`() = runBlocking {
         store.add(ownedEntry("a", FMD, secret = "old"))
         store.failingWrites += PinRecord.settingKey(FMD)
 
@@ -284,7 +285,7 @@ class CompanionVaultTest {
             PinRecord.encode(PinRecord(id = "a", fp = "sealed:${sha256Hex("old")}"))
         store.failAfterUpdate = true
 
-        vault.save(FMD, "new", SaveMode.REPLACE, presentation)
+        assertEquals(VaultOutcome.Saved(created = false), vault.save(FMD, "new", SaveMode.REPLACE, presentation))
         assertEquals("new", store.entries.getValue("a").secret)
         assertNull(pinOf(FMD)?.fp)
         store.failingWrites.clear()
