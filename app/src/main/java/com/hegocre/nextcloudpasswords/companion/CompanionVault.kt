@@ -55,11 +55,10 @@ class CompanionVault(
     suspend fun delete(owner: Owner): VaultOutcome = guarded(owner) {
         when (val resolved = resolve(owner)) {
             is Resolution.Found ->
-                if (store.trash(resolved.entry)) {
-                    clearPins(owner)
-                    VaultOutcome.Deleted
-                } else {
-                    VaultOutcome.Failed(FailureCode.SERVER)
+                when {
+                    !clearPins(owner) -> VaultOutcome.Failed(FailureCode.NETWORK)
+                    store.trash(resolved.entry) -> VaultOutcome.Deleted
+                    else -> VaultOutcome.Failed(FailureCode.SERVER)
                 }
             Resolution.NotFound -> VaultOutcome.NotFound
             Resolution.Conflict -> CONFLICT
@@ -153,7 +152,11 @@ class CompanionVault(
         return VaultOutcome.Saved(created = true)
     }
 
+    @Suppress("ReturnCount")
     private suspend fun replace(owner: Owner, entry: VaultEntry, draft: EntryDraft): VaultOutcome {
+        // Drop the fingerprint first: if a later step fails, the next resolve re-fingerprints the entry.
+        val unsealed = PinRecord.encode(PinRecord(id = entry.id))
+        if (!store.writeSetting(PinRecord.settingKey(owner), unsealed)) return VaultOutcome.Failed(FailureCode.NETWORK)
         if (!store.update(entry, draft)) return VaultOutcome.Failed(FailureCode.SERVER)
         writePin(owner, entry.id, draft.secret)
         return VaultOutcome.Saved(created = false)
@@ -179,9 +182,10 @@ class CompanionVault(
         store.writeSetting(PinRecord.settingKey(owner), PinRecord.encode(record))
     }
 
-    private suspend fun clearPins(owner: Owner) {
-        store.writeSetting(PinRecord.settingKey(owner), "")
-        if (owner == LegacyBackupEntry.OWNER) store.writeSetting(LegacyBackupEntry.PIN_SETTING, "")
+    private suspend fun clearPins(owner: Owner): Boolean {
+        val generic = store.writeSetting(PinRecord.settingKey(owner), "")
+        val legacy = owner != LegacyBackupEntry.OWNER || store.writeSetting(LegacyBackupEntry.PIN_SETTING, "")
+        return generic && legacy
     }
 
     private sealed interface Resolution {
