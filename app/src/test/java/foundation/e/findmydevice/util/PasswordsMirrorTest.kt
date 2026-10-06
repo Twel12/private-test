@@ -29,11 +29,12 @@ class PasswordsMirrorTest {
         assertEquals(Saved(created = false), PasswordsMirror.save(context, passwords, "CODE1234"))
 
         val call = passwords.calls.single()
-        assertEquals(deviceCredentialKey(context), call.first)
+        assertEquals("6ca13d52ca70c883e0f0bb101e425a89", call.first)
         assertEquals("CODE1234", call.second)
         assertEquals(SaveMode.REPLACE, call.third)
         assertEquals("Find my Device", call.fourth.label)
         assertEquals(deviceName(context), call.fourth.username)
+        assertEquals("Managed by Find My Device. Don't edit.", call.fourth.notes)
     }
 
     private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

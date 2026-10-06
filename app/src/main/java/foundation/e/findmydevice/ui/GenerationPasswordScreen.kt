@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -330,6 +331,9 @@ fun generatePasswordScreenContent(onSelection: () -> Unit, onCodeSet: () -> Unit
 }
 
 
+private val PROGRESS_SIZE = 20.dp
+private val PROGRESS_STROKE = 2.dp
+
 @SuppressLint("ComposableNaming")
 @Composable
 private fun saveIntoPasswordsButton(
@@ -348,8 +352,12 @@ private fun saveIntoPasswordsButton(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { save(code) }, colors = actionColor()) {
-            Text(text = stringResource(id = R.string.save_into_passwords))
+        Button(onClick = { save.save(code) }, enabled = !save.busy, colors = actionColor()) {
+            if (save.busy) {
+                CircularProgressIndicator(modifier = Modifier.size(PROGRESS_SIZE), strokeWidth = PROGRESS_STROKE)
+            } else {
+                Text(text = stringResource(id = R.string.save_into_passwords))
+            }
         }
     }
 }
@@ -391,7 +399,7 @@ private fun updateInPasswordsDialog(visible: Boolean, code: String, onFinished: 
     }
 
     AlertDialog(
-        onDismissRequest = { onFinished(false) },
+        onDismissRequest = { if (!save.busy) onFinished(false) },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
         textContentColor = MaterialTheme.colorScheme.onBackground,
@@ -400,13 +408,18 @@ private fun updateInPasswordsDialog(visible: Boolean, code: String, onFinished: 
         confirmButton = {
             TextButton(
                 colors = actionColor(),
-                onClick = { save(code) }
+                enabled = !save.busy,
+                onClick = { save.save(code) }
             ) {
-                Text(text = stringResource(id = R.string.update_in_passwords_confirm))
+                if (save.busy) {
+                    CircularProgressIndicator(modifier = Modifier.size(PROGRESS_SIZE), strokeWidth = PROGRESS_STROKE)
+                } else {
+                    Text(text = stringResource(id = R.string.update_in_passwords_confirm))
+                }
             }
         },
         dismissButton = {
-            TextButton(colors = actionColor(), onClick = { onFinished(false) }) {
+            TextButton(colors = actionColor(), enabled = !save.busy, onClick = { onFinished(false) }) {
                 Text(text = stringResource(id = R.string.update_in_passwords_dismiss))
             }
         }

@@ -5,9 +5,11 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import foundation.e.findmydevice.R
 import foundation.e.findmydevice.util.PasswordsMirror
@@ -22,26 +24,42 @@ import foundation.e.passwords.companion.SaveResult
 import foundation.e.passwords.companion.Saved
 import kotlinx.coroutines.launch
 
+class PasswordsSaver(val busy: Boolean, val save: (String) -> Unit)
+
 @Composable
-fun rememberPasswordsSaver(onResult: (SaveResult) -> Unit): (String) -> Unit {
+fun rememberPasswordsSaver(onResult: (SaveResult) -> Unit): PasswordsSaver {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val client = remember(context) { PasswordsCompanionClient(context) }
     val currentOnResult by rememberUpdatedState(onResult)
+    var busy by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        busy = false
         currentOnResult(CompanionCodec.decodeSave(result.data?.getBundleExtra(CompanionProtocol.EXTRA_RESULT)))
     }
-    return remember(client, launcher) {
+    val save = remember(client, launcher) {
         { code: String ->
-            scope.launch {
-                when (val result = PasswordsMirror.save(context, client, code)) {
-                    is NeedsUser -> launcher.launch(IntentSenderRequest.Builder(result.intent).build())
-                    else -> currentOnResult(result)
+            if (!busy) {
+                busy = true
+                scope.launch {
+                    var handedToUser = false
+                    try {
+                        when (val result = PasswordsMirror.save(context, client, code)) {
+                            is NeedsUser -> {
+                                launcher.launch(IntentSenderRequest.Builder(result.intent).build())
+                                handedToUser = true
+                            }
+                            else -> currentOnResult(result)
+                        }
+                    } finally {
+                        if (!handedToUser) busy = false
+                    }
                 }
             }
             Unit
         }
     }
+    return PasswordsSaver(busy, save)
 }
 
 fun SaveResult.toastMessage(): Int = when (this) {
