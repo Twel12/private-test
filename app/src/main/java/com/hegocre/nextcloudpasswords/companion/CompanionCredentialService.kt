@@ -2,6 +2,7 @@ package com.hegocre.nextcloudpasswords.companion
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
@@ -47,9 +48,13 @@ class CompanionCredentialService : Service() {
     @Suppress("TooGenericExceptionCaught")
     private fun dispatch(callback: ICompanionCallback?, parse: (String) -> PendingRequest?) {
         if (callback == null) return
-        // The calling UID is only valid on the binder thread, so resolve it before switching threads.
+        // The calling identity is only valid on the binder thread, so check it before switching threads.
         val caller = try {
-            CallerResolver.resolve(packageManager.getPackagesForUid(Binder.getCallingUid()))
+            CallerResolver.resolve(
+                hasPermission = checkCallingPermission(CompanionProtocol.PERMISSION) ==
+                    PackageManager.PERMISSION_GRANTED,
+                packages = packageManager.getPackagesForUid(Binder.getCallingUid()),
+            )
         } catch (e: RuntimeException) {
             Log.w(TAG, "Could not resolve the companion caller", e)
             null
