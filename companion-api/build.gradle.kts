@@ -14,7 +14,7 @@ kotlin {
 }
 
 android {
-    namespace = "foundation.e.backupappapi"
+    namespace = "foundation.e.passwords.companion"
     compileSdk {
         version = release(36)
     }
@@ -58,14 +58,14 @@ android {
             publications {
                 create<MavenPublication>("release") {
                     groupId = "foundation.e.passwords"
-                    artifactId = "backupappapi"
-                    version = "1.0.6"
+                    artifactId = "companionapi"
+                    version = "1.0.0"
 
                     from(components["release"])
 
                     pom {
-                        name = "BackupAppApi"
-                        description = "Library providing a way to fetch e2ee key for backup app"
+                        name = "CompanionApi"
+                        description = "Lets e/OS apps store and read their own credentials in Passwords"
 
                         licenses {
                             license {
@@ -97,4 +97,6 @@ android {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.16")
 }
