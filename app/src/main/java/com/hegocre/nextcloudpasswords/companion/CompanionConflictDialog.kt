@@ -27,7 +27,7 @@ fun CompanionConflictDialog(
     onKeep: (String) -> Unit,
     onCancel: () -> Unit,
 ) {
-    var selected by remember(candidates) { mutableStateOf(candidates.firstOrNull()?.id) }
+    var selected by remember(candidates) { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(R.string.companion_conflict_title)) },
