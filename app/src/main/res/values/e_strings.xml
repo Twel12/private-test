@@ -65,4 +65,9 @@
     <string name="error_session_account_reauthentication">Your account needs to be signed in again</string>
     <string name="error_session_no_account">No account is configured</string>
     <string name="error_session_vault_locked">Could not unlock vault</string>
+    <!-- Choosing between entries an app saved more than once -->
+    <string name="companion_conflict_title">Choose the entry to keep</string>
+    <string name="companion_conflict_message">This app saved more than one entry. The others will be moved to the trash, and anything they protect may become unreadable.</string>
+    <string name="companion_conflict_saved_on">Saved %1$s</string>
+    <string name="companion_conflict_keep">Keep</string>
 </resources>

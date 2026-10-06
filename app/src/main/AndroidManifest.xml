@@ -229,6 +229,10 @@
             </intent-filter>
         </activity>
 
-    </application>
+            <activity
+            android:name=".companion.CompanionRequestActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+</application>
 
 </manifest>
