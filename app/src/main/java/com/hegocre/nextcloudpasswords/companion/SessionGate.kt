@@ -1,6 +1,8 @@
 package com.hegocre.nextcloudpasswords.companion
 
 import com.hegocre.nextcloudpasswords.api.session.SessionFailure
+import com.hegocre.nextcloudpasswords.api.session.SessionResult
+import com.hegocre.nextcloudpasswords.api.session.invalidatesStoredMasterPassword
 import foundation.e.passwords.companion.FailureCode
 import foundation.e.passwords.companion.UserAction
 import foundation.e.passwords.companion.UserReason
@@ -16,10 +18,10 @@ sealed interface GateResult<out T> {
     data class Failed(val code: String) : GateResult<Nothing>
 }
 
-fun e2eeNotSetUpBlocker(): GateResult.Blocked =
+internal fun e2eeNotSetUpBlocker(): GateResult.Blocked =
     GateResult.Blocked(UserAction.ACTION_ON_WEB, UserReason.E2EE_NOT_SET_UP)
 
-fun syncDisabledBlocker(): GateResult.Blocked =
+internal fun syncDisabledBlocker(): GateResult.Blocked =
     GateResult.Blocked(UserAction.ENABLE_SYNC, UserReason.ACCOUNT_SYNC_DISABLED)
 
 fun SessionFailure.toGateResult(): GateResult<Nothing> = when (this) {
@@ -37,4 +39,17 @@ fun SessionFailure.toGateResult(): GateResult<Nothing> = when (this) {
     SessionFailure.AppPasswordRequired ->
         GateResult.Blocked(UserAction.SIGN_IN, UserReason.APP_PASSWORD_REQUIRED)
     is SessionFailure.Transport -> GateResult.Failed(FailureCode.NETWORK)
+}
+
+internal class GateBox<T>(val value: T)
+
+/** A null success means the session opened but no E2EE key was available. */
+internal inline fun <T> SessionResult<GateBox<T>?>.toGateResult(
+    onMasterPasswordInvalidated: () -> Unit,
+): GateResult<T> = when (this) {
+    is SessionResult.Success -> value?.let { GateResult.Open(it.value) } ?: e2eeNotSetUpBlocker()
+    is SessionResult.Failure -> {
+        if (reason.invalidatesStoredMasterPassword) onMasterPasswordInvalidated()
+        reason.toGateResult()
+    }
 }

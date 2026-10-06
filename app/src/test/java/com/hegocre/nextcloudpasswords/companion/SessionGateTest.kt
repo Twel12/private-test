@@ -1,6 +1,7 @@
 package com.hegocre.nextcloudpasswords.companion
 
 import com.hegocre.nextcloudpasswords.api.session.SessionFailure
+import com.hegocre.nextcloudpasswords.api.session.SessionResult
 import foundation.e.passwords.companion.FailureCode
 import foundation.e.passwords.companion.UserAction
 import foundation.e.passwords.companion.UserReason
@@ -33,11 +34,28 @@ class SessionGateTest {
     }
 
     @Test
-    fun `missing E2EE key is a blocker that needs action on the web`() {
-        assertEquals(
-            GateResult.Blocked(UserAction.ACTION_ON_WEB, UserReason.E2EE_NOT_SET_UP),
-            e2eeNotSetUpBlocker()
-        )
+    fun `session without an E2EE key is blocked as not set up`() {
+        val result = SessionResult.Success<GateBox<String>?>(null).toGateResult {}
+
+        assertEquals(GateResult.Blocked(UserAction.ACTION_ON_WEB, UserReason.E2EE_NOT_SET_UP), result)
+    }
+
+    @Test
+    fun `session with an E2EE key opens with the block value`() {
+        val result = SessionResult.Success<GateBox<String>?>(GateBox("v")).toGateResult {}
+
+        assertEquals(GateResult.Open("v"), result)
+    }
+
+    @Test
+    fun `session failure maps and clears the master password only when rejected`() {
+        var cleared = 0
+        val rejected = failure<String>(SessionFailure.MasterPasswordRejected).toGateResult { cleared++ }
+        val missing = failure<String>(SessionFailure.MasterPasswordMissing).toGateResult { cleared++ }
+
+        assertEquals(GateResult.Blocked(UserAction.UNLOCK_ON_DEVICE, UserReason.MASTER_PASSWORD_CHANGED), rejected)
+        assertEquals(GateResult.Blocked(UserAction.UNLOCK_ON_DEVICE, UserReason.VAULT_LOCKED), missing)
+        assertEquals(1, cleared)
     }
 
     @Test
@@ -47,4 +65,6 @@ class SessionGateTest {
             syncDisabledBlocker()
         )
     }
+
+    private fun <T> failure(reason: SessionFailure): SessionResult<GateBox<T>?> = SessionResult.Failure(reason)
 }
