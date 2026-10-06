@@ -180,8 +180,14 @@ class CompanionRequestActivity : FragmentActivity() {
 
     private fun tryComplete() {
         if (running || finished || conflictCandidates.value != null) return
-        // No E2EE key yet: the migration dialog is on screen.
-        if (!ApiController.getInstance(this).isEndToEndEncryptionKeyAvailable()) return
+        if (!ApiController.getInstance(this).isEndToEndEncryptionKeyAvailable()) {
+            // SSO accounts get the E2EE migration dialog and wait for it; other accounts have none.
+            if (passwordsViewModel.sessionOpen.value && passwordsViewModel.supportsLocalLogout) {
+                Toast.makeText(this, R.string.e2ee_migration_dialog_title, Toast.LENGTH_LONG).show()
+                finishWith(Failed(FailureCode.CANCELED))
+            }
+            return
+        }
         val request = PendingRequestStore.shared.peek(token) ?: return finishWith(Failed(FailureCode.EXPIRED))
         running = true
         lifecycleScope.launch {
