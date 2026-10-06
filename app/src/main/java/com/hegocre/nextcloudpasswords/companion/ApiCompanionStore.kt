@@ -37,12 +37,12 @@ class ApiCompanionStore(context: Context) : CompanionStore {
     }
 
     override suspend fun create(draft: EntryDraft): Boolean {
-        val keychain = api.currentKeychain() ?: return false
+        val keychain = encryptionKeychain() ?: return false
         return api.createPassword(draft.toNewPassword(keychain))
     }
 
     override suspend fun update(entry: VaultEntry, draft: EntryDraft): Boolean {
-        val keychain = api.currentKeychain() ?: return false
+        val keychain = encryptionKeychain() ?: return false
         return api.updatePassword(draft.toUpdatedPassword(entry, keychain))
     }
 
@@ -60,7 +60,7 @@ class ApiCompanionStore(context: Context) : CompanionStore {
         api.setUserSetting(key, value) is Result.Success
 
     override fun sealFingerprint(fingerprint: String): String? {
-        val keychain = api.currentKeychain() ?: return null
+        val keychain = encryptionKeychain() ?: return null
         return "${keychain.current}:${fingerprint.encryptValue(keychain.current, keychain)}"
     }
 
@@ -71,6 +71,9 @@ class ApiCompanionStore(context: Context) : CompanionStore {
         if (keyId.isEmpty() || body.isEmpty()) return null
         return runCatching { body.decryptValue(keyId, keychain) }.getOrNull()
     }
+
+    // encryptValue() returns plain text for a blank key, so never write with one.
+    private fun encryptionKeychain(): CSEv1Keychain? = usableKeychain(api.currentKeychain())
 
     private suspend fun Password.toVaultEntry(): VaultEntry? {
         val decrypted = runCatching { decrypt(api.currentKeychain()) }
@@ -135,7 +138,10 @@ class ApiCompanionStore(context: Context) : CompanionStore {
         else -> FailureCode.SERVER
     }
 
-    private companion object {
-        const val DEFAULT_HASH_LENGTH = 40
+    internal companion object {
+        private const val DEFAULT_HASH_LENGTH = 40
+
+        fun usableKeychain(keychain: CSEv1Keychain?): CSEv1Keychain? =
+            keychain?.takeIf { it.current.isNotBlank() && it.keys.containsKey(it.current) }
     }
 }
