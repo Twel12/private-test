@@ -203,6 +203,14 @@ class PasswordsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /** Drops the open session and opens it again, so [sessionOpen] goes false then true. */
+    fun reopenSession() {
+        viewModelScope.launch {
+            apiController.clearSession()
+            openSession(masterPassword.value)
+        }
+    }
+
     val server
         get() = try {
             UserController.getInstance(getApplication()).getServer()

@@ -59,7 +59,14 @@ class CompanionRequestActivity : FragmentActivity() {
     private val syncDisabled: MurenaSyncDisabledFlow by lazy {
         MurenaSyncDisabledFlow(
             launchSettings = { account -> MurenaAccountSyncSettings.open(this, account) },
-            onSyncEnabled = { baseAutoLogin.start() },
+            onSyncEnabled = {
+                if (unlockShown) {
+                    passwordsViewModel.sync()
+                    tryComplete()
+                } else {
+                    baseAutoLogin.start()
+                }
+            },
             onStillDisabledOrLaunchFailed = { finishWith(Failed(FailureCode.CANCELED)) },
         )
     }
@@ -117,6 +124,12 @@ class CompanionRequestActivity : FragmentActivity() {
             passwordsViewModel = passwordsViewModel,
             reauthenticate = { baseAutoLogin.start(forceSsoReauthentication = true) },
         )
+        passwordsViewModel.murenaSyncDisabled.observe(this) { disabled ->
+            if (disabled) {
+                passwordsViewModel.onMurenaSyncDisabledShown()
+                launchSyncFlow()
+            }
+        }
         observeAppPasswordRequired(passwordsViewModel) { intent ->
             if (!SsoAccount.hasValidAccountManagerSignature(this)) {
                 passwordsViewModel.onAppPasswordFlowUnavailable()
@@ -173,11 +186,14 @@ class CompanionRequestActivity : FragmentActivity() {
         running = true
         lifecycleScope.launch {
             val outcome = CompanionRunner.run(vault, request)
-            running = false
-            if (outcome is VaultOutcome.NeedsUser) {
-                handleBlocker(request, outcome.action)
-            } else {
-                finishWith(CompanionRunner.toResult(outcome))
+            try {
+                if (outcome is VaultOutcome.NeedsUser) {
+                    handleBlocker(request, outcome.action)
+                } else {
+                    finishWith(CompanionRunner.toResult(outcome))
+                }
+            } finally {
+                running = false
             }
         }
     }
@@ -185,13 +201,25 @@ class CompanionRequestActivity : FragmentActivity() {
     // A further blocker is cleared on this screen, never handed back to the app.
     private suspend fun handleBlocker(request: PendingRequest, action: String) {
         when (action) {
-            UserAction.CHOOSE_ENTRY -> conflictCandidates.value = vault.candidates(request.owner)
+            UserAction.CHOOSE_ENTRY -> {
+                val candidates = vault.candidates(request.owner)
+                if (candidates.isEmpty()) {
+                    finishWith(Failed(FailureCode.SERVER))
+                } else {
+                    conflictCandidates.value = candidates
+                }
+            }
             UserAction.SIGN_IN -> baseAutoLogin.start(forceSsoReauthentication = true)
-            UserAction.ENABLE_SYNC -> baseAutoLogin.start()
-            UserAction.UNLOCK_ON_DEVICE -> passwordsViewModel.requestMasterPassword()
-            UserAction.ACTION_ON_WEB -> passwordsViewModel.sync()
+            UserAction.ENABLE_SYNC -> launchSyncFlow()
+            UserAction.UNLOCK_ON_DEVICE, UserAction.ACTION_ON_WEB -> passwordsViewModel.reopenSession()
             else -> finishWith(Failed(FailureCode.UNKNOWN))
         }
+    }
+
+    private fun launchSyncFlow() {
+        Toast.makeText(this, R.string.error_sso_sync_disabled, Toast.LENGTH_LONG).show()
+        val account = SsoAccount.getCurrentMurenaAccount(this)
+        if (account == null || !syncDisabled.launch(account)) finishWith(Failed(FailureCode.CANCELED))
     }
 
     private fun onEntryChosen(keepId: String) {
