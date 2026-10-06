@@ -27,13 +27,9 @@ class PendingRequestStore(
     }
 
     fun peek(token: String?): PendingRequest? {
-        if (token == null) return null
-        val timed = requests[token] ?: return null
-        if (now() - timed.at > ttlMs) {
-            requests.remove(token)
-            return null
-        }
-        return timed.request
+        // Pruning on every read drops expired entries, so a pending save's secret never lingers.
+        prune()
+        return token?.let { requests[it]?.request }
     }
 
     fun remove(token: String?) {
