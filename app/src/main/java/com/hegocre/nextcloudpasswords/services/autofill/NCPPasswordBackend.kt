@@ -765,6 +765,9 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         if (website.isBlank()) {
             return@withContext PasswordSaveResult.Failed("No website available for manual autofill")
         }
+        if (password.isAppOwned()) {
+            return@withContext PasswordSaveResult.Failed("This entry is managed by an app and cannot be edited")
+        }
 
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
