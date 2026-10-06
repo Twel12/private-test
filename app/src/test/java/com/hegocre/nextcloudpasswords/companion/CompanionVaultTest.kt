@@ -16,7 +16,8 @@ class CompanionVaultTest {
 
     private val store = FakeStore()
     private val gate = FakeGate()
-    private val vault = CompanionVault(store, gate)
+    private val failedPinWrites = mutableListOf<String>()
+    private val vault = CompanionVault(store, gate) { failedPinWrites += it }
     private val presentation = EntryPresentation("Label", "User", "Notes")
 
     private fun pinOf(owner: Owner) = PinRecord.parse(store.settings[PinRecord.settingKey(owner)])
@@ -288,10 +289,21 @@ class CompanionVaultTest {
         assertEquals(VaultOutcome.Saved(created = false), vault.save(FMD, "new", SaveMode.REPLACE, presentation))
         assertEquals("new", store.entries.getValue("a").secret)
         assertNull(pinOf(FMD)?.fp)
+        assertEquals(listOf(PinRecord.settingKey(FMD)), failedPinWrites)
         store.failingWrites.clear()
         assertEquals(VaultOutcome.Found("new", 1L), vault.get(FMD))
         assertEquals("sealed:${sha256Hex("new")}", pinOf(FMD)?.fp)
     }
+
+    @Test
+    fun `a pin that cannot be written is reported by its setting key and the entry is still found`() =
+        runBlocking {
+            store.add(ownedEntry("a", FMD, secret = "code"))
+            store.failingWrites += PinRecord.settingKey(FMD)
+
+            assertEquals(VaultOutcome.Found("code", 1L), vault.get(FMD))
+            assertEquals(listOf(PinRecord.settingKey(FMD)), failedPinWrites)
+        }
 
     @Test
     fun `delete trashes nothing when a pin cannot be cleared`() = runBlocking {

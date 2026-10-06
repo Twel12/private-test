@@ -1,5 +1,6 @@
 package com.hegocre.nextcloudpasswords.companion
 
+import android.util.Log
 import foundation.e.passwords.companion.EntryPresentation
 import foundation.e.passwords.companion.FailureCode
 import foundation.e.passwords.companion.SaveMode
@@ -24,6 +25,7 @@ sealed interface VaultOutcome {
 class CompanionVault(
     private val store: CompanionStore,
     private val gate: SessionGate,
+    private val onPinWriteFailed: (settingKey: String) -> Unit = { Log.w(TAG, "Could not write the pin $it") },
 ) {
     private val locks = ConcurrentHashMap<Owner, Mutex>()
 
@@ -179,7 +181,8 @@ class CompanionVault(
 
     private suspend fun writePin(owner: Owner, id: String, secret: String) {
         val record = PinRecord(id = id, fp = store.sealFingerprint(sha256Hex(secret)))
-        store.writeSetting(PinRecord.settingKey(owner), PinRecord.encode(record))
+        val key = PinRecord.settingKey(owner)
+        if (!store.writeSetting(key, PinRecord.encode(record))) onPinWriteFailed(key)
     }
 
     private suspend fun clearPins(owner: Owner): Boolean {
@@ -201,6 +204,7 @@ class CompanionVault(
     }
 
     private companion object {
+        const val TAG = "CompanionVault"
         val CONFLICT = VaultOutcome.NeedsUser(UserAction.CHOOSE_ENTRY, UserReason.CONFLICT)
     }
 }
