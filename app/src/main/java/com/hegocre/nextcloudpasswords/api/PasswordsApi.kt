@@ -295,6 +295,68 @@ class PasswordsApi private constructor(private var server: Server) {
     }
 
     /**
+     * Restores a password from the trash.
+     *
+     * @param id The id of the password to restore.
+     * @param sessionCode Code of the current session, only needed if CSE enabled.
+     * @return A result if success, or an error code otherwise
+     */
+    suspend fun restore(
+        id: String,
+        sessionCode: String? = null
+    ): Result<Unit> {
+        return try {
+            val apiResponse = withContext(Dispatchers.IO) {
+                OkHttpRequest.getInstance().patch(
+                    sUrl = server.url + RESTORE_URL,
+                    sessionCode = sessionCode,
+                    body = Json.encodeToString(mapOf("id" to id)),
+                    mediaType = OkHttpRequest.JSON,
+                    username = server.username,
+                    password = server.password
+                )
+            }
+
+            val code = apiResponse.code
+            withContext(Dispatchers.IO) {
+                apiResponse.close()
+            }
+
+            when (code) {
+                HttpURLConnection.HTTP_PRECON_FAILED -> Result.Error(Error.API_SESSION_EXPIRED)
+                200 -> Result.Success(Unit)
+                else -> Result.Error(Error.API_BAD_RESPONSE)
+            }
+        } catch (e: SocketTimeoutException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.API_TIMEOUT)
+        } catch (e: SSLHandshakeException) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.SSL_HANDSHAKE_EXCEPTION)
+        } catch (e: SsoReauthenticationRequiredException) {
+            Timber.e(e)
+            Result.Error(Error.SSO_REAUTHENTICATION_REQUIRED)
+        } catch (e: HttpStatusException) {
+            if (e.statusCode == HttpURLConnection.HTTP_PRECON_FAILED) {
+                Result.Error(Error.API_SESSION_EXPIRED)
+            } else {
+                Result.Error(Error.API_BAD_RESPONSE)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+            Result.Error(Error.UNKNOWN)
+        }
+    }
+
+    /**
      * Fetches a single password by its id.
      *
      * @param sessionCode Code of the current session, only needed if CSE enabled.
@@ -364,6 +426,7 @@ class PasswordsApi private constructor(private var server: Server) {
         private const val CREATE_URL = "/index.php/apps/passwords/api/1.0/password/create"
         private const val UPDATE_URL = "/index.php/apps/passwords/api/1.0/password/update"
         private const val DELETE_URL = "/index.php/apps/passwords/api/1.0/password/delete"
+        private const val RESTORE_URL = "/index.php/apps/passwords/api/1.0/password/restore"
 
         private var instance: PasswordsApi? = null
 

@@ -672,6 +672,19 @@ class ApiController private constructor(context: Context) {
     }
 
     /**
+     * Restores a password from the trash via the [PasswordsApi] class. This can only be called when
+     * a session is open.
+     *
+     * @return A boolean stating whether the password was restored.
+     */
+    suspend fun restorePassword(id: String): Boolean {
+        if (!sessionOpen.value) return false
+        val result = withSessionRetry { passwordsApi.restore(id, sessionCode) }
+        if (result.consumeSsoReauthError()) return false
+        return result is Result.Success
+    }
+
+    /**
      * Generates a random password using user's settings. This can only be called when a
      * session is open, otherwise an error is thrown.
      *
