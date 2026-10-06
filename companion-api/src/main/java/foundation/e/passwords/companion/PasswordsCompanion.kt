@@ -102,6 +102,12 @@ class PasswordsCompanionClient(
                     } catch (e: RemoteException) {
                         Log.w(TAG, "Passwords call failed", e)
                         complete(Call.Undelivered(Failed(FailureCode.NETWORK)))
+                    } catch (e: SecurityException) {
+                        Log.e(TAG, "Passwords refused the call", e)
+                        complete(Call.Undelivered(Failed(FailureCode.NOT_ALLOWED)))
+                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                        Log.e(TAG, "Passwords call crashed", e)
+                        complete(Call.Undelivered(Failed(FailureCode.UNKNOWN)))
                     }
                 }
 

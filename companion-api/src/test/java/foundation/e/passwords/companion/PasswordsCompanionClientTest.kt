@@ -34,6 +34,15 @@ class PasswordsCompanionClientTest {
         override fun delete(request: Bundle?, callback: ICompanionCallback?) = Unit
     }
 
+    private class ThrowingService(private val error: RuntimeException) : ICompanionCredentialService.Stub() {
+        override fun getVersion() = CompanionProtocol.VERSION
+        override fun get(request: Bundle?, callback: ICompanionCallback?) {
+            throw error
+        }
+        override fun save(request: Bundle?, callback: ICompanionCallback?) = Unit
+        override fun delete(request: Bundle?, callback: ICompanionCallback?) = Unit
+    }
+
     private fun getVia(service: ICompanionCredentialService.Stub, timeoutMs: Long): GetResult? {
         val app = RuntimeEnvironment.getApplication()
         shadowOf(app).setComponentNameAndServiceForBindService(
@@ -61,5 +70,17 @@ class PasswordsCompanionClientTest {
         val result = getVia(SilentService(), timeoutMs = 300L)
 
         assertEquals(Failed(FailureCode.NETWORK), result)
+    }
+
+    @Test
+    fun `a service that throws is mapped instead of crashing`() {
+        assertEquals(
+            Failed(FailureCode.UNKNOWN),
+            getVia(ThrowingService(IllegalStateException("boom")), timeoutMs = 5_000L),
+        )
+        assertEquals(
+            Failed(FailureCode.NOT_ALLOWED),
+            getVia(ThrowingService(SecurityException("denied")), timeoutMs = 5_000L),
+        )
     }
 }
