@@ -21,6 +21,10 @@
         android:name="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
         android:protectionLevel="signature" />
 
+    <permission
+        android:name="foundation.e.passwords.permission.COMPANION_API"
+        android:protectionLevel="signature" />
+
     <application
         android:name=".NCPApplication"
         android:icon="@mipmap/ic_launcher"
@@ -197,6 +201,15 @@
             android:exported="true"
             android:label="@string/e_os_app_name"
             tools:ignore="ExportedContentProvider" />
+
+        <service
+            android:name=".companion.CompanionCredentialService"
+            android:exported="true"
+            android:permission="foundation.e.passwords.permission.COMPANION_API">
+            <intent-filter>
+                <action android:name="foundation.e.passwords.companion.SERVICE" />
+            </intent-filter>
+        </service>
 
         <service
             android:name=".backupApp.BackupAppService"
