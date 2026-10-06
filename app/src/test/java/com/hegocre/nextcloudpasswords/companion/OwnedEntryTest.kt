@@ -70,6 +70,48 @@ class OwnedEntryTest {
     }
 
     @Test
+    fun `an old FMD entry linked to several apps is still owned by FMD`() {
+        val entry = plainEntry("1").copy(
+            customFields = listOf(
+                CustomField("Android apps", CustomField.TYPE_TEXT, "com.example\nfoundation.e.findmydevice"),
+                CustomField("foundation.e.credential.key", CustomField.TYPE_DATA, FMD.credentialId),
+            ),
+        )
+
+        assertTrue(OwnedEntry.isOwnedBy(entry, FMD))
+        assertFalse(OwnedEntry.isOwnedBy(entry, FMD.copy(packageName = "com.example.other")))
+        assertTrue(OwnedEntry.isAppOwned(password(entry)))
+    }
+
+    @Test
+    fun `a backup key saved before the companion API is owned by the backup app`() {
+        // Exactly what NCPPasswordBackend.toNewPassword wrote for BackupAppPassword.template (d0b96e4).
+        val pr1Fields = "[" +
+            """{"label":"foundation.e.backup.key","type":"data","value":"murena-device-backup:v1"},""" +
+            """{"label":"Android apps","type":"text","value":"foundation.e.backup"},""" +
+            """{"label":"foundation.e.credential.key","type":"data","value":"murena-device-backup:v1"}""" +
+            "]"
+        val entry = legacyBackupEntry("1").copy(customFields = OwnedEntry.parseFields(pr1Fields))
+        val fieldsOnly = plainEntry("2").copy(customFields = OwnedEntry.parseFields(pr1Fields))
+
+        assertEquals(3, entry.customFields.size)
+        assertTrue(OwnedEntry.isOwnedBy(entry, BACKUP))
+        assertTrue(OwnedEntry.isOwnedBy(fieldsOnly, BACKUP))
+        assertFalse(OwnedEntry.isOwnedBy(entry, FMD))
+        assertTrue(OwnedEntry.isAppOwned(password(entry)))
+    }
+
+    @Test
+    fun `an entry with only the credential key field is not owned`() {
+        val entry = plainEntry("1").copy(
+            customFields = listOf(CustomField("foundation.e.credential.key", CustomField.TYPE_DATA, FMD.credentialId)),
+        )
+
+        assertFalse(OwnedEntry.isOwnedBy(entry, FMD))
+        assertFalse(OwnedEntry.isAppOwned(password(entry)))
+    }
+
+    @Test
     fun `app-owned passwords are recognised, ordinary ones are not`() {
         assertTrue(OwnedEntry.isAppOwned(password(ownedEntry("1", FMD))))
         assertTrue(OwnedEntry.isAppOwned(password(legacyBackupEntry("2"))))
