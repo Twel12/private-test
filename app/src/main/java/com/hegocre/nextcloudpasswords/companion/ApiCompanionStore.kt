@@ -27,7 +27,6 @@ import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.utils.Error
 import com.hegocre.nextcloudpasswords.utils.Result
-import com.hegocre.nextcloudpasswords.utils.decryptValue
 import com.hegocre.nextcloudpasswords.utils.encryptValue
 import com.hegocre.nextcloudpasswords.utils.sha1Hash
 import foundation.e.passwords.companion.FailureCode
@@ -76,17 +75,14 @@ class ApiCompanionStore(context: Context) : CompanionStore {
     override suspend fun writeSetting(key: String, value: String): Boolean =
         api.setUserSetting(key, value) is Result.Success
 
-    override fun sealFingerprint(fingerprint: String): String? {
+    override fun fingerprint(secret: String): String? {
         val keychain = encryptionKeychain() ?: return null
-        return "${keychain.current}:${fingerprint.encryptValue(keychain.current, keychain)}"
+        return PinFingerprint.of(keychain.current, keychain.keys.getValue(keychain.current), secret)
     }
 
-    override fun openFingerprint(sealed: String): String? {
+    override fun fingerprintMatches(stored: String, secret: String): Boolean? {
         val keychain = api.currentKeychain() ?: return null
-        val keyId = sealed.substringBefore(':', "")
-        val body = sealed.substringAfter(':', "")
-        if (keyId.isEmpty() || body.isEmpty()) return null
-        return runCatching { body.decryptValue(keyId, keychain) }.getOrNull()
+        return PinFingerprint.matches(stored, secret, keychain.keys)
     }
 
     // encryptValue() returns plain text for a blank key, so never write with one.

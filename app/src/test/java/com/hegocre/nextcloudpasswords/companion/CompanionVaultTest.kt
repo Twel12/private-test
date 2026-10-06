@@ -46,7 +46,7 @@ class CompanionVaultTest {
 
         assertEquals(VaultOutcome.Found("code", 1L), vault.get(FMD))
         assertEquals("a", pinOf(FMD)?.id)
-        assertEquals("sealed:${sha256Hex("code")}", pinOf(FMD)?.fp)
+        assertEquals(fakeFp("code"), pinOf(FMD)?.fp)
     }
 
     @Test
@@ -95,9 +95,17 @@ class CompanionVaultTest {
     @Test
     fun `a pinned entry whose secret changed is modified`() = runBlocking {
         store.add(ownedEntry("a", FMD, secret = "edited"))
-        store.settings[PinRecord.settingKey(FMD)] = PinRecord.encode(PinRecord(id = "a", fp = "sealed:${sha256Hex("original")}"))
+        store.settings[PinRecord.settingKey(FMD)] = PinRecord.encode(PinRecord(id = "a", fp = fakeFp("original")))
 
         assertEquals(VaultOutcome.Failed(FailureCode.MODIFIED), vault.get(FMD))
+    }
+
+    @Test
+    fun `a pinned fingerprint made with a key no longer in the keychain is unreadable`() = runBlocking {
+        store.add(ownedEntry("a", FMD, secret = "code"))
+        store.settings[PinRecord.settingKey(FMD)] = PinRecord.encode(PinRecord(id = "a", fp = "k9:${"0".repeat(32)}"))
+
+        assertEquals(VaultOutcome.Failed(FailureCode.UNREADABLE), vault.get(FMD))
     }
 
     @Test
@@ -177,7 +185,7 @@ class CompanionVaultTest {
 
         assertEquals(VaultOutcome.Saved(created = false), vault.save(FMD, "new", SaveMode.REPLACE, presentation))
         assertEquals("new", store.entries.getValue("a").secret)
-        assertEquals("sealed:${sha256Hex("new")}", pinOf(FMD)?.fp)
+        assertEquals(fakeFp("new"), pinOf(FMD)?.fp)
     }
 
     @Test
@@ -300,7 +308,7 @@ class CompanionVaultTest {
     fun `replace recovers when the pin write after the update fails`() = runBlocking {
         store.add(ownedEntry("a", FMD, secret = "old"))
         store.settings[PinRecord.settingKey(FMD)] =
-            PinRecord.encode(PinRecord(id = "a", fp = "sealed:${sha256Hex("old")}"))
+            PinRecord.encode(PinRecord(id = "a", fp = fakeFp("old")))
         store.failAfterUpdate = true
 
         assertEquals(VaultOutcome.Saved(created = false), vault.save(FMD, "new", SaveMode.REPLACE, presentation))
@@ -309,7 +317,7 @@ class CompanionVaultTest {
         assertEquals(listOf(PinRecord.settingKey(FMD)), failedPinWrites)
         store.failingWrites.clear()
         assertEquals(VaultOutcome.Found("new", 1L), vault.get(FMD))
-        assertEquals("sealed:${sha256Hex("new")}", pinOf(FMD)?.fp)
+        assertEquals(fakeFp("new"), pinOf(FMD)?.fp)
     }
 
     @Test
@@ -406,11 +414,15 @@ private class FakeStore : CompanionStore {
         return true
     }
 
-    override fun sealFingerprint(fingerprint: String): String = "sealed:$fingerprint"
+    override fun fingerprint(secret: String): String = fakeFp(secret)
 
-    override fun openFingerprint(sealed: String): String? =
-        sealed.removePrefix("sealed:").takeIf { sealed.startsWith("sealed:") }
+    override fun fingerprintMatches(stored: String, secret: String): Boolean? =
+        if (stored.startsWith(FAKE_KEY_PREFIX)) stored == fakeFp(secret) else null
 }
+
+private const val FAKE_KEY_PREFIX = "k1:"
+
+private fun fakeFp(secret: String) = FAKE_KEY_PREFIX + sha256Hex(secret).take(32)
 
 private class FakeGate : SessionGate {
     var blocked: GateResult.Blocked? = null

@@ -142,8 +142,11 @@ class CompanionVault(
         // and lead the app to create a new secret.
         if (!OwnedEntry.isOwnedBy(entry, owner)) return Resolution.Failed(FailureCode.MODIFIED)
         if (record.fp != null) {
-            val stored = store.openFingerprint(record.fp) ?: return Resolution.Failed(FailureCode.UNREADABLE)
-            if (stored != sha256Hex(entry.secret)) return Resolution.Failed(FailureCode.MODIFIED)
+            when (store.fingerprintMatches(record.fp, entry.secret)) {
+                null -> return Resolution.Failed(FailureCode.UNREADABLE)
+                false -> return Resolution.Failed(FailureCode.MODIFIED)
+                true -> Unit
+            }
         }
         if (legacy || record.fp == null) writePin(owner, entry.id, entry.secret)
         return Resolution.Found(entry)
@@ -197,7 +200,7 @@ class CompanionVault(
     }
 
     private suspend fun writePin(owner: Owner, id: String, secret: String) {
-        val record = PinRecord(id = id, fp = store.sealFingerprint(sha256Hex(secret)))
+        val record = PinRecord(id = id, fp = store.fingerprint(secret))
         val key = PinRecord.settingKey(owner)
         if (!store.writeSetting(key, PinRecord.encode(record))) onPinWriteFailed(key)
     }

@@ -25,8 +25,12 @@ import java.util.UUID
 @Serializable
 data class PinRecord(val v: Int = 1, val id: String, val fp: String? = null) {
     companion object {
+        /** The Passwords server rejects user settings with longer keys or values (error 10002). */
+        const val MAX_SETTING_KEY = 55
+        const val MAX_SETTING_VALUE = 128
+
         private const val SETTING_PREFIX = "client.murena.companion."
-        private const val KEY_HEX_LENGTH = 32
+        private const val KEY_HEX_LENGTH = 24
         private val json = Json {
             ignoreUnknownKeys = true
             encodeDefaults = true

@@ -35,9 +35,11 @@ interface CompanionStore {
 
     suspend fun writeSetting(key: String, value: String): Boolean
 
-    fun sealFingerprint(fingerprint: String): String?
+    /** A keyed fingerprint of [secret] under the current key, or null when no usable keychain exists. */
+    fun fingerprint(secret: String): String?
 
-    fun openFingerprint(sealed: String): String?
+    /** Null when the fingerprint's key is not in the keychain or [stored] is malformed. */
+    fun fingerprintMatches(stored: String, secret: String): Boolean?
 }
 
 sealed interface StoreRead<out T> {
