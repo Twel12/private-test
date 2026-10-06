@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API" />
+    <uses-permission android:name="foundation.e.passwords.permission.COMPANION_API" />
 
     <!-- For Android 13 (SDK 33) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"

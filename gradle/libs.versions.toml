@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.12.2"
 agp = "8.13.2"
+companionapi = "1.0.0"
 composeBom = "2025.12.01"
 coreKtx = "1.17.0"
 detekt = "1.23.8"
@@ -24,6 +25,7 @@ androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+companionapi = { module = "foundation.e.passwords:companionapi", version.ref = "companionapi" }
 elib = { module = "foundation.e:elib", version.ref = "elib" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

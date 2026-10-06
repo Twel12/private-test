@@ -1,13 +1,9 @@
 package foundation.e.findmydevice.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -58,7 +54,7 @@ import foundation.e.findmydevice.ui.buttons.actionColor
 import foundation.e.findmydevice.ui.buttons.buttonColor
 import foundation.e.findmydevice.util.Dimens
 import foundation.e.findmydevice.util.PasswordGenerator
-import foundation.e.findmydevice.util.PasswordsVault
+import foundation.e.passwords.companion.Saved
 import kotlinx.coroutines.launch
 
 /**
@@ -343,38 +339,16 @@ private fun saveIntoPasswordsButton(
 ) {
     if (code.isEmpty() || code != storedCode) return
     val context = LocalContext.current
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val saved = result.resultCode == Activity.RESULT_OK
-        if (saved) onSaved()
-        val message = if (saved) {
-            R.string.save_into_passwords_done
-        } else {
-            R.string.save_into_passwords_failed
-        }
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    val save = rememberPasswordsSaver { result ->
+        if (result is Saved) onSaved()
+        Toast.makeText(context, result.toastMessage(), Toast.LENGTH_LONG).show()
     }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        Button(
-            onClick = {
-                try {
-                    launcher.launch(PasswordsVault.saveCodeIntent(context, code))
-                } catch (_: ActivityNotFoundException) {
-                    Toast.makeText(
-                        context,
-                        R.string.save_into_passwords_unavailable,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            },
-            colors = actionColor()
-        ) {
+        Button(onClick = { save(code) }, colors = actionColor()) {
             Text(text = stringResource(id = R.string.save_into_passwords))
         }
     }
@@ -411,17 +385,9 @@ private fun updateInPasswordsDialog(visible: Boolean, code: String, onFinished: 
     if (!visible) return
     val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val saved = result.resultCode == Activity.RESULT_OK
-        val message = if (saved) {
-            R.string.save_into_passwords_done
-        } else {
-            R.string.save_into_passwords_failed
-        }
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-        onFinished(saved)
+    val save = rememberPasswordsSaver { result ->
+        Toast.makeText(context, result.toastMessage(), Toast.LENGTH_LONG).show()
+        onFinished(result is Saved)
     }
 
     AlertDialog(
@@ -434,18 +400,7 @@ private fun updateInPasswordsDialog(visible: Boolean, code: String, onFinished: 
         confirmButton = {
             TextButton(
                 colors = actionColor(),
-                onClick = {
-                    try {
-                        launcher.launch(PasswordsVault.saveCodeIntent(context, code))
-                    } catch (_: ActivityNotFoundException) {
-                        Toast.makeText(
-                            context,
-                            R.string.save_into_passwords_unavailable,
-                            Toast.LENGTH_LONG
-                        ).show()
-                        onFinished(false)
-                    }
-                }
+                onClick = { save(code) }
             ) {
                 Text(text = stringResource(id = R.string.update_in_passwords_confirm))
             }

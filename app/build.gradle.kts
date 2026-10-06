@@ -75,6 +75,7 @@ dependencies {
 
     // Murena
     implementation(libs.elib)
+    implementation(libs.companionapi)
 
     // Utilities
     implementation(libs.kotlinx.serialization.json)
