@@ -1,10 +1,11 @@
 package foundation.e.backupappapi;
 
-import foundation.e.backupappapi.BackupKey;
-import foundation.e.backupappapi.IBackupKeyCallback;
+import foundation.e.backupappapi.ICredentialCallback;
 
 interface BackupAppApi {
 
-    void getKeyForBackup(IBackupKeyCallback callback);
+    void get(String key, ICredentialCallback callback);
+
+    void save(String key, String username, String secret, int flags, ICredentialCallback callback);
 
 }

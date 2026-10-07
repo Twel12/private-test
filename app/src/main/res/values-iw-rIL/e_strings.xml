@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">הסיסמה הזאת נמצאת בשימוש יותר מפעם אחת</string>
     <string name="password_security_description_leaked">הסיסמה אינה בטוחה וניתן למצוא אותה במאגרי נתונים של האקרים באינטרנט. עליך להחליף אותה ולוודא שהחשבון שבו אתה משתמש בה לא נפרץ.</string>
     <string name="passwords_floating_action_button">חדש</string>
-    <string name="backup_app_setup_title">שמירת מפתח הצפנת הגיבוי</string>
-    <string name="backup_app_setup_cta">שמירת מפתח ההצפנה</string>
-    <string name="backup_app_restore_title">אחזור מפתח הצפנת הגיבוי</string>
-    <string name="backup_app_restore_cta">אחזור מפתח ההצפנה</string>
-    <string name="backup_app_setup_password_error">סיסמה שגויה. נא לנסות שוב.</string>
     <string name="enter_password_hint">הזן את סיסמת Murena Workspace שלך</string>
-    <string name="description">הזן את סיסמת Murena Workspace שלך כדי לשמור את מפתח ההצפנה ב-Murena Passwords</string>
-    <string name="backup_app_restore_description">הזן את סיסמת Murena Workspace שלך כדי לאחזר את מפתח ההצפנה מ-Murena Passwords</string>
     <string name="autofill_password_saved">הסיסמה נשמרה</string>
     <string name="autofill_saving_password">שומר את הסיסמה</string>
     <string name="autofill_saving_password_message">נא להמתין בזמן ש-%1$s שומר את פרטי הגישה האלה.</string>

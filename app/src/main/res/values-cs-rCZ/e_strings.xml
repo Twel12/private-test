@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Toto heslo se používá více než jednou</string>
     <string name="password_security_description_leaked">Heslo je špatné a lze ho najít v hackerských databázích na internetu. Musíte ho změnit a měli byste se ujistit, že účet, pro který ho používáte, nebyl kompromitován.</string>
     <string name="passwords_floating_action_button">Nové</string>
-    <string name="backup_app_setup_title">Uložit záložní šifrovací klíč</string>
-    <string name="backup_app_setup_cta">Uložit šifrovací klíč</string>
-    <string name="backup_app_restore_title">Načíst záložní šifrovací klíč</string>
-    <string name="backup_app_restore_cta">Načíst šifrovací klíč</string>
-    <string name="backup_app_setup_password_error">Nesprávné heslo. Zkuste to prosím znovu.</string>
     <string name="enter_password_hint">Zadejte své heslo k Murena Workspace</string>
-    <string name="description">Zadejte své heslo k Murena Workspace, aby se šifrovací klíč uložil do Murena Passwords</string>
-    <string name="backup_app_restore_description">Zadejte své heslo k Murena Workspace, abyste načetli šifrovací klíč z Murena Passwords</string>
     <string name="autofill_password_saved">Heslo uloženo</string>
     <string name="autofill_saving_password">Ukládání hesla</string>
     <string name="autofill_saving_password_message">Počkejte prosím, než %1$s uloží tyto přihlašovací údaje.</string>

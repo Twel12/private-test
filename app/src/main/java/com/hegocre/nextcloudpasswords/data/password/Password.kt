@@ -5,6 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.hegocre.nextcloudpasswords.backupApp.BackupAppPassword
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
+import com.hegocre.nextcloudpasswords.services.autofill.NCPAutofillMetadata
 import com.hegocre.nextcloudpasswords.utils.decryptValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -76,9 +77,10 @@ data class Password(
     val created: Int,
     val updated: Int
 ) {
-    fun isBackupAppKey(): Boolean = BackupAppPassword.matches(this)
+    fun isAppManaged(): Boolean =
+        BackupAppPassword.matches(this) || NCPAutofillMetadata.isReadOnly(customFields)
 
-    fun canEdit(): Boolean = editable && !isBackupAppKey()
+    fun canEdit(): Boolean = editable && !isAppManaged()
 
     /**
      * Returns a copy of this object with the encrypted fields decrypted using the keychain.

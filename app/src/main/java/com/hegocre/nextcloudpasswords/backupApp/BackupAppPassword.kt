@@ -12,13 +12,6 @@ object BackupAppPassword {
     private const val MARKER_LABEL = "foundation.e.backup.key"
     private const val MARKER_VALUE = "murena-device-backup:v1"
 
-    private val markerCustomField = CustomField(
-        label = MARKER_LABEL,
-        type = CustomField.TYPE_DATA,
-        value = MARKER_VALUE
-    )
-
-    val customFieldsJson: String = Json.encodeToString(listOf(markerCustomField))
 
     fun matches(password: Password): Boolean {
         return password.username == USERNAME &&

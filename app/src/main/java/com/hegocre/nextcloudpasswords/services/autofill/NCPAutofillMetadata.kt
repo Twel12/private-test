@@ -200,6 +200,8 @@ object NCPAutofillMetadata {
     private const val ANDROID_APPS_FIELD_LABEL = "Android apps"
     private const val WEBSITE_FIELD_LABEL = "URL"
     private const val IDENTITY_KEY_FIELD_LABEL = "foundation.e.credential.key"
+    private const val READ_ONLY_FIELD_LABEL = "foundation.e.credential.readonly"
+    private const val READ_ONLY_VALUE = "true"
     private val WEBSITE_FIELD_KEYWORDS = listOf("website", "url")
 
     data class WebsiteAssociationUpdate(
@@ -298,6 +300,28 @@ object NCPAutofillMetadata {
             fields[existingIndex] = identityField
         } else {
             fields.add(identityField)
+        }
+        return Json.encodeToString(fields)
+    }
+
+    fun isReadOnly(customFieldsJson: String): Boolean {
+        return customFields(customFieldsJson).any {
+            it.label == READ_ONLY_FIELD_LABEL && it.value == READ_ONLY_VALUE
+        }
+    }
+
+    fun withReadOnly(customFieldsJson: String, readOnly: Boolean): String {
+        val fields = customFields(customFieldsJson)
+            .filterNot { it.label == READ_ONLY_FIELD_LABEL }
+            .toMutableList()
+        if (readOnly) {
+            fields.add(
+                CustomField(
+                    label = READ_ONLY_FIELD_LABEL,
+                    type = CustomField.TYPE_DATA,
+                    value = READ_ONLY_VALUE
+                )
+            )
         }
         return Json.encodeToString(fields)
     }

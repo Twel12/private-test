@@ -20,15 +20,13 @@ package foundation.e.backupappapi
 
 import android.content.ComponentName
 import android.content.Intent
-import foundation.e.data.SetupConsent
 
 object PasswordsApp {
     const val PASSWORD_SYNC_AUTHORITY = "foundation.e.passwords.providers.PasswordSyncProvider"
-    const val EXTRA_IS_RESTORE = "is_restore"
+    const val BACKUP_APP_PACKAGE = "foundation.e.backup"
+    const val BACKUP_KEY = "device-backup"
     internal const val BACKUP_API_ACTION = "foundation.e.passwords.ACTION_BACKUP_APP_PRIVATE_API"
     private const val PASSWORDS_APP_PACKAGE = "foundation.e.passwords"
-    private const val SETUP_ACTIVITY =
-        "com.hegocre.nextcloudpasswords.ui.activities.BackupAppSetupActivity"
     private const val BACKUP_API_SERVICE =
         "com.hegocre.nextcloudpasswords.backupApp.BackupAppService"
     private const val LAUNCH_ACTIVITY =
@@ -36,13 +34,6 @@ object PasswordsApp {
 
     fun backupApiServiceComponent() =
         ComponentName(PASSWORDS_APP_PACKAGE, BACKUP_API_SERVICE)
-
-    fun newE2eeSetupIntent(isRestore: Boolean = false) =
-        Intent(SetupConsent.SETUP_ACTION).apply {
-            component = ComponentName(PASSWORDS_APP_PACKAGE, SETUP_ACTIVITY)
-            putExtra(EXTRA_IS_RESTORE, isRestore)
-            addCategory(Intent.CATEGORY_DEFAULT)
-        }
 
     fun passwordAppIntent() = Intent().setClassName(PASSWORDS_APP_PACKAGE, LAUNCH_ACTIVITY)
 }

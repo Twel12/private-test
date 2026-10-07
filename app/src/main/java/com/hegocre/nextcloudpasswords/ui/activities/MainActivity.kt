@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import coil.Coil
 import coil.ImageLoader
 import coil.disk.DiskCache
@@ -43,6 +44,7 @@ import foundation.e.autofill.PasswordSaveResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -72,6 +74,8 @@ class MainActivity : FragmentActivity() {
 
     private var migrationFlowEnabled = false
 
+    private var unlockForCaller = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (BuildConfig.DEBUG) LogHelper.getInstance()
 
@@ -81,6 +85,15 @@ class MainActivity : FragmentActivity() {
             startActivity(AutoLoginActivity.intent(this, intent))
             finish()
             return
+        }
+
+        unlockForCaller = intent.getBooleanExtra(EXTRA_UNLOCK_FOR_CALLER, false)
+        if (unlockForCaller) {
+            val apiController = ApiController.getInstance(this)
+            lifecycleScope.launch {
+                apiController.sessionOpen.first { it && apiController.isEndToEndEncryptionKeyAvailable() }
+                finishUnlockedForCaller()
+            }
         }
 
         val autofillAssistStructure =
@@ -184,6 +197,13 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (unlockForCaller && ApiController.getInstance(this).let {
+                it.sessionOpen.value && it.isEndToEndEncryptionKeyAvailable()
+            }
+        ) {
+            finishUnlockedForCaller()
+            return
+        }
         if (syncDisabled.onResume()) return
         if (waitingForUnlockInWeb) {
             waitingForUnlockInWeb = false
@@ -248,6 +268,12 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun finishUnlockedForCaller() {
+        if (isFinishing) return
+        setResult(RESULT_OK)
+        finish()
+    }
+
     private fun unlockAccountInWeb() {
         if (openPasswordsWebUnlock(passwordsViewModel)) {
             waitingForUnlockInWeb = true
@@ -285,6 +311,10 @@ class MainActivity : FragmentActivity() {
         finish()
     }
 
+
+    companion object {
+        const val EXTRA_UNLOCK_FOR_CALLER = "foundation.e.passwords.extra.UNLOCK_FOR_CALLER"
+    }
 }
 
 internal data class AutofillSelectionState(

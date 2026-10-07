@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkManager
-import com.hegocre.nextcloudpasswords.backupApp.BackupAppPassword
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
@@ -63,7 +62,6 @@ class ApiController private constructor(context: Context) {
     private val settingsApi = SettingsApi.getInstance(server)
 
     private var sessionCode: String? = null
-    private var sessionVersion = 0L
 
     val csEv1Keychain = MutableLiveData<CSEv1Keychain?>(null)
 
@@ -95,60 +93,8 @@ class ApiController private constructor(context: Context) {
 
     private val workManager = WorkManager.getInstance(context)
 
-    class SessionLease private constructor(
-        private val apiController: ApiController,
-        private val sessionIdentity: SessionIdentity,
-        private val clearStoredKeychainOnClose: Boolean,
-    ) {
-        suspend fun close(): Boolean {
-            return apiController.closeSessionIfCurrent(
-                sessionIdentity = sessionIdentity,
-                clearStoredKeychain = clearStoredKeychainOnClose,
-            )
-        }
-
-        suspend fun <T> use(
-            onCloseFailed: () -> Unit = {},
-            block: suspend () -> T,
-        ): T {
-            return try {
-                block()
-            } finally {
-                if (!close()) {
-                    onCloseFailed()
-                }
-            }
-        }
-
-        companion object {
-            internal fun create(
-                apiController: ApiController,
-                sessionIdentity: SessionIdentity,
-                clearStoredKeychainOnClose: Boolean,
-            ): SessionLease {
-                return SessionLease(
-                    apiController = apiController,
-                    sessionIdentity = sessionIdentity,
-                    clearStoredKeychainOnClose = clearStoredKeychainOnClose,
-                )
-            }
-        }
-    }
-
-    sealed interface TemporarySessionResult {
-        data class Opened(val lease: SessionLease) : TemporarySessionResult
-        data object AlreadyOpen : TemporarySessionResult
-        data object Failed : TemporarySessionResult
-    }
-
-    internal data class SessionIdentity(
-        val sessionCode: String?,
-        val sessionVersion: Long,
-    )
-
     private data class OpenSessionResult(
         val opened: Boolean,
-        val sessionIdentity: SessionIdentity? = null,
     )
 
     init {
@@ -226,17 +172,6 @@ class ApiController private constructor(context: Context) {
         _ssoReauthenticationRequired.value = false
     }
 
-    private fun currentSessionIdentity(): SessionIdentity? {
-        return if (sessionOpen.value) {
-            SessionIdentity(
-                sessionCode = sessionCode,
-                sessionVersion = sessionVersion,
-            )
-        } else {
-            null
-        }
-    }
-
     private fun Result<*>.consumeSsoReauthError(): Boolean {
         val isSsoReauthError =
             this is Result.Error && code == Error.SSO_REAUTHENTICATION_REQUIRED
@@ -290,27 +225,6 @@ class ApiController private constructor(context: Context) {
     )
     suspend fun openSession(masterPassword: String?): Boolean {
         return openSessionForResult(masterPassword).opened
-    }
-
-    suspend fun openTemporarySession(
-        masterPassword: String?,
-        clearStoredKeychainOnClose: Boolean = true,
-    ): TemporarySessionResult {
-        if (sessionOpen.value) return TemporarySessionResult.AlreadyOpen
-        val sessionResult = openSessionForResult(masterPassword)
-        return if (sessionResult.opened) {
-            val sessionIdentity = sessionResult.sessionIdentity
-                ?: return TemporarySessionResult.Failed
-            TemporarySessionResult.Opened(
-                lease = SessionLease.create(
-                    apiController = this,
-                    sessionIdentity = sessionIdentity,
-                    clearStoredKeychainOnClose = clearStoredKeychainOnClose,
-                )
-            )
-        } else {
-            TemporarySessionResult.Failed
-        }
     }
 
     private suspend fun openSessionForResult(
@@ -381,16 +295,8 @@ class ApiController private constructor(context: Context) {
         clearSessionState()
         preferencesManager.setCSEv1Keychain(null)
         publishKeychain(null)
-        sessionVersion++
-        val sessionIdentity = SessionIdentity(
-            sessionCode = null,
-            sessionVersion = sessionVersion,
-        )
         _sessionOpen.emit(true)
-        return OpenSessionResult(
-            opened = true,
-            sessionIdentity = sessionIdentity,
-        )
+        return OpenSessionResult(opened = true)
     }
 
     private fun getOpenedSession(
@@ -435,16 +341,8 @@ class ApiController private constructor(context: Context) {
         sessionCode = newSessionCode
         scheduleKeepAlive(newSessionCode)
 
-        sessionVersion++
-        val sessionIdentity = SessionIdentity(
-            sessionCode = newSessionCode,
-            sessionVersion = sessionVersion,
-        )
         _sessionOpen.emit(true)
-        return OpenSessionResult(
-            opened = true,
-            sessionIdentity = sessionIdentity,
-        )
+        return OpenSessionResult(opened = true)
     }
 
     private fun scheduleKeepAlive(newSessionCode: String) {
@@ -503,22 +401,12 @@ class ApiController private constructor(context: Context) {
         }
     }
 
-    private suspend fun closeSessionIfCurrent(
-        sessionIdentity: SessionIdentity,
-        clearStoredKeychain: Boolean = true
-    ): Boolean {
-        val currentSessionIdentity = currentSessionIdentity() ?: return true
-        if (currentSessionIdentity != sessionIdentity) return true
-        return closeSession(clearStoredKeychain)
-    }
-
     fun clearSession() {
         clearSessionState()
     }
 
     private fun clearSessionState() {
         sessionCode = null
-        sessionVersion++
         workManager.cancelAllWorkByTag(KeepAliveWorker.TAG)
         _sessionOpen.value = false
     }
@@ -591,33 +479,6 @@ class ApiController private constructor(context: Context) {
     }
 
     /**
-     * Reads a user-scoped Passwords setting (typically a `client.*` key). The value is persisted
-     * server-side per user, so it is shared across every device signed into the same account.
-     *
-     * @return [Result.Success] carrying the stored string, or `null` if the key has never been
-     *  set; [Result.Error] on transport/server failure. Callers should distinguish the two so they
-     *  don't treat a transient error as "key never written".
-     */
-    suspend fun getUserSetting(key: String): Result<String?> {
-        if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        val result = withSessionRetry { settingsApi.getUserSetting(key, sessionCode) }
-        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
-        return result
-    }
-
-    /**
-     * Persists a user-scoped Passwords setting (see [getUserSetting]). Best-effort: callers should
-     * treat failures as non-fatal, because the lookup paths that read this setting can fall back
-     * to a local scan and re-persist on a later attempt.
-     */
-    suspend fun setUserSetting(key: String, value: String): Result<Unit> {
-        if (!sessionOpen.value) return Result.Error(Error.API_NO_SESSION)
-        val result = withSessionRetry { settingsApi.setUserSetting(key, value, sessionCode) }
-        if (result.consumeSsoReauthError()) return Result.Error(Error.API_NO_SESSION)
-        return result
-    }
-
-    /**
      * Gets a list of the user folders via the [FoldersApi] class. This can only be called when a session
      * is open, otherwise an error is thrown.
      *
@@ -647,61 +508,6 @@ class ApiController private constructor(context: Context) {
     fun isEndToEndEncryptionKeyAvailable(): Boolean {
         val currentKeychain = currentKeychain() ?: return false
         return currentKeychain.current.isNotBlank()
-    }
-
-    suspend fun createBackupKeys(
-        userName: String,
-        label: String,
-        url: String,
-        password: String
-    ): Boolean {
-        if (!sessionOpen.value) return false
-
-        val currentKeychain = currentKeychain()
-        val currentServerSettings = serverSettings.value
-        if (currentKeychain == null ||
-            currentServerSettings == null ||
-            currentServerSettings.encryptionCse == 0
-        ) return false
-
-        val newPassword = NewPassword(
-            password = password.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            label = label.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            username = userName.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            url = url.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            notes = BackupAppPassword.WARNING.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            customFields = BackupAppPassword.customFieldsJson.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            hash = password.sha1Hash()
-                .take(currentServerSettings.passwordSecurityHash),
-            cseType = CSE_TYPE,
-            cseKey = currentKeychain.current,
-            folder = "",
-            edited = 0,
-            hidden = false,
-            favorite = false
-        )
-
-        val result = withSessionRetry { passwordsApi.create(newPassword, sessionCode) }
-
-        return if (result.consumeSsoReauthError()) false else result is Result.Success
     }
 
     /**

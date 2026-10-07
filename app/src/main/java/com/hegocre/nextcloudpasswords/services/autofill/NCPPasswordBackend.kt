@@ -22,6 +22,14 @@ import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.backupApp.OwnedCredentialResult
+import com.hegocre.nextcloudpasswords.backupApp.OwnedLookup
+import com.hegocre.nextcloudpasswords.backupApp.OwnedSave
+import com.hegocre.nextcloudpasswords.backupApp.ownedCreateAllowed
+import com.hegocre.nextcloudpasswords.backupApp.ownedSaveDecision
+import com.hegocre.nextcloudpasswords.backupApp.toOwnedResult
+import com.hegocre.nextcloudpasswords.backupApp.lookupWithSync
+import com.hegocre.nextcloudpasswords.backupApp.selectOwnedEntry
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
@@ -30,6 +38,7 @@ import com.hegocre.nextcloudpasswords.data.password.UpdatedPassword
 import com.hegocre.nextcloudpasswords.data.user.UserController
 import com.hegocre.nextcloudpasswords.databases.AppDatabase
 import com.hegocre.nextcloudpasswords.utils.MasterPasswordMemoryStore
+import com.hegocre.nextcloudpasswords.utils.Result
 import com.hegocre.nextcloudpasswords.utils.SecureMasterPasswordStore
 import com.hegocre.nextcloudpasswords.utils.decryptPasswords
 import com.hegocre.nextcloudpasswords.utils.encryptValue
@@ -64,7 +73,8 @@ private data class EntryUpdate(
     val packageName: String?,
     val linkedWebsite: String? = null,
     val username: String? = null,
-    val identityKey: String? = null
+    val identityKey: String? = null,
+    val readOnly: Boolean? = null
 )
 
 private data class UpdatedMetadata(
@@ -87,7 +97,7 @@ private sealed interface ExistingSaveSelection {
     data class Update(val password: Password) : ExistingSaveSelection
 }
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
     private val userController = UserController.getInstance(appContext)
@@ -342,6 +352,50 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }
     }
 
+    suspend fun findOwned(packageName: String, key: String): OwnedCredentialResult =
+        withContext(Dispatchers.IO) {
+            val apiController = unlockedApiControllerOrNull()
+                ?: return@withContext OwnedCredentialResult.Locked
+            when (val lookup = lookupOwned(apiController, packageName, key)) {
+                is OwnedLookup.Hit -> OwnedCredentialResult.Found(lookup.password.password)
+                OwnedLookup.Miss -> OwnedCredentialResult.NotFound
+                OwnedLookup.SyncFailed -> OwnedCredentialResult.Failed(retryable = true)
+            }
+        }
+
+    @Suppress("LongParameterList")
+    suspend fun saveOwned(
+        packageName: String,
+        key: String,
+        username: String,
+        secret: String,
+        replace: Boolean,
+        readOnly: Boolean
+    ): OwnedCredentialResult = withContext(Dispatchers.IO) {
+        val apiController = unlockedApiControllerOrNull()
+            ?: return@withContext OwnedCredentialResult.Locked
+        val existing = when (val lookup = lookupOwned(apiController, packageName, key)) {
+            OwnedLookup.SyncFailed -> return@withContext OwnedCredentialResult.Failed(retryable = true)
+            OwnedLookup.Miss -> null
+            is OwnedLookup.Hit -> lookup.password
+        }
+        when (val decision = ownedSaveDecision(existing, secret, username, replace, readOnly)) {
+            OwnedSave.Create -> createOwned(apiController, packageName, key, username, secret, readOnly)
+            is OwnedSave.ReturnStored -> OwnedCredentialResult.Found(decision.secret)
+            OwnedSave.Update -> updateExistingPassword(
+                password = checkNotNull(existing),
+                apiController = apiController,
+                entryUpdate = EntryUpdate(
+                    password = secret,
+                    packageName = packageName,
+                    username = username,
+                    identityKey = key,
+                    readOnly = readOnly
+                )
+            ).toOwnedResult(secret)
+        }
+    }
+
     private fun apiControllerOrNull(): ApiController? {
         if (!userController.isLoggedIn) return null
         return runCatching { ApiController.getInstance(appContext) }.getOrNull()
@@ -378,6 +432,62 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         }
     }
 
+    private suspend fun unlockedApiControllerOrNull(): ApiController? {
+        val apiController = apiControllerOrNull() ?: return null
+        if (!ensureSessionOpen(apiController)) return null
+        return apiController.takeIf { it.isEndToEndEncryptionKeyAvailable() }
+    }
+
+    private suspend fun lookupOwned(
+        apiController: ApiController,
+        packageName: String,
+        key: String
+    ): OwnedLookup = lookupWithSync(
+        lookup = { selectOwnedEntry(decryptIfUnlocked(getVisiblePasswords()), packageName, key) },
+        sync = { syncFromServer(apiController) }
+    )
+
+    private suspend fun syncFromServer(apiController: ApiController): Boolean {
+        val result = apiController.listPasswords()
+        if (result !is Result.Success) return false
+        passwordDatabase.passwordDao.syncWithRemote(result.data)
+        return true
+    }
+
+    @Suppress("LongParameterList")
+    private suspend fun createOwned(
+        apiController: ApiController,
+        packageName: String,
+        key: String,
+        username: String,
+        secret: String,
+        readOnly: Boolean
+    ): OwnedCredentialResult {
+        if (!ownedCreateAllowed(apiController.serverSettings.value?.encryptionCse)) {
+            return OwnedCredentialResult.Failed(retryable = false)
+        }
+        val customFields = NCPAutofillMetadata.withReadOnly(
+            NCPAutofillMetadata.withIdentityKey(
+                NCPAutofillMetadata.withPackage("[]", packageName),
+                key
+            ),
+            readOnly
+        )
+        val created = apiController.createPassword(
+            newPassword(
+                apiController = apiController,
+                label = applicationLabel(packageName) ?: packageName,
+                url = "",
+                username = username,
+                password = secret,
+                customFields = customFields
+            )
+        )
+        if (!created) return OwnedCredentialResult.Failed(retryable = true)
+        syncFromServer(apiController)
+        return OwnedCredentialResult.Found(secret)
+    }
+
     private fun Throwable.invalidatesStoredMasterPassword(): Boolean {
         return this is PWDv1ChallengeMasterKeyInvalidException ||
             this is PWDv1ChallengePasswordException
@@ -390,7 +500,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val candidates = matcher.candidates(request)
         if (candidates.isEmpty()) return emptyList()
 
-        val decrypted = decryptIfUnlocked(passwords).excludeBackupAppKeys()
+        val decrypted = decryptIfUnlocked(passwords).excludeAppManaged()
         return decrypted.filter { password ->
             matcher.matches(password, candidates)
         }
@@ -402,13 +512,13 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private suspend fun getDecryptedVisiblePasswords(): List<Password> {
-        return decryptIfUnlocked(getVisiblePasswords()).excludeBackupAppKeys()
+        return decryptIfUnlocked(getVisiblePasswords()).excludeAppManaged()
     }
 
     private suspend fun decryptIfUnlocked(passwords: List<Password>): List<Password> {
         val apiController = apiControllerOrNull() ?: return emptyList()
         if (!isUnlocked()) return emptyList()
-        return passwords.decryptPasswords(apiController.csEv1Keychain.value)
+        return passwords.decryptPasswords(apiController.currentKeychain())
     }
 
     private fun Password.toPasswordEntry(): PasswordEntry {
@@ -667,10 +777,13 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             ?.takeIf { it.isNotBlank() }
             ?.let { NCPAutofillMetadata.withIdentityKey(withPackage, it) }
             ?: withPackage
+        val withReadOnly = update.readOnly
+            ?.let { NCPAutofillMetadata.withReadOnly(withIdentity, it) }
+            ?: withIdentity
 
         return UpdatedMetadata(
             url = websiteUpdate?.url ?: url,
-            customFields = withIdentity
+            customFields = withReadOnly
         )
     }
 
@@ -680,7 +793,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     ): UpdatedPassword {
         val updatedPassword = entryUpdate.password
         val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
+        val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
@@ -755,13 +868,6 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private fun PasswordSaveRequest.toNewPassword(apiController: ApiController): NewPassword {
-        val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
-        val shouldEncrypt = currentKeychain != null && serverSettings?.encryptionCse != 0
-        val label = saveLabel()
-        val url = saveUrl()
-        val usernameValue = username.orEmpty()
-        val notes = ""
         val packageFields = appPackageNameForLink()?.let { packageName ->
             NCPAutofillMetadata.withPackage("[]", packageName)
         } ?: "[]"
@@ -769,13 +875,36 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             ?.takeIf { it.isNotBlank() }
             ?.let { NCPAutofillMetadata.withIdentityKey(packageFields, it) }
             ?: packageFields
+        return newPassword(
+            apiController = apiController,
+            label = saveLabel(),
+            url = saveUrl(),
+            username = username.orEmpty(),
+            password = password,
+            customFields = customFields
+        )
+    }
+
+    @Suppress("LongParameterList")
+    private fun newPassword(
+        apiController: ApiController,
+        label: String,
+        url: String,
+        username: String,
+        password: String,
+        customFields: String
+    ): NewPassword {
+        val serverSettings = apiController.serverSettings.value
+        val currentKeychain = apiController.currentKeychain()
+        val shouldEncrypt = currentKeychain != null && serverSettings?.encryptionCse != 0
+        val notes = ""
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
 
         return if (shouldEncrypt) {
             NewPassword(
                 password = password.encryptValue(currentKeychain.current, currentKeychain),
                 label = label.encryptValue(currentKeychain.current, currentKeychain),
-                username = usernameValue.encryptValue(currentKeychain.current, currentKeychain),
+                username = username.encryptValue(currentKeychain.current, currentKeychain),
                 url = url.encryptValue(currentKeychain.current, currentKeychain),
                 notes = notes.encryptValue(currentKeychain.current, currentKeychain),
                 customFields = customFields.encryptValue(currentKeychain.current, currentKeychain),
@@ -791,7 +920,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             NewPassword(
                 password = password,
                 label = label,
-                username = usernameValue,
+                username = username,
                 url = url,
                 notes = notes,
                 customFields = customFields,
@@ -857,8 +986,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 }
 
-internal fun List<Password>.excludeBackupAppKeys(): List<Password> {
-    return filterNot(Password::isBackupAppKey)
+internal fun List<Password>.excludeAppManaged(): List<Password> {
+    return filterNot(Password::isAppManaged)
 }
 
 internal fun saveResultForMissingUsername(candidateCount: Int): PasswordSaveResult? {

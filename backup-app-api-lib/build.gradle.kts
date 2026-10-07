@@ -59,13 +59,13 @@ android {
                 create<MavenPublication>("release") {
                     groupId = "foundation.e.passwords"
                     artifactId = "backupappapi"
-                    version = "1.0.6"
+                    version = "2.0.0"
 
                     from(components["release"])
 
                     pom {
                         name = "BackupAppApi"
-                        description = "Library providing a way to fetch e2ee key for backup app"
+                        description = "Lets e/OS apps get and save their own secret in Passwords"
 
                         licenses {
                             license {
