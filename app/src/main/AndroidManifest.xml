@@ -13,12 +13,7 @@
         tools:targetApi="s" />
 
     <permission
-        android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API" />
-
-    <permission
-        android:name="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
+        android:name="foundation.e.passwords.permission.COMPANION_API"
         android:protectionLevel="signature" />
 
     <application
@@ -199,36 +194,18 @@
             tools:ignore="ExportedContentProvider" />
 
         <service
-            android:name=".backupApp.BackupAppService"
+            android:name=".companion.CompanionCredentialService"
             android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API">
+            android:permission="foundation.e.passwords.permission.COMPANION_API">
             <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_BACKUP_APP_PRIVATE_API" />
+                <action android:name="foundation.e.passwords.companion.SERVICE" />
             </intent-filter>
         </service>
 
         <activity
-            android:name=".ui.activities.BackupAppSetupActivity"
-            android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_BACKUP_APP_PRIVATE_API">
-            <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_SETUP_E2EE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".ui.activities.SaveFindMyDeviceCodeActivity"
+            android:name=".companion.CompanionRequestActivity"
             android:excludeFromRecents="true"
-            android:exported="true"
-            android:permission="foundation.e.passwords.PERMISSION_SAVE_CREDENTIAL_API"
-            android:theme="@style/Theme.MurenaAutoFill.Transparent">
-            <intent-filter>
-                <action android:name="foundation.e.passwords.ACTION_SAVE_CREDENTIAL" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
+            android:exported="false" />
     </application>
 
 </manifest>

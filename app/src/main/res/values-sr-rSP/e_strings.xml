@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Ова лозинка се користи више пута</string>
     <string name="password_security_description_leaked">Ова лозинка је небезбедна и може се наћи у хакерским базама података на интернету. Морате је променити и требало би да се уверите да налог за који је користите није компромитован.</string>
     <string name="passwords_floating_action_button">Ново</string>
-    <string name="backup_app_setup_title">Сачувај кључ за шифровање резервне копије</string>
-    <string name="backup_app_setup_cta">Сачувај кључ за шифровање</string>
-    <string name="backup_app_restore_title">Преузми кључ за шифровање резервне копије</string>
-    <string name="backup_app_restore_cta">Преузми кључ за шифровање</string>
-    <string name="backup_app_setup_password_error">Нетачна лозинка. Покушајте поново.</string>
     <string name="enter_password_hint">Унесите лозинку свог Murena Workspace налога</string>
-    <string name="description">Унесите лозинку свог Murena Workspace налога да бисте сачували кључ за шифровање у Murena Passwords</string>
-    <string name="backup_app_restore_description">Унесите лозинку свог Murena Workspace налога да бисте преузели кључ за шифровање из Murena Passwords</string>
     <string name="autofill_password_saved">Лозинка је сачувана</string>
     <string name="autofill_saving_password">Чување лозинке</string>
     <string name="autofill_saving_password_message">Сачекајте док %1$s чува ове акредитиве.</string>

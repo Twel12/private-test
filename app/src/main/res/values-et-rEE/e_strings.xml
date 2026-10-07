@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Seda parooli kasutatakse rohkem kui üks kord</string>
     <string name="password_security_description_leaked">Parool on halb ja selle võib leida internetis olevatest häkkerite andmebaasidest. Sa pead selle muutma ja veenduma, et konto, mille jaoks sa seda kasutad, ei ole sattunud ohtu.</string>
     <string name="passwords_floating_action_button">Uus</string>
-    <string name="backup_app_setup_title">Salvesta varukoopia krüpteerimisvõti</string>
-    <string name="backup_app_setup_cta">Salvesta krüpteerimisvõti</string>
-    <string name="backup_app_restore_title">Hangi varukoopia krüpteerimisvõti</string>
-    <string name="backup_app_restore_cta">Hangi krüpteerimisvõti</string>
-    <string name="backup_app_setup_password_error">Vale parool. Palun proovi uuesti.</string>
     <string name="enter_password_hint">Sisesta oma Murena Workspace parool</string>
-    <string name="description">Sisesta oma Murena Workspace parool, et salvestada krüpteerimisvõti Murena Passwordsisse</string>
-    <string name="backup_app_restore_description">Sisesta oma Murena Workspace parool, et hankida krüpteerimisvõti Murena Passwordsist</string>
     <string name="autofill_password_saved">Parool salvestatud</string>
     <string name="autofill_saving_password">Parooli salvestamine</string>
     <string name="autofill_saving_password_message">Palun oota, kuni %1$s selle sisselogimisandme salvestab.</string>

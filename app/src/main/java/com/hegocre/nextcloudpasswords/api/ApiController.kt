@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkManager
-import com.hegocre.nextcloudpasswords.backupApp.BackupAppPassword
 import com.hegocre.nextcloudpasswords.api.encryption.CSEv1Keychain
 import com.hegocre.nextcloudpasswords.api.encryption.PWDv1Challenge
 import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
@@ -29,8 +28,6 @@ import com.hegocre.nextcloudpasswords.utils.PreferencesManager
 import com.hegocre.nextcloudpasswords.utils.Result
 import com.hegocre.nextcloudpasswords.utils.SsoAccount
 import com.hegocre.nextcloudpasswords.utils.AppPasswordRequest
-import com.hegocre.nextcloudpasswords.utils.encryptValue
-import com.hegocre.nextcloudpasswords.utils.sha1Hash
 import com.nextcloud.android.sso.AccountImporter
 import com.nextcloud.android.sso.helper.SingleAccountHelper
 import kotlinx.coroutines.CoroutineScope
@@ -105,19 +102,6 @@ class ApiController private constructor(context: Context) {
                 sessionIdentity = sessionIdentity,
                 clearStoredKeychain = clearStoredKeychainOnClose,
             )
-        }
-
-        suspend fun <T> use(
-            onCloseFailed: () -> Unit = {},
-            block: suspend () -> T,
-        ): T {
-            return try {
-                block()
-            } finally {
-                if (!close()) {
-                    onCloseFailed()
-                }
-            }
         }
 
         companion object {
@@ -507,9 +491,19 @@ class ApiController private constructor(context: Context) {
         sessionIdentity: SessionIdentity,
         clearStoredKeychain: Boolean = true
     ): Boolean {
-        val currentSessionIdentity = currentSessionIdentity() ?: return true
-        if (currentSessionIdentity != sessionIdentity) return true
-        return closeSession(clearStoredKeychain)
+        if (currentSessionIdentity() != sessionIdentity) return true
+        val closed = sessionIdentity.sessionCode?.let { code -> sessionApi.closeSession(code) } ?: true
+
+        // The close can take as long as the HTTP timeout, so re-check before dropping local
+        // state: another component may have opened a session in the meantime.
+        if (currentSessionIdentity() == sessionIdentity) {
+            clearSession()
+            if (clearStoredKeychain) {
+                preferencesManager.setCSEv1Keychain(null)
+                publishKeychain(null)
+            }
+        }
+        return closed
     }
 
     fun clearSession() {
@@ -649,61 +643,6 @@ class ApiController private constructor(context: Context) {
         return currentKeychain.current.isNotBlank()
     }
 
-    suspend fun createBackupKeys(
-        userName: String,
-        label: String,
-        url: String,
-        password: String
-    ): Boolean {
-        if (!sessionOpen.value) return false
-
-        val currentKeychain = currentKeychain()
-        val currentServerSettings = serverSettings.value
-        if (currentKeychain == null ||
-            currentServerSettings == null ||
-            currentServerSettings.encryptionCse == 0
-        ) return false
-
-        val newPassword = NewPassword(
-            password = password.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            label = label.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            username = userName.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            url = url.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            notes = BackupAppPassword.WARNING.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            customFields = BackupAppPassword.customFieldsJson.encryptValue(
-                currentKeychain.current,
-                currentKeychain
-            ),
-            hash = password.sha1Hash()
-                .take(currentServerSettings.passwordSecurityHash),
-            cseType = CSE_TYPE,
-            cseKey = currentKeychain.current,
-            folder = "",
-            edited = 0,
-            hidden = false,
-            favorite = false
-        )
-
-        val result = withSessionRetry { passwordsApi.create(newPassword, sessionCode) }
-
-        return if (result.consumeSsoReauthError()) false else result is Result.Success
-    }
-
     /**
      * Updates an existing password via the [PasswordsApi] class. This can only be called when a
      * session is open, otherwise an error is thrown.
@@ -728,6 +667,19 @@ class ApiController private constructor(context: Context) {
     suspend fun deletePassword(deletedPassword: DeletedPassword): Boolean {
         if (!sessionOpen.value) return false
         val result = withSessionRetry { passwordsApi.delete(deletedPassword, sessionCode) }
+        if (result.consumeSsoReauthError()) return false
+        return result is Result.Success
+    }
+
+    /**
+     * Restores a password from the trash via the [PasswordsApi] class. This can only be called when
+     * a session is open.
+     *
+     * @return A boolean stating whether the password was restored.
+     */
+    suspend fun restorePassword(id: String): Boolean {
+        if (!sessionOpen.value) return false
+        val result = withSessionRetry { passwordsApi.restore(id, sessionCode) }
         if (result.consumeSsoReauthError()) return false
         return result is Result.Success
     }
