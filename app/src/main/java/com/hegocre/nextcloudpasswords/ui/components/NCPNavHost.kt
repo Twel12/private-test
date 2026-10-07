@@ -117,6 +117,7 @@ fun NCPNavHost(
         if (isAutofillRequest) {
             if (
                 manualWebAutofillWebsite != null &&
+                password.canEdit() &&
                 !NCPAutofillMetadata.hasWebsiteAssociation(password, manualWebAutofillWebsite)
             ) {
                 onManualAutofillChoiceRequested(password, folderPath.toList())

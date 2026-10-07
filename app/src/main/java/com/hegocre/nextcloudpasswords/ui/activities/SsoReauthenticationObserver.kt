@@ -16,7 +16,8 @@ private var lastReauthenticationAt: Long? = null
 fun FragmentActivity.observeSsoReauthenticationRequired(
     passwordsViewModel: PasswordsViewModel,
     replayIntent: Intent? = intent,
-    beforeReauthentication: () -> Unit = {}
+    beforeReauthentication: () -> Unit = {},
+    reauthenticate: (() -> Unit)? = null,
 ) {
     lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -42,6 +43,10 @@ fun FragmentActivity.observeSsoReauthenticationRequired(
                 lastReauthenticationAt = now
 
                 beforeReauthentication()
+                if (reauthenticate != null) {
+                    reauthenticate()
+                    return@collect
+                }
                 startActivity(
                     AutoLoginActivity.reauthenticationIntent(
                         this@observeSsoReauthenticationRequired,

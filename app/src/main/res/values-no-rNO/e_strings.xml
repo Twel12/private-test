@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Dette passordet brukes mer enn én gang</string>
     <string name="password_security_description_leaked">Passordet er dårlig og kan finnes i hackerdatabaser på internett. Du må endre det, og du bør forsikre deg om at kontoen du bruker det for, ikke har blitt kompromittert.</string>
     <string name="passwords_floating_action_button">Ny</string>
-    <string name="backup_app_setup_title">Lagre sikkerhetskopiens krypteringsnøkkel</string>
-    <string name="backup_app_setup_cta">Lagre krypteringsnøkkel</string>
-    <string name="backup_app_restore_title">Hent sikkerhetskopiens krypteringsnøkkel</string>
-    <string name="backup_app_restore_cta">Hent krypteringsnøkkel</string>
-    <string name="backup_app_setup_password_error">Feil passord. Prøv igjen.</string>
     <string name="enter_password_hint">Skriv inn Murena Workspace-passordet ditt</string>
-    <string name="description">Skriv inn Murena Workspace-passordet ditt for å lagre krypteringsnøkkelen i Murena Passwords</string>
-    <string name="backup_app_restore_description">Skriv inn Murena Workspace-passordet ditt for å hente krypteringsnøkkelen fra Murena Passwords</string>
     <string name="autofill_password_saved">Passord lagret</string>
     <string name="autofill_saving_password">Lagrer passord</string>
     <string name="autofill_saving_password_message">Vent mens %1$s lagrer denne innloggingsinformasjonen.</string>

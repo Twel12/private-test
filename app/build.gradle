@@ -128,7 +128,7 @@ dependencies {
     implementation 'androidx.autofill:autofill:1.3.0'
     implementation("androidx.credentials:credentials:1.6.0")
     implementation 'androidx.work:work-runtime-ktx:2.11.2'
-    implementation(project(':backup-app-api-lib'))
+    implementation(project(':companion-api'))
 
     // Nextcloud SSO
     implementation 'foundation.e:Android-SingleSignOn:dff59d8d'

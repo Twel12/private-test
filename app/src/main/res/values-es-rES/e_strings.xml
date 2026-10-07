@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">Esta contraseña se está usando más de una vez</string>
     <string name="password_security_description_leaked">La contraseña es mala y se puede encontrar en bases de datos de hackers en internet. Debes cambiarla y asegurarte de que la cuenta para la que la usas no se ha visto comprometida.</string>
     <string name="passwords_floating_action_button">Nueva</string>
-    <string name="backup_app_setup_title">Guardar clave de cifrado de la copia de seguridad</string>
-    <string name="backup_app_setup_cta">Guardar clave de cifrado</string>
-    <string name="backup_app_restore_title">Recuperar clave de cifrado de la copia de seguridad</string>
-    <string name="backup_app_restore_cta">Recuperar clave de cifrado</string>
-    <string name="backup_app_setup_password_error">Contraseña incorrecta. Inténtalo de nuevo.</string>
     <string name="enter_password_hint">Introduce tu contraseña de Murena Workspace</string>
-    <string name="description">Introduce tu contraseña de Murena Workspace para guardar la clave de cifrado en Murena Passwords</string>
-    <string name="backup_app_restore_description">Introduce tu contraseña de Murena Workspace para recuperar la clave de cifrado de Murena Passwords</string>
     <string name="autofill_password_saved">Contraseña guardada</string>
     <string name="autofill_saving_password">Guardando contraseña</string>
     <string name="autofill_saving_password_message">Espera mientras %1$s guarda esta credencial.</string>

@@ -18,10 +18,12 @@
 package com.hegocre.nextcloudpasswords.services.autofill
 
 import android.content.Context
+import com.hegocre.nextcloudpasswords.R
 import com.hegocre.nextcloudpasswords.api.ApiController
 import com.hegocre.nextcloudpasswords.api.FoldersApi
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengeMasterKeyInvalidException
-import com.hegocre.nextcloudpasswords.api.exceptions.PWDv1ChallengePasswordException
+import com.hegocre.nextcloudpasswords.api.session.SessionFailure
+import com.hegocre.nextcloudpasswords.api.session.invalidatesStoredMasterPassword
+import com.hegocre.nextcloudpasswords.api.session.openSessionOrFailure
 import com.hegocre.nextcloudpasswords.data.password.NewPassword
 import com.hegocre.nextcloudpasswords.data.password.Password
 import com.hegocre.nextcloudpasswords.data.password.PasswordController
@@ -87,7 +89,7 @@ private sealed interface ExistingSaveSelection {
     data class Update(val password: Password) : ExistingSaveSelection
 }
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val appContext = context.applicationContext
     private val userController = UserController.getInstance(appContext)
@@ -95,7 +97,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     private val matcher = NCPAutofillMatcher(appContext)
     private val serverPasswordGenerator = ServerPasswordGenerator(
         loadClient = { apiControllerOrNull() },
-        prepareClient = { apiController -> ensureSessionOpen(apiController) },
+        prepareClient = { apiController -> ensureSessionOpen(apiController) == null },
         isVaultUnlocked = { isUnlocked() },
         isOnline = { appContext.hasActiveNetworkConnection() },
         requestPassword = { apiController ->
@@ -209,7 +211,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
             val apiController = apiControllerOrNull()
                 ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-            if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+            val sessionFailure = ensureSessionOpen(apiController)
+            if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
             ensureInitialPasswordSync()
 
@@ -249,15 +252,14 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             val apiController = apiControllerOrNull()
                 ?: return@withContext VaultUnlockResult.Failed("No account is configured")
 
-            val unlocked = runCatching {
-                apiController.openSession(secret)
-            }.getOrElse { error ->
-                Timber.e(error,"Failed to unlock vault")
-                false
-            }
-
-            if (!unlocked) {
-                return@withContext VaultUnlockResult.Failed("Could not unlock vault")
+            val failure = apiController.openSessionOrFailure(secret)
+            if (failure != null) {
+                Timber.e(
+                    (failure as? SessionFailure.Transport)?.cause,
+                    "Failed to unlock vault: %s",
+                    failure
+                )
+                return@withContext VaultUnlockResult.Failed(failure.userMessage)
             }
 
             MasterPasswordMemoryStore.set(secret)
@@ -304,7 +306,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-        if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+        val sessionFailure = ensureSessionOpen(apiController)
+        if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
         if (selectedCredentialId == null) {
             Timber.d(
@@ -362,25 +365,49 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
             }
     }
 
-    private suspend fun ensureSessionOpen(apiController: ApiController): Boolean {
-        if (apiController.sessionOpen.value) return true
+    /** @return `null` once a session is open, otherwise why it could not be opened. */
+    private suspend fun ensureSessionOpen(apiController: ApiController): SessionFailure? {
+        if (apiController.sessionOpen.value) return null
         val masterPassword = MasterPasswordMemoryStore.get()?.takeIf { it.isNotBlank() }
-            ?: return false
-        return runCatching {
-            apiController.openSession(masterPassword)
-        }.getOrElse { error ->
-            Timber.d("stored master password failed to open session: ${error.javaClass.simpleName}")
-            if (error.invalidatesStoredMasterPassword()) {
-                MasterPasswordMemoryStore.clear()
-                SecureMasterPasswordStore(appContext).clear()
-            }
-            false
+            ?: return SessionFailure.MasterPasswordMissing
+
+        val failure = apiController.openSessionOrFailure(masterPassword) ?: return null
+        Timber.d("stored master password failed to open session: $failure")
+        if (failure.invalidatesStoredMasterPassword) {
+            MasterPasswordMemoryStore.clear()
+            SecureMasterPasswordStore(appContext).clear()
         }
+        return failure
     }
 
-    private fun Throwable.invalidatesStoredMasterPassword(): Boolean {
-        return this is PWDv1ChallengeMasterKeyInvalidException ||
-            this is PWDv1ChallengePasswordException
+    private val SessionFailure.userMessage: String
+        get() = appContext.getString(
+            when (this) {
+                SessionFailure.ClientDeauthorized -> R.string.error_session_client_deauthorized
+
+                SessionFailure.AccountUnauthorized,
+                SessionFailure.SsoReauthenticationRequired ->
+                    R.string.error_session_account_reauthentication
+
+                SessionFailure.NoAccount -> R.string.error_session_no_account
+
+                SessionFailure.MasterPasswordMissing,
+                SessionFailure.MasterPasswordRejected,
+                SessionFailure.AppPasswordRequired,
+                is SessionFailure.Transport -> R.string.error_session_vault_locked
+            }
+        )
+
+    private fun SessionFailure.toSaveResult(): PasswordSaveResult = when (this) {
+        SessionFailure.MasterPasswordMissing,
+        SessionFailure.MasterPasswordRejected,
+        SessionFailure.AppPasswordRequired,
+        SessionFailure.AccountUnauthorized,
+        SessionFailure.ClientDeauthorized,
+        SessionFailure.SsoReauthenticationRequired,
+        is SessionFailure.Transport -> PasswordSaveResult.NeedsUnlock
+
+        SessionFailure.NoAccount -> PasswordSaveResult.Failed(userMessage)
     }
 
     private suspend fun matchingPasswords(
@@ -390,7 +417,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         val candidates = matcher.candidates(request)
         if (candidates.isEmpty()) return emptyList()
 
-        val decrypted = decryptIfUnlocked(passwords).excludeBackupAppKeys()
+        val decrypted = decryptIfUnlocked(passwords).excludeAppOwned()
         return decrypted.filter { password ->
             matcher.matches(password, candidates)
         }
@@ -402,13 +429,13 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 
     private suspend fun getDecryptedVisiblePasswords(): List<Password> {
-        return decryptIfUnlocked(getVisiblePasswords()).excludeBackupAppKeys()
+        return decryptIfUnlocked(getVisiblePasswords()).excludeAppOwned()
     }
 
     private suspend fun decryptIfUnlocked(passwords: List<Password>): List<Password> {
         val apiController = apiControllerOrNull() ?: return emptyList()
         if (!isUnlocked()) return emptyList()
-        return passwords.decryptPasswords(apiController.csEv1Keychain.value)
+        return passwords.decryptPasswords(apiController.currentKeychain())
     }
 
     private fun Password.toPasswordEntry(): PasswordEntry {
@@ -643,7 +670,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private suspend fun createNewPassword(
         request: PasswordSaveRequest,
-        apiController: ApiController
+        apiController: ApiController,
     ): PasswordSaveResult {
         val created = apiController.createPassword(request.toNewPassword(apiController))
         if (!created) {
@@ -680,7 +707,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     ): UpdatedPassword {
         val updatedPassword = entryUpdate.password
         val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
+        val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && cseType == ApiController.CSE_TYPE
         val hashLength = serverSettings?.passwordSecurityHash ?: DEFAULT_PASSWORD_HASH_LENGTH
         val updatedEdited = if (updatedPassword == password) edited else 0
@@ -738,10 +765,14 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
         if (website.isBlank()) {
             return@withContext PasswordSaveResult.Failed("No website available for manual autofill")
         }
+        if (password.isAppOwned()) {
+            return@withContext PasswordSaveResult.Failed("This entry is managed by an app and cannot be edited")
+        }
 
         val apiController = apiControllerOrNull()
             ?: return@withContext PasswordSaveResult.Failed("No account is configured")
-        if (!ensureSessionOpen(apiController)) return@withContext PasswordSaveResult.NeedsUnlock
+        val sessionFailure = ensureSessionOpen(apiController)
+        if (sessionFailure != null) return@withContext sessionFailure.toSaveResult()
 
         updateExistingPassword(
             password = password,
@@ -756,7 +787,7 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
 
     private fun PasswordSaveRequest.toNewPassword(apiController: ApiController): NewPassword {
         val serverSettings = apiController.serverSettings.value
-        val currentKeychain = apiController.csEv1Keychain.value
+        val currentKeychain = apiController.currentKeychain()
         val shouldEncrypt = currentKeychain != null && serverSettings?.encryptionCse != 0
         val label = saveLabel()
         val url = saveUrl()
@@ -857,8 +888,8 @@ class NCPPasswordBackend(context: Context) : MurenaPasswordBackend {
     }
 }
 
-internal fun List<Password>.excludeBackupAppKeys(): List<Password> {
-    return filterNot(Password::isBackupAppKey)
+internal fun List<Password>.excludeAppOwned(): List<Password> {
+    return filterNot(Password::isAppOwned)
 }
 
 internal fun saveResultForMissingUsername(candidateCount: Int): PasswordSaveResult? {

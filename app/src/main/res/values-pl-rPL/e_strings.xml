@@ -16,14 +16,7 @@
     <string name="password_security_description_weak">To hasło jest używane więcej niż raz</string>
     <string name="password_security_description_leaked">To hasło jest słabe i można je znaleźć w bazach danych hakerów w internecie. Musisz je zmienić i upewnić się, że konto, do którego go używasz, nie zostało przejęte.</string>
     <string name="passwords_floating_action_button">Nowe</string>
-    <string name="backup_app_setup_title">Zapisz klucz szyfrowania kopii zapasowej</string>
-    <string name="backup_app_setup_cta">Zapisz klucz szyfrowania</string>
-    <string name="backup_app_restore_title">Pobierz klucz szyfrowania kopii zapasowej</string>
-    <string name="backup_app_restore_cta">Pobierz klucz szyfrowania</string>
-    <string name="backup_app_setup_password_error">Nieprawidłowe hasło. Spróbuj ponownie.</string>
     <string name="enter_password_hint">Wpisz hasło do Murena Workspace</string>
-    <string name="description">Wpisz hasło do Murena Workspace, aby zapisać klucz szyfrowania w Murena Passwords</string>
-    <string name="backup_app_restore_description">Wpisz hasło do Murena Workspace, aby pobrać klucz szyfrowania z Murena Passwords</string>
     <string name="autofill_password_saved">Hasło zapisane</string>
     <string name="autofill_saving_password">Zapisywanie hasła</string>
     <string name="autofill_saving_password_message">Poczekaj, aż %1$s zapisze te dane logowania.</string>
